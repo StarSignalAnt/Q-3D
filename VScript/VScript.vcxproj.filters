@@ -1,0 +1,270 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source">
+      <UniqueIdentifier>{5c4f4edc-f1a3-4f13-8cd1-d4e0dfdd15ed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tokenizer">
+      <UniqueIdentifier>{98e0b64e-b9ff-420a-a9ea-f5fee9550b26}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Parser">
+      <UniqueIdentifier>{bbdfb864-a76a-49d7-bfb8-9f17626b4a58}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Runtime">
+      <UniqueIdentifier>{dc44a446-a75c-4a37-bf08-ed7c423e2093}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Actions">
+      <UniqueIdentifier>{883af32a-38fd-403c-8385-fb53b78130c9}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="framework.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VSource.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="VTokenizer.h">
+      <Filter>Tokenizer</Filter>
+    </ClInclude>
+    <ClInclude Include="VToken.h">
+      <Filter>Tokenizer</Filter>
+    </ClInclude>
+    <ClInclude Include="VTokenStream.h">
+      <Filter>Tokenizer</Filter>
+    </ClInclude>
+    <ClInclude Include="VParser.h">
+      <Filter>Parser</Filter>
+    </ClInclude>
+    <ClInclude Include="VModule.h">
+      <Filter>Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="VName.h">
+      <Filter>Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="VClass.h">
+      <Filter>Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="VVarGroup.h">
+      <Filter>Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="VContext.h">
+      <Filter>Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="VFunction.h">
+      <Filter>Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="VDefineParams.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VExpression.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VParameter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VAction.h">
+      <Filter>Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="VCodeBody.h">
+      <Filter>Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="VVar.h">
+      <Filter>Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="VStatementCall.h">
+      <Filter>Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="VScope.h">
+      <Filter>Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="VCallParameters.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VVarAssign.h">
+      <Filter>Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="VDeclareObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VClassAssign.h">
+      <Filter>Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="VClassCall.h">
+      <Filter>Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="VReturn.h">
+      <Filter>Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="VDeclareArray.h">
+      <Filter>Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="VAssignArray.h">
+      <Filter>Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="VIf.h">
+      <Filter>Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="VWhile.h">
+      <Filter>Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="VFor.h">
+      <Filter>Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="VLambda.h">
+      <Filter>Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="VInvoke.h">
+      <Filter>Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="VForEach.h">
+      <Filter>Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="VEnum.h">
+      <Filter>Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="VSwitch.h">
+      <Filter>Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="VBreak.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VarCreate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="VScript.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VSource.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="VTokenizer.cpp">
+      <Filter>Tokenizer</Filter>
+    </ClCompile>
+    <ClCompile Include="VToken.cpp">
+      <Filter>Tokenizer</Filter>
+    </ClCompile>
+    <ClCompile Include="VTokenStream.cpp">
+      <Filter>Tokenizer</Filter>
+    </ClCompile>
+    <ClCompile Include="VParser.cpp">
+      <Filter>Parser</Filter>
+    </ClCompile>
+    <ClCompile Include="VModule.cpp">
+      <Filter>Runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="VName.cpp">
+      <Filter>Runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="VClass.cpp">
+      <Filter>Runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="VVarGroup.cpp">
+      <Filter>Runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="VContext.cpp">
+      <Filter>Runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="VFunction.cpp">
+      <Filter>Runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="VDefineParams.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VExpression.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VParameter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VAction.cpp">
+      <Filter>Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="VCodeBody.cpp">
+      <Filter>Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="VVar.cpp">
+      <Filter>Runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="VStatementCall.cpp">
+      <Filter>Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="VScope.cpp">
+      <Filter>Runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="VCallParameters.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VVarAssign.cpp">
+      <Filter>Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="VDeclareObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VClassAssign.cpp">
+      <Filter>Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="VClassCall.cpp">
+      <Filter>Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="VReturn.cpp">
+      <Filter>Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="VDeclareArray.cpp">
+      <Filter>Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="VAssignArray.cpp">
+      <Filter>Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="VIf.cpp">
+      <Filter>Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="VWhile.cpp">
+      <Filter>Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="VFor.cpp">
+      <Filter>Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="VLambda.cpp">
+      <Filter>Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="VInvoke.cpp">
+      <Filter>Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="VForEach.cpp">
+      <Filter>Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="VEnum.cpp">
+      <Filter>Runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="VSwitch.cpp">
+      <Filter>Runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="VBreak.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VarCreate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

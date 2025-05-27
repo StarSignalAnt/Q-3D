@@ -1,0 +1,236 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{D5DED9C6-911D-409A-91AB-DEE3F1DD9A63}</ProjectGuid>
+    <Keyword>QtVS_v304</Keyword>
+    <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">10.0</WindowsTargetPlatformVersion>
+    <QtMsBuild Condition="'$(QtMsBuild)'=='' OR !Exists('$(QtMsBuild)\qt.targets')">$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+    <VCToolsVersion>14.40.33807</VCToolsVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt_defaults.props')">
+    <Import Project="$(QtMsBuild)\qt_defaults.props" />
+  </ImportGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="QtSettings">
+    <QtInstall>6.9.0_msvc2022_64</QtInstall>
+    <QtModules>core;gui;widgets</QtModules>
+    <QtBuildConfig>debug</QtBuildConfig>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="QtSettings">
+    <QtInstall>6.9.0_msvc2022_64</QtInstall>
+    <QtModules>core;gui;widgets</QtModules>
+    <QtBuildConfig>release</QtBuildConfig>
+  </PropertyGroup>
+  <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
+    <Message Importance="High" Text="QtMsBuild: could not locate qt.targets, qt.props; project may not build correctly." />
+  </Target>
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Label="Shared" />
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(QtMsBuild)\Qt.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(QtMsBuild)\Qt.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Link>
+      <AdditionalDependencies>Archiver_64d.lib;Diligent-archiver-static.lib;Diligent-basicplatform.lib;Diligent-common.lib;DiligentCore.lib;Diligent-GLAdapterSelector.lib;Diligent-GraphicsAccessories.lib;Diligent-GraphicsEngine.lib;DiligentFX.lib;Diligent-GraphicsEngineD3D11-static.lib;Diligent-GraphicsEngineD3D12-static.lib;Diligent-GraphicsengineD3DBase.lib;Diligent-GraphicsEngineNextGenBase.lib;Diligent-GraphicsEngineOpenGL-static.lib;Diligent-GraphicsEngineVk-static.lib;Diligent-GraphicsTools.lib;Diligent-HLSL2GLSLConverterLib.lib;Diligent-Primitives.lib;Diligent-ShaderTools.lib;Diligent-TextureLoader.lib;DiligentTools.lib;Diligent-Win32Platform.lib;GenericCodeGend.lib;glslangd.lib;glslang-default-resource-limitsd.lib;GraphicsEngineD3D11_64d.lib;GraphicsEngineD3D12_64d.lib;GraphicsEngineOpenGL_64d.lib;GraphicsEngineVk_64d.lib;LibJpeg.lib;libpng16_staticd.lib;libtiff.lib;MachineIndependentd.lib;OSDependentd.lib;spirv-cross-cored.lib;spirv-cross-glsld.lib;SPIRVd.lib;SPIRV-Tools.lib;SPIRV-Tools-diff.lib;SPIRV-Tools-opt.lib;xxhash.lib;zlib.lib;VividEngine.lib;VScript.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Dev\Vivid3D\Libs\DE;C:\Dev\Vivid3D\Vivid3D\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <ClCompile>
+      <PreprocessorDefinitions>PLATFORM_WIN32;D3D12_SUPPORTED;VULKAN_SUPPORTED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\dev\git\DE\DiligentEngine\DiligentFX;C:\dev\git\DE\DiligentEngine\DiligentFX\PostProcess\Common\interface;C:\dev\git\DE\DiligentEngine\DiligentFX\PostProcess\ScreenSpaceReflection\interface;C:\dev\Vivid3D\VScript;C:\Dev\Vivid3D\VividEngine;C:\Dev\git\DE\DiligentEngine\DiligentCore\Graphics\GraphicsTools\interface;C:\Dev\git\DE\DiligentEngine\DiligentCore;C:\Dev\git\DE\DiligentEngine\DiligentTools\TextureLoader\interface;C:\Dev\git\DE\DiligentEngine\DiligentTools\TextureLoader\include;C:\Dev\Assimp\include;C:\Dev\git\DE\DiligentEngine\DiligentCore\Graphics\GraphicsEngine\interface;C:\Dev\git\DE\DiligentEngine\DiligentCore\Common\interface;C:\Dev\git\DE\DiligentEngine\DiligentCore\ThirdParty\SPIRV-Cross\include;C:\Dev\git\DE\DiligentEngine\DiligentCore\Platforms\Basic\include;C:\Dev\git\DE\DiligentEngine\DiligentCore\Graphics\ShaderTools\include;C:\Dev\git\DE\DiligentEngine\DiligentCore\Graphics\HLSL2GLSLConverterLib\include;C:\Dev\git\DE\DiligentEngine\DiligentCore\Graphics\GraphicsEngineD3D12\include;C:\Dev\git\DE\DiligentEngine\DiligentCore\Graphics\GraphicsEngine\include;C:\Dev\git\DE\DiligentEngine\DiligentCore\Common\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\dev\Vivid3D\VScript;C:\Dev\Vivid3D\VividEngine;C:\Dev\git\DE\DiligentEngine\DiligentCore\Graphics\GraphicsTools\interface;C:\Dev\git\DE\DiligentEngine\DiligentCore;C:\Dev\git\DE\DiligentEngine\DiligentTools\TextureLoader\interface;C:\Dev\git\DE\DiligentEngine\DiligentTools\TextureLoader\include;C:\Dev\Assimp\include;C:\Dev\git\DE\DiligentEngine\DiligentCore\Graphics\GraphicsEngine\interface;C:\Dev\git\DE\DiligentEngine\DiligentCore\Common\interface;C:\Dev\git\DE\DiligentEngine\DiligentCore\ThirdParty\SPIRV-Cross\include;C:\Dev\git\DE\DiligentEngine\DiligentCore\Platforms\Basic\include;C:\Dev\git\DE\DiligentEngine\DiligentCore\Graphics\ShaderTools\include;C:\Dev\git\DE\DiligentEngine\DiligentCore\Graphics\HLSL2GLSLConverterLib\include;C:\Dev\git\DE\DiligentEngine\DiligentCore\Graphics\GraphicsEngineD3D12\include;C:\Dev\git\DE\DiligentEngine\DiligentCore\Graphics\GraphicsEngine\include;C:\Dev\git\DE\DiligentEngine\DiligentCore\Common\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <PreprocessorDefinitions>PLATFORM_WIN32;D3D12_SUPPORTED;VULKAN_SUPPORTED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>Archiver_64r.lib;Diligent-archiver-static.lib;Diligent-basicplatform.lib;Diligent-common.lib;DiligentCore.lib;Diligent-GLAdapterSelector.lib;Diligent-GraphicsAccessories.lib;Diligent-GraphicsEngine.lib;Diligent-GraphicsEngineD3D11-static.lib;Diligent-GraphicsEngineD3D12-static.lib;Diligent-GraphicsengineD3DBase.lib;Diligent-GraphicsEngineNextGenBase.lib;Diligent-GraphicsEngineOpenGL-static.lib;Diligent-GraphicsEngineVk-static.lib;Diligent-GraphicsTools.lib;Diligent-HLSL2GLSLConverterLib.lib;Diligent-Primitives.lib;Diligent-ShaderTools.lib;Diligent-TextureLoader.lib;DiligentTools.lib;Diligent-Win32Platform.lib;GenericCodeGen.lib;glslang.lib;glslang-default-resource-limits.lib;GraphicsEngineD3D11_64r.lib;GraphicsEngineD3D12_64r.lib;GraphicsEngineOpenGL_64r.lib;GraphicsEngineVk_64r.lib;LibJpeg.lib;libpng16_static.lib;libtiff.lib;MachineIndependent.lib;OSDependent.lib;spirv-cross-core.lib;spirv-cross-glsl.lib;SPIRV.lib;SPIRV-Tools.lib;SPIRV-Tools-diff.lib;SPIRV-Tools-opt.lib;xxhash.lib;zlib.lib;VividEngine.lib;VScript.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\dev\Vivid3D\Libs\DERelease;C:\dev\Vivid3D\Vivid3D\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
+    <ClCompile>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="Configuration">
+    <ClCompile>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="EditHelp.cpp" />
+    <ClCompile Include="Editor.cpp" />
+    <ClCompile Include="ImportSettings.cpp" />
+    <ClCompile Include="TemplateManager.cpp" />
+    <ClCompile Include="VAnimationList.cpp" />
+    <ClCompile Include="VCinemaEditor.cpp" />
+    <ClCompile Include="VCinemaTimeLine.cpp" />
+    <ClCompile Include="VCodeComplete.cpp" />
+    <ClCompile Include="VColorPreview.cpp" />
+    <ClCompile Include="VContentBrowser.cpp" />
+    <ClCompile Include="VContentView.cpp" />
+    <ClCompile Include="VCreateAnimation.cpp" />
+    <ClCompile Include="VCreateScript.cpp" />
+    <ClCompile Include="VImagePreview.cpp" />
+    <ClCompile Include="VImportModel.cpp" />
+    <ClCompile Include="VMainMenu.cpp" />
+    <ClCompile Include="VNodeFrame.cpp" />
+    <ClCompile Include="VPropEditor.cpp" />
+    <ClCompile Include="VPropertyEditor.cpp" />
+    <ClCompile Include="VSceneGraph.cpp" />
+    <ClCompile Include="VScriptClass.cpp" />
+    <ClCompile Include="VScriptEdit.cpp" />
+    <ClCompile Include="VScriptEditor.cpp" />
+    <ClCompile Include="VSettings.cpp" />
+    <ClCompile Include="VTextEditor.cpp" />
+    <ClCompile Include="VTimeTrack.cpp" />
+    <ClCompile Include="VTools.cpp" />
+    <ClCompile Include="VTrackFrame.cpp" />
+    <ClCompile Include="VTrackNode.cpp" />
+    <ClCompile Include="VTrackTimeLine.cpp" />
+    <ClCompile Include="VTreeView.cpp" />
+    <ClCompile Include="Widgets\VOutput.cpp" />
+    <QtRcc Include="Vivid3D.qrc" />
+    <QtUic Include="VAnimationList.ui" />
+    <QtUic Include="VCinemaEditor.ui" />
+    <QtUic Include="VCinemaTimeLine.ui" />
+    <QtUic Include="VCodeComplete.ui" />
+    <QtUic Include="VColorPreview.ui" />
+    <QtUic Include="VContentBrowser.ui" />
+    <QtUic Include="VContentView.ui" />
+    <QtUic Include="VCreateAnimation.ui" />
+    <QtUic Include="VCreateScript.ui" />
+    <QtUic Include="VElementEditor.ui" />
+    <QtUic Include="VImagePreview.ui" />
+    <QtUic Include="VImportModel.ui" />
+    <QtUic Include="Vivid3D.ui" />
+    <QtMoc Include="Vivid3D.h" />
+    <ClCompile Include="Vivid3D.cpp" />
+    <ClCompile Include="main.cpp" />
+    <None Include="Vivid3D.ico" />
+    <QtUic Include="VMainMenu.ui" />
+    <QtUic Include="VNodeFrame.ui" />
+    <QtUic Include="VPropEditor.ui" />
+    <QtUic Include="VPropertyEditor.ui" />
+    <QtUic Include="VSceneGraph.ui" />
+    <QtUic Include="VScriptClass.ui" />
+    <QtUic Include="VScriptEdit.ui" />
+    <QtUic Include="VSettings.ui" />
+    <QtUic Include="VTextEditor.ui" />
+    <QtUic Include="VTimeTrack.ui" />
+    <QtUic Include="VTools.ui" />
+    <QtUic Include="VTrackFrame.ui" />
+    <QtUic Include="VTrackNode.ui" />
+    <QtUic Include="VTrackTimeLine.ui" />
+    <QtUic Include="VTreeView.ui" />
+    <QtUic Include="Widgets\VOutput.ui" />
+    <ResourceCompile Include="Vivid3D.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="Widgets\VOutput.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="VSceneGraph.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="VTreeView.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="EditHelp.h" />
+    <ClInclude Include="Editor.h" />
+    <ClInclude Include="GeneralInput.h" />
+    <ClInclude Include="ImportSettings.h" />
+    <ClInclude Include="TemplateManager.h" />
+    <QtMoc Include="VTextEditor.h" />
+    <QtMoc Include="VScriptEdit.h" />
+    <QtMoc Include="VCodeComplete.h" />
+    <ClInclude Include="VScriptEditor.h" />
+    <QtMoc Include="VCreateScript.h" />
+    <QtMoc Include="VSettings.h" />
+    <QtMoc Include="VScriptClass.h" />
+    <QtMoc Include="VAnimationList.h" />
+    <QtMoc Include="VImportModel.h" />
+    <QtMoc Include="VCreateAnimation.h" />
+    <QtMoc Include="VTrackFrame.h" />
+    <QtMoc Include="VTrackTimeLine.h" />
+    <QtMoc Include="VTrackNode.h" />
+    <QtMoc Include="VNodeFrame.h" />
+    <QtMoc Include="VTimeTrack.h" />
+    <QtMoc Include="VCinemaEditor.h" />
+    <QtMoc Include="VCinemaTimeLine.h" />
+    <QtMoc Include="VMainMenu.h" />
+    <QtMoc Include="VColorPreview.h" />
+    <QtMoc Include="VImagePreview.h" />
+    <QtMoc Include="VPropEditor.h" />
+    <QtMoc Include="VPropertyEditor.h" />
+    <QtMoc Include="VContentView.h" />
+    <QtMoc Include="VContentBrowser.h" />
+    <QtMoc Include="VTools.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
+    <Import Project="$(QtMsBuild)\qt.targets" />
+  </ImportGroup>
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

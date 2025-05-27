@@ -1,0 +1,537 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Scene">
+      <UniqueIdentifier>{049112e2-7d7d-4701-b56f-1dff0689bbf8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scene\Nodes">
+      <UniqueIdentifier>{cd84cd61-2ec6-4e5d-9ca7-52dae47592d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Mesh">
+      <UniqueIdentifier>{ee52f5d8-03b6-418d-98e7-ee3bef48f23f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Buffer">
+      <UniqueIdentifier>{1c8f5e2b-85ef-4f71-8ddd-0e849d3ebf8a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Import">
+      <UniqueIdentifier>{7553831a-a26f-47be-9379-42bff18afd4c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine">
+      <UniqueIdentifier>{0669334a-54f4-4ce2-821b-f60b4ef9b1b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Material">
+      <UniqueIdentifier>{321b511d-943e-4dec-af53-556a005a48ed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Texture2D">
+      <UniqueIdentifier>{809a1d87-be42-40e9-abc7-aed56af8e488}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Helper">
+      <UniqueIdentifier>{12bdfc1d-57a8-4359-a636-c15192bac589}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RenderTarget">
+      <UniqueIdentifier>{82fb01f7-94b0-4a09-82cd-4d192c684080}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Renderers">
+      <UniqueIdentifier>{a02f214b-dc7f-482a-9421-ab5ba0e93133}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File">
+      <UniqueIdentifier>{fadcb192-64eb-4fc3-b953-e8eba2a26640}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Maths">
+      <UniqueIdentifier>{2671fc73-f4ac-45a2-8c39-385ae557d772}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Draw">
+      <UniqueIdentifier>{79435846-f932-4f10-960d-8edeb8600a6f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Script">
+      <UniqueIdentifier>{a08544c0-7e3a-443c-8a51-3c03b4643b9d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Particles">
+      <UniqueIdentifier>{cb7cd783-2876-4842-a65e-c0094a8ccbfb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Cuda">
+      <UniqueIdentifier>{3c140935-ca68-4228-80b0-10ed87f87b3b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Octree">
+      <UniqueIdentifier>{f5ef9e20-1b22-453f-b016-ae862e0fa933}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Anim">
+      <UniqueIdentifier>{32cb1ba0-b3be-4e4c-94d7-4d945bea737a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scene\Nodes\Terrain">
+      <UniqueIdentifier>{cb4fc86b-d0fc-436e-961c-7d3704075cc1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Pixels">
+      <UniqueIdentifier>{c9910251-fa08-4f57-ab66-6cbe0243d2f1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Cine">
+      <UniqueIdentifier>{0500e369-3c40-4920-925a-f5715c5a270c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PP">
+      <UniqueIdentifier>{3fa0cd0a-6004-4d0a-b943-93ba83714165}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PP\Processes">
+      <UniqueIdentifier>{8df2eb6a-d56e-4f0f-8e32-8622d9bd074b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PP\Materials">
+      <UniqueIdentifier>{0d3b3d68-3e9b-4103-9cff-fa41f86a3c8b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Renderer">
+      <UniqueIdentifier>{c82a0b43-dcc5-4430-88bf-255de907a6ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Renderer\RTX">
+      <UniqueIdentifier>{dafe7549-fe5d-40ce-877c-b49ee5d4f341}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Settings">
+      <UniqueIdentifier>{1919c063-037c-4902-9d69-97d8f3ba5e9a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="framework.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneGraph.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Node.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="NodeEntity.h">
+      <Filter>Scene\Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh3D.h">
+      <Filter>Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="data.h">
+      <Filter>Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshBuffer.h">
+      <Filter>Buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Importer.h">
+      <Filter>Import</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialBase.h">
+      <Filter>Material</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture2D.h">
+      <Filter>Texture2D</Filter>
+    </ClInclude>
+    <ClInclude Include="NodeCamera.h">
+      <Filter>Scene\Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="MathsHelp.h">
+      <Filter>Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="NodeLight.h">
+      <Filter>Scene\Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialMeshLight.h">
+      <Filter>Material</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialDepth.h">
+      <Filter>Material</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderTargetCube.h">
+      <Filter>RenderTarget</Filter>
+    </ClInclude>
+    <ClInclude Include="CubeRenderer.h">
+      <Filter>Renderers</Filter>
+    </ClInclude>
+    <ClInclude Include="VFile.h">
+      <Filter>File</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshLines.h">
+      <Filter>Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshLinesBuffer.h">
+      <Filter>Buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialMeshLines.h">
+      <Filter>Material</Filter>
+    </ClInclude>
+    <ClInclude Include="Quat.h">
+      <Filter>Maths</Filter>
+    </ClInclude>
+    <ClInclude Include="Draw2D.h">
+      <Filter>Draw</Filter>
+    </ClInclude>
+    <ClInclude Include="Material2D.h">
+      <Filter>Material</Filter>
+    </ClInclude>
+    <ClInclude Include="ScriptHost.h">
+      <Filter>Script</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleEffector.h">
+      <Filter>Particles</Filter>
+    </ClInclude>
+    <ClInclude Include="FileHelp.h">
+      <Filter>Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="Intersections.h">
+      <Filter>Cuda</Filter>
+    </ClInclude>
+    <ClInclude Include="CLBase.h">
+      <Filter>Cuda</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneOctree.h">
+      <Filter>Octree</Filter>
+    </ClInclude>
+    <ClInclude Include="OctNode.h">
+      <Filter>Octree</Filter>
+    </ClInclude>
+    <ClInclude Include="Bounds.h">
+      <Filter>Maths</Filter>
+    </ClInclude>
+    <ClInclude Include="NodeActor.h">
+      <Filter>Scene\Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="BoneInfo.h">
+      <Filter>Anim</Filter>
+    </ClInclude>
+    <ClInclude Include="Animation.h">
+      <Filter>Anim</Filter>
+    </ClInclude>
+    <ClInclude Include="Bone.h">
+      <Filter>Anim</Filter>
+    </ClInclude>
+    <ClInclude Include="Animator.h">
+      <Filter>Anim</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialActorLight.h">
+      <Filter>Material</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialActorDepth.h">
+      <Filter>Material</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialMeshPBR.h">
+      <Filter>Material</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureCube.h">
+      <Filter>Texture2D</Filter>
+    </ClInclude>
+    <ClInclude Include="NodeTerrain.h">
+      <Filter>Scene\Nodes\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="TerrainLayer.h">
+      <Filter>Scene\Nodes\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="PixelMap.h">
+      <Filter>Pixels</Filter>
+    </ClInclude>
+    <ClInclude Include="TerrainMesh.h">
+      <Filter>Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="TerrainMeshBuffer.h">
+      <Filter>Buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialTerrain.h">
+      <Filter>Material</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialTerrainDepth.h">
+      <Filter>Material</Filter>
+    </ClInclude>
+    <ClInclude Include="Cinematic.h">
+      <Filter>Cine</Filter>
+    </ClInclude>
+    <ClInclude Include="CineTrack.h">
+      <Filter>Cine</Filter>
+    </ClInclude>
+    <ClInclude Include="TrackKeyFrame.h">
+      <Filter>Cine</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderTarget2D.h">
+      <Filter>RenderTarget</Filter>
+    </ClInclude>
+    <ClInclude Include="PostProcessing.h">
+      <Filter>PP</Filter>
+    </ClInclude>
+    <ClInclude Include="PostProcess.h">
+      <Filter>PP</Filter>
+    </ClInclude>
+    <ClInclude Include="PPBloom.h">
+      <Filter>PP\Processes</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialColorLimit.h">
+      <Filter>PP\Materials</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialBlur.h">
+      <Filter>PP\Materials</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialCombine.h">
+      <Filter>PP\Materials</Filter>
+    </ClInclude>
+    <ClInclude Include="NitroRenderer.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="RendererBase.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="SolarisRenderer.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="RTPipeline.h">
+      <Filter>Renderer\RTX</Filter>
+    </ClInclude>
+    <ClInclude Include="RTMesh.h">
+      <Filter>Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="PPEmissive.h">
+      <Filter>PP\Processes</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialEmissive.h">
+      <Filter>Material</Filter>
+    </ClInclude>
+    <ClInclude Include="GameInput.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EngineSettings.h">
+      <Filter>Settings</Filter>
+    </ClInclude>
+    <ClInclude Include="PPSSR.h">
+      <Filter>PP\Processes</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialSSR.h">
+      <Filter>PP\Materials</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureDepth.h">
+      <Filter>Texture2D</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="VividEngine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneGraph.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Node.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="NodeEntity.cpp">
+      <Filter>Scene\Nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh3D.cpp">
+      <Filter>Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshBuffer.cpp">
+      <Filter>Buffer</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Importer.cpp">
+      <Filter>Import</Filter>
+    </ClCompile>
+    <ClCompile Include="MaterialBase.cpp">
+      <Filter>Material</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture2D.cpp">
+      <Filter>Texture2D</Filter>
+    </ClCompile>
+    <ClCompile Include="NodeCamera.cpp">
+      <Filter>Scene\Nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="MathsHelp.cpp">
+      <Filter>Helper</Filter>
+    </ClCompile>
+    <ClCompile Include="NodeLight.cpp">
+      <Filter>Scene\Nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="MaterialMeshLight.cpp">
+      <Filter>Material</Filter>
+    </ClCompile>
+    <ClCompile Include="MaterialDepth.cpp">
+      <Filter>Material</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderTargetCube.cpp">
+      <Filter>RenderTarget</Filter>
+    </ClCompile>
+    <ClCompile Include="CubeRenderer.cpp">
+      <Filter>Renderers</Filter>
+    </ClCompile>
+    <ClCompile Include="VFile.cpp">
+      <Filter>File</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshLines.cpp">
+      <Filter>Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshLinesBuffer.cpp">
+      <Filter>Buffer</Filter>
+    </ClCompile>
+    <ClCompile Include="MaterialMeshLines.cpp">
+      <Filter>Material</Filter>
+    </ClCompile>
+    <ClCompile Include="Quat.cpp">
+      <Filter>Maths</Filter>
+    </ClCompile>
+    <ClCompile Include="Draw2D.cpp">
+      <Filter>Draw</Filter>
+    </ClCompile>
+    <ClCompile Include="Material2D.cpp">
+      <Filter>Material</Filter>
+    </ClCompile>
+    <ClCompile Include="ScriptHost.cpp">
+      <Filter>Script</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleEffector.cpp">
+      <Filter>Particles</Filter>
+    </ClCompile>
+    <ClCompile Include="FileHelp.cpp">
+      <Filter>Helper</Filter>
+    </ClCompile>
+    <ClCompile Include="Intersections.cpp">
+      <Filter>Cuda</Filter>
+    </ClCompile>
+    <ClCompile Include="CLBase.cpp">
+      <Filter>Cuda</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneOctree.cpp">
+      <Filter>Octree</Filter>
+    </ClCompile>
+    <ClCompile Include="OctNode.cpp">
+      <Filter>Octree</Filter>
+    </ClCompile>
+    <ClCompile Include="Bounds.cpp">
+      <Filter>Maths</Filter>
+    </ClCompile>
+    <ClCompile Include="NodeActor.cpp">
+      <Filter>Scene\Nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="BoneInfo.cpp">
+      <Filter>Anim</Filter>
+    </ClCompile>
+    <ClCompile Include="Animation.cpp">
+      <Filter>Anim</Filter>
+    </ClCompile>
+    <ClCompile Include="Bone.cpp">
+      <Filter>Anim</Filter>
+    </ClCompile>
+    <ClCompile Include="Animator.cpp">
+      <Filter>Anim</Filter>
+    </ClCompile>
+    <ClCompile Include="MaterialActorLight.cpp">
+      <Filter>Material</Filter>
+    </ClCompile>
+    <ClCompile Include="MaterialActorDepth.cpp">
+      <Filter>Material</Filter>
+    </ClCompile>
+    <ClCompile Include="MaterialMeshPBR.cpp">
+      <Filter>Material</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureCube.cpp">
+      <Filter>Texture2D</Filter>
+    </ClCompile>
+    <ClCompile Include="NodeTerrain.cpp">
+      <Filter>Scene\Nodes\Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="TerrainLayer.cpp">
+      <Filter>Scene\Nodes\Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="PixelMap.cpp">
+      <Filter>Pixels</Filter>
+    </ClCompile>
+    <ClCompile Include="TerrainMesh.cpp">
+      <Filter>Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="TerrainMeshBuffer.cpp">
+      <Filter>Buffer</Filter>
+    </ClCompile>
+    <ClCompile Include="MaterialTerrain.cpp">
+      <Filter>Material</Filter>
+    </ClCompile>
+    <ClCompile Include="MaterialTerrainDepth.cpp">
+      <Filter>Material</Filter>
+    </ClCompile>
+    <ClCompile Include="Cinematic.cpp">
+      <Filter>Cine</Filter>
+    </ClCompile>
+    <ClCompile Include="CineTrack.cpp">
+      <Filter>Cine</Filter>
+    </ClCompile>
+    <ClCompile Include="TrackKeyFrame.cpp">
+      <Filter>Cine</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderTarget2D.cpp">
+      <Filter>RenderTarget</Filter>
+    </ClCompile>
+    <ClCompile Include="PostProcessing.cpp">
+      <Filter>PP</Filter>
+    </ClCompile>
+    <ClCompile Include="PostProcess.cpp">
+      <Filter>PP</Filter>
+    </ClCompile>
+    <ClCompile Include="PPBloom.cpp">
+      <Filter>PP\Processes</Filter>
+    </ClCompile>
+    <ClCompile Include="MaterialColorLimit.cpp">
+      <Filter>PP\Materials</Filter>
+    </ClCompile>
+    <ClCompile Include="MaterialBlur.cpp">
+      <Filter>PP\Materials</Filter>
+    </ClCompile>
+    <ClCompile Include="MaterialCombine.cpp">
+      <Filter>PP\Materials</Filter>
+    </ClCompile>
+    <ClCompile Include="NitroRenderer.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="RendererBase.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="SolarisRenderer.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="RTPipeline.cpp">
+      <Filter>Renderer\RTX</Filter>
+    </ClCompile>
+    <ClCompile Include="RTMesh.cpp">
+      <Filter>Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="PPEmissive.cpp">
+      <Filter>PP\Processes</Filter>
+    </ClCompile>
+    <ClCompile Include="MaterialEmissive.cpp">
+      <Filter>Material</Filter>
+    </ClCompile>
+    <ClCompile Include="GameInput.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EngineSettings.cpp">
+      <Filter>Settings</Filter>
+    </ClCompile>
+    <ClCompile Include="PPSSR.cpp">
+      <Filter>PP\Processes</Filter>
+    </ClCompile>
+    <ClCompile Include="MaterialSSR.cpp">
+      <Filter>PP\Materials</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureDepth.cpp">
+      <Filter>Texture2D</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+</Project>
