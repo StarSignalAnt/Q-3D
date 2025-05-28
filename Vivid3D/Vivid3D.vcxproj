@@ -15,8 +15,7 @@
     <Keyword>QtVS_v304</Keyword>
     <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">10.0</WindowsTargetPlatformVersion>
     <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">10.0</WindowsTargetPlatformVersion>
-    <QtMsBuild Condition="'$(QtMsBuild)'=='' OR !Exists('$(QtMsBuild)\qt.targets')"
-      >$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>
+    <QtMsBuild Condition="'$(QtMsBuild)'=='' OR !Exists('$(QtMsBuild)\qt.targets')">$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
@@ -37,20 +36,17 @@
     <Import Project="$(QtMsBuild)\qt_defaults.props" />
   </ImportGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="QtSettings">
-    <QtInstall>6.9.0_msvc2022_64</QtInstall>
+    <QtInstall>6.10.0_msvc2022_64</QtInstall>
     <QtModules>core;gui;widgets</QtModules>
     <QtBuildConfig>debug</QtBuildConfig>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="QtSettings">
-    <QtInstall>6.9.0_msvc2022_64</QtInstall>
+    <QtInstall>6.10.0_msvc2022_64</QtInstall>
     <QtModules>core;gui;widgets</QtModules>
     <QtBuildConfig>release</QtBuildConfig>
   </PropertyGroup>
-  <Target Name="QtMsBuildNotFound"
-    BeforeTargets="CustomBuild;ClCompile"
-    Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
-    <Message Importance="High"
-      Text="QtMsBuild: could not locate qt.targets, qt.props; project may not build correctly." />
+  <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
+    <Message Importance="High" Text="QtMsBuild: could not locate qt.targets, qt.props; project may not build correctly." />
   </Target>
   <ImportGroup Label="ExtensionSettings" />
   <ImportGroup Label="Shared" />
@@ -67,6 +63,17 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
   </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\git\DiligentEngine\DiligentCore;C:\git\DiligentEngine\DiligentFX;C:\git\DiligentEngine\DiligentFX\PostProcess\Common\interface;C:\DiligentEngine\DiligentFX\PostProcess\ScreenSpaceReflection\interface;C:\dev\Vivid3D\VScript;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsTools\interface;C:git\DiligentEngine\DiligentCore;C:\git\DiligentEngine\DiligentTools\TextureLoader\interface;C:\git\DiligentEngine\DiligentTools\TextureLoader\include;C:\Dev\Assimp\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngine\interface;C:\git\DiligentEngine\DiligentCore\Common\interface;C:\git\DiligentEngine\DiligentCore\ThirdParty\SPIRV-Cross\include;C:\git\DiligentEngine\DiligentCore\Platforms\Basic\include;C:\git\DiligentEngine\DiligentCore\Graphics\ShaderTools\include;C:\\git\DiligentEngine\DiligentCore\Graphics\HLSL2GLSLConverterLib\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngineD3D12\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngine\include;C:\git\DiligentEngine\DiligentCore\Common\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>PLATFORM_WIN32;D3D12_SUPPORTED;VULKAN_SUPPORTED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>C:\Vivid3D\Vivid3D\x64\Debug;C:\Vivid3D\Deps\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>dxgi.lib;d3dcompiler.lib;Archiver_64d.lib;Diligent-archiver-static.lib;Diligent-basicplatform.lib;Diligent-common.lib;DiligentCore.lib;Diligent-GLAdapterSelector.lib;Diligent-GraphicsAccessories.lib;Diligent-GraphicsEngine.lib;DiligentFX.lib;Diligent-GraphicsEngineD3D11-static.lib;Diligent-GraphicsEngineD3D12-static.lib;Diligent-GraphicsengineD3DBase.lib;Diligent-GraphicsEngineNextGenBase.lib;Diligent-GraphicsEngineOpenGL-static.lib;Diligent-GraphicsEngineVk-static.lib;Diligent-GraphicsTools.lib;Diligent-HLSL2GLSLConverterLib.lib;Diligent-Primitives.lib;Diligent-ShaderTools.lib;Diligent-TextureLoader.lib;DiligentTools.lib;Diligent-Win32Platform.lib;GenericCodeGend.lib;glslangd.lib;glslang-default-resource-limitsd.lib;GraphicsEngineD3D11_64d.lib;GraphicsEngineD3D12_64d.lib;GraphicsEngineOpenGL_64d.lib;GraphicsEngineVk_64d.lib;LibJpeg.lib;libpng16_staticd.lib;libtiff.lib;MachineIndependentd.lib;OSDependentd.lib;spirv-cross-cored.lib;spirv-cross-glsld.lib;SPIRVd.lib;SPIRV-Tools.lib;SPIRV-Tools-diff.lib;SPIRV-Tools-opt.lib;xxhash.lib;zlib.lib;VividEngine.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
     <ClCompile>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -96,13 +103,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <QtRcc Include="Vivid3D.qrc"/>
-    <QtUic Include="Vivid3D.ui"/>
-    <QtMoc Include="Vivid3D.h"/>
-    <ClCompile Include="Vivid3D.cpp"/>
-    <ClCompile Include="main.cpp"/>
+    <QtRcc Include="Vivid3D.qrc" />
+    <QtUic Include="PropertiesEditor.ui" />
+    <QtUic Include="SceneView.ui" />
+    <QtUic Include="Vivid3D.ui" />
+    <QtMoc Include="Vivid3D.h" />
+    <ClCompile Include="PropertiesEditor.cpp" />
+    <ClCompile Include="SceneView.cpp" />
+    <ClCompile Include="Vivid3D.cpp" />
+    <ClCompile Include="main.cpp" />
     <None Include="Vivid3D.ico" />
     <ResourceCompile Include="Vivid3D.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="SceneView.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="PropertiesEditor.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

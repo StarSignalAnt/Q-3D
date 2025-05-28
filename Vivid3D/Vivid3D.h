@@ -2,6 +2,8 @@
 
 #include <QtWidgets/QMainWindow>
 #include "ui_Vivid3D.h"
+#include "SceneView.h"
+#include "PropertiesEditor.h"
 
 class Vivid3D : public QMainWindow
 {

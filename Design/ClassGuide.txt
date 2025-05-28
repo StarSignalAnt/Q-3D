@@ -1,0 +1,6 @@
+
+- (Vivid3D)
+
+- SceneView > 3D View of the scene, for editing.
+
+- (Vivid3D).cpp > Main window class, where sceneview is viewed and other windows are docked.
