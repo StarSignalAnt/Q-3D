@@ -1,6 +1,6 @@
 #include "SceneView.h"
 #include <QPainter>
-
+#include "Vivid.h"
 //Diligent Engine includes
 
 
@@ -33,6 +33,12 @@
 #include "DeviceContext.h"
 #include "SwapChain.h"
 #include "BasicMath.hpp"
+#include "SceneGraph.h"
+#include "GraphNode.h"
+#include "Importer.h"
+#include "Texture2D.h"
+#include "StaticMeshComponent.h"
+#include "MaterialBasic3D.h"
 
 using namespace Diligent;
 
@@ -46,6 +52,27 @@ SceneView::SceneView(QWidget *parent)
 	//ui.setupUi(this);
 	setWindowTitle("Scene View");
     CreateGraphics();
+
+    m_SceneGraph = new SceneGraph;
+
+    m_Test1 = Importer::ImportEntity("test/test.fbx");
+    m_SceneGraph->SetRootNode(m_Test1);
+
+    auto cam = m_SceneGraph->GetCamera();
+
+    cam->SetPosition(glm::vec3(0, 0, 4));
+    auto tex1 = new Texture2D("test/tex1.png");
+    
+    auto m1 = m_Test1->GetComponent<StaticMeshComponent>();
+    
+    for (auto& sub : m1->GetSubMeshes()) {
+
+        auto rmat = (MaterialBasic3D*)sub.m_Material;
+        rmat->SetColorTexture(tex1);
+
+    }
+    m_Test1->SetRotation(glm::vec3(0, 45, 0));
+
 }
 
 SceneView::~SceneView()
@@ -67,6 +94,7 @@ void SceneView::paintEvent(QPaintEvent* event)
     pContext->ClearRenderTarget(pRTV, ClearColor, RESOURCE_STATE_TRANSITION_MODE_VERIFY);
     pContext->ClearDepthStencil(pSwapchain->GetDepthBufferDSV(), CLEAR_DEPTH_FLAG, 1.0f, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
+    m_SceneGraph->Render();
 
     pSwapchain->Present();
 
@@ -100,7 +128,14 @@ void SceneView::CreateGraphics() {
     pFactoryD3D12->CreateSwapChainD3D12(m_pDevice, m_pImmediateContext, SCDesc, FullScreenModeDesc{}, Window, &m_pSwapChain);
     pFactoryD3D12->CreateDefaultShaderSourceStreamFactory("engine\\shader\\", &m_pShaderFactory);
 
+	Vivid::m_pImmediateContext = m_pImmediateContext;
+	Vivid::m_pDevice = m_pDevice;
+	Vivid::m_pShaderFactory = m_pShaderFactory;
+	Vivid::m_pSwapChain = m_pSwapChain;
+
+
 }
+
 
 
 void SceneView::resizeEvent(QResizeEvent* event)
@@ -117,7 +152,8 @@ void SceneView::resizeEvent(QResizeEvent* event)
     int physicalHeight = static_cast<int>(newSize.height() * dpr);
 
     m_pSwapChain->Resize(static_cast<Uint32>(physicalWidth), static_cast<Uint32>(physicalHeight));
-
+	Vivid::SetFrameWidth(physicalWidth);
+	Vivid::SetFrameHeight(physicalHeight);
 
 
 

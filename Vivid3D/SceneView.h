@@ -36,6 +36,9 @@
 
 using namespace Diligent;
 
+class SceneGraph;
+class GraphNode;
+
 #include <QResizeEvent>
 
 class SceneView : public QWidget
@@ -59,5 +62,10 @@ private:
 	RefCntAutoPtr<ISwapChain>     m_pSwapChain;
 	RefCntAutoPtr<IShaderSourceInputStreamFactory> m_pShaderFactory;
 	Ui::SceneViewClass ui;
+
+	//TEST members
+	GraphNode* m_Test1;
+	SceneGraph* m_SceneGraph;
+
 };
 

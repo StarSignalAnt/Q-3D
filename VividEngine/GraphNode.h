@@ -30,6 +30,12 @@ public:
 		}
 		return nullptr;
 	}
+	void Render(GraphNode* camera);
+	glm::mat4 GetWorldMatrix();
+
+	void SetPosition(glm::vec3 position);
+	void SetRotation(glm::vec3 rotation);
+
 private:
 
 	glm::vec3 m_Position;

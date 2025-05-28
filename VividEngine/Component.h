@@ -17,8 +17,8 @@ public:
 
     // Optional virtual methods to override
     virtual void OnUpdate(float deltaTime) {}
-    virtual void OnRender() {}
-private:
+    virtual void OnRender(GraphNode* camera) {}
+protected:
 
     // Pointer to the owner node
     GraphNode* m_Owner = nullptr;

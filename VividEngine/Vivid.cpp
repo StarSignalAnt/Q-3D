@@ -1,4 +1,4 @@
-#include "pch.h"
+
 #include "Vivid.h"
 
 RefCntAutoPtr<IRenderDevice>  Vivid::m_pDevice;
