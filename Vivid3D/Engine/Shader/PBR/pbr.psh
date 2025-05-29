@@ -22,6 +22,10 @@ cbuffer Constants
     float4 g_LightColor;
     float4 g_LightIntensity;
     float4 g_LightRange;
+    
+    // New parameters for enhancements
+    float4 g_ToneMapParams;  // x: Exposure, y: Gamma, z: AmbientStrength, w: unused
+    float4 g_AmbientColor;   // Ambient light color (w component unused)
 };
 
 struct PSInput {
@@ -38,6 +42,34 @@ struct PSOutput {
     float4 Color : SV_TARGET;
 };
 
+// Tone mapping functions
+float3 ReinhardToneMapping(float3 color)
+{
+    return color / (color + float3(1.0, 1.0, 1.0));
+}
+
+float3 FilmicToneMapping(float3 color)
+{
+    color = max(float3(0.0, 0.0, 0.0), color - float3(0.004, 0.004, 0.004));
+    color = (color * (6.2 * color + 0.5)) / (color * (6.2 * color + 1.7) + 0.06);
+    return color;
+}
+
+float3 ACESFilmicToneMapping(float3 color)
+{
+    float a = 2.51;
+    float b = 0.03;
+    float c = 2.43;
+    float d = 0.59;
+    float e = 0.14;
+    return saturate((color * (a * color + b)) / (color * (c * color + d) + e));
+}
+
+float3 ExposureToneMapping(float3 color, float exposure)
+{
+    return float3(1.0, 1.0, 1.0) - exp(-color * exposure);
+}
+
 // Unpacks normal map and corrects green-channel handedness
 float3 getNormalFromMap(float3 normalMap, float3 worldNormal, float3 worldTangent, float3 worldBinormal)
 {
@@ -48,12 +80,12 @@ float3 getNormalFromMap(float3 normalMap, float3 worldNormal, float3 worldTangen
 
 float DistributionGGX(float3 N, float3 H, float rough)
 {
-    float a  = rough * rough;
+    float a = rough * rough;
     float a2 = a * a;
-    float NdotH = max(dot(N,H),0.0);
+    float NdotH = max(dot(N, H), 0.0);
     float NdotH2 = NdotH * NdotH;
 
-    float num   = a2;
+    float num = a2;
     float denom = (NdotH2 * (a2 - 1.0) + 1.0);
     denom = PI * denom * denom;
 
@@ -69,8 +101,8 @@ float GeometrySchlickGGX(float NdotV, float rough)
 
 float GeometrySmith(float3 N, float3 V, float3 L, float rough)
 {
-    float NdotV = max(dot(N,V), 0.0);
-    float NdotL = max(dot(N,L), 0.0);
+    float NdotV = max(dot(N, V), 0.0);
+    float NdotL = max(dot(N, L), 0.0);
     float ggx1 = GeometrySchlickGGX(NdotL, rough);
     float ggx2 = GeometrySchlickGGX(NdotV, rough);
     return ggx1 * ggx2;
@@ -78,16 +110,22 @@ float GeometrySmith(float3 N, float3 V, float3 L, float rough)
 
 float3 fresnelSchlick(float cosTheta, float3 F0)
 {
-    return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
+    return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+}
+
+// Enhanced Fresnel with roughness consideration
+float3 fresnelSchlickRoughness(float cosTheta, float3 F0, float roughness)
+{
+    return F0 + (max(float3(1.0 - roughness, 1.0 - roughness, 1.0 - roughness), F0) - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
 
 void main(in PSInput I, out PSOutput O)
 {
     // Sample material properties
-    float4 albedo    = v_Texture.Sample(v_Texture_sampler, I.Uv.xy) * I.v_Color;
-    float3 Nmap      = v_TextureNormal.Sample(v_TextureNormal_sampler, I.Uv.xy).rgb;
-    float  metallic  = v_TextureMetal.Sample(v_TextureMetal_sampler, I.Uv.xy).r;
-    float  roughness = v_TextureRough.Sample(v_TextureRough_sampler, I.Uv.xy).r;
+    float4 albedo = v_Texture.Sample(v_Texture_sampler, I.Uv.xy) * I.v_Color;
+    float3 Nmap = v_TextureNormal.Sample(v_TextureNormal_sampler, I.Uv.xy).rgb;
+    float metallic = v_TextureMetal.Sample(v_TextureMetal_sampler, I.Uv.xy).r;
+    float roughness = v_TextureRough.Sample(v_TextureRough_sampler, I.Uv.xy).r;
 
     // Geometric normal
     float3 geoN = normalize(I.Normal);
@@ -95,13 +133,7 @@ void main(in PSInput I, out PSOutput O)
     // Light vector and geometric visibility
     float3 L = normalize(g_LightPosition.xyz - I.WorldPos);
     float realNdotL = dot(geoN, L);
-    if (realNdotL <= 0.0)
-    {
-        // Back-facing: no lighting
-        O.Color = float4(0.0, 0.0, 0.0, albedo.a);
-        return;
-    }
-
+    
     // Normal mapping
     float3 N = getNormalFromMap(Nmap, geoN, I.Tangent, I.Binormal);
 
@@ -109,34 +141,60 @@ void main(in PSInput I, out PSOutput O)
     float3 V = normalize(g_CameraPosition.xyz - I.WorldPos);
 
     // F0 interpolation
-    float3 F0 = lerp(float3(0.04,0.04,0.04), albedo.rgb, metallic);
+    float3 F0 = lerp(float3(0.04, 0.04, 0.04), albedo.rgb, metallic);
 
-    // Microfacet vectors
-    float3 H = normalize(V + L);
+    // Initialize color with ambient lighting
+    float3 ambient = g_AmbientColor.xyz * g_ToneMapParams.z * albedo.rgb;
+    float3 Lo = ambient;
 
-    // Distance attenuation
- float dist = length(g_LightPosition.xyz - I.WorldPos);
-float range = g_LightRange.x;
+    // Only add direct lighting if front-facing
+    if (realNdotL > 0.0)
+    {
+        // Microfacet vectors
+        float3 H = normalize(V + L);
 
-// Smooth attenuation: 0 at edge, 1 at center
-float attenuation = saturate(1.0 - (dist * dist) / (range * range));
-attenuation *= attenuation; // Optional: smoother falloff
-attenuation /= max(dist * dist, 0.01); // Keep inverse square behavior but clamped
-    float3 radiance = g_LightColor.rgb * g_LightIntensity.x * attenuation;
+        // Distance attenuation
+        float dist = length(g_LightPosition.xyz - I.WorldPos);
+        float range = g_LightRange.x;
 
-    // Cook-Torrance BRDF
-    float NDF = DistributionGGX(N, H, roughness);
-    float G   = GeometrySmith(N, V, L, roughness);
-    float3 F  = fresnelSchlick(max(dot(H,V),0.0), F0);
-    float3 kS = F;
-    float3 kD = (1.0 - kS) * (1.0 - metallic);
+        // Smooth attenuation: 0 at edge, 1 at center
+        float attenuation = saturate(1.0 - (dist * dist) / (range * range));
+        attenuation *= attenuation; // Optional: smoother falloff
+        attenuation /= max(dist * dist, 0.01); // Keep inverse square behavior but clamped
+        
+        float3 radiance = g_LightColor.rgb * g_LightIntensity.x * attenuation;
 
-    float denom = max(dot(N,V),0.0) * max(dot(N,L),0.0) * 4.0 + 0.001;
-    float3 spec = (NDF * G * F) / denom;
+        // Cook-Torrance BRDF
+        float NDF = DistributionGGX(N, H, roughness);
+        float G = GeometrySmith(N, V, L, roughness);
+        float3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
+        
+        float3 kS = F;
+        float3 kD = (1.0 - kS) * (1.0 - metallic);
 
-    // Final shading
-    float NdotL = max(dot(N,L), 0.0);
-    float3 Lo = (kD * albedo.rgb / PI + spec) * radiance * NdotL;
+        float denom = max(dot(N, V), 0.0) * max(dot(N, L), 0.0) * 4.0 + 0.0001;
+        float3 spec = (NDF * G * F) / denom;
+
+        // Final direct lighting contribution
+        float NdotL = max(dot(N, L), 0.0);
+        Lo += (kD * albedo.rgb / PI + spec) * radiance * NdotL;
+    }
+
+    // Apply tone mapping - choose one of these methods:
+    // 1. ACES Filmic (recommended for most cases)
+    Lo = ACESFilmicToneMapping(Lo);
+    
+    // 2. Exposure-based (uncomment to use instead)
+    // Lo = ExposureToneMapping(Lo, g_ToneMapParams.x);
+    
+    // 3. Reinhard (uncomment to use instead)
+    // Lo = ReinhardToneMapping(Lo);
+    
+    // 4. Filmic (uncomment to use instead)
+    // Lo = FilmicToneMapping(Lo);
+
+    // Gamma correction
+    Lo = pow(Lo, float3(1.0 / g_ToneMapParams.y, 1.0 / g_ToneMapParams.y, 1.0 / g_ToneMapParams.y));
 
     O.Color = float4(Lo, albedo.a);
 }

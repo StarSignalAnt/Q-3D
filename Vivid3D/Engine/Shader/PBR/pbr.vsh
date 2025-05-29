@@ -10,6 +10,10 @@ cbuffer Constants
     float4 g_LightColor;
     float4 g_LightIntensity;
     float4 g_LightRange;
+
+   float4 g_ToneMapParams;  // x: Exposure, y: Gamma, z: AmbientStrength, w: unused
+    float4 g_AmbientColor;
+
 };
 
 struct VSInput

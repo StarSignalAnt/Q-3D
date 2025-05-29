@@ -102,6 +102,15 @@ SceneView::SceneView(QWidget *parent)
 
     m_SceneGraph->AddLight(l1);
 
+    auto l2 = new GraphNode;
+    l2->AddComponent(new LightComponent);
+
+    l2->GetComponent<LightComponent>()->SetColor(glm::vec3(0, 1, 1));
+
+    m_SceneGraph->AddLight(l2);
+    l2->SetPosition(glm::vec3(4, 5, 3));
+
+
 	l1->SetPosition(glm::vec3(0, 4, 4));
 
     movementTimer.setInterval(16); // ~60 FPS

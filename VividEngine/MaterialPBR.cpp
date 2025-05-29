@@ -31,7 +31,8 @@ struct PBRConstant {
     glm::vec4 g_LightColor;           // .rgb = color, .a unused
     glm::vec4 g_LightIntensity;       // .x = intensity multiplier, .yzw unused
     glm::vec4 g_LightRange;           // .x = effective range, .yzw unused
-
+    glm::vec4 g_ToneParams;
+    glm::vec4 g_AmbientColor;
 };
 
 MaterialPBR::MaterialPBR() {
@@ -257,90 +258,384 @@ MaterialPBR::MaterialPBR() {
     m_Pipeline->CreateShaderResourceBinding(&m_SRB, true);
 
 
+    //Additive
+
+//    GraphicsPipelineDesc gp;
+
+
+//    RasterizerStateDesc r_desc;
+
+
+    r_desc.CullMode = CULL_MODE_BACK;
+
+
+
+  //  DepthStencilStateDesc ds_desc;
+    ds_desc.DepthEnable = true;
+    ds_desc.DepthFunc = COMPARISON_FUNC_LESS_EQUAL;
+    ds_desc.DepthWriteEnable = true;
+
+
+    //BlendStateDesc b_desc;
+
+
+    b_desc.RenderTargets[0].BlendEnable = true;
+    b_desc.RenderTargets[0].SrcBlend = BLEND_FACTOR::BLEND_FACTOR_ONE;
+    b_desc.RenderTargets[0].DestBlend = BLEND_FACTOR::BLEND_FACTOR_ONE;
+
+
+ 
+
+    elements.clear();
+    pos.InputIndex = 0;
+    pos.NumComponents = 3;
+    pos.ValueType = VALUE_TYPE::VT_FLOAT32;
+    pos.IsNormalized = false;
+
+    color.InputIndex = 1;
+    color.NumComponents = 4;
+    color.ValueType = VALUE_TYPE::VT_FLOAT32;
+    color.IsNormalized = false;
+
+    tex.InputIndex = 2;
+    tex.NumComponents = 3;
+    tex.ValueType = VALUE_TYPE::VT_FLOAT32;
+    tex.IsNormalized = false;
+
+    norm.InputIndex = 3;
+    norm.NumComponents = 3;
+    norm.ValueType = VALUE_TYPE::VT_FLOAT32;
+    norm.IsNormalized = false;
+
+    binorm.InputIndex = 4;
+    binorm.NumComponents = 3;
+    binorm.ValueType = VALUE_TYPE::VT_FLOAT32;
+    binorm.IsNormalized = false;
+
+    tangent.InputIndex = 5;
+    tangent.NumComponents = 3;
+    tangent.ValueType = VALUE_TYPE::VT_FLOAT32;
+    tangent.IsNormalized = false;
+
+
+    elements.push_back(pos);
+    elements.push_back(color);
+    elements.push_back(tex);
+    elements.push_back(norm);
+    elements.push_back(binorm);
+    elements.push_back(tangent);
+
+    
+
+   
+    in_desc.LayoutElements = LayoutElems;
+    in_desc.NumElements = 6;
+
+
+
+    gp.PrimitiveTopology = PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    gp.RasterizerDesc = r_desc;
+    //  gp.RasterizerDesc.CullMode = CULL_MODE_NONE;
+    gp.DepthStencilDesc = ds_desc;
+    gp.SmplDesc.Count = 1;
+
+    //gp.SmplDesc.Quality = 1.0f;
+
+    //gp.NumRenderTargets = 0;
+
+    gp.BlendDesc = b_desc;
+    gp.RTVFormats[0] = Vivid::m_pSwapChain->GetDesc().ColorBufferFormat;
+    gp.DSVFormat = Vivid::m_pSwapChain->GetDesc().DepthBufferFormat;
+    gp.InputLayout = in_desc;
+    //gp.NumViewports = 1;
+
+
+    gp.NumRenderTargets = 1;
+
+
+    vars.clear();
+    samplers.clear();
+
+    //std::vector<ShaderResourceVariableDesc> vars;
+    //std::vector<ImmutableSamplerDesc> samplers;
+
+    //ShaderResourceVariableDesc v_tex;
+
+    v_tex.ShaderStages = SHADER_TYPE_PIXEL;
+    v_tex.Name = "v_Texture";
+    v_tex.Type = SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC;
+    vars.push_back(v_tex);
+
+    v_tex.ShaderStages = SHADER_TYPE_PIXEL;
+    v_tex.Name = "v_TextureNormal";
+    v_tex.Type = SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC;
+    vars.push_back(v_tex);
+
+    v_tex.ShaderStages = SHADER_TYPE_PIXEL;
+    v_tex.Name = "v_TextureMetal";
+    v_tex.Type = SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC;
+    vars.push_back(v_tex);
+
+    v_tex.ShaderStages = SHADER_TYPE_PIXEL;
+    v_tex.Name = "v_TextureRough";
+    v_tex.Type = SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC;
+    vars.push_back(v_tex);
+
+ //   ImmutableSamplerDesc v_sampler;
+
+  //  SamplerDesc v_rsampler;
+    v_rsampler.MinFilter = FILTER_TYPE::FILTER_TYPE_LINEAR;
+    v_rsampler.MagFilter = FILTER_TYPE::FILTER_TYPE_LINEAR;
+    v_rsampler.MipFilter = FILTER_TYPE::FILTER_TYPE_LINEAR;
+    v_rsampler.AddressU = TEXTURE_ADDRESS_MODE::TEXTURE_ADDRESS_WRAP;
+    v_rsampler.AddressV = TEXTURE_ADDRESS_MODE::TEXTURE_ADDRESS_WRAP;
+    v_rsampler.AddressW = TEXTURE_ADDRESS_MODE::TEXTURE_ADDRESS_CLAMP;
+    // v_rsampler.MaxAnisotropy = 1.0f;
+
+
+
+    v_sampler.Desc = v_rsampler;
+    v_sampler.SamplerOrTextureName = "v_Texture";
+    v_sampler.ShaderStages = SHADER_TYPE_PIXEL;
+
+
+    samplers.push_back(v_sampler);
+
+    v_sampler.Desc = v_rsampler;
+    v_sampler.SamplerOrTextureName = "v_TextureNormal";
+    v_sampler.ShaderStages = SHADER_TYPE_PIXEL;
+
+
+    samplers.push_back(v_sampler);
+
+    v_sampler.Desc = v_rsampler;
+    v_sampler.SamplerOrTextureName = "v_TextureMetal";
+    v_sampler.ShaderStages = SHADER_TYPE_PIXEL;
+
+
+    samplers.push_back(v_sampler);
+
+    v_sampler.Desc = v_rsampler;
+    v_sampler.SamplerOrTextureName = "v_TextureRough";
+    v_sampler.ShaderStages = SHADER_TYPE_PIXEL;
+
+
+    samplers.push_back(v_sampler);
+
+
+//    PipelineResourceLayoutDesc rl_desc;
+
+    rl_desc.DefaultVariableType = SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
+    rl_desc.Variables = vars.data();
+    rl_desc.ImmutableSamplers = samplers.data();
+    rl_desc.NumVariables = 4;
+
+    rl_desc.NumImmutableSamplers = 4;
+
+
+    //PipelineStateDesc pso_desc;
+
+    pso_desc.Name = "Material PBR";
+    pso_desc.ResourceLayout = rl_desc;
+
+    //    pso_desc.PipelineType = PIPELINE_TYPE_GRAPHICS;
+
+
+ //   GraphicsPipelineStateCreateInfo gp_desc;
+    gp_desc.pVS = m_VS;
+    gp_desc.pPS = m_PS;
+    gp_desc.GraphicsPipeline = gp;
+    gp_desc.PSODesc = pso_desc;
+    // gp_desc.ResourceSignaturesCount = 0;
+
+
+
+     //CreateUniform()
+
+    RefCntAutoPtr<IPipelineState> ps2;
+
+
+    Vivid::m_pDevice->CreateGraphicsPipelineState(gp_desc, &ps2);
+
+    m_PipelineAdd = ps2;
+    m_PipelineAdd->GetStaticVariableByName(SHADER_TYPE_VERTEX, "Constants")->Set(m_UniformBuffer);
+    m_PipelineAdd->GetStaticVariableByName(SHADER_TYPE_PIXEL, "Constants")->Set(m_UniformBuffer);
+    m_PipelineAdd->CreateShaderResourceBinding(&m_SRBAdd, true);
+
+
+
     int b = 5;
 
 }
 
-void MaterialPBR::Bind() {
+void MaterialPBR::Bind(bool add) {
 
-    auto l1 = SceneGraph::m_CurrentGraph->GetLights()[0];
+    //auto l1 = SceneGraph::m_CurrentGraph->GetLights()[0];
 
-	auto lc = l1->GetComponent<LightComponent>();
+	//auto lc = l1->GetComponent<LightComponent>();
 
-    m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_Texture")->Set(m_ColorTexture->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
-    m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureNormal")->Set(m_NormalTexture->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
-    m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureMetal")->Set(m_MetallicTexture->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
-    m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureRough")->Set(m_RoughnessTexture->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
-    //Engine::m_pImmediateContext->MapBuffer(BasicUniform, MAP_TYPE::MAP_WRITE, MAP_FLAGS::MAP_FLAG_DISCARD);
-    {
-        MapHelper<PBRConstant> map_data(Vivid::m_pImmediateContext, m_UniformBuffer, MAP_WRITE, MAP_FLAG_DISCARD);
-        float FOVRadians = 45.0f * (3.14159265358979323846f / 180.0f);
+    if (add) {
 
+        auto l1 = m_Light;
+        auto lc = l1->GetComponent<LightComponent>();
 
-
-        //float4x4 mvp = Engine::m_Camera->GetProjection(); //float4x4::Projection(FOVRadians, 1024.0f / 760.0f,0.01,1001,false);
-
-
-        //float4x4 view = Engine::m_Camera->GetWorldMatrix();  //float4x4::Translation(float3(0,1.0f,-5)).Inverse();
-
-       // float4x4 model = Engine::m_Node->GetWorldMatrix();
-
-        //float4x4 id = float4x4::Identity().Inverse();
-
-        //mvp = mvp*id;
-
-        //mvp.Transpose();
+        m_SRBAdd->GetVariableByName(SHADER_TYPE_PIXEL, "v_Texture")->Set(m_ColorTexture->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
+        m_SRBAdd->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureNormal")->Set(m_NormalTexture->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
+        m_SRBAdd->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureMetal")->Set(m_MetallicTexture->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
+        m_SRBAdd->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureRough")->Set(m_RoughnessTexture->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
+        //Engine::m_pImmediateContext->MapBuffer(BasicUniform, MAP_TYPE::MAP_WRITE, MAP_FLAGS::MAP_FLAG_DISCARD);
+        {
+            MapHelper<PBRConstant> map_data(Vivid::m_pImmediateContext, m_UniformBuffer, MAP_WRITE, MAP_FLAG_DISCARD);
+            float FOVRadians = 45.0f * (3.14159265358979323846f / 180.0f);
 
 
-        //mvp = model * view * mvp;
 
-        glm::mat4 proj = m_RenderMatrices[2];
-        glm::mat4 view = m_RenderMatrices[0];
-        glm::mat4 model = m_RenderMatrices[1];
+            //float4x4 mvp = Engine::m_Camera->GetProjection(); //float4x4::Projection(FOVRadians, 1024.0f / 760.0f,0.01,1001,false);
 
-        glm::mat4 mvp = proj * model * view;
 
-    //    map_data[0].g_MVPMatrix = glm::transpose(mvp);
-	//	map_data[0].g_ModelMatrix = glm::transpose(model);
-		map_data[0].g_ProjectionMatrix = glm::transpose(proj);
-		map_data[0].g_ViewMatrix = glm::transpose(view);
-    //    map_data[0].g_NormalMatrix = glm::transpose(glm::inverse(model)); // Inverse transpose for normals
-        map_data[0].g_CameraPosition = glm::vec4(m_CameraPosition, 1.0f);
+            //float4x4 view = Engine::m_Camera->GetWorldMatrix();  //float4x4::Translation(float3(0,1.0f,-5)).Inverse();
 
-        map_data[0].g_LightPosition = glm::vec4(l1->GetPosition(), 1.0f); // Light position
-        map_data[0].g_LightColor = glm::vec4(lc->GetColor(), 1.0f); // White light color
-        map_data[0].g_LightIntensity = glm::vec4(lc->GetIntensity(), 1.0f, 1.0f, 1.0f); // Was 10000!
+           // float4x4 model = Engine::m_Node->GetWorldMatrix();
 
-        // Also try removing transposes (test one at a time):
-        map_data[0].g_MVPMatrix = glm::transpose(mvp); // Remove transpose
-        map_data[0].g_ModelMatrix = glm::transpose(model); // Remove transpose 
-        map_data[0].g_NormalMatrix = glm::transpose(glm::inverse(model)); // Remove transpose
-		map_data[0].g_LightRange = glm::vec4(lc->GetRange(), 100.f, 100.f, 1.f); // Light range
+            //float4x4 id = float4x4::Identity().Inverse();
+
+            //mvp = mvp*id;
+
+            //mvp.Transpose();
+
+
+            //mvp = model * view * mvp;
+
+            glm::mat4 proj = m_RenderMatrices[2];
+            glm::mat4 view = m_RenderMatrices[0];
+            glm::mat4 model = m_RenderMatrices[1];
+
+            glm::mat4 mvp = proj * model * view;
+
+            //    map_data[0].g_MVPMatrix = glm::transpose(mvp);
+            //	map_data[0].g_ModelMatrix = glm::transpose(model);
+            map_data[0].g_ProjectionMatrix = glm::transpose(proj);
+            map_data[0].g_ViewMatrix = glm::transpose(view);
+            //    map_data[0].g_NormalMatrix = glm::transpose(glm::inverse(model)); // Inverse transpose for normals
+            map_data[0].g_CameraPosition = glm::vec4(m_CameraPosition, 1.0f);
+
+            map_data[0].g_LightPosition = glm::vec4(l1->GetPosition(), 1.0f); // Light position
+            map_data[0].g_LightColor = glm::vec4(lc->GetColor(), 1.0f); // White light color
+            map_data[0].g_LightIntensity = glm::vec4(lc->GetIntensity(), 1.0f, 1.0f, 1.0f); // Was 10000!
+
+            // Also try removing transposes (test one at a time):
+            map_data[0].g_MVPMatrix = glm::transpose(mvp); // Remove transpose
+            map_data[0].g_ModelMatrix = glm::transpose(model); // Remove transpose 
+            map_data[0].g_NormalMatrix = glm::transpose(glm::inverse(model)); // Remove transpose
+            map_data[0].g_LightRange = glm::vec4(lc->GetRange(), 100.f, 100.f, 1.f); // Light range
+            map_data[0].g_ToneParams = glm::vec4(1.0f, 2.2f, 0.05f, 1.0f); // Tone mapping parameters (example values)
+            map_data[0].g_AmbientColor = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f); // Ambient color
+        }
+
+
+
+        //map_data.Unmap();
+
+
+        Uint64 offsets = 0;
+
+        IBuffer* pBuffs[] = { m_Buffers[0] };
+
+        RESOURCE_STATE_TRANSITION_MODE flags = RESOURCE_STATE_TRANSITION_MODE::RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
+
+        //     return;
+        Vivid::m_pImmediateContext->SetVertexBuffers(0, 1, pBuffs, &offsets, flags);
+        Vivid::m_pImmediateContext->SetIndexBuffer(m_Buffers[1], 0, flags);
+
+
+        //   return;
+
+
+        Vivid::m_pImmediateContext->SetPipelineState(m_PipelineAdd);
+
+        Vivid::m_pImmediateContext->CommitShaderResources(m_SRBAdd, flags);
     }
+    else {
+        auto l1 = m_Light;
+        auto lc = l1->GetComponent<LightComponent>();
+
+        m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_Texture")->Set(m_ColorTexture->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
+        m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureNormal")->Set(m_NormalTexture->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
+        m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureMetal")->Set(m_MetallicTexture->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
+        m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureRough")->Set(m_RoughnessTexture->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
+        //Engine::m_pImmediateContext->MapBuffer(BasicUniform, MAP_TYPE::MAP_WRITE, MAP_FLAGS::MAP_FLAG_DISCARD);
+        {
+            MapHelper<PBRConstant> map_data(Vivid::m_pImmediateContext, m_UniformBuffer, MAP_WRITE, MAP_FLAG_DISCARD);
+            float FOVRadians = 45.0f * (3.14159265358979323846f / 180.0f);
 
 
 
-    //map_data.Unmap();
+            //float4x4 mvp = Engine::m_Camera->GetProjection(); //float4x4::Projection(FOVRadians, 1024.0f / 760.0f,0.01,1001,false);
 
 
-    Uint64 offsets = 0;
+            //float4x4 view = Engine::m_Camera->GetWorldMatrix();  //float4x4::Translation(float3(0,1.0f,-5)).Inverse();
 
-    IBuffer* pBuffs[] = { m_Buffers[0] };
+           // float4x4 model = Engine::m_Node->GetWorldMatrix();
 
-    RESOURCE_STATE_TRANSITION_MODE flags = RESOURCE_STATE_TRANSITION_MODE::RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
+            //float4x4 id = float4x4::Identity().Inverse();
 
-    //     return;
-    Vivid::m_pImmediateContext->SetVertexBuffers(0, 1, pBuffs, &offsets, flags);
-    Vivid::m_pImmediateContext->SetIndexBuffer(m_Buffers[1], 0, flags);
+            //mvp = mvp*id;
 
-
-    //   return;
+            //mvp.Transpose();
 
 
-    Vivid::m_pImmediateContext->SetPipelineState(m_Pipeline);
+            //mvp = model * view * mvp;
 
-    Vivid::m_pImmediateContext->CommitShaderResources(m_SRB, flags);
-    //Vivid::m_pImmediateContext->SetPipelineState(m_Pipeline);
+            glm::mat4 proj = m_RenderMatrices[2];
+            glm::mat4 view = m_RenderMatrices[0];
+            glm::mat4 model = m_RenderMatrices[1];
+
+            glm::mat4 mvp = proj * model * view;
+
+            //    map_data[0].g_MVPMatrix = glm::transpose(mvp);
+            //	map_data[0].g_ModelMatrix = glm::transpose(model);
+            map_data[0].g_ProjectionMatrix = glm::transpose(proj);
+            map_data[0].g_ViewMatrix = glm::transpose(view);
+            //    map_data[0].g_NormalMatrix = glm::transpose(glm::inverse(model)); // Inverse transpose for normals
+            map_data[0].g_CameraPosition = glm::vec4(m_CameraPosition, 1.0f);
+
+            map_data[0].g_LightPosition = glm::vec4(l1->GetPosition(), 1.0f); // Light position
+            map_data[0].g_LightColor = glm::vec4(lc->GetColor(), 1.0f); // White light color
+            map_data[0].g_LightIntensity = glm::vec4(lc->GetIntensity(), 1.0f, 1.0f, 1.0f); // Was 10000!
+
+            // Also try removing transposes (test one at a time):
+            map_data[0].g_MVPMatrix = glm::transpose(mvp); // Remove transpose
+            map_data[0].g_ModelMatrix = glm::transpose(model); // Remove transpose 
+            map_data[0].g_NormalMatrix = glm::transpose(glm::inverse(model)); // Remove transpose
+            map_data[0].g_LightRange = glm::vec4(lc->GetRange(), 100.f, 100.f, 1.f); // Light range
+            map_data[0].g_ToneParams = glm::vec4(1.0f, 2.2f, 0.05f, 1.0f); // Tone mapping parameters (example values)
+            map_data[0].g_AmbientColor = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f); // Ambient color
+        }
+
+
+
+        //map_data.Unmap();
+
+
+        Uint64 offsets = 0;
+
+        IBuffer* pBuffs[] = { m_Buffers[0] };
+
+        RESOURCE_STATE_TRANSITION_MODE flags = RESOURCE_STATE_TRANSITION_MODE::RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
+
+        //     return;
+        Vivid::m_pImmediateContext->SetVertexBuffers(0, 1, pBuffs, &offsets, flags);
+        Vivid::m_pImmediateContext->SetIndexBuffer(m_Buffers[1], 0, flags);
+
+
+        //   return;
+
+
+        Vivid::m_pImmediateContext->SetPipelineState(m_Pipeline);
+
+        Vivid::m_pImmediateContext->CommitShaderResources(m_SRB, flags);
+        //Vivid::m_pImmediateContext->SetPipelineState(m_Pipeline);
+    }
 
 }
 

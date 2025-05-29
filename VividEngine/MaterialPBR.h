@@ -6,7 +6,7 @@ class MaterialPBR :
 public:
 
     MaterialPBR();
-    void Bind() override;
+    void Bind(bool add) override;
     void Render() override;
     void SetColorTexture(Texture2D* texture)
     {

@@ -20,7 +20,9 @@ public:
     float GetIntensity() {
         return m_Intensity;
     }
-
+    void SetColor(glm::vec3 color) {
+        m_Color = color;
+    }
 
 private:
 

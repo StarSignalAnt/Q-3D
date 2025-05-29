@@ -3,6 +3,7 @@
 #include <glm/gtc/matrix_transform.hpp> // Functions like glm::translate, glm::rotate, glm::perspective
 #include <glm/gtc/type_ptr.hpp> 
 #include <vector>
+#include "GraphNode.h"
 
 #if D3D11_SUPPORTED
 #    include "Graphics/GraphicsEngineD3D11/interface/EngineFactoryD3D11.h"
@@ -49,19 +50,21 @@ public:
 	void SetTexture(Texture2D* texture, int index) {
 		m_Textures[index] = texture;
 	};
-	virtual void Bind() = 0;
+	virtual void Bind(bool add) = 0;
 	virtual void Render() = 0;
 	void SetCameraPosition(glm::vec3 position) { m_CameraPosition = position; }
 	void SetIndexCount(int count) { m_IndexCount = count; }	
+	void SetLight(GraphNode* light) { m_Light = light; };
 protected:
 
+	GraphNode* m_Light = nullptr;
 	RefCntAutoPtr<IShader> m_VS;
 	RefCntAutoPtr<IShader> m_PS;
 	RefCntAutoPtr<IPipelineState> m_Pipeline;
-	RefCntAutoPtr<IPipelineState> m_SecondPassPipeline;
+	RefCntAutoPtr<IPipelineState> m_PipelineAdd;
 	RefCntAutoPtr<IBuffer> m_UniformBuffer;
 	RefCntAutoPtr<IShaderResourceBinding> m_SRB;
-
+	RefCntAutoPtr<IShaderResourceBinding> m_SRBAdd;
 	int m_IndexCount = 0;
 	RefCntAutoPtr<IBuffer> m_Buffers[128];
 	glm::mat4 m_RenderMatrices[256];

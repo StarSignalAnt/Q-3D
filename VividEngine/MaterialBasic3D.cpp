@@ -199,7 +199,7 @@ MaterialBasic3D::MaterialBasic3D() {
 
 }
 
-void MaterialBasic3D::Bind() {
+void MaterialBasic3D::Bind(bool add) {
 
     m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_Texture")->Set(m_ColorTexture->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
     //Engine::m_pImmediateContext->MapBuffer(BasicUniform, MAP_TYPE::MAP_WRITE, MAP_FLAGS::MAP_FLAG_DISCARD);
