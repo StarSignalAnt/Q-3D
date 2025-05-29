@@ -1,4 +1,3 @@
-#define dx 1.0
 #define PI 3.14159265359
 
 Texture2D v_Texture;
@@ -10,84 +9,70 @@ SamplerState v_TextureMetal_sampler;
 Texture2D v_TextureRough;
 SamplerState v_TextureRough_sampler;
 
-
 cbuffer Constants
 {
-    // === TRANSFORMATION MATRICES ===
-    float4x4 g_ModelMatrix;        // World transform
-    float4x4 g_ViewMatrix;         // Camera view
-    float4x4 g_ProjectionMatrix;   // Projection
-    float4x4 g_MVPMatrix;          // Combined Model-View-Projection
-    float4x4 g_NormalMatrix;       // Inverse transpose of model matrix for normals
+    float4x4 g_ModelMatrix;
+    float4x4 g_ViewMatrix;
+    float4x4 g_ProjectionMatrix;
+    float4x4 g_MVPMatrix;
+    float4x4 g_NormalMatrix;
 
-    // === CAMERA ===
-    float4 g_CameraPosition;       // .xyz = world-space camera position, .w unused
-
-    // === LIGHTING: Point Light ===
-    float4 g_LightPosition;        // .xyz = position, .w unused
-    float4 g_LightColor;           // .rgb = color, .a unused
-    float4 g_LightIntensity;       // .x = intensity multiplier, .yzw unused
-    float4 g_LightRange;           // .x = effective range, .yzw unused
+    float4 g_CameraPosition;
+    float4 g_LightPosition;
+    float4 g_LightColor;
+    float4 g_LightIntensity;
+    float4 g_LightRange;
 };
 
-struct PSInput
-{
-      float4 Pos : SV_POSITION;
-    float3 Uv : TEX_COORD;
-    float4 v_Color : COLOR2;
-    float3 WorldPos : WORLD_POS;    // Added: world position for lighting
-    float3 Normal : NORMAL;         // Added: world normal
-    float3 Tangent : TANGENT;       // Added: tangent for normal mapping
-    float3 Binormal : BINORMAL;  
- 
- // float3 Norm : NORMAL0;x
+struct PSInput {
+    float4 Pos : SV_POSITION;
+    float3 Uv : TEXCOORD0;
+    float4 v_Color : TEXCOORD1;
+    float3 WorldPos : TEXCOORD2;
+    float3 Normal : TEXCOORD3;
+    float3 Tangent : TEXCOORD4;
+    float3 Binormal : TEXCOORD5;
 };
 
-
-struct PSOutput
-{
+struct PSOutput {
     float4 Color : SV_TARGET;
 };
 
+// Unpacks normal map and corrects green-channel handedness
 float3 getNormalFromMap(float3 normalMap, float3 worldNormal, float3 worldTangent, float3 worldBinormal)
 {
-    float3 normal = normalMap * 2.0 - 1.0;
+    float3 n = normalMap * float3(2.0, 2.0, 2.0) + float3(-1.0, -1.0, -1.0);
     float3x3 TBN = float3x3(worldTangent, worldBinormal, worldNormal);
-    return normalize(mul(normal, TBN));
+    return normalize(mul(n, TBN));
 }
 
-float DistributionGGX(float3 N, float3 H, float roughness)
+float DistributionGGX(float3 N, float3 H, float rough)
 {
-    float a = roughness * roughness;
+    float a  = rough * rough;
     float a2 = a * a;
-    float NdotH = max(dot(N, H), 0.0);
+    float NdotH = max(dot(N,H),0.0);
     float NdotH2 = NdotH * NdotH;
-    
-    float num = a2;
+
+    float num   = a2;
     float denom = (NdotH2 * (a2 - 1.0) + 1.0);
     denom = PI * denom * denom;
-    
+
     return num / denom;
 }
 
-float GeometrySchlickGGX(float NdotV, float roughness)
+float GeometrySchlickGGX(float NdotV, float rough)
 {
-    float r = (roughness + 1.0);
+    float r = rough + 1.0;
     float k = (r * r) / 8.0;
-    
-    float num = NdotV;
-    float denom = NdotV * (1.0 - k) + k;
-    
-    return num / denom;
+    return NdotV / (NdotV * (1.0 - k) + k);
 }
 
-float GeometrySmith(float3 N, float3 V, float3 L, float roughness)
+float GeometrySmith(float3 N, float3 V, float3 L, float rough)
 {
-    float NdotV = max(dot(N, V), 0.0);
-    float NdotL = max(dot(N, L), 0.0);
-    float ggx2 = GeometrySchlickGGX(NdotV, roughness);
-    float ggx1 = GeometrySchlickGGX(NdotL, roughness);
-    
+    float NdotV = max(dot(N,V), 0.0);
+    float NdotL = max(dot(N,L), 0.0);
+    float ggx1 = GeometrySchlickGGX(NdotL, rough);
+    float ggx2 = GeometrySchlickGGX(NdotV, rough);
     return ggx1 * ggx2;
 }
 
@@ -96,62 +81,62 @@ float3 fresnelSchlick(float cosTheta, float3 F0)
     return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
 }
 
-
-
-// Note that if separate shader objects are not supported (this is only the case for old GLES3.0 devices), vertex
-// shader output variable name must match exactly the name of the pixel shader input variable.
-// If the variable has structure type (like in this example), the structure declarations must also be identical.
-void main(in PSInput PSIn,
-    out PSOutput PSOut)
+void main(in PSInput I, out PSOutput O)
 {
+    // Sample material properties
+    float4 albedo    = v_Texture.Sample(v_Texture_sampler, I.Uv.xy) * I.v_Color;
+    float3 Nmap      = v_TextureNormal.Sample(v_TextureNormal_sampler, I.Uv.xy).rgb;
+    float  metallic  = v_TextureMetal.Sample(v_TextureMetal_sampler, I.Uv.xy).r;
+    float  roughness = v_TextureRough.Sample(v_TextureRough_sampler, I.Uv.xy).r;
 
-      float4 albedo = v_Texture.Sample(v_Texture_sampler, PSIn.Uv.xy) * PSIn.v_Color;
-    float3 normalMap = v_TextureNormal.Sample(v_TextureNormal_sampler, PSIn.Uv.xy).rgb;
-    float metallic = v_TextureMetal.Sample(v_TextureMetal_sampler, PSIn.Uv.xy).r;
-    float roughness = v_TextureRough.Sample(v_TextureRough_sampler, PSIn.Uv.xy).r;
-    
-    // Calculate normal from normal map
-    float3 N = getNormalFromMap(normalMap, PSIn.Normal, PSIn.Tangent, PSIn.Binormal);
-    float3 V = normalize(g_CameraPosition.xyz - PSIn.WorldPos);
-    
-    // Calculate F0 (base reflectance)
-    float3 F0 = float3(0.04, 0.04, 0.04);
-    F0 = lerp(F0, albedo.rgb, metallic);
-    
-    // Point light calculations
-    float3 L = normalize(g_LightPosition.xyz - PSIn.WorldPos);
+    // Geometric normal
+    float3 geoN = normalize(I.Normal);
+
+    // Light vector and geometric visibility
+    float3 L = normalize(g_LightPosition.xyz - I.WorldPos);
+    float realNdotL = dot(geoN, L);
+    if (realNdotL <= 0.0)
+    {
+        // Back-facing: no lighting
+        O.Color = float4(0.0, 0.0, 0.0, albedo.a);
+        return;
+    }
+
+    // Normal mapping
+    float3 N = getNormalFromMap(Nmap, geoN, I.Tangent, I.Binormal);
+
+    // View vector
+    float3 V = normalize(g_CameraPosition.xyz - I.WorldPos);
+
+    // F0 interpolation
+    float3 F0 = lerp(float3(0.04,0.04,0.04), albedo.rgb, metallic);
+
+    // Microfacet vectors
     float3 H = normalize(V + L);
-    float distance = length(g_LightPosition.xyz - PSIn.WorldPos);
-    float attenuation = 1.0 / (distance * distance);
+
+    // Distance attenuation
+ float dist = length(g_LightPosition.xyz - I.WorldPos);
+float range = g_LightRange.x;
+
+// Smooth attenuation: 0 at edge, 1 at center
+float attenuation = saturate(1.0 - (dist * dist) / (range * range));
+attenuation *= attenuation; // Optional: smoother falloff
+attenuation /= max(dist * dist, 0.01); // Keep inverse square behavior but clamped
     float3 radiance = g_LightColor.rgb * g_LightIntensity.x * attenuation;
-    
-    // PBR BRDF components
+
+    // Cook-Torrance BRDF
     float NDF = DistributionGGX(N, H, roughness);
-    float G = GeometrySmith(N, V, L, roughness);
-    float3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
-    
-    // Calculate specular and diffuse
+    float G   = GeometrySmith(N, V, L, roughness);
+    float3 F  = fresnelSchlick(max(dot(H,V),0.0), F0);
     float3 kS = F;
-    float3 kD = float3(1.0, 1.0, 1.0) - kS;
-    kD *= 1.0 - metallic;
-    
-    float3 numerator = NDF * G * F;
-    float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.001;
-    float3 specular = numerator / denominator;
-    
-    float NdotL = max(dot(N, L), 0.0);
-    float3 Lo = (kD * albedo.rgb / PI + specular) * radiance * NdotL;
-    
-    // Simple ambient
-    float3 ambient = float3(0.03, 0.03, 0.03) * albedo.rgb;
-    float3 color = ambient + Lo;
-    
-    // HDR tonemapping
-    color = color / (color + float3(1.0, 1.0, 1.0));
-    // Gamma correction
-    color = pow(color, float3(1.0/2.2, 1.0/2.2, 1.0/2.2));
-    
-    PSOut.Color = float4(color, albedo.a);
+    float3 kD = (1.0 - kS) * (1.0 - metallic);
 
+    float denom = max(dot(N,V),0.0) * max(dot(N,L),0.0) * 4.0 + 0.001;
+    float3 spec = (NDF * G * F) / denom;
 
+    // Final shading
+    float NdotL = max(dot(N,L), 0.0);
+    float3 Lo = (kD * albedo.rgb / PI + spec) * radiance * NdotL;
+
+    O.Color = float4(Lo, albedo.a);
 }

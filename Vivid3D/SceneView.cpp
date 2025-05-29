@@ -1,6 +1,7 @@
 #include "SceneView.h"
 #include <QPainter>
 #include "Vivid.h"
+#include "MaterialPBR.h"
 //Diligent Engine includes
 
 
@@ -60,9 +61,24 @@ SceneView::SceneView(QWidget *parent)
     m_Test1 = Importer::ImportEntity("test/test1.gltf");
     m_SceneGraph->SetRootNode(m_Test1);
 
+    for (auto& e : m_Test1->GetNodes()) {
+
+		auto smc = e->GetComponent<StaticMeshComponent>();
+        for (auto& m : smc->GetSubMeshes()) {
+
+			auto m1 = (MaterialPBR*)m.m_Material;
+			m1->SetColorTexture(new Texture2D("test/tex_color.png"));
+			m1->SetNormalTexture(new Texture2D("test/tex_normal.png"));
+            m1->SetMetallicTexture(new Texture2D("test/tex_metal.png"));
+			m1->SetRoughnessTexture(new Texture2D("test/tex_rough.png"));
+
+        }
+
+    }
+
     auto cam = m_SceneGraph->GetCamera();
 
-    cam->SetPosition(glm::vec3(0, 0, 4));
+    cam->SetPosition(glm::vec3(0, 4, 4));
     auto tex1 = new Texture2D("test/tex1.png");
     
 //    auto m1 = m_Test1->GetNodes()[0]->GetComponent<StaticMeshComponent>();
@@ -82,9 +98,11 @@ SceneView::SceneView(QWidget *parent)
 
     auto lc = new LightComponent;
 
+	l1->AddComponent(lc);
+
     m_SceneGraph->AddLight(l1);
 
-	l1->SetPosition(glm::vec3(0, 0, 4));
+	l1->SetPosition(glm::vec3(0, 4, 4));
 
     movementTimer.setInterval(16); // ~60 FPS
     connect(&movementTimer, &QTimer::timeout, this, &SceneView::handleMovement);
@@ -149,6 +167,8 @@ void SceneView::CreateGraphics() {
    // SCDesc.DepthBufferFormat = TEX_FORMAT_D32_FLOAT;
 
     EngineD3D12CreateInfo EngineCI;
+
+    EngineCI.SetValidationLevel(VALIDATION_LEVEL_2);
     pFactoryD3D12->CreateDeviceAndContextsD3D12(EngineCI, &m_pDevice, &m_pImmediateContext);
     pFactoryD3D12->CreateSwapChainD3D12(m_pDevice, m_pImmediateContext, SCDesc, FullScreenModeDesc{}, Window, &m_pSwapChain);
     pFactoryD3D12->CreateDefaultShaderSourceStreamFactory("engine\\shader\\", &m_pShaderFactory);

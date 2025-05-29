@@ -8,6 +8,7 @@
 #include <MapHelper.hpp> // Add this line
 #include "Texture2D.h"
 #include "SceneGraph.h"
+#include "LightComponent.h"
 #include "GraphNode.h"
 
 using namespace Diligent;
@@ -264,6 +265,8 @@ void MaterialPBR::Bind() {
 
     auto l1 = SceneGraph::m_CurrentGraph->GetLights()[0];
 
+	auto lc = l1->GetComponent<LightComponent>();
+
     m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_Texture")->Set(m_ColorTexture->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
     m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureNormal")->Set(m_NormalTexture->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
     m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureMetal")->Set(m_MetallicTexture->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
@@ -305,14 +308,14 @@ void MaterialPBR::Bind() {
         map_data[0].g_CameraPosition = glm::vec4(m_CameraPosition, 1.0f);
 
         map_data[0].g_LightPosition = glm::vec4(l1->GetPosition(), 1.0f); // Light position
-        map_data[0].g_LightColor = glm::vec4(0, 1.0f, 1.0f, 1.0f); // White light color
-        map_data[0].g_LightIntensity = glm::vec4(100.0f, 1.0f, 1.0f, 1.0f); // Was 10000!
+        map_data[0].g_LightColor = glm::vec4(lc->GetColor(), 1.0f); // White light color
+        map_data[0].g_LightIntensity = glm::vec4(lc->GetIntensity(), 1.0f, 1.0f, 1.0f); // Was 10000!
 
         // Also try removing transposes (test one at a time):
         map_data[0].g_MVPMatrix = glm::transpose(mvp); // Remove transpose
         map_data[0].g_ModelMatrix = glm::transpose(model); // Remove transpose 
         map_data[0].g_NormalMatrix = glm::transpose(glm::inverse(model)); // Remove transpose
-		map_data[0].g_LightRange = glm::vec4(100.f, 100.f, 100.f, 1.f); // Light range
+		map_data[0].g_LightRange = glm::vec4(lc->GetRange(), 100.f, 100.f, 1.f); // Light range
     }
 
 

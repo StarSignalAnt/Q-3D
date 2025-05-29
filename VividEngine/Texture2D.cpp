@@ -9,8 +9,13 @@ Texture2D::Texture2D(std::string path)
      //loadInfo.Usage = USAGE::USAGE_DYNAMIC;
 
     loadInfo.Format = TEX_FORMAT_RGBA16_UNORM;
-    loadInfo.MipLevels = 12;
+    
+    loadInfo.MipLevels = 24;
+   // 
     loadInfo.MipFilter = TEXTURE_LOAD_MIP_FILTER_DEFAULT;
+    loadInfo.MipFilter = TEXTURE_LOAD_MIP_FILTER_BOX_AVERAGE;
+
+
     loadInfo.GenerateMips = true;
 
     // 
