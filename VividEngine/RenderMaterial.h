@@ -51,6 +51,7 @@ public:
 	};
 	virtual void Bind() = 0;
 	virtual void Render() = 0;
+	void SetCameraPosition(glm::vec3 position) { m_CameraPosition = position; }
 	void SetIndexCount(int count) { m_IndexCount = count; }	
 protected:
 
@@ -65,6 +66,7 @@ protected:
 	RefCntAutoPtr<IBuffer> m_Buffers[128];
 	glm::mat4 m_RenderMatrices[256];
 	Texture2D* m_Textures[256];
+	glm::vec3 m_CameraPosition = glm::vec3(0.0f, 0.0f, 0.0f);
 	//Tex2D
 
 

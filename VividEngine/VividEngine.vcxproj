@@ -107,10 +107,12 @@
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_LIB;PLATFORM_WIN32;D3D12_SUPPORTED;VULKAN_SUPPORTED;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
+      <ConformanceMode>false</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>C:\git\assimp\include;C:\git\DiligentEngine\DiligentCore;C:\git\DiligentEngine\DiligentFX;C:\git\DiligentEngine\DiligentFX\PostProcess\Common\interface;C:\DiligentEngine\DiligentFX\PostProcess\ScreenSpaceReflection\interface;C:\dev\Vivid3D\VScript;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsTools\interface;C:git\DiligentEngine\DiligentCore;C:\git\DiligentEngine\DiligentTools\TextureLoader\interface;C:\git\DiligentEngine\DiligentTools\TextureLoader\include;C:\Dev\Assimp\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngine\interface;C:\git\DiligentEngine\DiligentCore\Common\interface;C:\git\DiligentEngine\DiligentCore\ThirdParty\SPIRV-Cross\include;C:\git\DiligentEngine\DiligentCore\Platforms\Basic\include;C:\git\DiligentEngine\DiligentCore\Graphics\ShaderTools\include;C:\\git\DiligentEngine\DiligentCore\Graphics\HLSL2GLSLConverterLib\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngineD3D12\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngine\include;C:\git\DiligentEngine\DiligentCore\Common\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard_C>stdclatest</LanguageStandard_C>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -145,7 +147,9 @@
     <ClInclude Include="framework.h" />
     <ClInclude Include="GraphNode.h" />
     <ClInclude Include="Importer.h" />
+    <ClInclude Include="LightComponent.h" />
     <ClInclude Include="MaterialBasic3D.h" />
+    <ClInclude Include="MaterialPBR.h" />
     <ClInclude Include="RenderMaterial.h" />
     <ClInclude Include="StaticMeshComponent.h" />
     <ClInclude Include="pch.h" />
@@ -159,7 +163,9 @@
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="GraphNode.cpp" />
     <ClCompile Include="Importer.cpp" />
+    <ClCompile Include="LightComponent.cpp" />
     <ClCompile Include="MaterialBasic3D.cpp" />
+    <ClCompile Include="MaterialPBR.cpp" />
     <ClCompile Include="RenderMaterial.cpp" />
     <ClCompile Include="StaticMeshComponent.cpp" />
     <ClCompile Include="pch.cpp">

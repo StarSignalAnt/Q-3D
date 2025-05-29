@@ -19,6 +19,7 @@ void StaticRendererComponent::OnRender(GraphNode* camera) {
 		mat->SetMatrix(glm::inverse(camera->GetWorldMatrix()), 0);
 		mat->SetMatrix(m_Owner->GetWorldMatrix(), 1);
 		mat->SetMatrix(camera->GetComponent<CameraComponent>()->GetProjectionMatrix(), 2);
+		mat->SetCameraPosition(camera->GetPosition());	
 	//	mat->SetTexture(sub.m_Material->GetColorTexture(), 0);
 		mat->Bind();
 		mat->Render();

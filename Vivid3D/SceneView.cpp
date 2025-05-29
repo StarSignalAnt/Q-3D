@@ -39,6 +39,7 @@
 #include "Texture2D.h"
 #include "StaticMeshComponent.h"
 #include "MaterialBasic3D.h"
+#include "LightComponent.h"
 
 using namespace Diligent;
 
@@ -52,10 +53,11 @@ SceneView::SceneView(QWidget *parent)
 	//ui.setupUi(this);
 	setWindowTitle("Scene View");
     CreateGraphics();
-
+    setMouseTracking(true);
+    setFocusPolicy(Qt::StrongFocus);
     m_SceneGraph = new SceneGraph;
 
-    m_Test1 = Importer::ImportEntity("test/test.fbx");
+    m_Test1 = Importer::ImportEntity("test/test1.gltf");
     m_SceneGraph->SetRootNode(m_Test1);
 
     auto cam = m_SceneGraph->GetCamera();
@@ -63,20 +65,38 @@ SceneView::SceneView(QWidget *parent)
     cam->SetPosition(glm::vec3(0, 0, 4));
     auto tex1 = new Texture2D("test/tex1.png");
     
-    auto m1 = m_Test1->GetComponent<StaticMeshComponent>();
+//    auto m1 = m_Test1->GetNodes()[0]->GetComponent<StaticMeshComponent>();
+    m_Test1->SetScale(glm::vec3(1, 1, 1));
+//    m_Test1->GetNodes()[0]->SetScale(glm::vec3(1, 1, 1));
     
-    for (auto& sub : m1->GetSubMeshes()) {
+ //   for (auto& sub : m1->GetSubMeshes()) {
 
-        auto rmat = (MaterialBasic3D*)sub.m_Material;
-        rmat->SetColorTexture(tex1);
+     //   auto rmat = (MaterialBasic3D*)sub.m_Material;
+   //     rmat->SetColorTexture(tex1);
 
-    }
-    m_Test1->SetRotation(glm::vec3(0, 45, 0));
+   // }
 
+    //m_Test1->SetRotation(glm::vec3(45, 45, 0));
+
+    auto l1 = new GraphNode;
+
+    auto lc = new LightComponent;
+
+    m_SceneGraph->AddLight(l1);
+
+	l1->SetPosition(glm::vec3(0, 0, 4));
+
+    movementTimer.setInterval(16); // ~60 FPS
+    connect(&movementTimer, &QTimer::timeout, this, &SceneView::handleMovement);
+    movementTimer.start();
+
+    m_L1 = l1;
 }
 
 SceneView::~SceneView()
 {}
+
+float yv = 0;
 
 void SceneView::paintEvent(QPaintEvent* event)
 {
@@ -97,6 +117,11 @@ void SceneView::paintEvent(QPaintEvent* event)
     m_SceneGraph->Render();
 
     pSwapchain->Present();
+
+    //m_Test1->SetRotation(glm::vec3(45, yv, 0));
+   // yv = yv + 1;
+    update();
+
 
 }
 

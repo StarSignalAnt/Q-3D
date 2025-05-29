@@ -45,11 +45,18 @@ void GraphNode::Render(GraphNode* camera) {
 }
 
 glm::mat4 GraphNode::GetWorldMatrix(){
+
+	glm::mat4 root = glm::mat4(1.0f);
+
+	if (m_RootNode != nullptr) {
+		root = m_RootNode->GetWorldMatrix();
+	}
+
 	glm::mat4 transform = glm::mat4(1.0f);
 	auto pos = glm::translate(transform, m_Position);
 	auto rot  = m_Rotation;
 	auto scale  = glm::scale(transform, m_Scale);
-	return scale * rot * pos;
+	return root*( pos*rot);
 
 }
 
@@ -69,4 +76,13 @@ void GraphNode::SetRotation(glm::vec3 rotation) {
     m_Rotation = glm::rotate(m_Rotation, radians.z, glm::vec3(0, 0, 1)); // Roll
     m_Rotation = glm::rotate(m_Rotation, radians.y, glm::vec3(0, 1, 0)); // Yaw
     m_Rotation = glm::rotate(m_Rotation, radians.x, glm::vec3(1, 0, 0)); // Pitch
+}
+
+void GraphNode::SetScale(glm::vec3 scale) {
+	m_Scale = scale;
+}
+
+void GraphNode::Move(glm::vec3 offset) {
+	glm::vec3 rotatedOffset = glm::vec3(m_Rotation * glm::vec4(offset, 0.0f));
+	m_Position += rotatedOffset;
 }

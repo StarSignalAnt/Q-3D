@@ -3,6 +3,8 @@
 #include "GraphNode.h"
 #include "CameraComponent.h"
 
+SceneGraph* SceneGraph::m_CurrentGraph = nullptr;
+
 void SceneGraph::SetRootNode(GraphNode* node) {
 
 	m_RootNode = node;
@@ -27,6 +29,7 @@ void SceneGraph::AddNode(GraphNode* node) {
 
 void SceneGraph::Render() {
 
+	m_CurrentGraph = this;
 	m_RootNode->Render(m_Camera);
 
 //	for (auto sub : m_RootNode->GetNodes()) {
@@ -37,4 +40,10 @@ void SceneGraph::Render() {
 
 GraphNode* SceneGraph::GetCamera() {
 	return m_Camera;
+}
+
+void SceneGraph::AddLight(GraphNode* light) {
+
+	m_Lights.push_back(light);
+
 }
