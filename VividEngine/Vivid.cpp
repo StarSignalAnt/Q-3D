@@ -1,19 +1,25 @@
 
 #include "Vivid.h"
+#include "RenderTargetCube.h"
 
 RefCntAutoPtr<IRenderDevice>  Vivid::m_pDevice;
 RefCntAutoPtr<IDeviceContext> Vivid::m_pImmediateContext;
 RefCntAutoPtr<ISwapChain>     Vivid::m_pSwapChain;
 RefCntAutoPtr<IShaderSourceInputStreamFactory> Vivid::m_pShaderFactory;
 
+RenderTargetCube* Vivid::m_BoundRTC = nullptr;
 
+void Vivid::SetBoundRTC(RenderTargetCube* target) {
+
+	m_BoundRTC = target;
+
+}
 int Vivid::GetFrameWidth() {
 
-
-	//if (m_BoundRTC != nullptr) {
-//		return m_BoundRTC->GetWidth();
-//	}
-//	if (m_BoundRT2D != nullptr) {
+	if (m_BoundRTC != nullptr) {
+		return m_BoundRTC->GetWidth();
+	}
+	//if (m_BoundRT2D != nullptr) {
 //		return m_BoundRT2D->GetWidth();
 //	}
 	return m_FrameWidth;
@@ -22,17 +28,17 @@ int Vivid::GetFrameWidth() {
 
 int Vivid::GetFrameHeight() {
 
-//	if (m_BoundRTC != nullptr) {
-	//	return m_BoundRTC->GetHeight();
-//	}
-//	if (m_BoundRT2D != nullptr) {
-//		return m_BoundRT2D->GetHeight();
-//	}
+	if (m_BoundRTC != nullptr) {
+		return m_BoundRTC->GetHeight();
+	}
+
+	//if (m_BoundRT2D != nullptr) {
+	//	return m_BoundRT2D->GetHeight();
+	//}
 	return m_FrameHeight;
 
 
 }
-
 void Vivid::SetFrameWidth(int w) {
 
 	m_FrameWidth = w;

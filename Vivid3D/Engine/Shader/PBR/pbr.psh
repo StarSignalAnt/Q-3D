@@ -1,5 +1,6 @@
 #define PI 3.14159265359
 #define INV_PI 0.31830988618
+#define dx 1.0
 
 Texture2D v_Texture;
 SamplerState v_Texture_sampler;
@@ -9,10 +10,11 @@ Texture2D v_TextureMetal;
 SamplerState v_TextureMetal_sampler;
 Texture2D v_TextureRough;
 SamplerState v_TextureRough_sampler;
-
-// Environment mapping
 TextureCube v_TextureEnvironment;
 SamplerState v_TextureEnvironment_sampler;
+TextureCube v_TextureShadow;
+SamplerState v_TextureShadow_sampler;
+
 
 cbuffer Constants
 {
@@ -27,8 +29,7 @@ cbuffer Constants
     float4 g_LightColor;
     float4 g_LightIntensity;
     float4 g_LightRange;
-    
-    // Enhanced parameters
+
     float4 g_ToneMapParams;  // x: Exposure, y: Gamma, z: AmbientStrength, w: EnvStrength
     float4 g_AmbientColor;   // Ambient light color (w component unused)
 };
@@ -47,19 +48,70 @@ struct PSOutput {
     float4 Color : SV_TARGET;
 };
 
-// Improved tone mapping functions
-float3 ReinhardToneMapping(float3 color)
-{
-    return color / (color + 1.0);
+
+static const float3 sampleOffsetDirections[20] = {
+   float3( dx,  dx,  dx), float3( dx, -dx,  dx), float3(-dx, -dx,  dx), float3(-dx,  dx,  dx),
+   float3( dx,  dx, -dx), float3( dx, -dx, -dx), float3(-dx, -dx, -dx), float3(-dx,  dx, -dx),
+   float3( dx,  dx,  0), float3( dx, -dx,  0), float3(-dx, -dx,  0), float3(-dx,  dx,  0),
+   float3( dx,  0,  dx), float3(-dx,  0,  dx), float3( dx,  0, -dx), float3(-dx,  0, -dx),
+   float3( 0,  dx,  dx), float3( 0, -dx,  dx), float3( 0, -dx, -dx), float3( 0,  dx, -dx)
+};
+
+
+float light_GetShadow(float3 fragPos,float3 lightPos,float lightRange){
+
+    float3 fragToLight = fragPos - lightPos;
+   
+   // fragToLight.x = - fragToLight.x;
+   // fragToLight.y = - fragToLight.y;
+    fragToLight.z = - fragToLight.z;
+
+    float currentDepth = abs(distance(fragPos,lightPos));
+
+    int samples = 20;
+    float diskRadius = 0.0025f;
+    float bias = 0.005;
+    float shadowVal = 0;
+    currentDepth = currentDepth / lightRange;
+
+    for(int i=0;i<samples;i++){
+
+        float closestDepth = v_TextureShadow.Sample(v_TextureShadow_sampler,normalize(fragToLight)).r;
+
+
+        if(closestDepth>currentDepth-0.001 && closestDepth<currentDepth+0.0011)
+        {
+            shadowVal += 0;
+        }else
+        if( (currentDepth-0.0013)>closestDepth)
+        {
+
+         shadowVal +=1.0f;
+        
+
+        }
+
+    }
+
+
+    shadowVal = shadowVal / (float)samples;
+   
+ //   shadowVal = shadowVal * v_Shadow.Sample(v_Shadow_sampler,normalize(fragToLight)).g;
+   
+
+
+    shadowVal = 1.0 - shadowVal;
+    
+    //shadowVal =shadowVal * v_Shadow.Sample(v_Shadow_sampler,normalize(fragToLight)).g;
+
+    
+
+    return shadowVal;
+
 }
 
-float3 FilmicToneMapping(float3 color)
-{
-    color = max(0.0, color - 0.004);
-    color = (color * (6.2 * color + 0.5)) / (color * (6.2 * color + 1.7) + 0.06);
-    return color;
-}
 
+// Tone mapping functions
 float3 ACESFilmicToneMapping(float3 color)
 {
     const float a = 2.51;
@@ -70,25 +122,15 @@ float3 ACESFilmicToneMapping(float3 color)
     return saturate((color * (a * color + b)) / (color * (c * color + d) + e));
 }
 
-float3 ExposureToneMapping(float3 color, float exposure)
-{
-    return 1.0 - exp(-color * exposure);
-}
-
-// Enhanced normal mapping with proper handedness handling
+// Normal mapping
 float3 getNormalFromMap(float3 normalMap, float3 worldNormal, float3 worldTangent, float3 worldBinormal)
 {
-    // Unpack normal map (assuming standard format)
     float3 n = normalMap * 2.0 - 1.0;
-    
-    // Ensure proper handedness
     float3x3 TBN = float3x3(normalize(worldTangent), normalize(worldBinormal), normalize(worldNormal));
-    
-    // Transform to world space and normalize
     return normalize(mul(n, TBN));
 }
 
-// Optimized and more accurate GGX distribution
+// GGX distribution function
 float DistributionGGX(float3 N, float3 H, float roughness)
 {
     float a = roughness * roughness;
@@ -100,11 +142,11 @@ float DistributionGGX(float3 N, float3 H, float roughness)
     return a2 / (PI * denom * denom);
 }
 
-// Improved geometry function with better numerical stability
+// Geometry function
 float GeometrySchlickGGX(float NdotV, float roughness)
 {
     float r = roughness + 1.0;
-    float k = (r * r) * 0.125; // /8.0
+    float k = (r * r) * 0.125;
     return NdotV / (NdotV * (1.0 - k) + k);
 }
 
@@ -117,124 +159,103 @@ float GeometrySmith(float3 N, float3 V, float3 L, float roughness)
     return ggx1 * ggx2;
 }
 
-// Standard Fresnel with better precision
+// Fresnel function
 float3 fresnelSchlick(float cosTheta, float3 F0)
 {
-    float fc = pow(saturate(1.0 - cosTheta), 5.0);
-    return F0 + (1.0 - F0) * fc;
+    return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
 }
 
-// Enhanced Fresnel with roughness consideration for environment mapping
-float3 fresnelSchlickRoughness(float cosTheta, float3 F0, float roughness)
-{
-    float fc = pow(saturate(1.0 - cosTheta), 5.0);
-    float3 Fr = max(1.0 - roughness, F0);
-    return F0 + (Fr - F0) * fc;
-}
-
-// Improved light attenuation with smoother falloff
+// Light attenuation
 float calculateAttenuation(float3 lightPos, float3 worldPos, float range)
 {
     float dist = length(lightPos - worldPos);
     float normalizedDist = saturate(dist / range);
-    
-    // Smooth quadratic falloff
     float falloff = saturate(1.0 - normalizedDist * normalizedDist);
     falloff *= falloff;
-    
-    // Combine with inverse square law but prevent division by zero
     return falloff / max(dist * dist, 0.0001);
 }
 
 void main(in PSInput I, out PSOutput O)
 {
-    // Sample material properties with gamma correction for albedo
+    // Sample textures
     float4 albedoSample = v_Texture.Sample(v_Texture_sampler, I.Uv.xy);
-    float4 albedo = pow(albedoSample, 2.2) * I.v_Color; // Convert to linear space
+    float4 albedo = pow(albedoSample, 2.2) * I.v_Color;
     float3 normalSample = v_TextureNormal.Sample(v_TextureNormal_sampler, I.Uv.xy).rgb;
     float metallic = v_TextureMetal.Sample(v_TextureMetal_sampler, I.Uv.xy).r;
     float roughness = v_TextureRough.Sample(v_TextureRough_sampler, I.Uv.xy).r;
-    
-    // Clamp roughness to prevent numerical issues
     roughness = clamp(roughness, 0.04, 1.0);
 
-    // Calculate normals
+    // Compute normals
     float3 geoN = normalize(I.Normal);
     float3 N = getNormalFromMap(normalSample, geoN, I.Tangent, I.Binormal);
     float3 V = normalize(g_CameraPosition.xyz - I.WorldPos);
 
-    // Material properties - improved F0 calculation
-    float3 F0 = lerp(0.04, albedo.rgb, metallic);
-    
-    // Initialize final color
-    float3 Lo = 0.0;
+    // Compute reflectance at normal incidence
+    float3 F0 = lerp(float3(0.04, 0.04, 0.04), albedo.rgb, metallic);
 
-    // Direct lighting calculation
+    // Initialize lighting
+    float3 Lo = float3(0.0, 0.0, 0.0);
+
+    // Direct lighting
     float3 L = normalize(g_LightPosition.xyz - I.WorldPos);
     float NdotL = saturate(dot(N, L));
-    
-    // Only calculate lighting if surface faces the light
     if (NdotL > 0.0)
     {
-        // Light attenuation
         float attenuation = calculateAttenuation(g_LightPosition.xyz, I.WorldPos, g_LightRange.x);
         float3 radiance = g_LightColor.rgb * g_LightIntensity.x * attenuation;
 
-        // Half vector
         float3 H = normalize(V + L);
-        
-        // BRDF components
         float NDF = DistributionGGX(N, H, roughness);
         float G = GeometrySmith(N, V, L, roughness);
         float3 F = fresnelSchlick(saturate(dot(H, V)), F0);
-        
-        // Energy conservation
+
         float3 kS = F;
         float3 kD = (1.0 - kS) * (1.0 - metallic);
 
-        // Cook-Torrance BRDF
         float3 numerator = NDF * G * F;
         float denominator = 4.0 * saturate(dot(N, V)) * NdotL + 0.0001;
         float3 specular = numerator / denominator;
 
-        // Add direct lighting contribution
         Lo += (kD * albedo.rgb * INV_PI + specular) * radiance * NdotL;
+
+        float shadowVal = light_GetShadow(I.WorldPos,g_LightPosition.xyz,g_LightRange.x);
+
+        Lo *= shadowVal;
+    
+
+
     }
 
-    // Environment mapping with configurable strength
+    // Environment lighting
     float envStrength = g_ToneMapParams.w > 0.0 ? g_ToneMapParams.w : 1.0;
-    
     float3 R = reflect(-V, N);
     float3 envSpecular = v_TextureEnvironment.Sample(v_TextureEnvironment_sampler, R).rgb;
     float3 envDiffuse = v_TextureEnvironment.Sample(v_TextureEnvironment_sampler, N).rgb;
-    
-    // Environment Fresnel
-    float3 F_env = fresnelSchlickRoughness(saturate(dot(N, V)), F0, roughness);
-    
-    // Environment contribution with better energy conservation
+
+    float3 F_env = fresnelSchlick(saturate(dot(N, V)), F0);
     float3 kS_env = F_env * 0.3 * envStrength;
     float3 kD_env = (1.0 - F_env) * (1.0 - metallic) * 0.1 * envStrength;
-    
-    // Roughness-based environment intensity
+
     float envIntensity = lerp(0.4, 0.05, roughness);
     float3 envSpecularModulated = envSpecular * envIntensity;
-    
-    // Add environment lighting
+
     float3 diffuseEnv = kD_env * albedo.rgb * envDiffuse;
     float3 specularEnv = kS_env * envSpecularModulated;
-    
+
     // Ambient lighting
     float3 ambient = g_AmbientColor.xyz * g_ToneMapParams.z * albedo.rgb;
-    
-    // Combine all lighting
+
+    // Combine lighting
     Lo += ambient + diffuseEnv + specularEnv;
 
     // Tone mapping
     Lo = ACESFilmicToneMapping(Lo);
-    
+
     // Gamma correction
-    float gamma = max(g_ToneMapParams.y, 1.0); // Prevent invalid gamma values
+    float gamma = max(g_ToneMapParams.y, 1.0);
     Lo = pow(max(Lo, 0.0), 1.0 / gamma);
+
+
 
     O.Color = float4(Lo, albedo.a);
 }

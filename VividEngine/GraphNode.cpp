@@ -3,6 +3,11 @@
 #include "Component.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/constants.hpp>
+#include "BasicMath.hpp"
+#include <glm/glm.hpp>
+
+using namespace Diligent;
+
 GraphNode::GraphNode() {
 
 	Reset();
@@ -40,6 +45,18 @@ void GraphNode::Render(GraphNode* camera) {
 
 	for (auto sub : m_Nodes) {
 		sub->Render(camera);
+	}
+
+}
+
+void GraphNode::RenderDepth(GraphNode* camera) {
+
+	for (auto& component : m_Components) {
+		component->OnRenderDepth(camera);
+	}
+
+	for (auto sub : m_Nodes) {
+		sub->RenderDepth(camera);
 	}
 
 }
@@ -85,4 +102,22 @@ void GraphNode::SetScale(glm::vec3 scale) {
 void GraphNode::Move(glm::vec3 offset) {
 	glm::vec3 rotatedOffset = glm::vec3(m_Rotation * glm::vec4(offset, 0.0f));
 	m_Position += rotatedOffset;
+}
+
+glm::mat4 f42g(const Diligent::float4x4& diligentMat)
+{
+	
+	return glm::mat4(
+		diligentMat._11, diligentMat._21, diligentMat._31, diligentMat._41,  // GLM column 0
+		diligentMat._12, diligentMat._22, diligentMat._32, diligentMat._42,  // GLM column 1
+		diligentMat._13, diligentMat._23, diligentMat._33, diligentMat._43,  // GLM column 2
+		diligentMat._14, diligentMat._24, diligentMat._34, diligentMat._44   // GLM column 3
+	);
+
+}
+
+void GraphNode::SetRotation(float4x4 rot) {
+
+	m_Rotation = f42g(rot);
+
 }

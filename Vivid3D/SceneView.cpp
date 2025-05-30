@@ -72,7 +72,11 @@ SceneView::SceneView(QWidget *parent)
 			m1->SetNormalTexture(new Texture2D("test/tex_normal.png"));
             m1->SetMetallicTexture(new Texture2D("test/tex_metal.png"));
 			m1->SetRoughnessTexture(new Texture2D("test/tex_rough.png"));
-            m1->SetEnvironmentMap(new TextureCube("test/cube1.tex"));
+			//m1->SetIRR(new TextureCube("test/cube1.tex"));
+           // m1->SetEnvironmentMap(new TextureCube("test/cube1.tex"));
+
+
+
 
         }
 
@@ -143,6 +147,7 @@ void SceneView::paintEvent(QPaintEvent* event)
     pContext->ClearRenderTarget(pRTV, ClearColor, RESOURCE_STATE_TRANSITION_MODE_VERIFY);
     pContext->ClearDepthStencil(pSwapchain->GetDepthBufferDSV(), CLEAR_DEPTH_FLAG, 1.0f, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
+    m_SceneGraph->RenderShadows();
     m_SceneGraph->Render();
 
     pSwapchain->Present();

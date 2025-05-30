@@ -1,6 +1,8 @@
 #include "LightComponent.h"
-
+#include "RenderTargetCube.h"
 LightComponent::LightComponent() {
+
+	m_ShadowMap = new RenderTargetCube(1024, 1024, true);
 
 }
 

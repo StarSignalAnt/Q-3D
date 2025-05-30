@@ -3,6 +3,7 @@
 #include "GraphNode.h"
 #include "StaticMeshComponent.h"
 #include "StaticRendererComponent.h"
+#include "StaticDepthRendererComponent.h"
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
@@ -11,6 +12,7 @@
 #include <string>
 #include "RenderMaterial.h"
 #include "MaterialBasic3D.h"
+#include "MaterialDepth.h"
 #include "Texture2D.h"
 #include "MaterialPBR.h"
 #include <filesystem> // C++17 or later
@@ -151,6 +153,7 @@ GraphNode* Importer::ImportEntity(std::string path) {
         }
 
         subMesh.m_Material = materials[mesh->mMaterialIndex];  // Use shared material
+        subMesh.m_DepthMaterial = new MaterialDepth;
     }
 
     // Recursive function to process scene nodes
@@ -185,9 +188,12 @@ GraphNode* Importer::ImportEntity(std::string path) {
             }
             meshComponent->Finalize();
             node->AddComponent(meshComponent);
+            
 
             auto renderer = new StaticRendererComponent;
             node->AddComponent(renderer);
+            auto depth_renderer = new StaticDepthRendererComponent;
+			node->AddComponent(depth_renderer);
         }
 
         // Recurse through children

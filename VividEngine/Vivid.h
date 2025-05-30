@@ -30,6 +30,8 @@
 #include "SwapChain.h"
 #include "BasicMath.hpp"
 
+class RenderTargetCube;
+
 using namespace Diligent;
 
 class Vivid
@@ -46,7 +48,8 @@ public:
 	static void SetFrameWidth(int w);
 	static void SetFrameHeight(int h);
 	static void ClearZ();
-
+	static void SetBoundRTC(RenderTargetCube* target);
+	static RenderTargetCube* m_BoundRTC;
 private:
 
 	static int m_FrameWidth;

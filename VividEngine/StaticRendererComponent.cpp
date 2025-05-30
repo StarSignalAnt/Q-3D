@@ -27,6 +27,7 @@ void StaticRendererComponent::OnRender(GraphNode* camera) {
 			mat->SetMatrix(m_Owner->GetWorldMatrix(), 1);
 			mat->SetMatrix(camera->GetComponent<CameraComponent>()->GetProjectionMatrix(), 2);
 			mat->SetCameraPosition(camera->GetPosition());
+			mat->SetCameraExt(camera->GetComponent<CameraComponent>()->GetExtents());
 			//	mat->SetTexture(sub.m_Material->GetColorTexture(), 0);
 			mat->SetLight(light);
 			mat->Bind(add);

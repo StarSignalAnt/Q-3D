@@ -18,6 +18,7 @@ public:
     // Optional virtual methods to override
     virtual void OnUpdate(float deltaTime) {}
     virtual void OnRender(GraphNode* camera) {}
+    virtual void OnRenderDepth(GraphNode* camera) {};
 protected:
 
     // Pointer to the owner node

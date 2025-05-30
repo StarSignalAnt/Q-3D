@@ -3,6 +3,8 @@
 
 #include <glm/glm.hpp>
 
+class RenderTargetCube;
+
 enum class LightType {
     Directional,
     Point,
@@ -23,13 +25,15 @@ public:
     void SetColor(glm::vec3 color) {
         m_Color = color;
     }
-
+    RenderTargetCube* GetShadowMap() {
+        return m_ShadowMap;
+	}
 private:
 
     LightType m_Type;
     glm::vec3 m_Color = glm::vec3(1, 1, 1);
     float m_Intensity = 40.0f;
     float m_Range = 55.0f;
-
+    RenderTargetCube* m_ShadowMap = nullptr;
 };
 

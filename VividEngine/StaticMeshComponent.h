@@ -29,6 +29,7 @@ struct SubMesh {
 	std::vector<Vertex3> m_Vertices;
     std::vector<Tri3> m_Triangles;
     RenderMaterial* m_Material = nullptr;
+    RenderMaterial* m_DepthMaterial = nullptr;
     RefCntAutoPtr<IBuffer> VertexBuffer;
     RefCntAutoPtr<IBuffer> IndexBuffer;
 

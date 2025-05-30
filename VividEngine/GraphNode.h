@@ -4,7 +4,10 @@
 #include <glm/gtc/type_ptr.hpp> 
 #include <vector>
 #include <string>
+#include "BasicMath.hpp"
+#include <glm/glm.hpp>
 
+using namespace Diligent;
 class Component;
 
 class GraphNode
@@ -31,6 +34,7 @@ public:
 		return nullptr;
 	}
 	void Render(GraphNode* camera);
+	void RenderDepth(GraphNode* camera);
 	glm::mat4 GetWorldMatrix();
 
 	void SetPosition(glm::vec3 position);
@@ -38,6 +42,7 @@ public:
 	void SetScale(glm::vec3 scale);
 	glm::vec3 GetPosition() { return m_Position; }
 	void Move(glm::vec3 vec);
+	void SetRotation(float4x4 rotation); //converts from de.
 private:
 
 	glm::vec3 m_Position;

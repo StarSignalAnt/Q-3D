@@ -28,6 +28,16 @@ public:
     {
         m_EnvironmentMap = texture;
 	}
+    void SetBRDF(Texture2D* texture)
+    {
+        m_BRDF = texture;
+    }
+    void SetIRR(TextureCube* texture)
+    {
+        m_IRR = texture;
+	}
+
+
 
     Texture2D* GetColorTexture() const
     {
@@ -55,6 +65,8 @@ private:
     Texture2D* m_NormalTexture = nullptr;
     Texture2D* m_MetallicTexture = nullptr;
     Texture2D* m_RoughnessTexture = nullptr;
+    Texture2D* m_BRDF = nullptr;
+    TextureCube* m_IRR = nullptr;
 	TextureCube* m_EnvironmentMap = nullptr;
 
 };

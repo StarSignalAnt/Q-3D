@@ -144,13 +144,17 @@
   <ItemGroup>
     <ClInclude Include="CameraComponent.h" />
     <ClInclude Include="Component.h" />
+    <ClInclude Include="CubeRenderer.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GraphNode.h" />
     <ClInclude Include="Importer.h" />
     <ClInclude Include="LightComponent.h" />
     <ClInclude Include="MaterialBasic3D.h" />
+    <ClInclude Include="MaterialDepth.h" />
     <ClInclude Include="MaterialPBR.h" />
     <ClInclude Include="RenderMaterial.h" />
+    <ClInclude Include="RenderTargetCube.h" />
+    <ClInclude Include="StaticDepthRendererComponent.h" />
     <ClInclude Include="StaticMeshComponent.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="SceneGraph.h" />
@@ -163,12 +167,16 @@
   <ItemGroup>
     <ClCompile Include="CameraComponent.cpp" />
     <ClCompile Include="Component.cpp" />
+    <ClCompile Include="CubeRenderer.cpp" />
     <ClCompile Include="GraphNode.cpp" />
     <ClCompile Include="Importer.cpp" />
     <ClCompile Include="LightComponent.cpp" />
     <ClCompile Include="MaterialBasic3D.cpp" />
+    <ClCompile Include="MaterialDepth.cpp" />
     <ClCompile Include="MaterialPBR.cpp" />
     <ClCompile Include="RenderMaterial.cpp" />
+    <ClCompile Include="RenderTargetCube.cpp" />
+    <ClCompile Include="StaticDepthRendererComponent.cpp" />
     <ClCompile Include="StaticMeshComponent.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
