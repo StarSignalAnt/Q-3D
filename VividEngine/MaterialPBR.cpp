@@ -7,6 +7,7 @@
 #include <Common/interface/RefCntAutoPtr.hpp>
 #include <MapHelper.hpp> // Add this line
 #include "Texture2D.h"
+#include "TextureCube.h"
 #include "SceneGraph.h"
 #include "LightComponent.h"
 #include "GraphNode.h"
@@ -177,6 +178,11 @@ MaterialPBR::MaterialPBR() {
     v_tex.Type = SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC;
     vars.push_back(v_tex);
 
+    v_tex.ShaderStages = SHADER_TYPE_PIXEL;
+    v_tex.Name = "v_TextureEnvironment";
+    v_tex.Type = SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC;
+    vars.push_back(v_tex);
+
     ImmutableSamplerDesc v_sampler;
 
     SamplerDesc v_rsampler;
@@ -218,15 +224,22 @@ MaterialPBR::MaterialPBR() {
 
     samplers.push_back(v_sampler);
 
+    v_sampler.Desc = v_rsampler;
+    v_sampler.SamplerOrTextureName = "v_TextureEnvironment";
+    v_sampler.ShaderStages = SHADER_TYPE_PIXEL;
+
+
+    samplers.push_back(v_sampler);
+
 
     PipelineResourceLayoutDesc rl_desc;
 
     rl_desc.DefaultVariableType = SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
     rl_desc.Variables = vars.data();
     rl_desc.ImmutableSamplers = samplers.data();
-    rl_desc.NumVariables = 4;
+    rl_desc.NumVariables = 5;
 
-    rl_desc.NumImmutableSamplers = 4;
+    rl_desc.NumImmutableSamplers = 5;
 
 
     PipelineStateDesc pso_desc;
@@ -272,8 +285,8 @@ MaterialPBR::MaterialPBR() {
 
   //  DepthStencilStateDesc ds_desc;
     ds_desc.DepthEnable = true;
-    ds_desc.DepthFunc = COMPARISON_FUNC_LESS_EQUAL;
-    ds_desc.DepthWriteEnable = true;
+    ds_desc.DepthFunc = COMPARISON_FUNC_EQUAL;
+    ds_desc.DepthWriteEnable = false;
 
 
     //BlendStateDesc b_desc;
@@ -381,6 +394,11 @@ MaterialPBR::MaterialPBR() {
     v_tex.Type = SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC;
     vars.push_back(v_tex);
 
+    v_tex.ShaderStages = SHADER_TYPE_PIXEL;
+    v_tex.Name = "v_TextureEnvironment";
+    v_tex.Type = SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC;
+    vars.push_back(v_tex);
+
  //   ImmutableSamplerDesc v_sampler;
 
   //  SamplerDesc v_rsampler;
@@ -422,15 +440,21 @@ MaterialPBR::MaterialPBR() {
 
     samplers.push_back(v_sampler);
 
+    v_sampler.Desc = v_rsampler;
+    v_sampler.SamplerOrTextureName = "v_TextureEnvironment";
+    v_sampler.ShaderStages = SHADER_TYPE_PIXEL;
+
+
+    samplers.push_back(v_sampler);
 
 //    PipelineResourceLayoutDesc rl_desc;
 
     rl_desc.DefaultVariableType = SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
     rl_desc.Variables = vars.data();
     rl_desc.ImmutableSamplers = samplers.data();
-    rl_desc.NumVariables = 4;
+    rl_desc.NumVariables = 5;
 
-    rl_desc.NumImmutableSamplers = 4;
+    rl_desc.NumImmutableSamplers = 5;
 
 
     //PipelineStateDesc pso_desc;
@@ -483,6 +507,8 @@ void MaterialPBR::Bind(bool add) {
         m_SRBAdd->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureNormal")->Set(m_NormalTexture->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
         m_SRBAdd->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureMetal")->Set(m_MetallicTexture->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
         m_SRBAdd->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureRough")->Set(m_RoughnessTexture->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
+        m_SRBAdd->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureEnvironment")->Set(m_EnvironmentMap->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
+
         //Engine::m_pImmediateContext->MapBuffer(BasicUniform, MAP_TYPE::MAP_WRITE, MAP_FLAGS::MAP_FLAG_DISCARD);
         {
             MapHelper<PBRConstant> map_data(Vivid::m_pImmediateContext, m_UniformBuffer, MAP_WRITE, MAP_FLAG_DISCARD);
@@ -563,6 +589,8 @@ void MaterialPBR::Bind(bool add) {
         m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureNormal")->Set(m_NormalTexture->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
         m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureMetal")->Set(m_MetallicTexture->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
         m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureRough")->Set(m_RoughnessTexture->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
+        m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureEnvironment")->Set(m_EnvironmentMap->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
+
         //Engine::m_pImmediateContext->MapBuffer(BasicUniform, MAP_TYPE::MAP_WRITE, MAP_FLAGS::MAP_FLAG_DISCARD);
         {
             MapHelper<PBRConstant> map_data(Vivid::m_pImmediateContext, m_UniformBuffer, MAP_WRITE, MAP_FLAG_DISCARD);

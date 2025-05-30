@@ -24,6 +24,11 @@ public:
     {
         m_RoughnessTexture = texture;
     }
+    void SetEnvironmentMap(TextureCube* texture)
+    {
+        m_EnvironmentMap = texture;
+	}
+
     Texture2D* GetColorTexture() const
     {
         return m_ColorTexture;
@@ -36,6 +41,11 @@ public:
     {
         return m_MetallicTexture;
 	}
+ 
+    TextureCube* GetEnvironmentMap() const
+    {
+        return m_EnvironmentMap;
+	}
 
 
 private:
@@ -45,6 +55,7 @@ private:
     Texture2D* m_NormalTexture = nullptr;
     Texture2D* m_MetallicTexture = nullptr;
     Texture2D* m_RoughnessTexture = nullptr;
+	TextureCube* m_EnvironmentMap = nullptr;
 
 };
 

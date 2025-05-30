@@ -38,6 +38,7 @@
 #include "GraphNode.h"
 #include "Importer.h"
 #include "Texture2D.h"
+#include "TextureCube.h"
 #include "StaticMeshComponent.h"
 #include "MaterialBasic3D.h"
 #include "LightComponent.h"
@@ -71,6 +72,7 @@ SceneView::SceneView(QWidget *parent)
 			m1->SetNormalTexture(new Texture2D("test/tex_normal.png"));
             m1->SetMetallicTexture(new Texture2D("test/tex_metal.png"));
 			m1->SetRoughnessTexture(new Texture2D("test/tex_rough.png"));
+            m1->SetEnvironmentMap(new TextureCube("test/cube1.tex"));
 
         }
 

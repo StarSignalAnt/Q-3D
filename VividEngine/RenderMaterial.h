@@ -36,6 +36,7 @@
 #include "BasicMath.hpp"
 
 class Texture2D;
+class TextureCube;
 
 using namespace Diligent;
 class RenderMaterial

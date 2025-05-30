@@ -156,6 +156,8 @@
     <ClInclude Include="SceneGraph.h" />
     <ClInclude Include="StaticRendererComponent.h" />
     <ClInclude Include="Texture2D.h" />
+    <ClInclude Include="TextureCube.h" />
+    <ClInclude Include="VFile.h" />
     <ClInclude Include="Vivid.h" />
   </ItemGroup>
   <ItemGroup>
@@ -177,6 +179,8 @@
     <ClCompile Include="SceneGraph.cpp" />
     <ClCompile Include="StaticRendererComponent.cpp" />
     <ClCompile Include="Texture2D.cpp" />
+    <ClCompile Include="TextureCube.cpp" />
+    <ClCompile Include="VFile.cpp" />
     <ClCompile Include="Vivid.cpp" />
     <ClCompile Include="VividEngine.cpp" />
   </ItemGroup>
