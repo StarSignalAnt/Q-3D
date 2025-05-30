@@ -10,10 +10,8 @@ cbuffer Constants
     float4 g_LightColor;
     float4 g_LightIntensity;
     float4 g_LightRange;
-
-   float4 g_ToneMapParams;  // x: Exposure, y: Gamma, z: AmbientStrength, w: unused
+    float4 g_ToneMapParams;
     float4 g_AmbientColor;
-
 };
 
 struct VSInput
@@ -35,16 +33,26 @@ struct PSInput
     float3 Normal : TEXCOORD3;
     float3 Tangent : TEXCOORD4;
     float3 Binormal : TEXCOORD5;
+    float3 ViewDirTS : TEXCOORD6; // View direction in tangent space
 };
 
 void main(in VSInput VSIn, out PSInput PSIn)
 {
+    float3 worldPos = mul(float4(VSIn.Pos, 1.0), g_ModelMatrix).xyz;
+    float3 normal = normalize(mul(VSIn.Norm, (float3x3)g_NormalMatrix));
+    float3 tangent = normalize(mul(VSIn.Tang, (float3x3)g_ModelMatrix));
+    float3 binormal = normalize(mul(VSIn.BiNorm, (float3x3)g_ModelMatrix));
+
+    float3 viewDirWS = normalize(g_CameraPosition.xyz - worldPos);
+    float3x3 TBN = float3x3(tangent, binormal, normal);
+    float3 viewDirTS = mul(viewDirWS, TBN);
+
     PSIn.Pos = mul(float4(VSIn.Pos, 1.0), g_MVPMatrix);
     PSIn.Uv = VSIn.Uv;
     PSIn.v_Color = VSIn.Color;
-    
-    PSIn.WorldPos = mul(float4(VSIn.Pos, 1.0), g_ModelMatrix).xyz;
-    PSIn.Normal = normalize(mul(VSIn.Norm, (float3x3)g_NormalMatrix));
-    PSIn.Tangent = normalize(mul(VSIn.Tang, (float3x3)g_ModelMatrix));
-    PSIn.Binormal = normalize(mul(VSIn.BiNorm, (float3x3)g_ModelMatrix));
+    PSIn.WorldPos = worldPos;
+    PSIn.Normal = normal;
+    PSIn.Tangent = tangent;
+    PSIn.Binormal = binormal;
+    PSIn.ViewDirTS = viewDirTS;
 }

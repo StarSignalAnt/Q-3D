@@ -44,6 +44,7 @@ MaterialPBR::MaterialPBR() {
 	m_RoughnessTexture = new Texture2D("Engine/Maps/White.png");
 	m_NormalTexture = new Texture2D("Engine/Maps/Normal.png");
 	m_EnvironmentMap = new TextureCube("Engine/Maps/blackcm.tex");
+	m_HeightTexture = new Texture2D("Engine/Maps/Black.png");
 	//m_BRDF = new Texture2D("Engine/Maps/BRDF.png");
 
 
@@ -197,6 +198,11 @@ MaterialPBR::MaterialPBR() {
     v_tex.Type = SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC;
     vars.push_back(v_tex);
 
+    v_tex.ShaderStages = SHADER_TYPE_PIXEL;
+    v_tex.Name = "v_TextureHeight";
+    v_tex.Type = SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC;
+    vars.push_back(v_tex);
+
     ImmutableSamplerDesc v_sampler;
 
     SamplerDesc v_rsampler;
@@ -253,15 +259,22 @@ MaterialPBR::MaterialPBR() {
 
     samplers.push_back(v_sampler);
 
+    v_sampler.Desc = v_rsampler;
+    v_sampler.SamplerOrTextureName = "v_TextureHeight";
+    v_sampler.ShaderStages = SHADER_TYPE_PIXEL;
+
+
+
+    samplers.push_back(v_sampler);
 
     PipelineResourceLayoutDesc rl_desc;
 
     rl_desc.DefaultVariableType = SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
     rl_desc.Variables = vars.data();
     rl_desc.ImmutableSamplers = samplers.data();
-    rl_desc.NumVariables = 6;
+    rl_desc.NumVariables = 7;
 
-    rl_desc.NumImmutableSamplers = 6;
+    rl_desc.NumImmutableSamplers = 7;
 
 
     PipelineStateDesc pso_desc;
@@ -426,6 +439,11 @@ MaterialPBR::MaterialPBR() {
     v_tex.Type = SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC;
     vars.push_back(v_tex);
 
+    v_tex.ShaderStages = SHADER_TYPE_PIXEL;
+    v_tex.Name = "v_TextureHeight";
+    v_tex.Type = SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC;
+    vars.push_back(v_tex);
+
  //   ImmutableSamplerDesc v_sampler;
 
   //  SamplerDesc v_rsampler;
@@ -483,14 +501,22 @@ MaterialPBR::MaterialPBR() {
 
     samplers.push_back(v_sampler);
 
+    v_sampler.Desc = v_rsampler;
+    v_sampler.SamplerOrTextureName = "v_TextureHeight";
+    v_sampler.ShaderStages = SHADER_TYPE_PIXEL;
+
+
+
+    samplers.push_back(v_sampler);
+
 //    PipelineResourceLayoutDesc rl_desc;
 
     rl_desc.DefaultVariableType = SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
     rl_desc.Variables = vars.data();
     rl_desc.ImmutableSamplers = samplers.data();
-    rl_desc.NumVariables = 6;
+    rl_desc.NumVariables = 7;
 
-    rl_desc.NumImmutableSamplers = 6;
+    rl_desc.NumImmutableSamplers = 7;
 
 
     //PipelineStateDesc pso_desc;
@@ -545,6 +571,8 @@ void MaterialPBR::Bind(bool add) {
         m_SRBAdd->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureRough")->Set(m_RoughnessTexture->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
         m_SRBAdd->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureEnvironment")->Set(m_EnvironmentMap->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
 		m_SRBAdd->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureShadow")->Set(m_Light->GetComponent<LightComponent>()->GetShadowMap()->GetTexView(), SET_SHADER_RESOURCE_FLAG_NONE);
+        m_SRBAdd->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureHeight")->Set(m_HeightTexture->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
+
         //Engine::m_pImmediateContext->MapBuffer(BasicUniform, MAP_TYPE::MAP_WRITE, MAP_FLAGS::MAP_FLAG_DISCARD);
         {
             MapHelper<PBRConstant> map_data(Vivid::m_pImmediateContext, m_UniformBuffer, MAP_WRITE, MAP_FLAG_DISCARD);
@@ -627,6 +655,9 @@ void MaterialPBR::Bind(bool add) {
         m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureRough")->Set(m_RoughnessTexture->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
         m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureEnvironment")->Set(m_EnvironmentMap->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
         m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureShadow")->Set(m_Light->GetComponent<LightComponent>()->GetShadowMap()->GetTexView(), SET_SHADER_RESOURCE_FLAG_NONE);
+        m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureHeight")->Set(m_HeightTexture->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
+
+
         //Engine::m_pImmediateContext->MapBuffer(BasicUniform, MAP_TYPE::MAP_WRITE, MAP_FLAGS::MAP_FLAG_DISCARD);
         {
             MapHelper<PBRConstant> map_data(Vivid::m_pImmediateContext, m_UniformBuffer, MAP_WRITE, MAP_FLAG_DISCARD);

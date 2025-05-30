@@ -50,6 +50,7 @@ public:
 	static void ClearZ();
 	static void SetBoundRTC(RenderTargetCube* target);
 	static RenderTargetCube* m_BoundRTC;
+	static void InitPython();
 private:
 
 	static int m_FrameWidth;

@@ -57,6 +57,10 @@ SceneView::SceneView(QWidget *parent)
     CreateGraphics();
     setMouseTracking(true);
     setFocusPolicy(Qt::StrongFocus);
+
+    //Vivid::InitPython();
+ 
+
     m_SceneGraph = new SceneGraph;
 
     m_Test1 = Importer::ImportEntity("test/test1.gltf");
@@ -72,6 +76,8 @@ SceneView::SceneView(QWidget *parent)
 			m1->SetNormalTexture(new Texture2D("test/tex_normal.png"));
             m1->SetMetallicTexture(new Texture2D("test/tex_metal.png"));
 			m1->SetRoughnessTexture(new Texture2D("test/tex_rough.png"));
+			m1->SetHeightTexture(new Texture2D("test/tex_height.png"));
+
 			//m1->SetIRR(new TextureCube("test/cube1.tex"));
            // m1->SetEnvironmentMap(new TextureCube("test/cube1.tex"));
 
@@ -194,6 +200,7 @@ void SceneView::CreateGraphics() {
 	Vivid::m_pShaderFactory = m_pShaderFactory;
 	Vivid::m_pSwapChain = m_pSwapChain;
 
+   
 
 }
 

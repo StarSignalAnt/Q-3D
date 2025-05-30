@@ -56,7 +56,10 @@ public:
     {
         return m_EnvironmentMap;
 	}
-
+    void SetHeightTexture(Texture2D* texture)
+    {
+        m_HeightTexture = texture;
+	}
 
 private:
 
@@ -68,6 +71,7 @@ private:
     Texture2D* m_BRDF = nullptr;
     TextureCube* m_IRR = nullptr;
 	TextureCube* m_EnvironmentMap = nullptr;
+    Texture2D* m_HeightTexture = nullptr;
 
 };
 
