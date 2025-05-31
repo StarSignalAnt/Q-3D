@@ -60,8 +60,13 @@ public:
     {
         m_HeightTexture = texture;
 	}
-
+    void SetParallaxScale(float scale)
+    {
+        m_ParalaxScale = scale;
+    }
+    
 private:
+
 
 
     Texture2D* m_ColorTexture = nullptr;
@@ -72,6 +77,7 @@ private:
     TextureCube* m_IRR = nullptr;
 	TextureCube* m_EnvironmentMap = nullptr;
     Texture2D* m_HeightTexture = nullptr;
+	float m_ParalaxScale = 0.05f;
 
 };
 

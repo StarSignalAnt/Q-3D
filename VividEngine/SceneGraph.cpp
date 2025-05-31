@@ -74,3 +74,11 @@ void SceneGraph::RenderShadows() {
 	}
 
 }
+
+void SceneGraph::Update(float dt) {
+
+
+	m_CurrentGraph = this;
+	m_RootNode->Update(dt);
+
+}

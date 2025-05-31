@@ -37,6 +37,9 @@
     <Filter Include="Renderers">
       <UniqueIdentifier>{c19fe529-a106-4e83-9156-d68b0c50d0ac}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Animation">
+      <UniqueIdentifier>{f76beb9a-3db5-4749-ba17-7d201486f2a8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -100,6 +103,36 @@
       <Filter>RenderTarget</Filter>
     </ClInclude>
     <ClInclude Include="CubeRenderer.h">
+      <Filter>Material</Filter>
+    </ClInclude>
+    <ClInclude Include="Animator.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="Bone.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="BoneInfo.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="Animation.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="MathsHelp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SkeletalMeshComponent.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SkeletalRendererComponent.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialSkeletal.h">
+      <Filter>Material</Filter>
+    </ClInclude>
+    <ClInclude Include="SkeletalDepthRendererComponent.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialSkeletalDepth.h">
       <Filter>Material</Filter>
     </ClInclude>
   </ItemGroup>
@@ -166,6 +199,36 @@
     </ClCompile>
     <ClCompile Include="CubeRenderer.cpp">
       <Filter>Renderers</Filter>
+    </ClCompile>
+    <ClCompile Include="Animation.cpp">
+      <Filter>Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="Animator.cpp">
+      <Filter>Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="Bone.cpp">
+      <Filter>Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="BoneInfo.cpp">
+      <Filter>Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="MathsHelp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SkeletalMeshComponent.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SkeletalRendererComponent.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="MaterialSkeletal.cpp">
+      <Filter>Material</Filter>
+    </ClCompile>
+    <ClCompile Include="SkeletalDepthRendererComponent.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="MaterialSkeletalDepth.cpp">
+      <Filter>Material</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

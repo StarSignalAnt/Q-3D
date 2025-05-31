@@ -105,10 +105,14 @@
   <ItemGroup>
     <QtRcc Include="Vivid3D.qrc" />
     <QtUic Include="PropertiesEditor.ui" />
+    <QtUic Include="PropertyText.ui" />
+    <QtUic Include="PropertyVec3.ui" />
     <QtUic Include="SceneView.ui" />
     <QtUic Include="Vivid3D.ui" />
     <QtMoc Include="Vivid3D.h" />
     <ClCompile Include="PropertiesEditor.cpp" />
+    <ClCompile Include="PropertyText.cpp" />
+    <ClCompile Include="PropertyVec3.cpp" />
     <ClCompile Include="SceneView.cpp" />
     <ClCompile Include="Vivid3D.cpp" />
     <ClCompile Include="main.cpp" />
@@ -120,6 +124,12 @@
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="PropertiesEditor.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="PropertyVec3.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="PropertyText.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

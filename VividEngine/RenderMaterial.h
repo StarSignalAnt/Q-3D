@@ -57,6 +57,16 @@ public:
 	void SetCameraPosition(glm::vec3 position) { m_CameraPosition = position; }
 	void SetIndexCount(int count) { m_IndexCount = count; }	
 	void SetLight(GraphNode* light) { m_Light = light; };
+	void SetBone(glm::mat4 bone, int index) {
+
+			if (index < 100)
+				m_Bones[index] = bone;
+	}
+	glm::mat4 GetBone(int index) const {
+		if (index < 100)
+			return m_Bones[index];
+		return glm::mat4(1.0f);
+	}
 protected:
 
 	GraphNode* m_Light = nullptr;
@@ -67,6 +77,7 @@ protected:
 	RefCntAutoPtr<IBuffer> m_UniformBuffer;
 	RefCntAutoPtr<IShaderResourceBinding> m_SRB;
 	RefCntAutoPtr<IShaderResourceBinding> m_SRBAdd;
+	glm::mat4 m_Bones[100];
 	int m_IndexCount = 0;
 	RefCntAutoPtr<IBuffer> m_Buffers[128];
 	glm::mat4 m_RenderMatrices[256];

@@ -73,7 +73,7 @@ glm::mat4 GraphNode::GetWorldMatrix(){
 	auto pos = glm::translate(transform, m_Position);
 	auto rot  = m_Rotation;
 	auto scale  = glm::scale(transform, m_Scale);
-	return root*( pos*rot);
+	return root* (pos * rot * scale);
 
 }
 
@@ -119,5 +119,18 @@ glm::mat4 f42g(const Diligent::float4x4& diligentMat)
 void GraphNode::SetRotation(float4x4 rot) {
 
 	m_Rotation = f42g(rot);
+
+}
+
+void GraphNode::Update(float dt) {
+
+
+	for (auto& component : m_Components) {
+		component->OnUpdate(dt);
+	}
+
+	for (auto sub : m_Nodes) {
+		sub->Update(dt);
+	}
 
 }

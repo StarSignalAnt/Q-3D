@@ -8,24 +8,25 @@
 		{
 			"name":"Scene",
 			"nodes":[
-				0,
-				1
+				0
 			]
 		}
 	],
 	"nodes":[
 		{
 			"mesh":0,
-			"name":"Cube"
-		},
-		{
-			"mesh":1,
 			"name":"Cube.001"
+		}
+	],
+	"materials":[
+		{
+			"doubleSided":true,
+			"name":"Material.003"
 		}
 	],
 	"meshes":[
 		{
-			"name":"Cube.002",
+			"name":"Cube",
 			"primitives":[
 				{
 					"attributes":{
@@ -33,20 +34,8 @@
 						"NORMAL":1,
 						"TEXCOORD_0":2
 					},
-					"indices":3
-				}
-			]
-		},
-		{
-			"name":"Cube",
-			"primitives":[
-				{
-					"attributes":{
-						"POSITION":4,
-						"NORMAL":5,
-						"TEXCOORD_0":6
-					},
-					"indices":3
+					"indices":3,
+					"material":0
 				}
 			]
 		}
@@ -57,14 +46,14 @@
 			"componentType":5126,
 			"count":24,
 			"max":[
-				1,
-				2.091038703918457,
-				1
+				8.976152420043945,
+				0.04998159036040306,
+				8.979083061218262
 			],
 			"min":[
-				-1,
-				0.09103882312774658,
-				-1
+				-8.976152420043945,
+				-0.04998159036040306,
+				-8.979083061218262
 			],
 			"type":"VEC3"
 		},
@@ -85,34 +74,6 @@
 			"componentType":5123,
 			"count":36,
 			"type":"SCALAR"
-		},
-		{
-			"bufferView":4,
-			"componentType":5126,
-			"count":24,
-			"max":[
-				8.976152420043945,
-				0.04998159036040306,
-				8.979083061218262
-			],
-			"min":[
-				-8.976152420043945,
-				-0.04998159036040306,
-				-8.979083061218262
-			],
-			"type":"VEC3"
-		},
-		{
-			"bufferView":5,
-			"componentType":5126,
-			"count":24,
-			"type":"VEC3"
-		},
-		{
-			"bufferView":6,
-			"componentType":5126,
-			"count":24,
-			"type":"VEC2"
 		}
 	],
 	"bufferViews":[
@@ -139,29 +100,11 @@
 			"byteLength":72,
 			"byteOffset":768,
 			"target":34963
-		},
-		{
-			"buffer":0,
-			"byteLength":288,
-			"byteOffset":840,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":288,
-			"byteOffset":1128,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":192,
-			"byteOffset":1416,
-			"target":34962
 		}
 	],
 	"buffers":[
 		{
-			"byteLength":1608,
+			"byteLength":840,
 			"uri":"test1.bin"
 		}
 	]

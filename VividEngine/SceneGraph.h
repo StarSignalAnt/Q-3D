@@ -14,6 +14,7 @@ public:
 	void Render();
 	void RenderDepth();
 	void RenderShadows();
+	void Update(float dt);
 	void SetCamera(GraphNode* cameraNode);
 	GraphNode* GetCamera();
 	void AddLight(GraphNode* lightNode);

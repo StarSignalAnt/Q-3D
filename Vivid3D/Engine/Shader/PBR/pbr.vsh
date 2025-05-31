@@ -12,6 +12,7 @@ cbuffer Constants
     float4 g_LightRange;
     float4 g_ToneMapParams;
     float4 g_AmbientColor;
+    float4 g_Parallax;
 };
 
 struct VSInput

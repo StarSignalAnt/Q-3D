@@ -35,16 +35,17 @@ struct PBRConstant {
     glm::vec4 g_LightRange;           // .x = effective range, .yzw unused
     glm::vec4 g_ToneParams;
     glm::vec4 g_AmbientColor;
+    glm::vec4 g_ParallaxParams;
 };
 
 MaterialPBR::MaterialPBR() {
 
-    m_ColorTexture = new Texture2D("Engine/Maps/White.png");
-	m_MetallicTexture = new Texture2D("Engine/Maps/White.png");
-	m_RoughnessTexture = new Texture2D("Engine/Maps/White.png");
-	m_NormalTexture = new Texture2D("Engine/Maps/Normal.png");
+    //m_ColorTexture = new Texture2D("Engine/Maps/White.png");
+	//m_MetallicTexture = new Texture2D("Engine/Maps/White.png");
+	//m_RoughnessTexture = new Texture2D("Engine/Maps/White.png");
+	//m_NormalTexture = new Texture2D("Engine/Maps/Normal.png");
 	m_EnvironmentMap = new TextureCube("Engine/Maps/blackcm.tex");
-	m_HeightTexture = new Texture2D("Engine/Maps/Black.png");
+	//m_HeightTexture = new Texture2D("Engine/Maps/Black.png");
 	//m_BRDF = new Texture2D("Engine/Maps/BRDF.png");
 
 
@@ -620,6 +621,7 @@ void MaterialPBR::Bind(bool add) {
             map_data[0].g_LightRange = glm::vec4(lc->GetRange(), 100.f, 100.f, 1.f); // Light range
             map_data[0].g_ToneParams = glm::vec4(1.0f, 2.2f, 0.05f, 1.0f); // Tone mapping parameters (example values)
             map_data[0].g_AmbientColor = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f); // Ambient color
+			map_data[0].g_ParallaxParams = glm::vec4(m_ParalaxScale, 0.05f, 0.05f, 0.05f); // Parallax parameters (example values)
         }
 
 
@@ -705,6 +707,8 @@ void MaterialPBR::Bind(bool add) {
             map_data[0].g_LightRange = glm::vec4(lc->GetRange(), 100.f, 100.f, 1.f); // Light range
             map_data[0].g_ToneParams = glm::vec4(1.0f, 2.2f, 0.05f, 1.0f); // Tone mapping parameters (example values)
             map_data[0].g_AmbientColor = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f); // Ambient color
+            map_data[0].g_ParallaxParams = glm::vec4(m_ParalaxScale, 0.05f, 0.05f, 0.05f); // Parallax parameters (example values)
+
         }
 
 

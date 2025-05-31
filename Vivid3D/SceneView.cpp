@@ -66,30 +66,39 @@ SceneView::SceneView(QWidget *parent)
     m_Test1 = Importer::ImportEntity("test/test1.gltf");
     m_SceneGraph->SetRootNode(m_Test1);
 
-    for (auto& e : m_Test1->GetNodes()) {
+    auto act1 = Importer::ImportSkeletal("test/actor1.fbx");
+
+    m_SceneGraph->AddNode(act1);
+    act1->SetScale(glm::vec3(0.05f, 0.05f, 0.05f));
+
+    //for (auto& e : m_Test1->GetNodes()) {
+
+    auto e = m_Test1;
+
 
 		auto smc = e->GetComponent<StaticMeshComponent>();
         for (auto& m : smc->GetSubMeshes()) {
 
 			auto m1 = (MaterialPBR*)m.m_Material;
-			m1->SetColorTexture(new Texture2D("test/tex_color.png"));
-			m1->SetNormalTexture(new Texture2D("test/tex_normal.png"));
-            m1->SetMetallicTexture(new Texture2D("test/tex_metal.png"));
-			m1->SetRoughnessTexture(new Texture2D("test/tex_rough.png"));
-			m1->SetHeightTexture(new Texture2D("test/tex_height.png"));
+			m1->SetColorTexture(new Texture2D("test/tex_color4.png"));
+			m1->SetNormalTexture(new Texture2D("test/tex_normal4.png"));
+            m1->SetMetallicTexture(new Texture2D("test/tex_metal4.png"));
+			m1->SetRoughnessTexture(new Texture2D("test/tex_rough4.png"));
+			m1->SetHeightTexture(new Texture2D("test/tex_height4.png"));
+
 
 			//m1->SetIRR(new TextureCube("test/cube1.tex"));
-           // m1->SetEnvironmentMap(new TextureCube("test/cube1.tex"));
+            //m1->SetEnvironmentMap(new TextureCube("test/cube1.tex"));
 
 
 
 
         }
 
-    }
+    
 
     auto cam = m_SceneGraph->GetCamera();
-
+   
     cam->SetPosition(glm::vec3(0, 4, 4));
     auto tex1 = new Texture2D("test/tex1.png");
     
@@ -153,6 +162,13 @@ void SceneView::paintEvent(QPaintEvent* event)
     pContext->ClearRenderTarget(pRTV, ClearColor, RESOURCE_STATE_TRANSITION_MODE_VERIFY);
     pContext->ClearDepthStencil(pSwapchain->GetDepthBufferDSV(), CLEAR_DEPTH_FLAG, 1.0f, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
+    int tick = clock();
+    int ttick = tick - LastTick;
+    LastTick = tick;
+
+    float tt = ( ((float)ttick) / 1000.0f);
+
+    m_SceneGraph->Update(tt);
     m_SceneGraph->RenderShadows();
     m_SceneGraph->Render();
 

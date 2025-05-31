@@ -4,6 +4,9 @@
 #include "StaticMeshComponent.h"
 #include "StaticRendererComponent.h"
 #include "StaticDepthRendererComponent.h"
+#include "SkeletalMeshComponent.h"
+#include "SkeletalRendererComponent.h"
+#include "SkeletalDepthRendererComponent.h"
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
@@ -16,6 +19,8 @@
 #include "Texture2D.h"
 #include "MaterialPBR.h"
 #include <filesystem> // C++17 or later
+#include "Animation.h"
+#include "Animator.h"
 
 namespace fs = std::filesystem; // For C++17 compatibility
 Texture2D* LoadTexture(const std::string& path) {
@@ -73,10 +78,10 @@ GraphNode* Importer::ImportEntity(std::string path) {
             auto* material = new MaterialPBR;
 
             // Albedo / Base Color
-            if (Texture2D* tex = FindTexture(aiMat, aiTextureType_DIFFUSE, modelDir))
+            //if (Texture2D* tex = FindTexture(aiMat, aiTextureType_DIFFUSE, modelDir))
             {
 
-                material->SetColorTexture(tex);
+             //   material->SetColorTexture(tex);
             }
             if (Texture2D* tex = FindTexture(aiMat, aiTextureType_SPECULAR, modelDir))
             {
@@ -84,30 +89,30 @@ GraphNode* Importer::ImportEntity(std::string path) {
 
                 //material->SetSpecularTexture(tex);
             }
-            if (Texture2D* tex = FindTexture(aiMat, aiTextureType_NORMALS, modelDir))
+       //     if (Texture2D* tex = FindTexture(aiMat, aiTextureType_NORMALS, modelDir))
             {
-                material->SetNormalTexture(tex);
+         //       material->SetNormalTexture(tex);
             }
             //aterial->SetNormal(tex);
 
-            if (Texture2D* tex = FindTexture(aiMat, aiTextureType_METALNESS, modelDir))
+           // if (Texture2D* tex = FindTexture(aiMat, aiTextureType_METALNESS, modelDir))
             {
-                material->SetMetallicTexture(tex);
+     //           material->SetMetallicTexture(tex);
             }
             //material->SetMetallic(tex);
 
 
             if (Texture2D* tex = FindTexture(aiMat, aiTextureType_DIFFUSE_ROUGHNESS, modelDir))
             {
-                material->SetRoughnessTexture(tex);
+   //             material->SetRoughnessTexture(tex);
             }
             else {
                 aiString path;
                 if (aiMat->GetTexture(aiTextureType_UNKNOWN,0, &path) == AI_SUCCESS) {
                     // Attempt to load this texture as roughness or investigate its usage
-                    Texture2D* tex = FindTexture(aiMat, aiTextureType_UNKNOWN, modelDir);
+                //    Texture2D* tex = FindTexture(aiMat, aiTextureType_UNKNOWN, modelDir);
                     if (tex) {
-                        material->SetRoughnessTexture(tex);
+              //          material->SetRoughnessTexture(tex);
                         break;  // If you assume only one roughness map per material
                     }
                 }
@@ -207,5 +212,47 @@ GraphNode* Importer::ImportEntity(std::string path) {
 
     GraphNode* root = ProcessNode(scene->mRootNode);
     return root;
+
+}
+
+GraphNode* Importer::ImportSkeletal(std::string path) {
+    // This function would be similar to ImportEntity but handle skeletal meshes
+    // For now, we can return nullptr or implement a similar logic as ImportEntity
+    std::string modelDir = fs::path(path).parent_path().string();
+    Assimp::Importer importer;
+    const aiScene* scene = importer.ReadFile(path,
+        aiProcess_Triangulate |
+        aiProcess_GenSmoothNormals |
+        aiProcess_FlipUVs |
+        aiProcess_CalcTangentSpace);
+
+    if (!scene || !scene->HasMeshes()) {
+        std::cerr << "Failed to load model: " << path << std::endl;
+        return nullptr;
+    }
+
+    SkeletalMeshComponent* mesh_com = new SkeletalMeshComponent;
+
+    for (int i = 0;i < scene->mNumMeshes;i++) {
+
+        auto mesh = mesh_com->ProcessMesh(scene->mMeshes[i], (aiScene*)scene, false);;
+        
+    }
+
+    mesh_com->Finalize();
+
+    auto anim = new Animation((aiScene*)scene, scene->mAnimations[0],mesh_com);
+    auto animator = new Animator(anim);
+	mesh_com->SetAnimator(animator);
+
+	GraphNode* node = new GraphNode;
+    node->AddComponent(mesh_com);
+    node->AddComponent(new SkeletalRendererComponent);
+    node->AddComponent(new SkeletalDepthRendererComponent);
+
+
+
+    return node;
+
 
 }

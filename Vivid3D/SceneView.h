@@ -155,5 +155,7 @@ private:
 	GraphNode* m_Test1;
 	SceneGraph* m_SceneGraph;
 	GraphNode* m_L1;
+    int LastTick = 0;
+    float m_DeltaTime = 0.0f;
 };
 

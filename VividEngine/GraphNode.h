@@ -35,7 +35,9 @@ public:
 	}
 	void Render(GraphNode* camera);
 	void RenderDepth(GraphNode* camera);
+	void Update(float dt);
 	glm::mat4 GetWorldMatrix();
+
 
 	void SetPosition(glm::vec3 position);
 	void SetRotation(glm::vec3 rotation);
