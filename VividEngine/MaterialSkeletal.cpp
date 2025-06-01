@@ -634,7 +634,6 @@ void MaterialSkeletal::Bind(bool add) {
             glm::mat4 proj = m_RenderMatrices[2];
             glm::mat4 view = m_RenderMatrices[0];
             glm::mat4 model = m_RenderMatrices[1];
-
             glm::mat4 mvp = proj * view * model;
 
             //    map_data[0].g_MVPMatrix = glm::transpose(mvp);
@@ -647,11 +646,13 @@ void MaterialSkeletal::Bind(bool add) {
             map_data[0].g_LightPosition = glm::vec4(l1->GetPosition(), 1.0f); // Light position
             map_data[0].g_LightColor = glm::vec4(lc->GetColor(), 1.0f); // White light color
             map_data[0].g_LightIntensity = glm::vec4(lc->GetIntensity(), 1.0f, 1.0f, 1.0f); // Was 10000!
-
+            glm::mat3 normalMatrix = glm::inverse(glm::mat3(model));
+            // Convert to 4x4 for the shader
+            glm::mat4 normalMatrix4x4 = glm::mat4(normalMatrix);
             // Also try removing transposes (test one at a time):
             map_data[0].g_MVPMatrix = glm::transpose(mvp); // Remove transpose
             map_data[0].g_ModelMatrix = glm::transpose(model); // Remove transpose 
-            map_data[0].g_NormalMatrix = glm::transpose(glm::inverse(model)); // Remove transpose
+            map_data[0].g_NormalMatrix = normalMatrix4x4; // Remove transpose
             map_data[0].g_LightRange = glm::vec4(lc->GetRange(), 100.f, 100.f, 1.f); // Light range
             map_data[0].g_ToneParams = glm::vec4(1.0f, 2.2f, 0.05f, 1.0f); // Tone mapping parameters (example values)
             map_data[0].g_AmbientColor = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f); // Ambient color
@@ -736,11 +737,13 @@ void MaterialSkeletal::Bind(bool add) {
             map_data[0].g_LightPosition = glm::vec4(l1->GetPosition(), 1.0f); // Light position
             map_data[0].g_LightColor = glm::vec4(lc->GetColor(), 1.0f); // White light color
             map_data[0].g_LightIntensity = glm::vec4(lc->GetIntensity(), 1.0f, 1.0f, 1.0f); // Was 10000!
-
+            glm::mat3 normalMatrix = glm::inverse(glm::mat3(model));
+            // Convert to 4x4 for the shader
+            glm::mat4 normalMatrix4x4 = glm::mat4(normalMatrix);
             // Also try removing transposes (test one at a time):
             map_data[0].g_MVPMatrix = glm::transpose(mvp); // Remove transpose
             map_data[0].g_ModelMatrix = glm::transpose(model); // Remove transpose 
-            map_data[0].g_NormalMatrix = glm::transpose(glm::inverse(model)); // Remove transpose
+            map_data[0].g_NormalMatrix = normalMatrix4x4; // Remove transpose
             map_data[0].g_LightRange = glm::vec4(lc->GetRange(), 100.f, 100.f, 1.f); // Light range
             map_data[0].g_ToneParams = glm::vec4(1.0f, 2.2f, 0.05f, 1.0f); // Tone mapping parameters (example values)
             map_data[0].g_AmbientColor = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f); // Ambient color

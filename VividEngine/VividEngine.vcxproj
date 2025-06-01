@@ -110,7 +110,7 @@
       <ConformanceMode>false</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>C:\Users\antro\AppData\Local\Programs\Python\Python313\include;C:\Vivid3D\VividEngine\include;C:\git\assimp\include;C:\git\DiligentEngine\DiligentCore;C:\git\DiligentEngine\DiligentFX;C:\git\DiligentEngine\DiligentFX\PostProcess\Common\interface;C:\DiligentEngine\DiligentFX\PostProcess\ScreenSpaceReflection\interface;C:\dev\Vivid3D\VScript;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsTools\interface;C:git\DiligentEngine\DiligentCore;C:\git\DiligentEngine\DiligentTools\TextureLoader\interface;C:\git\DiligentEngine\DiligentTools\TextureLoader\include;C:\Dev\Assimp\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngine\interface;C:\git\DiligentEngine\DiligentCore\Common\interface;C:\git\DiligentEngine\DiligentCore\ThirdParty\SPIRV-Cross\include;C:\git\DiligentEngine\DiligentCore\Platforms\Basic\include;C:\git\DiligentEngine\DiligentCore\Graphics\ShaderTools\include;C:\\git\DiligentEngine\DiligentCore\Graphics\HLSL2GLSLConverterLib\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngineD3D12\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngine\include;C:\git\DiligentEngine\DiligentCore\Common\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Vivid3D\CL;C:\Users\antro\AppData\Local\Programs\Python\Python313\include;C:\Vivid3D\VividEngine\include;C:\git\assimp\include;C:\git\DiligentEngine\DiligentCore;C:\git\DiligentEngine\DiligentFX;C:\git\DiligentEngine\DiligentFX\PostProcess\Common\interface;C:\DiligentEngine\DiligentFX\PostProcess\ScreenSpaceReflection\interface;C:\dev\Vivid3D\VScript;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsTools\interface;C:git\DiligentEngine\DiligentCore;C:\git\DiligentEngine\DiligentTools\TextureLoader\interface;C:\git\DiligentEngine\DiligentTools\TextureLoader\include;C:\Dev\Assimp\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngine\interface;C:\git\DiligentEngine\DiligentCore\Common\interface;C:\git\DiligentEngine\DiligentCore\ThirdParty\SPIRV-Cross\include;C:\git\DiligentEngine\DiligentCore\Platforms\Basic\include;C:\git\DiligentEngine\DiligentCore\Graphics\ShaderTools\include;C:\\git\DiligentEngine\DiligentCore\Graphics\HLSL2GLSLConverterLib\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngineD3D12\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngine\include;C:\git\DiligentEngine\DiligentCore\Common\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard_C>stdclatest</LanguageStandard_C>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -120,8 +120,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalLibraryDirectories>C:\Users\antro\AppData\Local\Programs\Python\Python313\libs;C:\git\assimp\lib\Debug;C:\Vivid3D\Vivid3D\x64\Debug;C:\Vivid3D\Deps\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>python313.lib;dxgi.lib;assimp-vc143-mtd.lib;d3dcompiler.lib;Archiver_64d.lib;Diligent-archiver-static.lib;Diligent-basicplatform.lib;Diligent-common.lib;DiligentCore.lib;Diligent-GLAdapterSelector.lib;Diligent-GraphicsAccessories.lib;Diligent-GraphicsEngine.lib;DiligentFX.lib;Diligent-GraphicsEngineD3D11-static.lib;Diligent-GraphicsEngineD3D12-static.lib;Diligent-GraphicsengineD3DBase.lib;Diligent-GraphicsEngineNextGenBase.lib;Diligent-GraphicsEngineOpenGL-static.lib;Diligent-GraphicsEngineVk-static.lib;Diligent-GraphicsTools.lib;Diligent-HLSL2GLSLConverterLib.lib;Diligent-Primitives.lib;Diligent-ShaderTools.lib;Diligent-TextureLoader.lib;DiligentTools.lib;Diligent-Win32Platform.lib;GenericCodeGend.lib;glslangd.lib;glslang-default-resource-limitsd.lib;GraphicsEngineD3D11_64d.lib;GraphicsEngineD3D12_64d.lib;GraphicsEngineOpenGL_64d.lib;GraphicsEngineVk_64d.lib;LibJpeg.lib;libpng16_staticd.lib;libtiff.lib;MachineIndependentd.lib;OSDependentd.lib;spirv-cross-cored.lib;spirv-cross-glsld.lib;SPIRVd.lib;SPIRV-Tools.lib;SPIRV-Tools-diff.lib;SPIRV-Tools-opt.lib;xxhash.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Program Files %28x86%29\OCL_SDK_Light\lib\x86_64;C:\Users\antro\AppData\Local\Programs\Python\Python313\libs;C:\git\assimp\lib\Debug;C:\Vivid3D\Vivid3D\x64\Debug;C:\Vivid3D\Deps\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opencl.lib;python313.lib;dxgi.lib;assimp-vc143-mtd.lib;d3dcompiler.lib;Archiver_64d.lib;Diligent-archiver-static.lib;Diligent-basicplatform.lib;Diligent-common.lib;DiligentCore.lib;Diligent-GLAdapterSelector.lib;Diligent-GraphicsAccessories.lib;Diligent-GraphicsEngine.lib;DiligentFX.lib;Diligent-GraphicsEngineD3D11-static.lib;Diligent-GraphicsEngineD3D12-static.lib;Diligent-GraphicsengineD3DBase.lib;Diligent-GraphicsEngineNextGenBase.lib;Diligent-GraphicsEngineOpenGL-static.lib;Diligent-GraphicsEngineVk-static.lib;Diligent-GraphicsTools.lib;Diligent-HLSL2GLSLConverterLib.lib;Diligent-Primitives.lib;Diligent-ShaderTools.lib;Diligent-TextureLoader.lib;DiligentTools.lib;Diligent-Win32Platform.lib;GenericCodeGend.lib;glslangd.lib;glslang-default-resource-limitsd.lib;GraphicsEngineD3D11_64d.lib;GraphicsEngineD3D12_64d.lib;GraphicsEngineOpenGL_64d.lib;GraphicsEngineVk_64d.lib;LibJpeg.lib;libpng16_staticd.lib;libtiff.lib;MachineIndependentd.lib;OSDependentd.lib;spirv-cross-cored.lib;spirv-cross-glsld.lib;SPIRVd.lib;SPIRV-Tools.lib;SPIRV-Tools-diff.lib;SPIRV-Tools-opt.lib;xxhash.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -130,16 +130,23 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PreprocessorDefinitions>NDEBUG;_LIB;PLATFORM_WIN32;D3D12_SUPPORTED;VULKAN_SUPPORTED;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>false</ConformanceMode>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>C:\Vivid3D\CL;C:\Users\antro\AppData\Local\Programs\Python\Python313\include;C:\Vivid3D\VividEngine\include;C:\git\assimp\include;C:\git\DiligentEngine\DiligentCore;C:\git\DiligentEngine\DiligentFX;C:\git\DiligentEngine\DiligentFX\PostProcess\Common\interface;C:\DiligentEngine\DiligentFX\PostProcess\ScreenSpaceReflection\interface;C:\dev\Vivid3D\VScript;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsTools\interface;C:git\DiligentEngine\DiligentCore;C:\git\DiligentEngine\DiligentTools\TextureLoader\interface;C:\git\DiligentEngine\DiligentTools\TextureLoader\include;C:\Dev\Assimp\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngine\interface;C:\git\DiligentEngine\DiligentCore\Common\interface;C:\git\DiligentEngine\DiligentCore\ThirdParty\SPIRV-Cross\include;C:\git\DiligentEngine\DiligentCore\Platforms\Basic\include;C:\git\DiligentEngine\DiligentCore\Graphics\ShaderTools\include;C:\\git\DiligentEngine\DiligentCore\Graphics\HLSL2GLSLConverterLib\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngineD3D12\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngine\include;C:\git\DiligentEngine\DiligentCore\Common\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard_C>stdclatest</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>
       </SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <Lib>
+      <AdditionalDependencies>opencl.lib;python313.lib;dxgi.lib;assimp-vc143-mt.lib;d3dcompiler.lib;Archiver_64r.lib;Diligent-archiver-static.lib;Diligent-basicplatform.lib;Diligent-common.lib;DiligentCore.lib;Diligent-GLAdapterSelector.lib;Diligent-GraphicsAccessories.lib;Diligent-GraphicsEngine.lib;DiligentFX.lib;Diligent-GraphicsEngineD3D11-static.lib;Diligent-GraphicsEngineD3D12-static.lib;Diligent-GraphicsengineD3DBase.lib;Diligent-GraphicsEngineNextGenBase.lib;Diligent-GraphicsEngineOpenGL-static.lib;Diligent-GraphicsEngineVk-static.lib;Diligent-GraphicsTools.lib;Diligent-HLSL2GLSLConverterLib.lib;Diligent-Primitives.lib;Diligent-ShaderTools.lib;Diligent-TextureLoader.lib;DiligentTools.lib;Diligent-Win32Platform.lib;GenericCodeGen.lib;glslang.lib;glslang-default-resource-limits.lib;GraphicsEngineD3D11_64r.lib;GraphicsEngineD3D12_64r.lib;GraphicsEngineOpenGL_64r.lib;GraphicsEngineVk_64r.lib;LibJpeg.lib;libpng16_static.lib;libtiff.lib;MachineIndependent.lib;OSDependent.lib;spirv-cross-core.lib;spirv-cross-glsl.lib;SPIRV.lib;SPIRV-Tools.lib;SPIRV-Tools-diff.lib;SPIRV-Tools-opt.lib;xxhash.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Program Files %28x86%29\OCL_SDK_Light\lib\x86_64;C:\Users\antro\AppData\Local\Programs\Python\Python313\libs;C:\git\assimp\lib\Release;C:\Vivid3D\Vivid3D\x64\Debug;C:\Vivid3D\Deps\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Animation.h" />
@@ -147,11 +154,13 @@
     <ClInclude Include="Bone.h" />
     <ClInclude Include="BoneInfo.h" />
     <ClInclude Include="CameraComponent.h" />
+    <ClInclude Include="CLBase.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="CubeRenderer.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GraphNode.h" />
     <ClInclude Include="Importer.h" />
+    <ClInclude Include="Intersections.h" />
     <ClInclude Include="LightComponent.h" />
     <ClInclude Include="MaterialBasic3D.h" />
     <ClInclude Include="MaterialDepth.h" />
@@ -180,10 +189,12 @@
     <ClCompile Include="Bone.cpp" />
     <ClCompile Include="BoneInfo.cpp" />
     <ClCompile Include="CameraComponent.cpp" />
+    <ClCompile Include="CLBase.cpp" />
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="CubeRenderer.cpp" />
     <ClCompile Include="GraphNode.cpp" />
     <ClCompile Include="Importer.cpp" />
+    <ClCompile Include="Intersections.cpp" />
     <ClCompile Include="LightComponent.cpp" />
     <ClCompile Include="MaterialBasic3D.cpp" />
     <ClCompile Include="MaterialDepth.cpp" />

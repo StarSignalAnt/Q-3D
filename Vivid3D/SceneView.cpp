@@ -1,6 +1,7 @@
 #include "SceneView.h"
 #include <QPainter>
 #include "Vivid.h"
+#include "PropertiesEditor.h"
 #include "MaterialPBR.h"
 //Diligent Engine includes
 
@@ -42,6 +43,8 @@
 #include "StaticMeshComponent.h"
 #include "MaterialBasic3D.h"
 #include "LightComponent.h"
+#include "CameraController.h"
+#include "SceneController.h"
 
 using namespace Diligent;
 
@@ -64,27 +67,33 @@ SceneView::SceneView(QWidget *parent)
     m_SceneGraph = new SceneGraph;
 
     m_Test1 = Importer::ImportEntity("test/test1.gltf");
-    m_SceneGraph->SetRootNode(m_Test1);
+    auto test2 = Importer::ImportEntity("test/test2.gltf");
+    m_SceneGraph->AddNode(m_Test1);
+    m_SceneGraph->AddNode(test2);
+
 
     auto act1 = Importer::ImportSkeletal("test/actor1.fbx");
 
-    m_SceneGraph->AddNode(act1);
+ //   m_SceneGraph->AddNode(act1);
     act1->SetScale(glm::vec3(0.05f, 0.05f, 0.05f));
+ //   m_Test1->SetRotation(glm::vec3(-90, 0, 0));
 
     //for (auto& e : m_Test1->GetNodes()) {
 
     auto e = m_Test1;
 
+    
+
 
 		auto smc = e->GetComponent<StaticMeshComponent>();
-        for (auto& m : smc->GetSubMeshes()) {
+        for (auto m : smc->GetSubMeshes()) {
 
-			auto m1 = (MaterialPBR*)m.m_Material;
-			m1->SetColorTexture(new Texture2D("test/tex_color4.png"));
-			m1->SetNormalTexture(new Texture2D("test/tex_normal4.png"));
-            m1->SetMetallicTexture(new Texture2D("test/tex_metal4.png"));
-			m1->SetRoughnessTexture(new Texture2D("test/tex_rough4.png"));
-			m1->SetHeightTexture(new Texture2D("test/tex_height4.png"));
+			auto m1 = (MaterialPBR*)m->m_Material;
+			m1->SetColorTexture(new Texture2D("test/tex_color.png"));
+			m1->SetNormalTexture(new Texture2D("test/tex_normal.png"));
+            m1->SetMetallicTexture(new Texture2D("test/tex_metal.png"));
+			m1->SetRoughnessTexture(new Texture2D("test/tex_rough.png"));
+		//	m1->SetHeightTexture(new Texture2D("test/tex_height.png"));
 
 
 			//m1->SetIRR(new TextureCube("test/cube1.tex"));
@@ -126,10 +135,10 @@ SceneView::SceneView(QWidget *parent)
     auto l2 = new GraphNode;
     l2->AddComponent(new LightComponent);
 
-    l2->GetComponent<LightComponent>()->SetColor(glm::vec3(0, 1, 1));
+    l2->GetComponent<LightComponent>()->SetColor(glm::vec3(0,3,3));
 
     m_SceneGraph->AddLight(l2);
-    l2->SetPosition(glm::vec3(4, 5, 3));
+    l2->SetPosition(glm::vec3(0, 5, 6));
 
 
 	l1->SetPosition(glm::vec3(0, 4, 4));
@@ -138,7 +147,12 @@ SceneView::SceneView(QWidget *parent)
     connect(&movementTimer, &QTimer::timeout, this, &SceneView::handleMovement);
     movementTimer.start();
 
-    m_L1 = l1;
+    m_L1 = l2;
+    m_CameraController = new CameraController(cam);
+    m_SceneController = new SceneController;
+    m_SceneController->setCamera(cam);
+    m_SceneController->setScene(m_SceneGraph);
+    m_SceneController->Init();
 }
 
 SceneView::~SceneView()
@@ -172,7 +186,20 @@ void SceneView::paintEvent(QPaintEvent* event)
     m_SceneGraph->RenderShadows();
     m_SceneGraph->Render();
 
+    m_SceneController->Render();
+
     pSwapchain->Present();
+
+    if (m_Pick) {
+        m_Pick = false;
+        QPoint localPos = m_PickPos;
+        qreal dpr = this->devicePixelRatioF(); // or use QWidget::window()->devicePixelRatioF()
+
+        int x = static_cast<int>(localPos.x() * dpr);
+        int y = static_cast<int>(localPos.y() * dpr);
+        m_SceneController->onMouseClick(glm::vec2(x, y));
+        
+    }
 
     //m_Test1->SetRotation(glm::vec3(45, yv, 0));
    // yv = yv + 1;
@@ -202,11 +229,11 @@ void SceneView::CreateGraphics() {
     //SCDesc.ColorBufferFormat = TEX_FORMAT_RGBA16_FLOAT;
 
    // SCDesc.ColorBufferFormat = TEX_FORMAT_RGB32_FLOAT;
-   // SCDesc.DepthBufferFormat = TEX_FORMAT_D32_FLOAT;
+    SCDesc.DepthBufferFormat = TEX_FORMAT_D32_FLOAT;
 
     EngineD3D12CreateInfo EngineCI;
 
-    EngineCI.SetValidationLevel(VALIDATION_LEVEL_2);
+    EngineCI.SetValidationLevel(VALIDATION_LEVEL_DISABLED);
     pFactoryD3D12->CreateDeviceAndContextsD3D12(EngineCI, &m_pDevice, &m_pImmediateContext);
     pFactoryD3D12->CreateSwapChainD3D12(m_pDevice, m_pImmediateContext, SCDesc, FullScreenModeDesc{}, Window, &m_pSwapChain);
     pFactoryD3D12->CreateDefaultShaderSourceStreamFactory("engine\\shader\\", &m_pShaderFactory);
@@ -241,9 +268,61 @@ void SceneView::resizeEvent(QResizeEvent* event)
 
 
 
-    // m_ppEmissive = new PPEmissive;
-   //  m_PP->AddPostProcess(m_ppEmissive);
-    // m_ppEmissive->SetGraph(m_Graph1);
-    // m_RT2 = new RenderTarget2D(Engine::GetFrameWidth(), Engine::GetFrameHeight());
+
+}
+
+
+void SceneView::mousePressEvent(QMouseEvent* event)  {
+    if (event->button() == Qt::RightButton) {
+        rightMousePressed = true;
+        lastMousePos = event->pos();
+    }
+    if (event->button() == Qt::LeftButton) {
+
+  
+        m_PickPos = event->pos();
+        m_Pick = true;
+        return;
+       
+
+
+    }
+}
+
+void SceneView::mouseReleaseEvent(QMouseEvent* event) {
+    if (event->button() == Qt::RightButton) {
+        rightMousePressed = false;
+    }
+    else {
+        m_SceneController->onMouseUp();
+    }
+}
+
+void SceneView::mouseMoveEvent(QMouseEvent* event)  {
+
+    if (rightMousePressed) {
+        QPoint delta = event->pos() - lastMousePos;
+        m_CameraController->updateMouse(1.0f / 60.0f, delta, true);
+        lastMousePos = event->pos();
+    }
+    else {
+        QPoint delta = event->pos() - lastMousePos;
+        m_SceneController->onMouseMove(glm::vec2(delta.x(), delta.y()));
+        lastMousePos = event->pos();
+   
+    }
+   
+}
+void SceneView::keyPressEvent(QKeyEvent* event) {
+    keysHeld.insert(event->key());
+}
+
+void SceneView::keyReleaseEvent(QKeyEvent* event) {
+    keysHeld.remove(event->key());
+}
+
+void SceneView::handleMovement() {
+    m_CameraController->update(1.0f / 60.0f, keysHeld, QPoint(),rightMousePressed);
+ 
 
 }

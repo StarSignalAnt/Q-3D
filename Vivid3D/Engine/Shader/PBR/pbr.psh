@@ -44,6 +44,7 @@ struct PSInput {
     float3 Normal : TEXCOORD3;
     float3 Tangent : TEXCOORD4;
     float3 Binormal : TEXCOORD5;
+    float3 ViewDirTS : TEXCOORD6;
 };
 
 struct PSOutput {
@@ -59,30 +60,20 @@ static const float3 sampleOffsetDirections[20] = {
 };
 
 // Improved parallax mapping function
-float2 ParallaxMapping(float2 texCoords, float3 viewDir, float3 tangent, float3 binormal, float3 normal)
+float2 ParallaxMapping(float2 texCoords, float3 viewDirTS)
 {
-    // Parameters for parallax mapping - increased default scale
-    float heightScale = g_Parallax.x; // Increased from 0.02 for more pronounced effect
+    float heightScale = g_Parallax.x;
+    if (heightScale <= 0.0) return texCoords;
+    
     const int maxLayers = 128;
     const int minLayers = 8;
     
-    // Normalize input vectors
-    float3 T = normalize(tangent);
-    float3 B = normalize(binormal);
-    float3 N = normalize(normal);
-    
-    // Create proper TBN matrix (tangent space to world space)
-    float3x3 TBN = float3x3(T, B, N);
-    
-    // Transform view direction from world space to tangent space
-    float3 viewDirTangent = normalize(mul(TBN, viewDir));
-    
-    // Ensure we don't divide by zero or get extreme values
-    if(abs(viewDirTangent.z) < 0.1)
-        viewDirTangent.z = 0.1;
+    // Ensure we don't divide by zero
+    if(abs(viewDirTS.z) < 0.1)
+        return texCoords;
     
     // Dynamic layer count based on viewing angle
-    float viewAngle = abs(dot(N, viewDir));
+    float viewAngle = abs(viewDirTS.z);
     float numLayers = lerp(maxLayers, minLayers, viewAngle);
     
     // Calculate step size
@@ -90,9 +81,8 @@ float2 ParallaxMapping(float2 texCoords, float3 viewDir, float3 tangent, float3 
     float currentLayerDepth = 0.0;
     
     // Calculate offset direction and step size
-    float2 P = (viewDirTangent.xy / viewDirTangent.z) * heightScale;
+    float2 P = (viewDirTS.xy / viewDirTS.z) * heightScale;
     float2 deltaTexCoords = P / numLayers;
-    deltaTexCoords.y=-deltaTexCoords.y;
 
     // Initialize values
     float2 currentTexCoords = texCoords;
@@ -167,12 +157,22 @@ float3 ACESFilmicToneMapping(float3 color)
     return saturate((color * (a * color + b)) / (color * (c * color + d) + e));
 }
 
-// Normal mapping
+// Improved normal mapping with proper TBN handling
 float3 getNormalFromMap(float3 normalMap, float3 worldNormal, float3 worldTangent, float3 worldBinormal)
 {
-    float3 n = normalMap * 2.0 - 1.0;
-    float3x3 TBN = float3x3(normalize(worldTangent), normalize(worldBinormal), normalize(worldNormal));
-    return normalize(mul(n, TBN));
+    // Unpack normal from [0,1] to [-1,1]
+    float3 tangentNormal = normalMap * 2.0 - 1.0;
+    
+    // Ensure all vectors are normalized
+    float3 N = normalize(worldNormal);
+    float3 T = normalize(worldTangent);
+    float3 B = normalize(worldBinormal);
+    
+    // Create TBN matrix (tangent space to world space)
+    float3x3 TBN = float3x3(T, B, N);
+    
+    // Transform normal from tangent space to world space
+    return normalize(mul(tangentNormal, TBN));
 }
 
 // GGX distribution function
@@ -230,12 +230,12 @@ float calculateAmbientOcclusion(float shadowValue, float aoStrength)
 
 void main(in PSInput I, out PSOutput O)
 {
-    // Calculate view direction for parallax mapping
-    float3 viewDir = normalize(g_CameraPosition.xyz - I.WorldPos);
+    // Apply parallax mapping using the pre-calculated tangent space view direction
+    float2 parallaxUV = ParallaxMapping(I.Uv.xy, normalize(I.ViewDirTS));
     
-    // Apply parallax mapping to get displaced texture coordinates
-    float2 parallaxUV = ParallaxMapping(I.Uv.xy, viewDir, I.Tangent, I.Binormal, I.Normal);
-    
+    // For debugging, you can disable parallax mapping by uncommenting this line:
+     parallaxUV = I.Uv.xy;
+
     
     // Sample textures using parallax-displaced coordinates
     float4 albedoSample = v_Texture.Sample(v_Texture_sampler, parallaxUV);
@@ -245,9 +245,8 @@ void main(in PSInput I, out PSOutput O)
     float roughness = v_TextureRough.Sample(v_TextureRough_sampler, parallaxUV).r;
     roughness = clamp(roughness, 0.04, 1.0);
 
-    // Compute normals
-    float3 geoN = normalize(I.Normal);
-    float3 N = getNormalFromMap(normalSample, geoN, I.Tangent, I.Binormal);
+    // Compute normals using the corrected function
+    float3 N = getNormalFromMap(normalSample, I.Normal, I.Tangent, I.Binormal);
     float3 V = normalize(g_CameraPosition.xyz - I.WorldPos);
 
     // Compute reflectance at normal incidence

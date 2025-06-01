@@ -14,7 +14,9 @@ public:
     virtual void OnAttach(GraphNode* node) {
         m_Owner = node;
     }
-
+    GraphNode* GetOwner() {
+        return m_Owner;
+    }
     // Optional virtual methods to override
     virtual void OnUpdate(float deltaTime) {}
     virtual void OnRender(GraphNode* camera) {}

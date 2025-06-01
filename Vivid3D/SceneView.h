@@ -38,6 +38,8 @@
 
 using namespace Diligent;
 
+class CameraController;
+class SceneController;
 class SceneGraph;
 class GraphNode;
 
@@ -50,6 +52,9 @@ class SceneView : public QWidget
 public:
 	SceneView(QWidget *parent = nullptr);
 	~SceneView();
+    GraphNode* GetTest() {
+        return m_Test1;
+    }
 protected:
 	void CreateGraphics();
 	void paintEvent(QPaintEvent* event) override;
@@ -64,92 +69,39 @@ protected:
     // Movement keys
     QSet<int> keysHeld;
     float yaw = 0.0f, pitch = 0.0f;
-    void mousePressEvent(QMouseEvent* event) override {
-        if (event->button() == Qt::RightButton) {
-            rightMousePressed = true;
-            lastMousePos = event->pos();
-        }
-    }
+	
+	void focusOutEvent(QFocusEvent* event) override {
+		keysHeld.clear(); // clear all keys on focus loss
+		rightMousePressed = false;
+		QWidget::focusOutEvent(event); // call base implementation
+	
+	}
+	void leaveEvent(QEvent* event) override {
+		// Optional: handle any visual/UI logic when mouse leaves
+		keysHeld.clear(); // clear all keys on focus loss
 
-    void mouseReleaseEvent(QMouseEvent* event) override {
-        if (event->button() == Qt::RightButton) {
-            rightMousePressed = false;
-        }
-    }
+		rightMousePressed = false;
+		QWidget::leaveEvent(event);
 
-    void mouseMoveEvent(QMouseEvent* event) override {
-        if (rightMousePressed) {
-            QPoint delta = event->pos() - lastMousePos;
-            lastMousePos = event->pos();
+	}
+	void mousePressEvent(QMouseEvent* event) override;
+	
+	void mouseReleaseEvent(QMouseEvent* event) override;
 
-            // Sensitivity multiplier
-            float sensitivity = 0.1f;
-            yaw -= delta.x() * sensitivity;
-            pitch -= delta.y() * sensitivity;
+    void mouseMoveEvent(QMouseEvent* event) override;
+    void keyPressEvent(QKeyEvent* event) override;
 
-            // Clamp pitch if needed
-            if (pitch > 89.0f) pitch = 89.0f;
-            if (pitch < -89.0f) pitch = -89.0f;
+    void keyReleaseEvent(QKeyEvent* event) override;
 
-            // Update your camera orientation here using yaw & pitch
-            // E.g. camera->SetRotationFromYawPitch(yaw, pitch);
-            m_SceneGraph->GetCamera()->SetRotation(glm::vec3(pitch, yaw, 0));
-            update(); // trigger repaint
-        }
-    }
-    void keyPressEvent(QKeyEvent* event) override {
-        keysHeld.insert(event->key());
-    }
-
-    void keyReleaseEvent(QKeyEvent* event) override {
-        keysHeld.remove(event->key());
-    }
-
-    void handleMovement() {
-        QVector3D direction(0.0f, 0.0f, 0.0f);
-
-        // Construct forward vector from yaw/pitch
-        QVector3D front;
-        //front.setX(cos(qDegreesToRadians(yaw)) * cos(qDegreesToRadians(pitch)));
-       // front.setY(sin(qDegreesToRadians(pitch)));
-       // front.setZ(sin(qDegreesToRadians(yaw)) * cos(qDegreesToRadians(pitch)));
-       // front.normalize();
-
-
-        QVector3D right = QVector3D::crossProduct(front, QVector3D(0.0f, 1.0f, 0.0f)).normalized();
-        QVector3D up = QVector3D::crossProduct(right, front).normalized();
-
-        glm::vec3 move = glm::vec3(0, 0, 0);
-
-        if (keysHeld.contains(Qt::Key_W))
-            move += glm::vec3(0, 0, -0.1f);
-        if (keysHeld.contains(Qt::Key_S))
-            move -= glm::vec3(0, 0, -0.1f);
-
-
-        if (keysHeld.contains(Qt::Key_A))
-            move += glm::vec3(-0.1, 0, 0);
-        if (keysHeld.contains(Qt::Key_D))
-            move -= glm::vec3(-0.1, 0, 0);
-            //    direction += right;
-
-        if (keysHeld.contains(Qt::Key_Space))
-        {
-            m_L1->SetPosition(m_SceneGraph->GetCamera()->GetPosition());
-        }
-
-           // direction.normalize();
-            //float speed = 0.1f; // units per frame
-            //QVector3D movement = direction * speed;
-            m_SceneGraph->GetCamera()->Move(move);
-
-    }
+    void handleMovement();
+   
 private:
 	RefCntAutoPtr<IRenderDevice>  m_pDevice;
 	RefCntAutoPtr<IDeviceContext> m_pImmediateContext;
 	RefCntAutoPtr<ISwapChain>     m_pSwapChain;
 	RefCntAutoPtr<IShaderSourceInputStreamFactory> m_pShaderFactory;
 	Ui::SceneViewClass ui;
+	bool m_Pick = false;
 
 	//TEST members
 	GraphNode* m_Test1;
@@ -157,5 +109,8 @@ private:
 	GraphNode* m_L1;
     int LastTick = 0;
     float m_DeltaTime = 0.0f;
+	CameraController* m_CameraController;
+	SceneController* m_SceneController; 
+	QPoint m_PickPos;
 };
 

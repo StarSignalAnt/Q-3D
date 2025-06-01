@@ -150,6 +150,8 @@ MaterialDepth::MaterialDepth() {
 
     gp.BlendDesc = b_desc;
     gp.RTVFormats[0] = Vivid::m_pSwapChain->GetDesc().ColorBufferFormat;
+
+
     gp.DSVFormat = Vivid::m_pSwapChain->GetDesc().DepthBufferFormat;
     gp.InputLayout = in_desc;
     //gp.NumViewports = 1;
@@ -316,9 +318,7 @@ void MaterialDepth::Bind(bool add) {
             glm::mat4 proj = m_RenderMatrices[2];
             glm::mat4 view = m_RenderMatrices[0];
             glm::mat4 model = m_RenderMatrices[1];
-
-            glm::mat4 mvp = proj * model * view;
-
+            glm::mat4 mvp = proj * view * model;
             //    map_data[0].g_MVPMatrix = glm::transpose(mvp);
             //	map_data[0].g_ModelMatrix = glm::transpose(model);
             map_data[0].g_ProjectionMatrix = glm::transpose(proj);

@@ -40,12 +40,12 @@ struct PBRConstant {
 
 MaterialPBR::MaterialPBR() {
 
-    //m_ColorTexture = new Texture2D("Engine/Maps/White.png");
-	//m_MetallicTexture = new Texture2D("Engine/Maps/White.png");
-	//m_RoughnessTexture = new Texture2D("Engine/Maps/White.png");
-	//m_NormalTexture = new Texture2D("Engine/Maps/Normal.png");
+    m_ColorTexture = new Texture2D("Engine/Maps/White.png");
+	m_MetallicTexture = new Texture2D("Engine/Maps/White.png");
+	m_RoughnessTexture = new Texture2D("Engine/Maps/White.png");
+	m_NormalTexture = new Texture2D("Engine/Maps/Normal.png");
 	m_EnvironmentMap = new TextureCube("Engine/Maps/blackcm.tex");
-	//m_HeightTexture = new Texture2D("Engine/Maps/Black.png");
+	m_HeightTexture = new Texture2D("Engine/Maps/Black.png");
 	//m_BRDF = new Texture2D("Engine/Maps/BRDF.png");
 
 
@@ -321,8 +321,8 @@ MaterialPBR::MaterialPBR() {
 
   //  DepthStencilStateDesc ds_desc;
     ds_desc.DepthEnable = true;
-    ds_desc.DepthFunc = COMPARISON_FUNC_EQUAL;
-    ds_desc.DepthWriteEnable = false;
+    ds_desc.DepthFunc = COMPARISON_FUNC_LESS_EQUAL;
+    ds_desc.DepthWriteEnable = true;
 
 
     //BlendStateDesc b_desc;
@@ -572,7 +572,7 @@ void MaterialPBR::Bind(bool add) {
         m_SRBAdd->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureRough")->Set(m_RoughnessTexture->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
         m_SRBAdd->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureEnvironment")->Set(m_EnvironmentMap->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
 		m_SRBAdd->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureShadow")->Set(m_Light->GetComponent<LightComponent>()->GetShadowMap()->GetTexView(), SET_SHADER_RESOURCE_FLAG_NONE);
-        m_SRBAdd->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureHeight")->Set(m_HeightTexture->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
+        //m_SRBAdd->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureHeight")->Set(m_HeightTexture->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
 
         //Engine::m_pImmediateContext->MapBuffer(BasicUniform, MAP_TYPE::MAP_WRITE, MAP_FLAGS::MAP_FLAG_DISCARD);
         {
@@ -601,7 +601,7 @@ void MaterialPBR::Bind(bool add) {
             glm::mat4 view = m_RenderMatrices[0];
             glm::mat4 model = m_RenderMatrices[1];
 
-            glm::mat4 mvp = proj * model * view;
+            glm::mat4 mvp = proj * view * model;
 
             //    map_data[0].g_MVPMatrix = glm::transpose(mvp);
             //	map_data[0].g_ModelMatrix = glm::transpose(model);
@@ -614,10 +614,14 @@ void MaterialPBR::Bind(bool add) {
             map_data[0].g_LightColor = glm::vec4(lc->GetColor(), 1.0f); // White light color
             map_data[0].g_LightIntensity = glm::vec4(lc->GetIntensity(), 1.0f, 1.0f, 1.0f); // Was 10000!
 
+            glm::mat3 normalMatrix = glm::inverse(glm::mat3(model));
+            // Convert to 4x4 for the shader
+            glm::mat4 normalMatrix4x4 = glm::mat4(normalMatrix);
+
             // Also try removing transposes (test one at a time):
             map_data[0].g_MVPMatrix = glm::transpose(mvp); // Remove transpose
             map_data[0].g_ModelMatrix = glm::transpose(model); // Remove transpose 
-            map_data[0].g_NormalMatrix = glm::transpose(glm::inverse(model)); // Remove transpose
+            map_data[0].g_NormalMatrix = normalMatrix4x4; // Remove transpose
             map_data[0].g_LightRange = glm::vec4(lc->GetRange(), 100.f, 100.f, 1.f); // Light range
             map_data[0].g_ToneParams = glm::vec4(1.0f, 2.2f, 0.05f, 1.0f); // Tone mapping parameters (example values)
             map_data[0].g_AmbientColor = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f); // Ambient color
@@ -657,7 +661,8 @@ void MaterialPBR::Bind(bool add) {
         m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureRough")->Set(m_RoughnessTexture->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
         m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureEnvironment")->Set(m_EnvironmentMap->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
         m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureShadow")->Set(m_Light->GetComponent<LightComponent>()->GetShadowMap()->GetTexView(), SET_SHADER_RESOURCE_FLAG_NONE);
-        m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureHeight")->Set(m_HeightTexture->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
+        //m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureHeight")->Set(m_HeightTexture->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
+
 
 
         //Engine::m_pImmediateContext->MapBuffer(BasicUniform, MAP_TYPE::MAP_WRITE, MAP_FLAGS::MAP_FLAG_DISCARD);
@@ -687,7 +692,7 @@ void MaterialPBR::Bind(bool add) {
             glm::mat4 view = m_RenderMatrices[0];
             glm::mat4 model = m_RenderMatrices[1];
 
-            glm::mat4 mvp = proj * model * view;
+            glm::mat4 mvp = proj * view * model;
 
             //    map_data[0].g_MVPMatrix = glm::transpose(mvp);
             //	map_data[0].g_ModelMatrix = glm::transpose(model);
@@ -700,10 +705,13 @@ void MaterialPBR::Bind(bool add) {
             map_data[0].g_LightColor = glm::vec4(lc->GetColor(), 1.0f); // White light color
             map_data[0].g_LightIntensity = glm::vec4(lc->GetIntensity(), 1.0f, 1.0f, 1.0f); // Was 10000!
 
+            glm::mat3 normalMatrix = glm::inverse(glm::mat3(model));
+            // Convert to 4x4 for the shader
+            glm::mat4 normalMatrix4x4 = glm::mat4(normalMatrix);
             // Also try removing transposes (test one at a time):
             map_data[0].g_MVPMatrix = glm::transpose(mvp); // Remove transpose
             map_data[0].g_ModelMatrix = glm::transpose(model); // Remove transpose 
-            map_data[0].g_NormalMatrix = glm::transpose(glm::inverse(model)); // Remove transpose
+            map_data[0].g_NormalMatrix = normalMatrix4x4; // Remove transpose
             map_data[0].g_LightRange = glm::vec4(lc->GetRange(), 100.f, 100.f, 1.f); // Light range
             map_data[0].g_ToneParams = glm::vec4(1.0f, 2.2f, 0.05f, 1.0f); // Tone mapping parameters (example values)
             map_data[0].g_AmbientColor = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f); // Ambient color

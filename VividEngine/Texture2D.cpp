@@ -2,7 +2,7 @@
 
 Texture2D::Texture2D(std::string path)
 {
-
+    m_Path = path;
 	TextureLoadInfo loadInfo;
     loadInfo.BindFlags = BIND_FLAGS::BIND_SHADER_RESOURCE;// | BIND_FLAGS::BIND_UNORDERED_ACCESS;
     // loadInfo.GenerateMips = true;

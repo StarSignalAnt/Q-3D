@@ -5,6 +5,7 @@
 #include <glm/gtc/constants.hpp>
 #include "BasicMath.hpp"
 #include <glm/glm.hpp>
+#include "StaticMeshComponent.h"
 
 using namespace Diligent;
 
@@ -100,8 +101,17 @@ void GraphNode::SetScale(glm::vec3 scale) {
 }
 
 void GraphNode::Move(glm::vec3 offset) {
-	glm::vec3 rotatedOffset = glm::vec3(m_Rotation * glm::vec4(offset, 0.0f));
+	glm::vec3 rotatedOffset = glm::vec3(m_Rotation * glm::vec4(offset, 1.0f));
 	m_Position += rotatedOffset;
+	m_Updated = true;
+	
+	if (GetComponent<StaticMeshComponent>()!=nullptr) {
+
+		printf("Updating!!\n");
+		GetComponent<StaticMeshComponent>()->Updated();
+
+	}
+
 }
 
 glm::mat4 f42g(const Diligent::float4x4& diligentMat)
@@ -133,4 +143,24 @@ void GraphNode::Update(float dt) {
 		sub->Update(dt);
 	}
 
+}
+
+void GraphNode::Turn(glm::vec3 delta, bool local) {
+
+	auto rot = glm::mat4(1.0f);
+
+	// Convert to radians and apply rotations in ZYX order
+	glm::vec3 radians = glm::radians(delta);
+
+
+	rot = glm::rotate(rot, radians.z, glm::vec3(0, 0, 1)); // Roll
+	rot = glm::rotate(rot, radians.y, glm::vec3(0, 1, 0)); // Yaw
+	rot = glm::rotate(rot, radians.x, glm::vec3(1, 0, 0)); // Pitch
+
+	if (local) {
+		m_Rotation = m_Rotation * rot;
+	}
+	else {
+		m_Rotation = rot * m_Rotation;
+	}
 }

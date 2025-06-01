@@ -24,6 +24,12 @@
     <Filter Include="Props">
       <UniqueIdentifier>{09af778f-83c1-4bf9-b767-07e13d4ca36a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Controllers">
+      <UniqueIdentifier>{9950b8b6-1e22-47cb-a28e-6822a4285dcd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Controllers\Gizmo">
+      <UniqueIdentifier>{6c6ec25c-8efd-4ffb-a140-1d9fdf8d5655}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="Vivid3D.qrc">
@@ -52,21 +58,48 @@
     <ClCompile Include="SceneView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PropertiesEditor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="PropertyVec3.cpp">
       <Filter>Props</Filter>
     </ClCompile>
     <ClCompile Include="PropertyText.cpp">
       <Filter>Props</Filter>
     </ClCompile>
+    <ClCompile Include="PropertySlider.cpp">
+      <Filter>Props</Filter>
+    </ClCompile>
+    <ClCompile Include="PropertyFloat.cpp">
+      <Filter>Props</Filter>
+    </ClCompile>
+    <ClCompile Include="PropertyHeader.cpp">
+      <Filter>Props</Filter>
+    </ClCompile>
+    <ClCompile Include="PropertiesEditor.cpp">
+      <Filter>Props</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraController.cpp">
+      <Filter>Controllers</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneController.cpp">
+      <Filter>Controllers</Filter>
+    </ClCompile>
+    <ClCompile Include="MainToolBar.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MainMenu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneGizmo.cpp">
+      <Filter>Controllers\Gizmo</Filter>
+    </ClCompile>
+    <ClCompile Include="TranslateGizmo.cpp">
+      <Filter>Controllers\Gizmo</Filter>
+    </ClCompile>
+    <ClCompile Include="RotateGizmo.cpp">
+      <Filter>Controllers\Gizmo</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="SceneView.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="PropertiesEditor.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="PropertyVec3.h">
@@ -74,6 +107,24 @@
     </QtMoc>
     <QtMoc Include="PropertyText.h">
       <Filter>Props</Filter>
+    </QtMoc>
+    <QtMoc Include="PropertySlider.h">
+      <Filter>Props</Filter>
+    </QtMoc>
+    <QtMoc Include="PropertyFloat.h">
+      <Filter>Props</Filter>
+    </QtMoc>
+    <QtMoc Include="PropertyHeader.h">
+      <Filter>Props</Filter>
+    </QtMoc>
+    <QtMoc Include="PropertiesEditor.h">
+      <Filter>Props</Filter>
+    </QtMoc>
+    <QtMoc Include="MainToolBar.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="MainMenu.h">
+      <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
@@ -89,5 +140,37 @@
     <QtUic Include="PropertyText.ui">
       <Filter>Form Files</Filter>
     </QtUic>
+    <QtUic Include="PropertySlider.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="PropertyFloat.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="PropertyHeader.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="MainToolBar.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="MainMenu.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CameraController.h">
+      <Filter>Controllers</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneController.h">
+      <Filter>Controllers</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneGizmo.h">
+      <Filter>Controllers\Gizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="TranslateGizmo.h">
+      <Filter>Controllers\Gizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="RotateGizmo.h">
+      <Filter>Controllers\Gizmo</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

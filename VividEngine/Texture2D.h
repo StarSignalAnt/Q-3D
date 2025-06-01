@@ -35,6 +35,6 @@ private:
 	int m_Height;
 	RefCntAutoPtr<ITexture> m_pTexture;
 	RefCntAutoPtr<ITextureView> m_pTextureView;
-
+	std::string m_Path;
 };
 

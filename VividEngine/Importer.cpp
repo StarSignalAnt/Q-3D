@@ -78,10 +78,10 @@ GraphNode* Importer::ImportEntity(std::string path) {
             auto* material = new MaterialPBR;
 
             // Albedo / Base Color
-            //if (Texture2D* tex = FindTexture(aiMat, aiTextureType_DIFFUSE, modelDir))
+            if (Texture2D* tex = FindTexture(aiMat, aiTextureType_DIFFUSE, modelDir))
             {
 
-             //   material->SetColorTexture(tex);
+                material->SetColorTexture(tex);
             }
             if (Texture2D* tex = FindTexture(aiMat, aiTextureType_SPECULAR, modelDir))
             {
@@ -130,11 +130,12 @@ GraphNode* Importer::ImportEntity(std::string path) {
     }
 
     // Mesh creation cache
-    std::vector<SubMesh> subMeshes(scene->mNumMeshes);
+    std::vector<SubMesh*> subMeshes;
 
     for (int i = 0; i < scene->mNumMeshes; i++) {
         aiMesh* mesh = scene->mMeshes[i];
-        SubMesh& subMesh = subMeshes[i];
+        SubMesh* subMesh = new SubMesh;
+        subMeshes.push_back(subMesh);
 
         for (int v = 0; v < mesh->mNumVertices; v++) {
             Vertex3 vertex;
@@ -146,19 +147,19 @@ GraphNode* Importer::ImportEntity(std::string path) {
             vertex.uv = glm::vec3(mesh->mTextureCoords[0] ? mesh->mTextureCoords[0][v].x : 0.0f,
                 mesh->mTextureCoords[0] ? mesh->mTextureCoords[0][v].y : 0.0f,
                 0.0f);
-            subMesh.m_Vertices.push_back(vertex);
+            subMesh->m_Vertices.push_back(vertex);
         }
 
         for (int f = 0; f < mesh->mNumFaces; f++) {
             const aiFace& face = mesh->mFaces[f];
             if (face.mNumIndices == 3) {
                 Tri3 tri{ face.mIndices[0], face.mIndices[2], face.mIndices[1] };
-                subMesh.m_Triangles.push_back(tri);
+                subMesh->m_Triangles.push_back(tri);
             }
         }
 
-        subMesh.m_Material = materials[mesh->mMaterialIndex];  // Use shared material
-        subMesh.m_DepthMaterial = new MaterialDepth;
+        subMesh->m_Material = materials[mesh->mMaterialIndex];  // Use shared material
+        subMesh->m_DepthMaterial = new MaterialDepth;
     }
 
     // Recursive function to process scene nodes
@@ -187,12 +188,13 @@ GraphNode* Importer::ImportEntity(std::string path) {
         // Meshes for this node
         if (ainode->mNumMeshes > 0) {
             StaticMeshComponent* meshComponent = new StaticMeshComponent;
+            node->AddComponent(meshComponent);
             for (unsigned int i = 0; i < ainode->mNumMeshes; i++) {
                 unsigned int meshIndex = ainode->mMeshes[i];
                 meshComponent->AddSubMesh(subMeshes[meshIndex]);
             }
             meshComponent->Finalize();
-            node->AddComponent(meshComponent);
+         
             
 
             auto renderer = new StaticRendererComponent;
