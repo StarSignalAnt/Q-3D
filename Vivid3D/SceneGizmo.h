@@ -6,6 +6,8 @@ enum GizmoSpace {
 	Local,World,Smart
 };
 
+
+
 class SceneGizmo
 {
 public:
@@ -27,13 +29,14 @@ public:
 		m_Selected = node;
 	}
 	void AlignGizmo();
+	void SetSpace(GizmoSpace space);
 protected:
 
 	int SelectedID = -1;
 	GraphNode* m_Node;
 	SceneGraph* m_Graph;
 	GraphNode* m_Selected = nullptr;
-	GizmoSpace m_Space = GizmoSpace::World;
+	GizmoSpace m_Space = GizmoSpace::Local;
 	glm::mat4 prot;
 };
 

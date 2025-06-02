@@ -8,7 +8,7 @@ TranslateGizmo::TranslateGizmo() {
 	m_Node = Importer::ImportEntity("Edit/Gizmo/translate1.fbx")->GetNodes()[0];
 
 	FixNode();
-
+	prot = m_Node->GetRotation();
 	int b = 5;
 
 }
@@ -43,6 +43,20 @@ void TranslateGizmo::Move(glm::vec2 delta) {
 		if (SelectedID == 0)
 		{
 			m_Selected->Move(glm::vec3(0,0,delta.y));
+		}
+
+		break;
+	case GizmoSpace::World:
+		if (SelectedID == 2) {
+			m_Selected->Translate(glm::vec3(0, -delta.y, 0));
+		}
+		if (SelectedID == 1)
+		{
+			m_Selected->Translate(glm::vec3(delta.x, 0, 0));
+		}
+		if (SelectedID == 0)
+		{
+			m_Selected->Translate(glm::vec3(0, 0, delta.y));
 		}
 
 		break;

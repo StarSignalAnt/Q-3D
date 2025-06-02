@@ -85,3 +85,10 @@ void PropertyVec3::onSpinBoxChanged()
 PropertyVec3::~PropertyVec3()
 {}
 
+void PropertyVec3::setInterval(double interval) {
+
+    m_xSpinBox->setSingleStep(interval);
+    m_ySpinBox->setSingleStep(interval);
+    m_zSpinBox->setSingleStep(interval);
+
+}

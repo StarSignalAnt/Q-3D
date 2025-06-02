@@ -97,6 +97,9 @@
     <ClCompile Include="RotateGizmo.cpp">
       <Filter>Controllers\Gizmo</Filter>
     </ClCompile>
+    <ClCompile Include="ScaleGizmo.cpp">
+      <Filter>Controllers\Gizmo</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="SceneView.h">
@@ -170,6 +173,9 @@
       <Filter>Controllers\Gizmo</Filter>
     </ClInclude>
     <ClInclude Include="RotateGizmo.h">
+      <Filter>Controllers\Gizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="ScaleGizmo.h">
       <Filter>Controllers\Gizmo</Filter>
     </ClInclude>
   </ItemGroup>

@@ -164,3 +164,9 @@ void GraphNode::Turn(glm::vec3 delta, bool local) {
 		m_Rotation = rot * m_Rotation;
 	}
 }
+
+void GraphNode::Translate(glm::vec3 delta) {
+
+	m_Position += delta;
+
+}

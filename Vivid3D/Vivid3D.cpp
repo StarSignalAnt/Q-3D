@@ -32,7 +32,6 @@ Vivid3D::Vivid3D(QWidget *parent)
     setAutoFillBackground(true);
     setPalette(pal);
 
-    PropertiesEditor::m_Instance->SetNode(sceneView->GetTest());
 }
 
 Vivid3D::~Vivid3D()

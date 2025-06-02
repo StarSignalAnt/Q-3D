@@ -3,13 +3,16 @@
 #include "GraphNode.h"
 #include "TranslateGizmo.h"
 #include "RotateGizmo.h"
+#include "ScaleGizmo.h"
 #include "Vivid.h"
 
 SceneController::SceneController() {
 
     m_TranslateGiz = new TranslateGizmo;
     m_RotateGiz = new RotateGizmo;
-    m_CurrentGizmo = m_RotateGiz;
+    m_ScaleGiz = new ScaleGizmo;
+    //m_CurrentGizmo = m_RotateGiz;
+    SetMode(GizmoMode::Gizmo_Translate);
 
 }
 
@@ -43,8 +46,15 @@ void SceneController::onMouseClick(glm::vec2 pos) {
         if (res.m_Hit) {
             printf("Hit!\n");
             m_SelectedNode = res.m_Node;
-            m_CurrentGizmo->SetNode(res.m_Node);
+            //m_CurrentGizmo->SetNode(res.m_Node);
+            m_TranslateGiz->SetNode(res.m_Node);
+            m_RotateGiz->SetNode(res.m_Node);
+            //m_ScaleGiz
             m_GizmoActive = false;
+            m_TranslateGiz->AlignGizmo();
+            m_RotateGiz->AlignGizmo();
+            m_ScaleGiz->AlignGizmo();
+
         }
         else {
             m_SelectedNode = nullptr;
@@ -88,8 +98,11 @@ void SceneController::Init() {
     node->SetScale(glm::vec3(1, 1, 1));
     auto rnode = m_RotateGiz->GetNode();
     rnode->SetScale(glm::vec3(1, 1, 1));
+    auto snode = m_ScaleGiz->GetNode();
+    snode->SetScale(glm::vec3(1, 1, 1));
     m_TranslateGiz->SetGraph(m_Scene);
     m_RotateGiz->SetGraph(m_Scene);
+    m_ScaleGiz->SetGraph(m_Scene);
 
     //m_Scene->AddNode(node);
 
@@ -102,5 +115,56 @@ void SceneController::Render() {
     if (m_CurrentGizmo != nullptr) {
         m_CurrentGizmo->Render(m_Scene->GetCamera());
     }
+
+}
+
+void SceneController::SetMode(GizmoMode mode) {
+
+    m_Mode = mode;
+    switch (mode) {
+    case Gizmo_Translate:
+        m_CurrentGizmo = m_TranslateGiz;
+        break;
+    case Gizmo_Rotate:
+        m_CurrentGizmo = m_RotateGiz;
+        break;
+    case Gizmo_Scale:
+        m_CurrentGizmo = m_ScaleGiz;
+        break;
+    }
+    m_CurrentGizmo->SetNode(m_SelectedNode);
+    m_CurrentGizmo->AlignGizmo();
+
+}
+
+void SceneController::SetSpace(EditSpace space) {
+    
+    switch (space)
+    {
+    case GizmoSpace::Local:
+        m_CurrentGizmo->SetSpace(GizmoSpace::Local);
+        m_TranslateGiz->SetSpace(GizmoSpace::Local);
+        m_RotateGiz->SetSpace(GizmoSpace::Local);
+        break;
+    case GizmoSpace::World:
+        m_CurrentGizmo->SetSpace(GizmoSpace::World);
+        m_TranslateGiz->SetSpace(GizmoSpace::World);
+        m_RotateGiz->SetSpace(GizmoSpace::World);
+        break;
+    }
+    m_CurrentGizmo->AlignGizmo();
+}
+
+void SceneController::AlignGizmos() {
+
+    m_TranslateGiz->AlignGizmo();
+    m_RotateGiz->AlignGizmo();
+    m_ScaleGiz->AlignGizmo();
+
+}
+
+GraphNode* SceneController::GetSelected() {
+
+    return m_SelectedNode;
 
 }

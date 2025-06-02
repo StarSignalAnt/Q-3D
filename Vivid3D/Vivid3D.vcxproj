@@ -136,6 +136,7 @@
     <ClCompile Include="PropertyText.cpp" />
     <ClCompile Include="PropertyVec3.cpp" />
     <ClCompile Include="RotateGizmo.cpp" />
+    <ClCompile Include="ScaleGizmo.cpp" />
     <ClCompile Include="SceneController.cpp" />
     <ClCompile Include="SceneGizmo.cpp" />
     <ClCompile Include="SceneView.cpp" />
@@ -169,6 +170,7 @@
   <ItemGroup>
     <ClInclude Include="CameraController.h" />
     <ClInclude Include="RotateGizmo.h" />
+    <ClInclude Include="ScaleGizmo.h" />
     <ClInclude Include="SceneGizmo.h" />
     <ClInclude Include="TranslateGizmo.h" />
     <QtMoc Include="MainMenu.h" />

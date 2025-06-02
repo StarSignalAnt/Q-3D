@@ -45,12 +45,15 @@
 #include "LightComponent.h"
 #include "CameraController.h"
 #include "SceneController.h"
+#include "SceneGizmo.h"
 
 using namespace Diligent;
 
 
 
 // End
+
+SceneView* SceneView::m_Instance = nullptr;
 
 SceneView::SceneView(QWidget *parent)
 	: QWidget(parent)
@@ -60,7 +63,7 @@ SceneView::SceneView(QWidget *parent)
     CreateGraphics();
     setMouseTracking(true);
     setFocusPolicy(Qt::StrongFocus);
-
+    m_Instance = this;
     //Vivid::InitPython();
  
 
@@ -153,12 +156,51 @@ SceneView::SceneView(QWidget *parent)
     m_SceneController->setCamera(cam);
     m_SceneController->setScene(m_SceneGraph);
     m_SceneController->Init();
+    
 }
 
 SceneView::~SceneView()
 {}
 
 float yv = 0;
+
+void SceneView::SetMode(SceneMode mode) {
+    m_Mode = mode;
+    switch (mode) {
+    case Mode_Translate:
+        m_SceneController->SetMode(GizmoMode::Gizmo_Translate);
+        break;
+    case Mode_Rotate:
+        m_SceneController->SetMode(GizmoMode::Gizmo_Rotate);
+        break;
+    case Mode_Scale:
+        m_SceneController->SetMode(GizmoMode::Gizmo_Scale);
+        break;
+    }
+}
+
+void SceneView::SetSpace(SceneSpace space) {
+
+    m_Space = space;
+    switch (space) {
+    case Space_Local:
+        m_SceneController->SetSpace(EditSpace::Edit_Local);
+        break;
+    case Space_World:
+        m_SceneController->SetSpace(EditSpace::Edit_World);
+        break;
+    case Space_Smart:
+
+        break;
+    }
+
+}
+
+void SceneView::AlignGizmo() {
+
+    m_SceneController->AlignGizmos();
+
+}
 
 void SceneView::paintEvent(QPaintEvent* event)
 {
@@ -198,6 +240,15 @@ void SceneView::paintEvent(QPaintEvent* event)
         int x = static_cast<int>(localPos.x() * dpr);
         int y = static_cast<int>(localPos.y() * dpr);
         m_SceneController->onMouseClick(glm::vec2(x, y));
+        auto picked = m_SceneController->GetSelected();
+        if (picked != nullptr) {
+            if (m_SelectedNode != picked) {
+                m_SelectedNode = picked;
+
+                PropertiesEditor::m_Instance->SetNode(m_SelectedNode);
+                printf("Set Property Node\n");
+            }
+        }
         
     }
 
@@ -308,6 +359,9 @@ void SceneView::mouseMoveEvent(QMouseEvent* event)  {
     else {
         QPoint delta = event->pos() - lastMousePos;
         m_SceneController->onMouseMove(glm::vec2(delta.x(), delta.y()));
+        if (m_SelectedNode != nullptr) {
+            PropertiesEditor::m_Instance->UpdateNode(m_SelectedNode);
+        }
         lastMousePos = event->pos();
    
     }

@@ -7,6 +7,7 @@
 #include "PropertyHeader.h"
 #include <string>
 #include "GraphNode.h"
+#include "SceneView.h"
 
 PropertiesEditor* PropertiesEditor::m_Instance = nullptr;
 
@@ -143,27 +144,87 @@ QVector3D ToQV(glm::vec3 v)
 {
     return QVector3D(v.x, v.y, v.z);
 }
+void PropertiesEditor::ClearUI() {
+    if (m_contentLayout) {
+        // Delete all child widgets from the content layout only
+        QLayoutItem* item;
+        while ((item = m_contentLayout->takeAt(0)) != nullptr) {
+            if (item->widget()) {
+                delete item->widget();
+            }
+            delete item;
+        }
+    }
+
+    // Reset widget pointers since they've been deleted
+    m_currentNameProp = nullptr;
+    m_currentPositionProp = nullptr;
+    m_currentRotationProp = nullptr;
+    m_currentScaleProp = nullptr;
+}
+
+void PropertiesEditor::UpdateNode(GraphNode* node) {
+
+    if (!node) return;
+
+    // Update name property
+    if (m_currentNameProp) {
+        // Temporarily disconnect signal to avoid triggering callbacks during update
+        m_currentNameProp->blockSignals(true);
+        m_currentNameProp->setText(QString::fromStdString(node->GetName()));
+        m_currentNameProp->blockSignals(false);
+    }
+
+    // Update position property
+    if (m_currentPositionProp) {
+        m_currentPositionProp->blockSignals(true);
+        m_currentPositionProp->setValue(ToQV(node->GetPosition()));
+        m_currentPositionProp->blockSignals(false);
+    }
+
+    // Update rotation property
+    if (m_currentRotationProp) {
+        m_currentRotationProp->blockSignals(true);
+        m_currentRotationProp->setValue(ToQV(node->GetEularRotation()));
+        m_currentRotationProp->blockSignals(false);
+    }
+
+    // Update scale property
+    if (m_currentScaleProp) {
+        m_currentScaleProp->blockSignals(true);
+        m_currentScaleProp->setValue(ToQV(node->GetScale()));
+        m_currentScaleProp->blockSignals(false);
+    }
+
+}
 
 void PropertiesEditor::SetNode(GraphNode* node) {
+    if (!m_mainLayout) {
+        BeginUI();
+    }
 
-    BeginUI();
+    ClearUI();  //
 
     AddHeader("Node");
 
 
-
-    AddText("Name", node->GetName().c_str(), [node](const QString& text) {
+    m_currentNameProp = AddText("Name", node->GetName().c_str(), [node](const QString& text) {
         node->SetName(text.toStdString());
         });
 
-    AddVec3("Position", ToQV(node->GetPosition()), [node](const QVector3D& value) {
+    m_currentPositionProp = AddVec3("Position", ToQV(node->GetPosition()),0.5, [node](const QVector3D& value) {
         node->SetPosition(glm::vec3(value.x(), value.y(), value.z()));
+        SceneView::m_Instance->AlignGizmo();
         });
-    AddVec3("Rotation", ToQV(node->GetEularRotation()), [node](const QVector3D& value) {
+
+    m_currentRotationProp = AddVec3("Rotation", ToQV(node->GetEularRotation()),5.0f, [node](const QVector3D& value) {
         node->SetRotation(glm::vec3(value.x(), value.y(), value.z()));
+        SceneView::m_Instance->AlignGizmo();
         });
-    AddVec3("Scale", ToQV(node->GetScale()), [node](const QVector3D& value) {
+
+    m_currentScaleProp = AddVec3("Scale", ToQV(node->GetScale()),0.1, [node](const QVector3D& value) {
         node->SetScale(glm::vec3(value.x(), value.y(), value.z()));
+        SceneView::m_Instance->AlignGizmo();
         });
 
 
@@ -216,7 +277,8 @@ void PropertiesEditor::AddHeader(const QString& text)
     m_contentLayout->addWidget(header);
 }
 
-void PropertiesEditor::AddText(const QString& label, const QString& defaultText,
+// Modify the Add methods to return pointers to the created widgets:
+PropertyText* PropertiesEditor::AddText(const QString& label, const QString& defaultText,
     std::function<void(const QString&)> callback)
 {
     PropertyText* textProp = new PropertyText(label, defaultText);
@@ -227,13 +289,16 @@ void PropertiesEditor::AddText(const QString& label, const QString& defaultText,
             callback(text);
             });
     }
+
+    return textProp;
 }
 
-void PropertiesEditor::AddVec3(const QString& label, const QVector3D& defaultValue,
+PropertyVec3* PropertiesEditor::AddVec3(const QString& label, const QVector3D& defaultValue,double interval,
     std::function<void(const QVector3D&)> callback)
 {
     PropertyVec3* vec3Prop = new PropertyVec3(label, nullptr);
     vec3Prop->setValue(defaultValue);
+    vec3Prop->setInterval(interval);
     m_contentLayout->addWidget(vec3Prop);
 
     if (callback) {
@@ -241,9 +306,11 @@ void PropertiesEditor::AddVec3(const QString& label, const QVector3D& defaultVal
             callback(value);
             });
     }
+
+    return vec3Prop;
 }
 
-void PropertiesEditor::AddFloat(const QString& label, double minValue, double maxValue,
+PropertyFloat* PropertiesEditor::AddFloat(const QString& label, double minValue, double maxValue,
     double interval, double defaultValue,
     std::function<void(double)> callback)
 {
@@ -256,9 +323,11 @@ void PropertiesEditor::AddFloat(const QString& label, double minValue, double ma
             callback(value);
             });
     }
+
+    return floatProp;
 }
 
-void PropertiesEditor::AddSlider(const QString& label, int minValue, int maxValue,
+PropertySlider* PropertiesEditor::AddSlider(const QString& label, int minValue, int maxValue,
     int defaultValue, std::function<void(int)> callback)
 {
     PropertySlider* sliderProp = new PropertySlider(label, minValue, maxValue);
@@ -270,4 +339,6 @@ void PropertiesEditor::AddSlider(const QString& label, int minValue, int maxValu
             callback(value);
             });
     }
+
+    return sliderProp;
 }

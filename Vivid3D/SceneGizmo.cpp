@@ -49,6 +49,7 @@ bool SceneGizmo::Click(int x, int y) {
 
 void SceneGizmo::AlignGizmo() {
 
+	if (m_Selected == nullptr) return;
 	m_Node->SetPosition(m_Selected->GetPosition());
 	if (m_Space == GizmoSpace::Local) {
 
@@ -57,5 +58,11 @@ void SceneGizmo::AlignGizmo() {
 	else {
 		m_Node->SetRotation(prot);
 	}
+
+}
+
+void SceneGizmo::SetSpace(GizmoSpace space) {
+
+	m_Space = space;
 
 }

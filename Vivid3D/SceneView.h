@@ -45,6 +45,14 @@ class GraphNode;
 
 #include <QResizeEvent>
 
+enum SceneMode {
+	Mode_Translate,Mode_Rotate,Mode_Scale
+};
+
+enum SceneSpace {
+	Space_Local,Space_World,Space_Smart
+};
+
 class SceneView : public QWidget
 {
 	Q_OBJECT
@@ -55,6 +63,13 @@ public:
     GraphNode* GetTest() {
         return m_Test1;
     }
+	void SetMode(SceneMode mode);
+	void SetSpace(SceneSpace space);
+	void AlignGizmo();
+	static SceneView* m_Instance;
+	SceneMode m_Mode = SceneMode::Mode_Translate;
+	SceneSpace m_Space = SceneSpace::Space_Local;
+	GraphNode* m_SelectedNode = nullptr;
 protected:
 	void CreateGraphics();
 	void paintEvent(QPaintEvent* event) override;
@@ -95,6 +110,8 @@ protected:
 
     void handleMovement();
    
+
+
 private:
 	RefCntAutoPtr<IRenderDevice>  m_pDevice;
 	RefCntAutoPtr<IDeviceContext> m_pImmediateContext;

@@ -6,6 +6,8 @@
 #include <QScrollArea>
 #include "PropertyVec3.h"
 #include "PropertyText.h"
+#include "PropertyFloat.h"
+#include "PropertySlider.h"
 #include <functional>
 #include <qvector3d.h>
 class GraphNode;
@@ -24,20 +26,21 @@ public:
 
     void BeginUI();
     void EndUI();
-
+    void ClearUI();
+    void UpdateNode(GraphNode* node);
     void SetNode(GraphNode* node);
     void AddHeader(const QString& text);
 
-    void AddText(const QString& label, const QString& defaultText = "",
+    PropertyText* AddText(const QString& label, const QString& defaultText = "",
         std::function<void(const QString&)> callback = nullptr);
 
-    void AddVec3(const QString& label, const QVector3D& defaultValue = QVector3D(0, 0, 0),
+    PropertyVec3* AddVec3(const QString& label, const QVector3D& defaultValue = QVector3D(0, 0, 0),double interval = 1.0f,
         std::function<void(const QVector3D&)> callback = nullptr);
 
-    void AddFloat(const QString& label, double minValue, double maxValue, double interval,
+    PropertyFloat* AddFloat(const QString& label, double minValue, double maxValue, double interval,
         double defaultValue = 0.0, std::function<void(double)> callback = nullptr);
 
-    void AddSlider(const QString& label, int minValue, int maxValue, int defaultValue = 0,
+    PropertySlider* AddSlider(const QString& label, int minValue, int maxValue, int defaultValue = 0,
         std::function<void(int)> callback = nullptr);
 
 private:
@@ -53,5 +56,10 @@ private:
     PropertyVec3* m_rotationProp;
     PropertyText* m_Name;
     PropertyText* m_Tag;
+    PropertyText* m_currentNameProp = nullptr;
+    PropertyVec3* m_currentPositionProp = nullptr;
+    PropertyVec3* m_currentRotationProp = nullptr;
+    PropertyVec3* m_currentScaleProp = nullptr;
+
 };
 

@@ -18,6 +18,8 @@ public:
 	void setValue(const QVector3D& value);
 	QVector3D getValue() const;
 
+	void setInterval(double interval);
+
 signals:
 	void valueChanged(const QVector3D& value);
 

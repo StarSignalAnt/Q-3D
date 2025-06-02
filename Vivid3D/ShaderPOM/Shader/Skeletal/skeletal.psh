@@ -1,0 +1,326 @@
+#define PI 3.14159265359
+#define INV_PI 0.31830988618
+#define dx 1.0
+
+Texture2D v_Texture;
+SamplerState v_Texture_sampler;
+Texture2D v_TextureNormal;
+SamplerState v_TextureNormal_sampler;
+Texture2D v_TextureMetal;
+SamplerState v_TextureMetal_sampler;
+Texture2D v_TextureRough;
+SamplerState v_TextureRough_sampler;
+TextureCube v_TextureEnvironment;
+SamplerState v_TextureEnvironment_sampler;
+TextureCube v_TextureShadow;
+SamplerState v_TextureShadow_sampler;
+Texture2D v_TextureHeight;
+SamplerState v_TextureHeight_sampler;
+
+cbuffer Constants
+{
+    float4x4 g_ModelMatrix;
+    float4x4 g_ViewMatrix;
+    float4x4 g_ProjectionMatrix;
+    float4x4 g_MVPMatrix;
+    float4x4 g_NormalMatrix;
+
+    float4 g_CameraPosition;
+    float4 g_LightPosition;
+    float4 g_LightColor;
+    float4 g_LightIntensity;
+    float4 g_LightRange;
+
+    float4 g_ToneMapParams;  // x: Exposure, y: Gamma, z: AmbientStrength, w: EnvStrength
+    float4 g_AmbientColor;   // Ambient light color (w component unused)
+    float4 g_Parallax;
+};
+
+struct PSInput {
+    float4 Pos : SV_POSITION;
+    float3 Uv : TEXCOORD0;
+    float4 v_Color : TEXCOORD1;
+    float3 WorldPos : TEXCOORD2;
+    float3 Normal : TEXCOORD3;
+    float3 Tangent : TEXCOORD4;
+    float3 Binormal : TEXCOORD5;
+};
+
+struct PSOutput {
+    float4 Color : SV_TARGET;
+};
+
+static const float3 sampleOffsetDirections[20] = {
+   float3( dx,  dx,  dx), float3( dx, -dx,  dx), float3(-dx, -dx,  dx), float3(-dx,  dx,  dx),
+   float3( dx,  dx, -dx), float3( dx, -dx, -dx), float3(-dx, -dx, -dx), float3(-dx,  dx, -dx),
+   float3( dx,  dx,  0), float3( dx, -dx,  0), float3(-dx, -dx,  0), float3(-dx,  dx,  0),
+   float3( dx,  0,  dx), float3(-dx,  0,  dx), float3( dx,  0, -dx), float3(-dx,  0, -dx),
+   float3( 0,  dx,  dx), float3( 0, -dx,  dx), float3( 0, -dx, -dx), float3( 0,  dx, -dx)
+};
+
+// Improved parallax mapping function
+float2 ParallaxMapping(float2 texCoords, float3 viewDir, float3 tangent, float3 binormal, float3 normal)
+{
+    // Parameters for parallax mapping - increased default scale
+    float heightScale = g_Parallax.x; // Increased from 0.02 for more pronounced effect
+    const int maxLayers = 128;
+    const int minLayers = 8;
+    
+    // Normalize input vectors
+    float3 T = normalize(tangent);
+    float3 B = normalize(binormal);
+    float3 N = normalize(normal);
+    
+    // Create proper TBN matrix (tangent space to world space)
+    float3x3 TBN = float3x3(T, B, N);
+    
+    // Transform view direction from world space to tangent space
+    float3 viewDirTangent = normalize(mul(TBN, viewDir));
+    
+    // Ensure we don't divide by zero or get extreme values
+    if(abs(viewDirTangent.z) < 0.1)
+        viewDirTangent.z = 0.1;
+    
+    // Dynamic layer count based on viewing angle
+    float viewAngle = abs(dot(N, viewDir));
+    float numLayers = lerp(maxLayers, minLayers, viewAngle);
+    
+    // Calculate step size
+    float layerDepth = 1.0 / numLayers;
+    float currentLayerDepth = 0.0;
+    
+    // Calculate offset direction and step size
+    float2 P = (viewDirTangent.xy / viewDirTangent.z) * heightScale;
+    float2 deltaTexCoords = P / numLayers;
+    deltaTexCoords.y=-deltaTexCoords.y;
+
+    // Initialize values
+    float2 currentTexCoords = texCoords;
+    float currentDepthMapValue = 1.0 - v_TextureHeight.Sample(v_TextureHeight_sampler, currentTexCoords).r;
+    
+    // Steep parallax mapping
+    [unroll(128)]
+    for(int i = 0; i < maxLayers; i++)
+    {
+        // Break if we've found intersection
+        if(currentLayerDepth >= currentDepthMapValue)
+            break;
+            
+        // Move to next layer
+        currentTexCoords -= deltaTexCoords;
+        currentDepthMapValue = 1.0 - v_TextureHeight.Sample(v_TextureHeight_sampler, currentTexCoords).r;
+        currentLayerDepth += layerDepth;
+    }
+    
+    // Parallax occlusion mapping - refined interpolation
+    float2 prevTexCoords = currentTexCoords + deltaTexCoords;
+    float prevLayerDepth = currentLayerDepth - layerDepth;
+    
+    // Get depth values for interpolation
+    float afterDepth = currentDepthMapValue - currentLayerDepth;
+    float beforeDepth = (1.0 - v_TextureHeight.Sample(v_TextureHeight_sampler, prevTexCoords).r) - prevLayerDepth;
+    
+    // Linear interpolation
+    float weight = afterDepth / (afterDepth - beforeDepth + 0.0001);
+    float2 finalTexCoords = lerp(currentTexCoords, prevTexCoords, weight);
+    
+    return finalTexCoords;
+}
+
+float light_GetShadow(float3 fragPos, float3 lightPos, float lightRange)
+{
+    float3 fragToLight = fragPos - lightPos;
+    fragToLight.z = -fragToLight.z;
+
+    float currentDepth = abs(distance(fragPos, lightPos));
+    currentDepth = currentDepth / lightRange;
+
+    int samples = 20;
+    float shadowVal = 0;
+
+    for (int i = 0; i < samples; i++)
+    {
+        float closestDepth = v_TextureShadow.Sample(v_TextureShadow_sampler, normalize(fragToLight)).r;
+
+        if (closestDepth > currentDepth - 0.001 && closestDepth < currentDepth + 0.0011)
+        {
+            shadowVal += 0;
+        }
+        else if ((currentDepth - 0.0013) > closestDepth)
+        {
+            shadowVal += 1.0f;
+        }
+    }
+
+    shadowVal = shadowVal / (float)samples;
+    return 1.0 - shadowVal;
+}
+
+// Tone mapping functions
+float3 ACESFilmicToneMapping(float3 color)
+{
+    const float a = 2.51;
+    const float b = 0.03;
+    const float c = 2.43;
+    const float d = 0.59;
+    const float e = 0.14;
+    return saturate((color * (a * color + b)) / (color * (c * color + d) + e));
+}
+
+// Normal mapping
+float3 getNormalFromMap(float3 normalMap, float3 worldNormal, float3 worldTangent, float3 worldBinormal)
+{
+    float3 n = normalMap * 2.0 - 1.0;
+    float3x3 TBN = float3x3(normalize(worldTangent), normalize(worldBinormal), normalize(worldNormal));
+    return normalize(mul(n, TBN));
+}
+
+// GGX distribution function
+float DistributionGGX(float3 N, float3 H, float roughness)
+{
+    float a = roughness * roughness;
+    float a2 = a * a;
+    float NdotH = saturate(dot(N, H));
+    float NdotH2 = NdotH * NdotH;
+
+    float denom = NdotH2 * (a2 - 1.0) + 1.0;
+    return a2 / (PI * denom * denom);
+}
+
+// Geometry function
+float GeometrySchlickGGX(float NdotV, float roughness)
+{
+    float r = roughness + 1.0;
+    float k = (r * r) * 0.125;
+    return NdotV / (NdotV * (1.0 - k) + k);
+}
+
+float GeometrySmith(float3 N, float3 V, float3 L, float roughness)
+{
+    float NdotV = saturate(dot(N, V));
+    float NdotL = saturate(dot(N, L));
+    float ggx2 = GeometrySchlickGGX(NdotV, roughness);
+    float ggx1 = GeometrySchlickGGX(NdotL, roughness);
+    return ggx1 * ggx2;
+}
+
+// Fresnel function
+float3 fresnelSchlick(float cosTheta, float3 F0)
+{
+    return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
+}
+
+// Light attenuation
+float calculateAttenuation(float3 lightPos, float3 worldPos, float range)
+{
+    float dist = length(lightPos - worldPos);
+    float normalizedDist = saturate(dist / range);
+    float falloff = saturate(1.0 - normalizedDist * normalizedDist);
+    falloff *= falloff;
+    return falloff / max(dist * dist, 0.0001);
+}
+
+// Calculate ambient occlusion from shadow (approximate)
+float calculateAmbientOcclusion(float shadowValue, float aoStrength)
+{
+    // Convert shadow to a softer ambient occlusion term
+    float ao = lerp(1.0, shadowValue, aoStrength);
+    return saturate(ao);
+}
+
+void main(in PSInput I, out PSOutput O)
+{
+    // Calculate view direction for parallax mapping
+    float3 viewDir = normalize(g_CameraPosition.xyz - I.WorldPos);
+    
+    // Apply parallax mapping to get displaced texture coordinates
+    float2 parallaxUV = ParallaxMapping(I.Uv.xy, viewDir, I.Tangent, I.Binormal, I.Normal);
+    
+    
+    // Sample textures using parallax-displaced coordinates
+    float4 albedoSample = v_Texture.Sample(v_Texture_sampler, parallaxUV);
+    float4 albedo = pow(albedoSample, 2.2) * I.v_Color;
+    float3 normalSample = v_TextureNormal.Sample(v_TextureNormal_sampler, parallaxUV).rgb;
+    float metallic = v_TextureMetal.Sample(v_TextureMetal_sampler, parallaxUV).r;
+    float roughness = v_TextureRough.Sample(v_TextureRough_sampler, parallaxUV).r;
+    roughness = clamp(roughness, 0.04, 1.0);
+
+    // Compute normals
+    float3 geoN = normalize(I.Normal);
+    float3 N = getNormalFromMap(normalSample, geoN, I.Tangent, I.Binormal);
+    float3 V = normalize(g_CameraPosition.xyz - I.WorldPos);
+
+    // Compute reflectance at normal incidence
+    float3 F0 = lerp(float3(0.04, 0.04, 0.04), albedo.rgb, metallic);
+
+    // Calculate shadow value once for reuse
+    float shadowValue = light_GetShadow(I.WorldPos, g_LightPosition.xyz, g_LightRange.x);
+    
+    // Calculate ambient occlusion from shadow
+    float ambientOcclusion = calculateAmbientOcclusion(shadowValue, 0.6);
+
+    // Initialize lighting
+    float3 Lo = float3(0.0, 0.0, 0.0);
+
+    // Direct lighting
+    float3 L = normalize(g_LightPosition.xyz - I.WorldPos);
+    float NdotL = saturate(dot(N, L));
+    if (NdotL > 0.0)
+    {
+        float attenuation = calculateAttenuation(g_LightPosition.xyz, I.WorldPos, g_LightRange.x);
+        float3 radiance = g_LightColor.rgb * g_LightIntensity.x * attenuation;
+
+        float3 H = normalize(V + L);
+        float NDF = DistributionGGX(N, H, roughness);
+        float G = GeometrySmith(N, V, L, roughness);
+        float3 F = fresnelSchlick(saturate(dot(H, V)), F0);
+
+        float3 kS = F;
+        float3 kD = (1.0 - kS) * (1.0 - metallic);
+
+        float3 numerator = NDF * G * F;
+        float denominator = 4.0 * saturate(dot(N, V)) * NdotL + 0.0001;
+        float3 specular = numerator / denominator;
+
+        // Apply shadow to direct lighting
+        Lo += (kD * albedo.rgb * INV_PI + specular) * radiance * NdotL * shadowValue;
+    }
+
+    // Environment lighting with shadow consideration
+    float envStrength = g_ToneMapParams.w > 0.0 ? g_ToneMapParams.w : 1.0;
+    
+    // Modulate environment strength based on shadow and ambient occlusion
+    float shadowedEnvStrength = envStrength * ambientOcclusion;
+    
+    float3 R = reflect(-V, N);
+    float3 envSpecular = v_TextureEnvironment.Sample(v_TextureEnvironment_sampler, R).rgb;
+    float3 envDiffuse = v_TextureEnvironment.Sample(v_TextureEnvironment_sampler, N).rgb;
+
+    float3 F_env = fresnelSchlick(saturate(dot(N, V)), F0);
+    
+    // Reduce environment contribution in shadowed areas
+    float3 kS_env = F_env * 0.25 * shadowedEnvStrength;
+    float3 kD_env = (1.0 - F_env) * (1.0 - metallic) * 0.08 * shadowedEnvStrength;
+
+    // Adjust environment intensity based on roughness and shadow
+    float envIntensity = lerp(0.3, 0.04, roughness) * ambientOcclusion;
+    float3 envSpecularModulated = envSpecular * envIntensity;
+
+    float3 diffuseEnv = kD_env * albedo.rgb * envDiffuse;
+    float3 specularEnv = kS_env * envSpecularModulated;
+
+    // Ambient lighting with occlusion
+    float3 ambient = g_AmbientColor.xyz * g_ToneMapParams.z * albedo.rgb * ambientOcclusion;
+
+    // Combine lighting
+    Lo += ambient + diffuseEnv + specularEnv;
+
+    // Tone mapping
+    Lo = ACESFilmicToneMapping(Lo);
+
+    // Gamma correction
+    float gamma = max(g_ToneMapParams.y, 1.0);
+    Lo = pow(max(Lo, 0.0), 1.0 / gamma);
+
+    O.Color = float4(Lo, albedo.a);
+}

@@ -44,6 +44,7 @@ public:
 	void SetScale(glm::vec3 scale);
 	glm::vec3 GetPosition() { return m_Position; }
 	void Move(glm::vec3 vec);
+	void Translate(glm::vec3 delta);
 	void SetRotation(float4x4 rotation); //converts from de.
 	void SetRotation(glm::mat4 rotation) {
 		m_Rotation = rotation;
@@ -52,7 +53,7 @@ public:
 		return m_Name;
 	}
 	glm::vec3 GetEularRotation() const {
-		return glm::eulerAngles(glm::quat_cast(m_Rotation));
+		return glm::degrees(glm::eulerAngles(glm::quat_cast(m_Rotation)));
 	}
 	glm::vec3 GetScale() const { return m_Scale; }
 	void Turn(glm::vec3 delta, bool local);

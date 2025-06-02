@@ -1,0 +1,65 @@
+cbuffer Constants
+{
+    float4x4 g_ModelMatrix;
+    float4x4 g_ViewMatrix;
+    float4x4 g_ProjectionMatrix;
+    float4x4 g_MVPMatrix;
+    float4x4 g_NormalMatrix;
+    float4 g_CameraPosition;
+    float4 g_LightPosition;
+    float4 g_LightColor;
+    float4 g_LightIntensity;
+    float4 g_LightRange;
+    float4 g_CameraExt;
+
+   float4 g_ToneMapParams;  // x: Exposure, y: Gamma, z: AmbientStrength, w: unused
+    float4 g_AmbientColor;
+
+};
+
+
+struct PSInput
+{
+   float4 Pos : SV_POSITION;
+    float3 Uv : TEXCOORD0;
+    float4 v_Color : TEXCOORD1;
+    float3 WorldPos : TEXCOORD2;
+    float3 Normal : TEXCOORD3;
+    float3 Tangent : TEXCOORD4;
+    float3 Binormal : TEXCOORD5;
+};
+
+struct PSOutput
+{
+    float4 Color : SV_TARGET;
+};
+
+// Note that if separate shader objects are not supported (this is only the case for old GLES3.0 devices), vertex
+// shader output variable name must match exactly the name of the pixel shader input variable.
+// If the variable has structure type (like in this example), the structure declarations must also be identical.
+void main(in  PSInput  PSIn,
+    out PSOutput PSOut)
+{
+
+
+    //float dist = abs(length(PSIn.fragPos-PSIn.vPos));
+
+    float dist = distance(PSIn.WorldPos,g_CameraPosition.xyz);
+
+    float depth = PSIn.Pos.z / PSIn.Pos.w;
+
+
+   
+    float zval = dist / g_CameraExt.y;
+    if(zval>1.0){
+        zval = 1.0;
+    }
+
+
+
+
+    PSOut.Color = float4(zval,zval,zval,1);
+  
+}
+
+//
