@@ -8,8 +8,13 @@
 #include "StaticMeshComponent.h"
 #include "Intersections.h"
 SceneGraph* SceneGraph::m_CurrentGraph = nullptr;
+#include "ScriptHost.h"
+
+bool addedGraphFuncs = false;
+
 
 SceneGraph::SceneGraph() {
+
 	m_RootNode = new GraphNode;
 	m_Camera = new GraphNode;
 	m_Camera->AddComponent(new CameraComponent);
@@ -402,5 +407,18 @@ HitResult SceneGraph::MousePickSelect(int x, int y, StaticMeshComponent* mesh)
 
 
 	return result;
+
+}
+
+void SceneGraph::Push() {
+
+	m_RootNode->Push();
+
+}
+
+void SceneGraph::Pop()
+{
+
+	m_RootNode->Pop();
 
 }

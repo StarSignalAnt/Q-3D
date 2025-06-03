@@ -45,6 +45,9 @@ public:
 	HitResult RayCast(glm::vec3 pos, glm::vec3 end);
 	HitResult RayCast(StaticMeshComponent* mesh,glm::vec3 pos, glm::vec3 end);
 	HitResult MousePickSelect(int x, int y, StaticMeshComponent* mesh);
+
+	void Push();
+	void Pop();
 private:
 
 	GraphNode* m_RootNode = nullptr;

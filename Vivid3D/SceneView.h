@@ -53,6 +53,10 @@ enum SceneSpace {
 	Space_Local,Space_World,Space_Smart
 };
 
+enum RunMode {
+	RM_Running,RM_Stopped
+};
+
 class SceneView : public QWidget
 {
 	Q_OBJECT
@@ -66,6 +70,8 @@ public:
 	void SetMode(SceneMode mode);
 	void SetSpace(SceneSpace space);
 	void AlignGizmo();
+	void Run();
+	void Stop();
 	static SceneView* m_Instance;
 	SceneMode m_Mode = SceneMode::Mode_Translate;
 	SceneSpace m_Space = SceneSpace::Space_Local;
@@ -129,5 +135,6 @@ private:
 	CameraController* m_CameraController;
 	SceneController* m_SceneController; 
 	QPoint m_PickPos;
+	RunMode m_RunMode = RunMode::RM_Stopped;
 };
 

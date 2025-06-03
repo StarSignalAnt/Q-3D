@@ -43,6 +43,9 @@
     <Filter Include="CL">
       <UniqueIdentifier>{fe0fdcf0-c245-4656-9392-ffdf61cf56a0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Script">
+      <UniqueIdentifier>{89972f5b-f012-4091-b7ab-e3ff7b32ffc6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -144,6 +147,15 @@
     <ClInclude Include="MaterialPBR.h">
       <Filter>CL</Filter>
     </ClInclude>
+    <ClInclude Include="ScriptHost.h">
+      <Filter>Script</Filter>
+    </ClInclude>
+    <ClInclude Include="ScriptComponent.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Pars.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="VividEngine.cpp">
@@ -244,6 +256,15 @@
     </ClCompile>
     <ClCompile Include="Intersections.cpp">
       <Filter>CL</Filter>
+    </ClCompile>
+    <ClCompile Include="ScriptHost.cpp">
+      <Filter>Script</Filter>
+    </ClCompile>
+    <ClCompile Include="ScriptComponent.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Pars.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

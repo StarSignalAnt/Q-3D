@@ -170,3 +170,24 @@ void GraphNode::Translate(glm::vec3 delta) {
 	m_Position += delta;
 
 }
+
+void GraphNode::Push() {
+
+	m_PositionPush = m_Position;
+	m_ScalePush = m_Scale;
+	m_RotationPush = m_Rotation;
+	for (auto node : m_Nodes) {
+		node->Push();
+	}
+
+}
+
+void GraphNode::Pop() {
+
+	m_Position = m_PositionPush;
+	m_Scale = m_ScalePush;
+	m_Rotation = m_RotationPush;
+	for (auto node : m_Nodes) {
+		node->Pop();
+	}
+}

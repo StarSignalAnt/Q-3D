@@ -107,11 +107,11 @@
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_LIB;PLATFORM_WIN32;D3D12_SUPPORTED;VULKAN_SUPPORTED;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>false</ConformanceMode>
+      <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>C:\Vivid3D\CL;C:\Users\antro\AppData\Local\Programs\Python\Python313\include;C:\Vivid3D\VividEngine\include;C:\git\assimp\include;C:\git\DiligentEngine\DiligentCore;C:\git\DiligentEngine\DiligentFX;C:\git\DiligentEngine\DiligentFX\PostProcess\Common\interface;C:\DiligentEngine\DiligentFX\PostProcess\ScreenSpaceReflection\interface;C:\dev\Vivid3D\VScript;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsTools\interface;C:git\DiligentEngine\DiligentCore;C:\git\DiligentEngine\DiligentTools\TextureLoader\interface;C:\git\DiligentEngine\DiligentTools\TextureLoader\include;C:\Dev\Assimp\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngine\interface;C:\git\DiligentEngine\DiligentCore\Common\interface;C:\git\DiligentEngine\DiligentCore\ThirdParty\SPIRV-Cross\include;C:\git\DiligentEngine\DiligentCore\Platforms\Basic\include;C:\git\DiligentEngine\DiligentCore\Graphics\ShaderTools\include;C:\\git\DiligentEngine\DiligentCore\Graphics\HLSL2GLSLConverterLib\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngineD3D12\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngine\include;C:\git\DiligentEngine\DiligentCore\Common\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard_C>stdclatest</LanguageStandard_C>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -168,8 +168,11 @@
     <ClInclude Include="MaterialSkeletal.h" />
     <ClInclude Include="MaterialSkeletalDepth.h" />
     <ClInclude Include="MathsHelp.h" />
+    <ClInclude Include="Pars.h" />
     <ClInclude Include="RenderMaterial.h" />
     <ClInclude Include="RenderTargetCube.h" />
+    <ClInclude Include="ScriptComponent.h" />
+    <ClInclude Include="ScriptHost.h" />
     <ClInclude Include="SkeletalDepthRendererComponent.h" />
     <ClInclude Include="SkeletalMeshComponent.h" />
     <ClInclude Include="SkeletalRendererComponent.h" />
@@ -202,8 +205,11 @@
     <ClCompile Include="MaterialSkeletal.cpp" />
     <ClCompile Include="MaterialSkeletalDepth.cpp" />
     <ClCompile Include="MathsHelp.cpp" />
+    <ClCompile Include="Pars.cpp" />
     <ClCompile Include="RenderMaterial.cpp" />
     <ClCompile Include="RenderTargetCube.cpp" />
+    <ClCompile Include="ScriptComponent.cpp" />
+    <ClCompile Include="ScriptHost.cpp" />
     <ClCompile Include="SkeletalDepthRendererComponent.cpp" />
     <ClCompile Include="SkeletalMeshComponent.cpp" />
     <ClCompile Include="SkeletalRendererComponent.cpp" />

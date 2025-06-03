@@ -17,6 +17,7 @@ PropertyFloat::PropertyFloat(const QString& label, double minValue, double maxVa
     m_spinBox = new QDoubleSpinBox;
     setupSpinBox();
 
+
     // Set initial value to minimum
     setValue(m_minValue);
 

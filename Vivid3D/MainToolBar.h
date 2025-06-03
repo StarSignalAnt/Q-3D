@@ -22,6 +22,8 @@ private slots:
     void onTranslateClicked();
     void onRotateClicked();
     void onScaleClicked();
+    void onRunClicked();
+    void onStopClicked();
     void onDropdownIndexChanged(int index);
 };
 

@@ -1,3 +1,5 @@
+#define NOMINMAX
+
 #include "SceneView.h"
 #include <QPainter>
 #include "Vivid.h"
@@ -46,6 +48,9 @@
 #include "CameraController.h"
 #include "SceneController.h"
 #include "SceneGizmo.h"
+#include "ScriptHost.h"
+#include "ScriptComponent.h"
+
 
 using namespace Diligent;
 
@@ -65,7 +70,24 @@ SceneView::SceneView(QWidget *parent)
     setFocusPolicy(Qt::StrongFocus);
     m_Instance = this;
     //Vivid::InitPython();
- 
+    
+    ScriptHost *h = new ScriptHost;
+/*
+    auto inst = h->CreateInstance("MyCustomNode");
+    //h->TestFunc(inst, "DebugInfo");
+    //h->CallFunc(inst, "greet", "Alice", 30);
+    Pars p(45, 2, "Antony");
+    //p.AddInt(45);
+    //p.AddInt(20);
+    //p.AddString("Antony");
+
+     h->callFunc(inst, "greet", p);
+
+    //h->CallFunc(inst, std::string("greet"), p);
+
+*/
+
+
 
     m_SceneGraph = new SceneGraph;
 
@@ -74,6 +96,11 @@ SceneView::SceneView(QWidget *parent)
     m_SceneGraph->AddNode(m_Test1);
     m_SceneGraph->AddNode(test2);
 
+    auto sc = new ScriptComponent;
+    test2->AddComponent(sc);
+    sc->SetScript("scripts/test.py", "TestComp");
+
+   
 
     auto act1 = Importer::ImportSkeletal("test/actor1.fbx");
 
@@ -196,6 +223,24 @@ void SceneView::SetSpace(SceneSpace space) {
 
 }
 
+void SceneView::Run() {
+
+    if (m_RunMode == RM_Running) return;
+    m_SceneGraph->Push();
+    m_RunMode = RM_Running;
+
+
+
+}
+
+void SceneView::Stop() {
+
+    if (m_RunMode == RM_Stopped) return;
+    m_RunMode = RM_Stopped;
+    m_SceneGraph->Pop();
+
+}
+
 void SceneView::AlignGizmo() {
 
     m_SceneController->AlignGizmos();
@@ -224,32 +269,41 @@ void SceneView::paintEvent(QPaintEvent* event)
 
     float tt = ( ((float)ttick) / 1000.0f);
 
-    m_SceneGraph->Update(tt);
+    if (m_RunMode == RM_Running) {
+        m_SceneGraph->Update(tt);
+    }
+    
     m_SceneGraph->RenderShadows();
     m_SceneGraph->Render();
 
-    m_SceneController->Render();
+
+    if (m_RunMode == RM_Stopped) {
+        m_SceneController->Render();
+    }
 
     pSwapchain->Present();
 
-    if (m_Pick) {
-        m_Pick = false;
-        QPoint localPos = m_PickPos;
-        qreal dpr = this->devicePixelRatioF(); // or use QWidget::window()->devicePixelRatioF()
 
-        int x = static_cast<int>(localPos.x() * dpr);
-        int y = static_cast<int>(localPos.y() * dpr);
-        m_SceneController->onMouseClick(glm::vec2(x, y));
-        auto picked = m_SceneController->GetSelected();
-        if (picked != nullptr) {
-            if (m_SelectedNode != picked) {
-                m_SelectedNode = picked;
+    if (m_RunMode == RM_Stopped) {
+        if (m_Pick) {
+            m_Pick = false;
+            QPoint localPos = m_PickPos;
+            qreal dpr = this->devicePixelRatioF(); // or use QWidget::window()->devicePixelRatioF()
 
-                PropertiesEditor::m_Instance->SetNode(m_SelectedNode);
-                printf("Set Property Node\n");
+            int x = static_cast<int>(localPos.x() * dpr);
+            int y = static_cast<int>(localPos.y() * dpr);
+            m_SceneController->onMouseClick(glm::vec2(x, y));
+            auto picked = m_SceneController->GetSelected();
+            if (picked != nullptr) {
+                if (m_SelectedNode != picked) {
+                    m_SelectedNode = picked;
+
+                    PropertiesEditor::m_Instance->SetNode(m_SelectedNode);
+                    printf("Set Property Node\n");
+                }
             }
+
         }
-        
     }
 
     //m_Test1->SetRotation(glm::vec3(45, yv, 0));

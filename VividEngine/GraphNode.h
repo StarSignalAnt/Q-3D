@@ -33,6 +33,19 @@ public:
 		}
 		return nullptr;
 	}
+	template <typename T>
+	std::vector<T*> GetComponents() {
+		static_assert(std::is_base_of<Component, T>::value, "T must derive from Component");
+
+		std::vector<T*> res;
+		for (Component* comp : m_Components) {
+			if (T* casted = dynamic_cast<T*>(comp)) {
+				//return casted;
+				res.push_back(casted);
+			}
+		}
+		return res;
+	}
 	void Render(GraphNode* camera);
 	void RenderDepth(GraphNode* camera);
 	void Update(float dt);
@@ -61,11 +74,18 @@ public:
 	glm::mat4 GetRotation() {
 		return m_Rotation;
 	}
+	void Push();
+	void Pop();
+
 private:
 
 	glm::vec3 m_Position;
 	glm::vec3 m_Scale;
 	glm::mat4 m_Rotation;
+	glm::vec3 m_PositionPush;
+	glm::vec3 m_ScalePush;
+	glm::mat4 m_RotationPush;
+
 
 	GraphNode* m_RootNode = nullptr;
 

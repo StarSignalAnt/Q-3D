@@ -8,6 +8,7 @@
 #include <string>
 #include "GraphNode.h"
 #include "SceneView.h"
+#include "ScriptComponent.h"
 
 PropertiesEditor* PropertiesEditor::m_Instance = nullptr;
 
@@ -227,6 +228,40 @@ void PropertiesEditor::SetNode(GraphNode* node) {
         SceneView::m_Instance->AlignGizmo();
         });
 
+
+    auto scripts = node->GetComponents<ScriptComponent>();
+
+        for (auto sc : scripts) {
+
+        auto name = "(Py)"+sc->GetName();
+        AddHeader(name.c_str());
+
+        for (auto var : sc->GetVars()) {
+
+            switch (var.type) {
+            case VT_Float:
+
+                AddFloat(var.name.c_str(), -1000, 1000, 0.001, sc->GetFloat(var.name), [sc,var](const double value)
+                    {
+                        sc->SetFloat(var.name, value);
+
+                    });
+                break;
+            case VT_String:
+
+                AddText(var.name.c_str(), sc->GetString(var.name).c_str(), [sc, var](const QString& value)
+                    {
+
+                        sc->SetString(var.name, value.toStdString());
+
+                    });
+
+                break;
+            }
+
+        }
+
+    }
 
     EndUI();
 

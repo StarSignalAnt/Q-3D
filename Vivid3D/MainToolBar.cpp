@@ -42,6 +42,14 @@ void MainToolBar::setupActions()
     // Add the dropdown to the toolbar
     addWidget(dropdown);
 
+    addSeparator();
+
+    QAction* runAction = addAction(QIcon("edit/icons/runicon.png"), "");
+    QAction* stopAction = addAction(QIcon("edit/icons/stopicon.png"), "");
+
+
+    connect(runAction, &QAction::triggered, this, &MainToolBar::onRunClicked);
+    connect(stopAction, &QAction::triggered, this, &MainToolBar::onStopClicked);
     // Connect to handle selection changes
     //connect(dropdown, QOverload<const QString&>::of(&QComboBox::currentTextChanged),
      //   this, &MainWindow::onDropdownChanged);
@@ -88,4 +96,16 @@ void MainToolBar::onScaleClicked() {
     qDebug() << "Rotate tool activated";
     SceneView::m_Instance->SetMode(SceneMode::Mode_Scale);
     // handle rotate mode activation here
+}
+
+void MainToolBar::onRunClicked() {
+
+    SceneView::m_Instance->Run();
+
+}
+
+void MainToolBar::onStopClicked() {
+
+    SceneView::m_Instance->Stop();
+
 }
