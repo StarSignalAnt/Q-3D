@@ -2,6 +2,7 @@
 #include <QDockWidget>
 #include "MainToolBar.h"
 #include "MainMenu.h"
+#include "NodeTree.h"
 Vivid3D::Vivid3D(QWidget *parent)
     : QMainWindow(parent)
 {
@@ -15,7 +16,10 @@ Vivid3D::Vivid3D(QWidget *parent)
     auto toolbar = new MainToolBar(this);
     addToolBar(Qt::TopToolBarArea, toolbar);
 
-
+    NodeTree* nodeTree = new NodeTree(this);
+    QDockWidget* treeDock = new QDockWidget("Scene Graph", this);
+    treeDock->setWidget(nodeTree);
+    treeDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
     SceneView* sceneView = new SceneView(this);
     setCentralWidget(sceneView);
 
@@ -24,9 +28,12 @@ Vivid3D::Vivid3D(QWidget *parent)
     dock->setWidget(props);
     dock->setAllowedAreas(Qt::RightDockWidgetArea | Qt::LeftDockWidgetArea);
 
+  
+
     setStyleSheet("background-color: #202020;");
     // Add it to the right
     addDockWidget(Qt::RightDockWidgetArea, dock);
+    addDockWidget(Qt::LeftDockWidgetArea, treeDock);
     QPalette pal = palette();
     pal.setColor(QPalette::Window, QColor("#502020"));
     setAutoFillBackground(true);

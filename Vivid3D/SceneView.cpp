@@ -50,7 +50,7 @@
 #include "SceneGizmo.h"
 #include "ScriptHost.h"
 #include "ScriptComponent.h"
-
+#include "NodeTree.h"
 
 using namespace Diligent;
 
@@ -183,7 +183,7 @@ SceneView::SceneView(QWidget *parent)
     m_SceneController->setCamera(cam);
     m_SceneController->setScene(m_SceneGraph);
     m_SceneController->Init();
-    
+    NodeTree::m_Instance->SetRoot(m_SceneGraph->GetRootNode());
 }
 
 SceneView::~SceneView()
@@ -228,6 +228,7 @@ void SceneView::Run() {
     if (m_RunMode == RM_Running) return;
     m_SceneGraph->Push();
     m_RunMode = RM_Running;
+    keysHeld.clear();
 
 
 
@@ -406,7 +407,7 @@ void SceneView::mouseReleaseEvent(QMouseEvent* event) {
 }
 
 void SceneView::mouseMoveEvent(QMouseEvent* event)  {
-
+    if (m_RunMode == RM_Running) return;
     if (rightMousePressed) {
         QPoint delta = event->pos() - lastMousePos;
         m_CameraController->updateMouse(1.0f / 60.0f, delta, true);
@@ -424,15 +425,65 @@ void SceneView::mouseMoveEvent(QMouseEvent* event)  {
    
 }
 void SceneView::keyPressEvent(QKeyEvent* event) {
-    keysHeld.insert(event->key());
+    if (m_RunMode == RM_Stopped) {
+        keysHeld.insert(event->key());
+    }
+    switch (event->key()) {
+    case Qt::Key::Key_W:
+        GameInput::m_Key[Key::Key_W] = true;
+        break;
+    case Qt::Key::Key_A:
+        GameInput::m_Key[Key::Key_A] = true;
+        break;
+    case Qt::Key::Key_S:
+        GameInput::m_Key[Key::Key_S] = true;
+        break;
+    case Qt::Key::Key_D:
+        GameInput::m_Key[Key::Key_D] = true;
+        break;
+    case Qt::Key::Key_Space:
+        GameInput::m_Key[Key::Key_Space] = true;
+        break;
+    }
 }
 
 void SceneView::keyReleaseEvent(QKeyEvent* event) {
-    keysHeld.remove(event->key());
+    if (m_RunMode == RM_Stopped) {
+        keysHeld.remove(event->key());
+    }
+    switch (event->key()) {
+    case Qt::Key::Key_W:
+        GameInput::m_Key[Key::Key_W] = false;
+        break;
+    case Qt::Key::Key_A:
+        GameInput::m_Key[Key::Key_A] = false;
+        break;
+    case Qt::Key::Key_S:
+        GameInput::m_Key[Key::Key_S] = false;
+        break;
+    case Qt::Key::Key_D:
+        GameInput::m_Key[Key::Key_D] = false;
+        break;
+    case Qt::Key::Key_Space:
+        GameInput::m_Key[Key::Key_Space] = false;
+        break;
+    }
 }
 
 void SceneView::handleMovement() {
     m_CameraController->update(1.0f / 60.0f, keysHeld, QPoint(),rightMousePressed);
  
+
+}
+
+void SceneView::SelectNode(GraphNode* node)
+{
+
+    if (node == nullptr) {
+        return;
+    }
+    m_SelectedNode = node;
+    m_SceneController->SelectNode(node);
+    PropertiesEditor::m_Instance->SetNode(node);
 
 }

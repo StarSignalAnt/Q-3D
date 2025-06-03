@@ -43,6 +43,7 @@ public:
     void SetSpace(EditSpace space);
     void AlignGizmos();
     GraphNode* GetSelected();
+    void SelectNode(GraphNode* node);
 private:
     SceneGraph* m_Scene = nullptr;
     GraphNode* m_Camera = nullptr;

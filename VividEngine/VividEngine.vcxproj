@@ -158,6 +158,7 @@
     <ClInclude Include="Component.h" />
     <ClInclude Include="CubeRenderer.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="GameInput.h" />
     <ClInclude Include="GraphNode.h" />
     <ClInclude Include="Importer.h" />
     <ClInclude Include="Intersections.h" />
@@ -195,6 +196,7 @@
     <ClCompile Include="CLBase.cpp" />
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="CubeRenderer.cpp" />
+    <ClCompile Include="GameInput.cpp" />
     <ClCompile Include="GraphNode.cpp" />
     <ClCompile Include="Importer.cpp" />
     <ClCompile Include="Intersections.cpp" />

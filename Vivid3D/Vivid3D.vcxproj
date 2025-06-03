@@ -130,6 +130,7 @@
     <ClCompile Include="CameraController.cpp" />
     <ClCompile Include="MainMenu.cpp" />
     <ClCompile Include="MainToolBar.cpp" />
+    <ClCompile Include="NodeTree.cpp" />
     <ClCompile Include="PropertiesEditor.cpp" />
     <ClCompile Include="PropertyFloat.cpp" />
     <ClCompile Include="PropertyHeader.cpp" />
@@ -172,6 +173,7 @@
   <ItemGroup>
     <ClInclude Include="CameraController.h" />
     <QtMoc Include="PropertyInt.h" />
+    <QtMoc Include="NodeTree.h" />
     <ClInclude Include="RotateGizmo.h" />
     <ClInclude Include="ScaleGizmo.h" />
     <ClInclude Include="SceneGizmo.h" />

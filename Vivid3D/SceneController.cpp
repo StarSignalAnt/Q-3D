@@ -49,6 +49,7 @@ void SceneController::onMouseClick(glm::vec2 pos) {
             //m_CurrentGizmo->SetNode(res.m_Node);
             m_TranslateGiz->SetNode(res.m_Node);
             m_RotateGiz->SetNode(res.m_Node);
+            m_ScaleGiz->SetNode(res.m_Node);
             //m_ScaleGiz
             m_GizmoActive = false;
             m_TranslateGiz->AlignGizmo();
@@ -166,5 +167,21 @@ void SceneController::AlignGizmos() {
 GraphNode* SceneController::GetSelected() {
 
     return m_SelectedNode;
+
+}
+
+void SceneController::SelectNode(GraphNode* node) {
+
+    m_SelectedNode = node;
+    //m_CurrentGizmo->SetNode(res.m_Node);
+    m_TranslateGiz->SetNode(node);
+    m_RotateGiz->SetNode(node);
+    m_ScaleGiz->SetNode(node);
+    //m_ScaleGiz
+
+    m_GizmoActive = false;
+    m_TranslateGiz->AlignGizmo();
+    m_RotateGiz->AlignGizmo();
+    m_ScaleGiz->AlignGizmo();
 
 }

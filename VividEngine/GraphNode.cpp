@@ -206,3 +206,30 @@ void GraphNode::Pop() {
 		node->Pop();
 	}
 }
+
+glm::vec3 GraphNode::GetWorldPosition() {
+
+	glm::vec3 root = glm::vec3(0, 0, 0);
+
+	if (m_RootNode) {
+
+		root = m_RootNode->GetWorldPosition();
+
+	}
+
+	return root + m_Position;
+
+}
+
+glm::mat4 GraphNode::GetWorldRotation() {
+
+	glm::mat4 root = glm::mat4(1.0f);
+
+	if (m_RootNode) {
+		root = m_RootNode->GetWorldRotation();
+		
+	}
+
+	return root * m_Rotation;
+
+}

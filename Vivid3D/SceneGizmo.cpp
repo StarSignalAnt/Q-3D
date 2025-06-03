@@ -50,10 +50,23 @@ bool SceneGizmo::Click(int x, int y) {
 void SceneGizmo::AlignGizmo() {
 
 	if (m_Selected == nullptr) return;
-	m_Node->SetPosition(m_Selected->GetPosition());
+
+	auto mat = m_Selected->GetWorldMatrix();
+	glm::vec3 position = glm::vec3(mat[3]);
+	glm::mat4 rotationMatrix = mat;
+
+	// Normalize the rotation axes (in case there's scaling)
+	rotationMatrix[0] = glm::normalize(rotationMatrix[0]);
+	rotationMatrix[1] = glm::normalize(rotationMatrix[1]);
+	rotationMatrix[2] = glm::normalize(rotationMatrix[2]);
+
+	// Remove translation
+	rotationMatrix[3] = glm::vec4(0, 0, 0, 1);
+
+	m_Node->SetPosition(position);
 	if (m_Space == GizmoSpace::Local) {
 
-		m_Node->SetRotation(m_Selected->GetRotation()*prot);
+		m_Node->SetRotation(rotationMatrix*prot);
 	}
 	else {
 		m_Node->SetRotation(prot);

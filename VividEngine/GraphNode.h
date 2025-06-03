@@ -76,7 +76,8 @@ public:
 	}
 	void Push();
 	void Pop();
-
+	glm::vec3 GetWorldPosition();
+	glm::mat4 GetWorldRotation();
 private:
 
 	glm::vec3 m_Position;

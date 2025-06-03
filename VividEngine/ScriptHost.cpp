@@ -13,6 +13,7 @@
 #include <vector>
 #include <filesystem>
 #include "GraphNode.h"
+#include "GameInput.h"
 
 namespace py = pybind11;
 
@@ -232,6 +233,12 @@ void sf_SetRotationGraphNode(uintptr_t node,py::object mat4)
 
 }
 
+bool sf_GetKeyGameInput(int key) {
+
+    return GameInput::m_Key[key];
+
+}
+
 void InitNodeScript() {
 
     addFunction("updateGraphNode", sf_UpdateGraphNode);
@@ -239,6 +246,7 @@ void InitNodeScript() {
     addFunction("getPositionGraphNode", sf_GetPositionGraphNode);
     addFunction("getRotationGraphNode", sf_GetRotationGraphNode);
     addFunction("setRotationGraphNode", sf_SetRotationGraphNode);
+    addFunction("getKeyGameInput", sf_GetKeyGameInput);
 }
 
 ScriptHost::ScriptHost() {
@@ -265,6 +273,7 @@ ScriptHost::ScriptHost() {
 
     // 1. Run your Python script that defines NodeModule and MyCustomNode
 
+    ScanAndLoadPY("Engine/PY/Input");
    ScanAndLoadPY("Engine/PY/Node");
    ScanAndLoadPY("Engine/PY/Component");
 

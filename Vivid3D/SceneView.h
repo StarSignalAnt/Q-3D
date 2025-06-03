@@ -5,6 +5,7 @@
 #include "SceneGraph.h"
 #include "GraphNode.h"
 #include <qtimer.h>
+#include "GameInput.h"
 
 #if D3D11_SUPPORTED
 #    include "Graphics/GraphicsEngineD3D11/interface/EngineFactoryD3D11.h"
@@ -76,6 +77,7 @@ public:
 	SceneMode m_Mode = SceneMode::Mode_Translate;
 	SceneSpace m_Space = SceneSpace::Space_Local;
 	GraphNode* m_SelectedNode = nullptr;
+	void SelectNode(GraphNode* node);
 protected:
 	void CreateGraphics();
 	void paintEvent(QPaintEvent* event) override;

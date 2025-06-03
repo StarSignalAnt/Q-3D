@@ -44,6 +44,11 @@ void MainToolBar::setupActions()
 
     addSeparator();
 
+    QWidget* spacer = new QWidget();
+    spacer->setFixedWidth(256); // or whatever width you want
+    addWidget(spacer);
+
+
     QAction* runAction = addAction(QIcon("edit/icons/runicon.png"), "");
     QAction* stopAction = addAction(QIcon("edit/icons/stopicon.png"), "");
 

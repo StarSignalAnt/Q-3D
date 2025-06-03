@@ -198,7 +198,35 @@ void PropertiesEditor::UpdateNode(GraphNode* node) {
     }
 
 }
+std::string AddSpaces(const std::string& text) {
+    if (text.empty()) return "";
 
+    std::string result;
+    result.reserve(text.size() * 2);
+
+    // Capitalize the first character
+    result += std::toupper(static_cast<unsigned char>(text[0]));
+
+    for (size_t i = 1; i < text.size(); ++i) {
+        char c = text[i];
+        char prev = text[i - 1];
+
+        // Add space before capital letters if previous is lowercase
+        if (std::isupper(static_cast<unsigned char>(c)) && std::islower(static_cast<unsigned char>(prev))) {
+            result += ' ';
+        }
+
+        // Add space before digits if previous is not a digit or capital letter
+        if (std::isdigit(static_cast<unsigned char>(c)) &&
+            !(std::isdigit(static_cast<unsigned char>(prev)) || std::isupper(static_cast<unsigned char>(prev)))) {
+            result += ' ';
+        }
+
+        result += c;
+    }
+
+    return result;
+}
 void PropertiesEditor::SetNode(GraphNode* node) {
     if (!m_mainLayout) {
         BeginUI();
@@ -240,7 +268,7 @@ void PropertiesEditor::SetNode(GraphNode* node) {
 
             switch (var.type) {
             case VT_Int:
-                AddInt(var.name.c_str(), -1000, 1000,1, sc->GetInt(var.name), [sc, var](const int value)
+                AddInt(AddSpaces(var.name).c_str(), -1000, 1000,1, sc->GetInt(var.name), [sc, var](const int value)
                     {
                         sc->SetInt(var.name, value);
 
@@ -248,7 +276,7 @@ void PropertiesEditor::SetNode(GraphNode* node) {
                 break;
             case VT_Float:
 
-                AddFloat(var.name.c_str(), -1000, 1000, 0.001, sc->GetFloat(var.name), [sc,var](const double value)
+                AddFloat(AddSpaces(var.name).c_str(), -1000, 1000, 0.001, sc->GetFloat(var.name), [sc,var](const double value)
                     {
                         sc->SetFloat(var.name, value);
 
@@ -256,7 +284,7 @@ void PropertiesEditor::SetNode(GraphNode* node) {
                 break;
             case VT_String:
 
-                AddText(var.name.c_str(), sc->GetString(var.name).c_str(), [sc, var](const QString& value)
+                AddText(AddSpaces(var.name).c_str(), sc->GetString(var.name).c_str(), [sc, var](const QString& value)
                     {
 
                         sc->SetString(var.name, value.toStdString());
