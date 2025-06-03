@@ -17,6 +17,8 @@ public:
     GraphNode* GetOwner() {
         return m_Owner;
     }
+    virtual void Push() {};
+    virtual void Pop() {};
     // Optional virtual methods to override
     virtual void OnUpdate(float deltaTime) {}
     virtual void OnRender(GraphNode* camera) {}

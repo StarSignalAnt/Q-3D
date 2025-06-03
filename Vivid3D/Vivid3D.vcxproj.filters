@@ -100,6 +100,9 @@
     <ClCompile Include="ScaleGizmo.cpp">
       <Filter>Controllers\Gizmo</Filter>
     </ClCompile>
+    <ClCompile Include="PropertyInt.cpp">
+      <Filter>Props</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="SceneView.h">
@@ -128,6 +131,9 @@
     </QtMoc>
     <QtMoc Include="MainMenu.h">
       <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="PropertyInt.h">
+      <Filter>Props</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>

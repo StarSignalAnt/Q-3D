@@ -239,6 +239,13 @@ void PropertiesEditor::SetNode(GraphNode* node) {
         for (auto var : sc->GetVars()) {
 
             switch (var.type) {
+            case VT_Int:
+                AddInt(var.name.c_str(), -1000, 1000,1, sc->GetInt(var.name), [sc, var](const int value)
+                    {
+                        sc->SetInt(var.name, value);
+
+                    });
+                break;
             case VT_Float:
 
                 AddFloat(var.name.c_str(), -1000, 1000, 0.001, sc->GetFloat(var.name), [sc,var](const double value)
@@ -344,6 +351,25 @@ PropertyVec3* PropertiesEditor::AddVec3(const QString& label, const QVector3D& d
 
     return vec3Prop;
 }
+
+
+PropertyInt* PropertiesEditor::AddInt(const QString& label, int minValue, int maxValue,
+    int interval, int defaultValue,
+    std::function<void(int)> callback)
+{
+    PropertyInt* intProp = new PropertyInt(label, minValue, maxValue, interval);
+    intProp->setValue(defaultValue);
+    m_contentLayout->addWidget(intProp);
+
+    if (callback) {
+        connect(intProp, &PropertyInt::valueChanged, this, [callback](int value) {
+            callback(value);
+            });
+    }
+
+    return intProp;
+}
+
 
 PropertyFloat* PropertiesEditor::AddFloat(const QString& label, double minValue, double maxValue,
     double interval, double defaultValue,

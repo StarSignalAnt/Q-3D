@@ -126,6 +126,12 @@ int ScriptComponent::GetInt(std::string name) {
 
 }
 
+void ScriptComponent::SetInt(std::string name, int value) {
+
+	ScriptHost::m_Host->SetInt(m_ComponentPy,name, value);
+
+}
+
 float ScriptComponent::GetFloat(std::string name) {
 
 	return ScriptHost::m_Host->GetFloat(m_ComponentPy, name);
@@ -147,5 +153,59 @@ std::string ScriptComponent::GetString(std::string name) {
 void ScriptComponent::SetString(std::string name, std::string value) {
 
 	ScriptHost::m_Host->SetString(m_ComponentPy, name, value);
+
+}
+
+
+void ScriptComponent::Push() {
+
+	auto v = GetVars();
+
+	m_Pushed.clear();
+
+	for (auto var : v)
+	{
+		bool add = true;
+		switch (var.type) {
+		case VT_Int:
+			var.ivalue = GetInt(var.name);
+			break;
+		case VT_Float:
+			var.fvalue = GetFloat(var.name);
+			break;
+		case VT_String:
+			var.svalue = GetString(var.name);
+			break;
+		default:
+			add = false;
+			break;
+		}
+		if (!add) continue;
+		m_Pushed.push_back(var);
+	}
+
+}
+
+void ScriptComponent::Pop() {
+
+	for (auto var : m_Pushed)
+	{
+		switch (var.type) {
+		case VT_Int:
+			//var.ivalue = GetInt(var.name);
+			SetInt(var.name,var.ivalue);
+			break;
+		case VT_Float:
+			SetFloat(var.name, var.fvalue);
+			//var.fvalue = GetFloat(var.name);
+			break;
+		case VT_String:
+			//var.svalue = GetString();
+			SetString(var.name, var.svalue);
+			break;
+
+		}
+	
+	}
 
 }

@@ -8,9 +8,12 @@
 #include "PropertyText.h"
 #include "PropertyFloat.h"
 #include "PropertySlider.h"
+#include "PropertyInt.h"
 #include <functional>
 #include <qvector3d.h>
+
 class GraphNode;
+
 
 
 class PropertiesEditor : public QWidget
@@ -39,6 +42,10 @@ public:
 
     PropertyFloat* AddFloat(const QString& label, double minValue, double maxValue, double interval,
         double defaultValue = 0.0, std::function<void(double)> callback = nullptr);
+
+    PropertyInt* AddInt(const QString& label, int minValue,int maxValue, int interval,
+        int defaultValue = 0.0, std::function<void(int)> callback = nullptr);
+
 
     PropertySlider* AddSlider(const QString& label, int minValue, int maxValue, int defaultValue = 0,
         std::function<void(int)> callback = nullptr);

@@ -238,7 +238,9 @@ void SceneView::Stop() {
     if (m_RunMode == RM_Stopped) return;
     m_RunMode = RM_Stopped;
     m_SceneGraph->Pop();
-
+    if (m_SelectedNode != nullptr) {
+        PropertiesEditor::m_Instance->SetNode(m_SelectedNode);
+    }
 }
 
 void SceneView::AlignGizmo() {

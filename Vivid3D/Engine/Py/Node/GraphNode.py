@@ -28,7 +28,11 @@ class GraphNode:
         engine.updateGraphNode(self.cpp,self.position)
     def Turn(self,delta):
         engine.turnGraphNode(self.cpp,delta)
-        
+    def GetRotation(self):
+        return engine.getRotationGraphNode(self.cpp)
+    def SetRotation(self,rotation):
+        engine.setRotationGraphNode(self.cpp,rotation)
+
     def SetCPP(self,cobj):
         self.cpp = cobj
         print(f"node.SetCPP {cobj}")

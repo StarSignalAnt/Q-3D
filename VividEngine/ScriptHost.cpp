@@ -182,12 +182,63 @@ py::object sf_GetPositionGraphNode(uintptr_t node)
 
 }
 
+py::object sf_GetRotationGraphNode(uintptr_t node)
+{
+
+    GraphNode* node2 = reinterpret_cast<GraphNode*>(node);
+
+    const glm::mat4& mat = node2->GetRotation(); // assuming GetRotation returns glm::mat4
+
+    py::module glm = py::module::import("glm");
+
+    // glm.mat4 expects a flat list of 16 floats (column-major order)
+    std::vector<float> flatMatrix;
+    flatMatrix.reserve(16);
+
+    // Flatten glm::mat4 (column-major)
+    for (int col = 0; col < 4; ++col) {
+        for (int row = 0; row < 4; ++row) {
+            flatMatrix.push_back(mat[col][row]);
+        }
+    }
+
+    // Call glm.mat4(*flatMatrix)
+    py::object pyMat4 = glm.attr("mat4")(
+        flatMatrix[0], flatMatrix[1], flatMatrix[2], flatMatrix[3],
+        flatMatrix[4], flatMatrix[5], flatMatrix[6], flatMatrix[7],
+        flatMatrix[8], flatMatrix[9], flatMatrix[10], flatMatrix[11],
+        flatMatrix[12], flatMatrix[13], flatMatrix[14], flatMatrix[15]
+        );
+
+    return pyMat4;
+
+}
+
+void sf_SetRotationGraphNode(uintptr_t node,py::object mat4)
+{
+
+    GraphNode* node2 = reinterpret_cast<GraphNode*>(node);
+
+    glm::mat4 cppMat;
+
+    // Fill C++ mat4 from Python mat4 (column-major order)
+    for (int col = 0; col < 4; ++col) {
+        for (int row = 0; row < 4; ++row) {
+            cppMat[col][row] = mat4.attr("__getitem__")(col).attr("__getitem__")(row).cast<float>();
+        }
+    }
+
+    node2->SetRotation(cppMat);
+
+}
+
 void InitNodeScript() {
 
     addFunction("updateGraphNode", sf_UpdateGraphNode);
     addFunction("turnGraphNode", sf_TurnGraphNode);
     addFunction("getPositionGraphNode", sf_GetPositionGraphNode);
-
+    addFunction("getRotationGraphNode", sf_GetRotationGraphNode);
+    addFunction("setRotationGraphNode", sf_SetRotationGraphNode);
 }
 
 ScriptHost::ScriptHost() {

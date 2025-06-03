@@ -176,9 +176,17 @@ void GraphNode::Push() {
 	m_PositionPush = m_Position;
 	m_ScalePush = m_Scale;
 	m_RotationPush = m_Rotation;
+
+	for (auto comp : m_Components) {
+
+		comp->Push();
+
+	}
+
 	for (auto node : m_Nodes) {
 		node->Push();
 	}
+	
 
 }
 
@@ -187,6 +195,13 @@ void GraphNode::Pop() {
 	m_Position = m_PositionPush;
 	m_Scale = m_ScalePush;
 	m_Rotation = m_RotationPush;
+
+	for (auto comp : m_Components) {
+
+		comp->Pop();
+
+	}
+
 	for (auto node : m_Nodes) {
 		node->Pop();
 	}

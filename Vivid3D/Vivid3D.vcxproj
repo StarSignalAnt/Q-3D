@@ -133,6 +133,7 @@
     <ClCompile Include="PropertiesEditor.cpp" />
     <ClCompile Include="PropertyFloat.cpp" />
     <ClCompile Include="PropertyHeader.cpp" />
+    <ClCompile Include="PropertyInt.cpp" />
     <ClCompile Include="PropertySlider.cpp" />
     <ClCompile Include="PropertyText.cpp" />
     <ClCompile Include="PropertyVec3.cpp" />
@@ -170,6 +171,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CameraController.h" />
+    <QtMoc Include="PropertyInt.h" />
     <ClInclude Include="RotateGizmo.h" />
     <ClInclude Include="ScaleGizmo.h" />
     <ClInclude Include="SceneGizmo.h" />
