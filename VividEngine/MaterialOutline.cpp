@@ -1,4 +1,4 @@
-#include "MaterialBasic3D.h"
+#include "MaterialOutline.h"
 #include "Vivid.h"
 #include <Graphics/GraphicsEngine/interface/RenderDevice.h>
 #include <Graphics/GraphicsEngine/interface/DeviceContext.h>
@@ -10,10 +10,10 @@
 
 using namespace Diligent;
 
-MaterialBasic3D::MaterialBasic3D() {
+MaterialOutline::MaterialOutline() {
 
-	SetVertexShader("Engine/Shader/MaterialBasic/basic.vsh");
-	SetPixelShader("Engine/Shader/MaterialBasic/basic.psh");
+    SetVertexShader("Engine/Shader/PP/Outline/outline.vsh");
+    SetPixelShader("Engine/Shader/PP/Outline/outline.psh");
 
     m_UniformBuffer = CreateUniform(sizeof(float4x4), "Basic Uniform Buffer - MVP");
 
@@ -195,11 +195,11 @@ MaterialBasic3D::MaterialBasic3D() {
     m_Pipeline->CreateShaderResourceBinding(&m_SRB, true);
 
 
-	int b = 5;
+    int b = 5;
 
 }
 
-void MaterialBasic3D::Bind(bool add) {
+void MaterialOutline::Bind(bool add) {
 
     m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_Texture")->Set(m_Textures[0]->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
     //Engine::m_pImmediateContext->MapBuffer(BasicUniform, MAP_TYPE::MAP_WRITE, MAP_FLAGS::MAP_FLAG_DISCARD);
@@ -227,11 +227,11 @@ void MaterialBasic3D::Bind(bool add) {
 
         glm::mat4 proj = m_RenderMatrices[2];
         glm::mat4 view = m_RenderMatrices[0];
-		glm::mat4 model = m_RenderMatrices[1];
+        glm::mat4 model = m_RenderMatrices[1];
 
         glm::mat4 mvp = proj * view * model;
 
-        map_data[0] =  glm::transpose(mvp);
+        map_data[0] = glm::transpose(mvp);
     }
     //map_data.Unmap();
 
@@ -253,12 +253,12 @@ void MaterialBasic3D::Bind(bool add) {
     Vivid::m_pImmediateContext->SetPipelineState(m_Pipeline);
 
     Vivid::m_pImmediateContext->CommitShaderResources(m_SRB, flags);
-       //Vivid::m_pImmediateContext->SetPipelineState(m_Pipeline);
+    //Vivid::m_pImmediateContext->SetPipelineState(m_Pipeline);
 
 
 }
 
-void MaterialBasic3D::Render() {
+void MaterialOutline::Render() {
 
 
 

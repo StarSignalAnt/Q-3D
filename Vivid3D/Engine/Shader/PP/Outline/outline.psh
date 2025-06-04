@@ -1,0 +1,80 @@
+#define dx 1.0
+
+Texture2D v_Texture;
+SamplerState v_Texture_sampler;
+
+
+struct PSInput
+{
+    float4 Pos : SV_POSITION;
+    float3 Uv : TEX_COORD;
+    float4 v_Color : COLOR2;
+ 
+ // float3 Norm : NORMAL0;x
+};
+
+struct PSOutput
+{
+    float4 Color : SV_TARGET;
+};
+
+// Note that if separate shader objects are not supported (this is only the case for old GLES3.0 devices), vertex
+// shader output variable name must match exactly the name of the pixel shader input variable.
+// If the variable has structure type (like in this example), the structure declarations must also be identical.
+void main(in PSInput PSIn,
+    out PSOutput PSOut)
+{
+
+   float2 texelSize;
+    v_Texture.GetDimensions(texelSize.x, texelSize.y);
+    texelSize = 1.0 / texelSize;
+    
+    // Check if we're near the screen edges and discard early
+    float2 uv = PSIn.Uv.xy;
+    float edgeMargin = 2.0 * max(texelSize.x, texelSize.y); // 2-pixel margin
+    
+    if (uv.x < edgeMargin || uv.x > (1.0 - edgeMargin) || 
+        uv.y < edgeMargin || uv.y > (1.0 - edgeMargin))
+    {
+        discard;
+    }
+    
+    // Sample center depth
+    float centerDepth = v_Texture.Sample(v_Texture_sampler, uv).r;
+    
+    // Sample adjacent depths with clamping to avoid wrap-around
+    float2 leftUV = float2(max(0.0, uv.x - texelSize.x), uv.y);
+    float2 rightUV = float2(min(1.0, uv.x + texelSize.x), uv.y);
+    float2 upUV = float2(uv.x, max(0.0, uv.y - texelSize.y));
+    float2 downUV = float2(uv.x, min(1.0, uv.y + texelSize.y));
+    
+    float leftDepth = v_Texture.Sample(v_Texture_sampler, leftUV).r;
+    float rightDepth = v_Texture.Sample(v_Texture_sampler, rightUV).r;
+    float upDepth = v_Texture.Sample(v_Texture_sampler, upUV).r;
+    float downDepth = v_Texture.Sample(v_Texture_sampler, downUV).r;
+    
+    // Only calculate differences if we're not sampling the same pixel (i.e., not at edges)
+    float depthDiffX = 0.0;
+    float depthDiffY = 0.0;
+    
+    if (leftUV.x != uv.x) depthDiffX += abs(centerDepth - leftDepth);
+    if (rightUV.x != uv.x) depthDiffX += abs(centerDepth - rightDepth);
+    if (upUV.y != uv.y) depthDiffY += abs(centerDepth - upDepth);
+    if (downUV.y != uv.y) depthDiffY += abs(centerDepth - downDepth);
+    
+    // Combine differences
+    float totalDepthDiff = depthDiffX + depthDiffY;
+    
+    // Threshold for edge detection (adjust this value to control sensitivity)
+    float edgeThreshold = 0.01; // Adjust this value based on your scene
+    
+    // If depth difference is significant, draw green outline
+    if (totalDepthDiff > edgeThreshold)
+    {
+        PSOut.Color = float4(0, 1, 0, 1); // Green outline
+    }
+    else
+    {
+        discard; // Discard pixel if no edge detected
+    }
+}

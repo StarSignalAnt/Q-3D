@@ -106,6 +106,12 @@
     <ClCompile Include="NodeTree.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SceneGrid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneSelectionOverlay.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="SceneView.h">
@@ -189,6 +195,12 @@
     </ClInclude>
     <ClInclude Include="ScaleGizmo.h">
       <Filter>Controllers\Gizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneGrid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneSelectionOverlay.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

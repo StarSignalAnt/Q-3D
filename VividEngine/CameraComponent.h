@@ -10,6 +10,7 @@ class CameraComponent :
 public:
 
     glm::mat4 GetProjectionMatrix();
+    glm::mat4 Get2DProjectionMatrix();
     void SetFOV(float fov) {
         m_FOV = fov;
     }

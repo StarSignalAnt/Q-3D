@@ -19,7 +19,8 @@ using namespace Diligent;
 class Texture2D
 {
 public:
-
+	
+	Texture2D(RenderTarget2D* target);
 	Texture2D(std::string path);
 	RefCntAutoPtr<ITextureView> GetView() {
 	

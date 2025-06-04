@@ -6,6 +6,9 @@
 #include "GraphNode.h"
 #include <qtimer.h>
 #include "GameInput.h"
+#include "SceneGrid.h"
+#include "SceneSelectionOverlay.h"
+#include "Draw2D.h"
 
 #if D3D11_SUPPORTED
 #    include "Graphics/GraphicsEngineD3D11/interface/EngineFactoryD3D11.h"
@@ -138,5 +141,9 @@ private:
 	SceneController* m_SceneController; 
 	QPoint m_PickPos;
 	RunMode m_RunMode = RunMode::RM_Stopped;
+	SceneGrid* m_Grid;
+	SceneSelectionOverlay* m_SelectionOverlay;
+	Draw2D* m_Draw;
+	Texture2D* tex1;
 };
 

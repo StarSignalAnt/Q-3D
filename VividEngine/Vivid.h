@@ -31,6 +31,7 @@
 #include "BasicMath.hpp"
 
 class RenderTargetCube;
+class RenderTarget2D;
 
 using namespace Diligent;
 
@@ -49,7 +50,9 @@ public:
 	static void SetFrameHeight(int h);
 	static void ClearZ();
 	static void SetBoundRTC(RenderTargetCube* target);
+	static void SetBoundRT2D(RenderTarget2D* target);
 	static RenderTargetCube* m_BoundRTC;
+	static RenderTarget2D* m_BoundRT2D;
 	static void InitPython();
 private:
 

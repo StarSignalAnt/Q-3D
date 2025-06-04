@@ -1,4 +1,4 @@
-#include "MaterialBasic3D.h"
+#include "MaterialLines.h"
 #include "Vivid.h"
 #include <Graphics/GraphicsEngine/interface/RenderDevice.h>
 #include <Graphics/GraphicsEngine/interface/DeviceContext.h>
@@ -10,15 +10,16 @@
 
 using namespace Diligent;
 
-MaterialBasic3D::MaterialBasic3D() {
+MaterialLines::MaterialLines() {
 
-	SetVertexShader("Engine/Shader/MaterialBasic/basic.vsh");
-	SetPixelShader("Engine/Shader/MaterialBasic/basic.psh");
+    SetVertexShader("Engine/Shader/Lines/lines.vsh");
+    SetPixelShader("Engine/Shader/Lines/lines.psh");
 
-    m_UniformBuffer = CreateUniform(sizeof(float4x4), "Basic Uniform Buffer - MVP");
+    m_UniformBuffer = CreateUniform(sizeof(float4x4), "Basic Lines Buffer - MVP");
 
     GraphicsPipelineDesc gp;
 
+    gp.PrimitiveTopology = PRIMITIVE_TOPOLOGY_LINE_LIST;
 
     RasterizerStateDesc r_desc;
 
@@ -95,19 +96,16 @@ MaterialBasic3D::MaterialBasic3D() {
         LayoutElement{0, 0, 3, VT_FLOAT32, False},
         // Attribute 1 - vertex color
         LayoutElement{1, 0, 4, VT_FLOAT32, False},
-                LayoutElement{2, 0, 3, VT_FLOAT32, False},
-                        LayoutElement{3, 0, 3, VT_FLOAT32, False},
-                                LayoutElement{4, 0, 3, VT_FLOAT32, False},
-                                        LayoutElement{5, 0, 3, VT_FLOAT32, False},
+   
 
     };
 
     in_desc.LayoutElements = LayoutElems;
-    in_desc.NumElements = 6;
+    in_desc.NumElements = 2;
 
 
 
-    gp.PrimitiveTopology = PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    gp.PrimitiveTopology = PRIMITIVE_TOPOLOGY_LINE_LIST;
     gp.RasterizerDesc = r_desc;
     //  gp.RasterizerDesc.CullMode = CULL_MODE_NONE;
     gp.DepthStencilDesc = ds_desc;
@@ -162,14 +160,14 @@ MaterialBasic3D::MaterialBasic3D() {
     rl_desc.DefaultVariableType = SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
     rl_desc.Variables = vars.data();
     rl_desc.ImmutableSamplers = samplers.data();
-    rl_desc.NumVariables = 1;
+    rl_desc.NumVariables = 0;
 
-    rl_desc.NumImmutableSamplers = 1;
+    rl_desc.NumImmutableSamplers = 0;
 
 
     PipelineStateDesc pso_desc;
 
-    pso_desc.Name = "Material Basic3D";
+    pso_desc.Name = "Material Lines";
     pso_desc.ResourceLayout = rl_desc;
 
     //    pso_desc.PipelineType = PIPELINE_TYPE_GRAPHICS;
@@ -195,13 +193,13 @@ MaterialBasic3D::MaterialBasic3D() {
     m_Pipeline->CreateShaderResourceBinding(&m_SRB, true);
 
 
-	int b = 5;
+    int b = 5;
 
 }
 
-void MaterialBasic3D::Bind(bool add) {
+void MaterialLines::Bind(bool add) {
 
-    m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_Texture")->Set(m_Textures[0]->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
+    //m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_Texture")->Set(m_ColorTexture->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
     //Engine::m_pImmediateContext->MapBuffer(BasicUniform, MAP_TYPE::MAP_WRITE, MAP_FLAGS::MAP_FLAG_DISCARD);
     {
         MapHelper<glm::mat4> map_data(Vivid::m_pImmediateContext, m_UniformBuffer, MAP_WRITE, MAP_FLAG_DISCARD);
@@ -227,11 +225,11 @@ void MaterialBasic3D::Bind(bool add) {
 
         glm::mat4 proj = m_RenderMatrices[2];
         glm::mat4 view = m_RenderMatrices[0];
-		glm::mat4 model = m_RenderMatrices[1];
+        glm::mat4 model = m_RenderMatrices[1];
 
         glm::mat4 mvp = proj * view * model;
 
-        map_data[0] =  glm::transpose(mvp);
+        map_data[0] = glm::transpose(mvp);
     }
     //map_data.Unmap();
 
@@ -253,12 +251,12 @@ void MaterialBasic3D::Bind(bool add) {
     Vivid::m_pImmediateContext->SetPipelineState(m_Pipeline);
 
     Vivid::m_pImmediateContext->CommitShaderResources(m_SRB, flags);
-       //Vivid::m_pImmediateContext->SetPipelineState(m_Pipeline);
+    //Vivid::m_pImmediateContext->SetPipelineState(m_Pipeline);
 
 
 }
 
-void MaterialBasic3D::Render() {
+void MaterialLines::Render() {
 
 
 

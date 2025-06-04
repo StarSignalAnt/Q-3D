@@ -1,5 +1,5 @@
 #include "Texture2D.h"
-
+#include "RenderTarget2D.h"
 Texture2D::Texture2D(std::string path)
 {
     m_Path = path;
@@ -48,5 +48,12 @@ Texture2D::Texture2D(std::string path)
     m_Height = m_pTexture->GetDesc().Height;
 
 
+
+}
+
+Texture2D::Texture2D(RenderTarget2D* target) {
+
+    m_pTexture = target->GetTexture();
+    m_pTextureView = target->GetView();
 
 }

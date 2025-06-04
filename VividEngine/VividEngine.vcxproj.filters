@@ -46,6 +46,12 @@
     <Filter Include="Script">
       <UniqueIdentifier>{89972f5b-f012-4091-b7ab-e3ff7b32ffc6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="PP">
+      <UniqueIdentifier>{95e0f6ca-1af5-4b5f-917e-97ac23e8752d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Draw">
+      <UniqueIdentifier>{c9a06c56-3981-44c6-aa67-5738fcd1483b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -159,6 +165,30 @@
     <ClInclude Include="GameInput.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="LinesRendererComponent.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialLines.h">
+      <Filter>Material</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderTarget2D.h">
+      <Filter>RenderTarget</Filter>
+    </ClInclude>
+    <ClInclude Include="Draw2D.h">
+      <Filter>Draw</Filter>
+    </ClInclude>
+    <ClInclude Include="PostProcess.h">
+      <Filter>PP</Filter>
+    </ClInclude>
+    <ClInclude Include="PostProcessing.h">
+      <Filter>PP</Filter>
+    </ClInclude>
+    <ClInclude Include="PPOutline.h">
+      <Filter>PP</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialOutline.h">
+      <Filter>Material</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="VividEngine.cpp">
@@ -215,9 +245,6 @@
     <ClCompile Include="StaticDepthRendererComponent.cpp">
       <Filter>Components</Filter>
     </ClCompile>
-    <ClCompile Include="MaterialDepth.cpp">
-      <Filter>Material</Filter>
-    </ClCompile>
     <ClCompile Include="RenderTargetCube.cpp">
       <Filter>RenderTarget</Filter>
     </ClCompile>
@@ -271,6 +298,33 @@
     </ClCompile>
     <ClCompile Include="GameInput.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LinesRendererComponent.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="MaterialLines.cpp">
+      <Filter>Material</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderTarget2D.cpp">
+      <Filter>RenderTarget</Filter>
+    </ClCompile>
+    <ClCompile Include="MaterialDepth.cpp">
+      <Filter>Material</Filter>
+    </ClCompile>
+    <ClCompile Include="Draw2D.cpp">
+      <Filter>Draw</Filter>
+    </ClCompile>
+    <ClCompile Include="PostProcess.cpp">
+      <Filter>PP</Filter>
+    </ClCompile>
+    <ClCompile Include="PostProcessing.cpp">
+      <Filter>PP</Filter>
+    </ClCompile>
+    <ClCompile Include="PPOutline.cpp">
+      <Filter>PP</Filter>
+    </ClCompile>
+    <ClCompile Include="MaterialOutline.cpp">
+      <Filter>Material</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

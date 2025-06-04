@@ -77,6 +77,7 @@ protected:
 	RefCntAutoPtr<IBuffer> m_UniformBuffer;
 	RefCntAutoPtr<IShaderResourceBinding> m_SRB;
 	RefCntAutoPtr<IShaderResourceBinding> m_SRBAdd;
+
 	glm::mat4 m_Bones[100];
 	int m_IndexCount = 0;
 	RefCntAutoPtr<IBuffer> m_Buffers[128];

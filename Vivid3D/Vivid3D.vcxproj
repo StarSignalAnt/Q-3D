@@ -142,6 +142,8 @@
     <ClCompile Include="ScaleGizmo.cpp" />
     <ClCompile Include="SceneController.cpp" />
     <ClCompile Include="SceneGizmo.cpp" />
+    <ClCompile Include="SceneGrid.cpp" />
+    <ClCompile Include="SceneSelectionOverlay.cpp" />
     <ClCompile Include="SceneView.cpp" />
     <ClCompile Include="TranslateGizmo.cpp" />
     <ClCompile Include="Vivid3D.cpp" />
@@ -177,6 +179,8 @@
     <ClInclude Include="RotateGizmo.h" />
     <ClInclude Include="ScaleGizmo.h" />
     <ClInclude Include="SceneGizmo.h" />
+    <ClInclude Include="SceneGrid.h" />
+    <ClInclude Include="SceneSelectionOverlay.h" />
     <ClInclude Include="TranslateGizmo.h" />
     <QtMoc Include="MainMenu.h" />
     <QtMoc Include="MainToolBar.h" />

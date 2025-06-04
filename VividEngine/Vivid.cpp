@@ -1,6 +1,7 @@
 
 #include "Vivid.h"
 #include "RenderTargetCube.h"
+#include "RenderTarget2D.h"
 #include <pybind11/embed.h>
 namespace py = pybind11;
 RefCntAutoPtr<IRenderDevice>  Vivid::m_pDevice;
@@ -9,7 +10,7 @@ RefCntAutoPtr<ISwapChain>     Vivid::m_pSwapChain;
 RefCntAutoPtr<IShaderSourceInputStreamFactory> Vivid::m_pShaderFactory;
 
 RenderTargetCube* Vivid::m_BoundRTC = nullptr;
-
+RenderTarget2D* Vivid::m_BoundRT2D = nullptr;
 void Vivid::SetBoundRTC(RenderTargetCube* target) {
 
 	m_BoundRTC = target;
@@ -20,9 +21,9 @@ int Vivid::GetFrameWidth() {
 	if (m_BoundRTC != nullptr) {
 		return m_BoundRTC->GetWidth();
 	}
-	//if (m_BoundRT2D != nullptr) {
-//		return m_BoundRT2D->GetWidth();
-//	}
+	if (m_BoundRT2D != nullptr) {
+		return m_BoundRT2D->GetWidth();
+	}
 	return m_FrameWidth;
 
 }
@@ -33,9 +34,9 @@ int Vivid::GetFrameHeight() {
 		return m_BoundRTC->GetHeight();
 	}
 
-	//if (m_BoundRT2D != nullptr) {
-	//	return m_BoundRT2D->GetHeight();
-	//}
+	if (m_BoundRT2D != nullptr) {
+		return m_BoundRT2D->GetHeight();
+	}
 	return m_FrameHeight;
 
 
@@ -49,6 +50,13 @@ void Vivid::SetFrameWidth(int w) {
 void Vivid::SetFrameHeight(int h) {
 
 	m_FrameHeight = h;
+
+}
+
+
+void Vivid::SetBoundRT2D(RenderTarget2D* target) {
+
+	m_BoundRT2D = target;
 
 }
 

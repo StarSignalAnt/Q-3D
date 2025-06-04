@@ -251,7 +251,7 @@ MaterialDepth::MaterialDepth() {
 
     PipelineStateDesc pso_desc;
 
-    pso_desc.Name = "Material PBR";
+    pso_desc.Name = "Material Depth";
     pso_desc.ResourceLayout = rl_desc;
 
     //    pso_desc.PipelineType = PIPELINE_TYPE_GRAPHICS;
@@ -262,6 +262,7 @@ MaterialDepth::MaterialDepth() {
     gp_desc.pPS = m_PS;
     gp_desc.GraphicsPipeline = gp;
     gp_desc.PSODesc = pso_desc;
+
     // gp_desc.ResourceSignaturesCount = 0;
 
 

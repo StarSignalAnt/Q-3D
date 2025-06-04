@@ -22,6 +22,7 @@ void SceneGizmo::FixNode() {
 		sm->m_Material = new MaterialBasic3D;
 		auto b3 = (MaterialBasic3D*)sm->m_Material;
 		b3->SetColorTexture(tex);
+		b3->SetTexture(tex, 0);
 
 
 	}

@@ -71,6 +71,8 @@ SceneView::SceneView(QWidget *parent)
     m_Instance = this;
     //Vivid::InitPython();
     
+
+
     ScriptHost *h = new ScriptHost;
 /*
     auto inst = h->CreateInstance("MyCustomNode");
@@ -90,6 +92,10 @@ SceneView::SceneView(QWidget *parent)
 
 
     m_SceneGraph = new SceneGraph;
+
+    m_Grid = new SceneGrid(m_SceneGraph);
+
+
 
     m_Test1 = Importer::ImportEntity("test/test1.gltf");
     auto test2 = Importer::ImportEntity("test/test2.gltf");
@@ -112,7 +118,7 @@ SceneView::SceneView(QWidget *parent)
 
     auto e = m_Test1;
 
-    
+    tex1 = new Texture2D("test/tex_color.png");
 
 
 		auto smc = e->GetComponent<StaticMeshComponent>();
@@ -184,6 +190,7 @@ SceneView::SceneView(QWidget *parent)
     m_SceneController->setScene(m_SceneGraph);
     m_SceneController->Init();
     NodeTree::m_Instance->SetRoot(m_SceneGraph->GetRootNode());
+    m_Draw = new Draw2D(cam);
 }
 
 SceneView::~SceneView()
@@ -262,7 +269,7 @@ void SceneView::paintEvent(QPaintEvent* event)
 
     pContext->SetRenderTargets(1, &pRTV, pSwapchain->GetDepthBufferDSV(), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
-    const float ClearColor[4] = { 1.0f,0.02f,0.02f,1.0 };
+    const float ClearColor[4] = { 0.02f,0.02f,0.02f,1.0 };
     pContext->ClearRenderTarget(pRTV, ClearColor, RESOURCE_STATE_TRANSITION_MODE_VERIFY);
     pContext->ClearDepthStencil(pSwapchain->GetDepthBufferDSV(), CLEAR_DEPTH_FLAG, 1.0f, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
@@ -284,6 +291,15 @@ void SceneView::paintEvent(QPaintEvent* event)
         m_SceneController->Render();
     }
 
+    //Vivid::ClearZ();
+ 
+    Vivid::m_pImmediateContext->Flush();
+    m_SelectionOverlay->Render();
+
+
+    Vivid::m_pImmediateContext->Flush();
+    Vivid::m_pImmediateContext->FinishFrame();
+
     pSwapchain->Present();
 
 
@@ -300,8 +316,8 @@ void SceneView::paintEvent(QPaintEvent* event)
             if (picked != nullptr) {
                 if (m_SelectedNode != picked) {
                     m_SelectedNode = picked;
-
-                    PropertiesEditor::m_Instance->SetNode(m_SelectedNode);
+                    SelectNode(m_SelectedNode);
+                    //PropertiesEditor::m_Instance->SetNode(m_SelectedNode);
                     printf("Set Property Node\n");
                 }
             }
@@ -375,7 +391,7 @@ void SceneView::resizeEvent(QResizeEvent* event)
 	Vivid::SetFrameHeight(physicalHeight);
 
 
-
+    m_SelectionOverlay = new SceneSelectionOverlay(m_SceneGraph);
 
 }
 
@@ -478,7 +494,7 @@ void SceneView::handleMovement() {
 
 void SceneView::SelectNode(GraphNode* node)
 {
-
+    m_SelectionOverlay->SelectNode(node);
     if (node == nullptr) {
         return;
     }

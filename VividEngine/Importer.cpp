@@ -82,6 +82,7 @@ GraphNode* Importer::ImportEntity(std::string path) {
             {
 
                 material->SetColorTexture(tex);
+                material->SetTexture(tex, 0);
             }
             if (Texture2D* tex = FindTexture(aiMat, aiTextureType_SPECULAR, modelDir))
             {
