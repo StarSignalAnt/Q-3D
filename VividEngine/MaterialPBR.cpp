@@ -609,8 +609,11 @@ void MaterialPBR::Bind(bool add) {
             map_data[0].g_ViewMatrix = glm::transpose(view);
             //    map_data[0].g_NormalMatrix = glm::transpose(glm::inverse(model)); // Inverse transpose for normals
             map_data[0].g_CameraPosition = glm::vec4(m_CameraPosition, 1.0f);
+            auto mat = l1->GetWorldMatrix();
+            glm::vec3 position = glm::vec3(mat[3]);
 
-            map_data[0].g_LightPosition = glm::vec4(l1->GetPosition(), 1.0f); // Light position
+
+            map_data[0].g_LightPosition = glm::vec4(position, 1.0f); // Li // Light position
             map_data[0].g_LightColor = glm::vec4(lc->GetColor(), 1.0f); // White light color
             map_data[0].g_LightIntensity = glm::vec4(lc->GetIntensity(), 1.0f, 1.0f, 1.0f); // Was 10000!
 
@@ -701,7 +704,11 @@ void MaterialPBR::Bind(bool add) {
             //    map_data[0].g_NormalMatrix = glm::transpose(glm::inverse(model)); // Inverse transpose for normals
             map_data[0].g_CameraPosition = glm::vec4(m_CameraPosition, 1.0f);
 
-            map_data[0].g_LightPosition = glm::vec4(l1->GetPosition(), 1.0f); // Light position
+            auto mat = l1->GetWorldMatrix();
+            glm::vec3 position = glm::vec3(mat[3]);
+
+
+            map_data[0].g_LightPosition = glm::vec4(position, 1.0f); // Light position
             map_data[0].g_LightColor = glm::vec4(lc->GetColor(), 1.0f); // White light color
             map_data[0].g_LightIntensity = glm::vec4(lc->GetIntensity(), 1.0f, 1.0f, 1.0f); // Was 10000!
 

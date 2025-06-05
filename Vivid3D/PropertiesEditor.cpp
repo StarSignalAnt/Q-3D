@@ -9,6 +9,7 @@
 #include "GraphNode.h"
 #include "SceneView.h"
 #include "ScriptComponent.h"
+#include "LightComponent.h"
 
 PropertiesEditor* PropertiesEditor::m_Instance = nullptr;
 
@@ -255,6 +256,27 @@ void PropertiesEditor::SetNode(GraphNode* node) {
         node->SetScale(glm::vec3(value.x(), value.y(), value.z()));
         SceneView::m_Instance->AlignGizmo();
         });
+
+    auto lc = node->GetComponent<LightComponent>();
+
+    if (lc != nullptr) {
+
+        AddHeader("Light Component");
+
+        AddVec3("Diffuse", QVector3D(lc->GetColor().r, lc->GetColor().g, lc->GetColor().b), 0.05, [lc](const QVector3D& col)
+            {
+                lc->SetColor(glm::vec3(col.x(), col.y(), col.z()));
+            });
+
+        AddFloat("Range", 0, 2500, 1, lc->GetRange(), [lc](double range) {
+            lc->SetRange(range);
+            });
+
+        AddFloat("Intensity", 0, 5000, 2, lc->GetIntensity(), [lc](double val) {
+            lc->SetIntensity(val);
+            });
+
+    }
 
 
     auto scripts = node->GetComponents<ScriptComponent>();

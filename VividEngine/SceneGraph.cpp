@@ -69,6 +69,8 @@ GraphNode* SceneGraph::GetCamera() {
 void SceneGraph::AddLight(GraphNode* light) {
 
 	m_Lights.push_back(light);
+	AddNode(light);
+	light->SetName("Light" + std::to_string(m_Lights.size()));
 
 }
 
@@ -82,8 +84,12 @@ void SceneGraph::SetCamera(GraphNode* camera) {
 void SceneGraph::RenderShadows() {
 
 	for (auto light : m_Lights) {
+		auto mat = light->GetWorldMatrix();
+		glm::vec3 position = glm::vec3(mat[3]);
 
-		m_ShadowRenderer->RenderDepth(light->GetPosition(), light->GetComponent<LightComponent>()->GetRange(),light->GetComponent<LightComponent>()->GetShadowMap());
+
+		//map_data[0].g_LightPosition = glm::vec4(position, 1.0f); // Li
+		m_ShadowRenderer->RenderDepth(position, light->GetComponent<LightComponent>()->GetRange(),light->GetComponent<LightComponent>()->GetShadowMap());
 
 	}
 

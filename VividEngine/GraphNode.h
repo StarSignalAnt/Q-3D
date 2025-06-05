@@ -78,6 +78,18 @@ public:
 	void Pop();
 	glm::vec3 GetWorldPosition();
 	glm::mat4 GetWorldRotation();
+	void RemoveNode(GraphNode* node) {
+		if (!node) return;
+
+		auto it = std::find(m_Nodes.begin(), m_Nodes.end(), node);
+		if (it != m_Nodes.end()) {
+			m_Nodes.erase(it);
+			node->SetRootNode(nullptr); // Clear the parent reference
+		}
+	}
+
+	// Also add this method to get a non-const reference (alternative solution)
+	std::vector<GraphNode*>& GetNodesRef() { return m_Nodes; }
 private:
 
 	glm::vec3 m_Position;

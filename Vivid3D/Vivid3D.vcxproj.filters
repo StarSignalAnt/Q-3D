@@ -112,6 +112,9 @@
     <ClCompile Include="SceneSelectionOverlay.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ContentBrowser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="SceneView.h">
@@ -145,6 +148,9 @@
       <Filter>Props</Filter>
     </QtMoc>
     <QtMoc Include="NodeTree.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="ContentBrowser.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

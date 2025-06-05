@@ -28,6 +28,13 @@ public:
     RenderTargetCube* GetShadowMap() {
         return m_ShadowMap;
 	}
+    void SetRange(float range) {
+        m_Range = range;
+    }
+    void SetIntensity(float i)
+    {
+        m_Intensity = i;
+    }
 private:
 
     LightType m_Type;
