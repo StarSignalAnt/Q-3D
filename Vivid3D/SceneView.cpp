@@ -72,6 +72,7 @@ SceneView::SceneView(QWidget *parent)
     //Vivid::InitPython();
     
 
+    Vivid::InitEngine();
 
     ScriptHost *h = new ScriptHost;
 /*
@@ -234,6 +235,7 @@ void SceneView::Run() {
 
     if (m_RunMode == RM_Running) return;
     m_SceneGraph->Push();
+    m_SceneGraph->Play();
     m_RunMode = RM_Running;
     keysHeld.clear();
 
@@ -246,6 +248,7 @@ void SceneView::Stop() {
     if (m_RunMode == RM_Stopped) return;
     m_RunMode = RM_Stopped;
     m_SceneGraph->Pop();
+    m_SceneGraph->Stop();
     if (m_SelectedNode != nullptr) {
         PropertiesEditor::m_Instance->SetNode(m_SelectedNode);
     }

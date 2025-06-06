@@ -5,6 +5,21 @@
 #include <QPixmap>
 #include <QLabel>
 #include <QMovie>
+#include <QPushButton>
+#include <QLineEdit>
+#include <QComboBox>
+#include <QMenuBar>
+#include <QStatusBar>
+#include <QLabel>
+#include <QVBoxLayout>
+#include <QWidget>
+#include <QTabWidget>
+#include <QCheckBox>
+#include <QRadioButton>
+#include <QScrollBar>
+#include <QStyleFactory>
+
+
 
 int main(int argc, char *argv[])
 {

@@ -106,11 +106,11 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_LIB;PLATFORM_WIN32;D3D12_SUPPORTED;VULKAN_SUPPORTED;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_LIB;PLATFORM_WIN32;D3D12_SUPPORTED;VULKAN_SUPPORTED;_CRT_SECURE_NO_WARNINGS;WITH_WASAPI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>C:\Vivid3D\CL;C:\Users\antro\AppData\Local\Programs\Python\Python313\include;C:\Vivid3D\VividEngine\include;C:\git\assimp\include;C:\git\DiligentEngine\DiligentCore;C:\git\DiligentEngine\DiligentFX;C:\git\DiligentEngine\DiligentFX\PostProcess\Common\interface;C:\DiligentEngine\DiligentFX\PostProcess\ScreenSpaceReflection\interface;C:\dev\Vivid3D\VScript;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsTools\interface;C:git\DiligentEngine\DiligentCore;C:\git\DiligentEngine\DiligentTools\TextureLoader\interface;C:\git\DiligentEngine\DiligentTools\TextureLoader\include;C:\Dev\Assimp\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngine\interface;C:\git\DiligentEngine\DiligentCore\Common\interface;C:\git\DiligentEngine\DiligentCore\ThirdParty\SPIRV-Cross\include;C:\git\DiligentEngine\DiligentCore\Platforms\Basic\include;C:\git\DiligentEngine\DiligentCore\Graphics\ShaderTools\include;C:\\git\DiligentEngine\DiligentCore\Graphics\HLSL2GLSLConverterLib\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngineD3D12\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngine\include;C:\git\DiligentEngine\DiligentCore\Common\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\git\soloud-master\include;C:\Vivid3D\CL;C:\Users\antro\AppData\Local\Programs\Python\Python313\include;C:\Vivid3D\VividEngine\include;C:\git\assimp\include;C:\git\DiligentEngine\DiligentCore;C:\git\DiligentEngine\DiligentFX;C:\git\DiligentEngine\DiligentFX\PostProcess\Common\interface;C:\DiligentEngine\DiligentFX\PostProcess\ScreenSpaceReflection\interface;C:\dev\Vivid3D\VScript;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsTools\interface;C:git\DiligentEngine\DiligentCore;C:\git\DiligentEngine\DiligentTools\TextureLoader\interface;C:\git\DiligentEngine\DiligentTools\TextureLoader\include;C:\Dev\Assimp\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngine\interface;C:\git\DiligentEngine\DiligentCore\Common\interface;C:\git\DiligentEngine\DiligentCore\ThirdParty\SPIRV-Cross\include;C:\git\DiligentEngine\DiligentCore\Platforms\Basic\include;C:\git\DiligentEngine\DiligentCore\Graphics\ShaderTools\include;C:\\git\DiligentEngine\DiligentCore\Graphics\HLSL2GLSLConverterLib\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngineD3D12\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngine\include;C:\git\DiligentEngine\DiligentCore\Common\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -159,6 +159,7 @@
     <ClInclude Include="CubeRenderer.h" />
     <ClInclude Include="Draw2D.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="GameAudio.h" />
     <ClInclude Include="GameInput.h" />
     <ClInclude Include="GraphNode.h" />
     <ClInclude Include="Importer.h" />
@@ -185,6 +186,10 @@
     <ClInclude Include="SkeletalDepthRendererComponent.h" />
     <ClInclude Include="SkeletalMeshComponent.h" />
     <ClInclude Include="SkeletalRendererComponent.h" />
+    <ClInclude Include="soloud\src\audiosource\wav\dr_flac.h" />
+    <ClInclude Include="soloud\src\audiosource\wav\dr_mp3.h" />
+    <ClInclude Include="soloud\src\audiosource\wav\dr_wav.h" />
+    <ClInclude Include="soloud\src\audiosource\wav\stb_vorbis.h" />
     <ClInclude Include="StaticDepthRendererComponent.h" />
     <ClInclude Include="StaticMeshComponent.h" />
     <ClInclude Include="pch.h" />
@@ -205,6 +210,7 @@
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="CubeRenderer.cpp" />
     <ClCompile Include="Draw2D.cpp" />
+    <ClCompile Include="GameAudio.cpp" />
     <ClCompile Include="GameInput.cpp" />
     <ClCompile Include="GraphNode.cpp" />
     <ClCompile Include="Importer.cpp" />
@@ -231,6 +237,30 @@
     <ClCompile Include="SkeletalDepthRendererComponent.cpp" />
     <ClCompile Include="SkeletalMeshComponent.cpp" />
     <ClCompile Include="SkeletalRendererComponent.cpp" />
+    <ClCompile Include="soloud\src\audiosource\wav\dr_impl.cpp" />
+    <ClCompile Include="soloud\src\audiosource\wav\soloud_wav.cpp" />
+    <ClCompile Include="soloud\src\audiosource\wav\soloud_wavstream.cpp" />
+    <ClCompile Include="soloud\src\audiosource\wav\stb_vorbis.c" />
+    <ClCompile Include="soloud\src\backend\wasapi\soloud_wasapi.cpp" />
+    <ClCompile Include="soloud\src\core\soloud.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_audiosource.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_bus.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_core_3d.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_core_basicops.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_core_faderops.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_core_filterops.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_core_getters.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_core_setters.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_core_voicegroup.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_core_voiceops.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_fader.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_fft.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_fft_lut.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_file.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_filter.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_misc.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_queue.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_thread.cpp" />
     <ClCompile Include="StaticDepthRendererComponent.cpp" />
     <ClCompile Include="StaticMeshComponent.cpp" />
     <ClCompile Include="pch.cpp">

@@ -29,19 +29,20 @@ Vivid3D::Vivid3D(QWidget *parent)
     dock->setWidget(props);
     dock->setAllowedAreas(Qt::RightDockWidgetArea | Qt::LeftDockWidgetArea);
 
-    QScrollArea* scrollArea = new QScrollArea(this);
+    //QScrollArea* scrollArea = new QScrollArea(this);
 
     // 2. Configure the scroll area.
-    scrollArea->setWidgetResizable(true); // VERY IMPORTANT! Allows the inner widget to be resized.
-    scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff); // We don't want a horizontal scrollbar.
-    scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded); // This is the key!
+   // scrollArea->setWidgetResizable(true); // VERY IMPORTANT! Allows the inner widget to be resized.
+  //  scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff); // We don't want a horizontal scrollbar.
+ //   scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded); // This is the key!
 
     // 3. Create our content browser and place it *inside* the scroll area.
     ContentBrowser* browser = new ContentBrowser();
-    scrollArea->setWidget(browser);
+    //scrollArea->setWidget(browser);
+
 
     QDockWidget* contentDock = new QDockWidget("Content", this);
-    contentDock->setWidget(scrollArea);
+    contentDock->setWidget(browser);
     contentDock->setAllowedAreas(Qt::BottomDockWidgetArea | Qt::TopDockWidgetArea);
     //SceneView* sceneView = new SceneView(this);
     //setCentralWidget(sceneView)

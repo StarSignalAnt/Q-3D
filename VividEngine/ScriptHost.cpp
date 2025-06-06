@@ -14,6 +14,7 @@
 #include <filesystem>
 #include "GraphNode.h"
 #include "GameInput.h"
+#include "GameAudio.h"
 
 namespace py = pybind11;
 
@@ -239,6 +240,48 @@ bool sf_GetKeyGameInput(int key) {
 
 }
 
+void sf_PlaySongGameAudio(const std::string& path) {
+
+//    const std::string& path
+    std::cout << "SongPath:" << path << std::endl;
+    GameAudio::m_Instance->PlaySong(path);
+
+}
+void sf_StopSongGameAudio() {
+
+    GameAudio::m_Instance->StopSong();
+
+}
+
+uintptr_t sf_LoadSoundGameAudio(const std::string& path) {
+
+    auto res = GameAudio::m_Instance->LoadSound(path);
+    return reinterpret_cast<std::uintptr_t>(res);
+
+}
+
+int sf_PlaySoundGameAudio(uintptr_t ptr)
+{
+    std::cout << "Playing sound.\n";
+
+    SoLoud::Wav* sound = reinterpret_cast<SoLoud::Wav*>(ptr);
+    if (sound)
+    {
+        auto ptr = GameAudio::m_Instance->PlaySound(sound);
+        //sound->play();
+        return ptr;
+    }
+}
+
+void sf_StopSoundGameAudio(int ptr) {
+
+    printf("Stopping Sound\n");
+    //exit(1);
+
+    //void* sound = reinterpret_cast<void*>(ptr);
+    GameAudio::m_Instance->StopSound(ptr);
+}
+
 void InitNodeScript() {
 
     addFunction("updateGraphNode", sf_UpdateGraphNode);
@@ -247,6 +290,11 @@ void InitNodeScript() {
     addFunction("getRotationGraphNode", sf_GetRotationGraphNode);
     addFunction("setRotationGraphNode", sf_SetRotationGraphNode);
     addFunction("getKeyGameInput", sf_GetKeyGameInput);
+    addFunction("playSongGameAudio", sf_PlaySongGameAudio);
+    addFunction("stopSongGameAudio", sf_StopSongGameAudio);
+    addFunction("loadSoundGameAudio", sf_LoadSoundGameAudio);
+    addFunction("playSoundGameAudio", sf_PlaySoundGameAudio);
+    addFunction("stopSoundGameAudio", sf_StopSoundGameAudio);
 }
 
 ScriptHost::ScriptHost() {
@@ -272,7 +320,7 @@ ScriptHost::ScriptHost() {
     //sys.attr("modules")["engine"] = engine_module;
 
     // 1. Run your Python script that defines NodeModule and MyCustomNode
-
+    ScanAndLoadPY("Engine/Py/Audio");
     ScanAndLoadPY("Engine/PY/Input");
    ScanAndLoadPY("Engine/PY/Node");
    ScanAndLoadPY("Engine/PY/Component");

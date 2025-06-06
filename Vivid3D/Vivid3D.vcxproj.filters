@@ -115,6 +115,12 @@
     <ClCompile Include="ContentBrowser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Content.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SearchWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="SceneView.h">
@@ -153,6 +159,12 @@
     <QtMoc Include="ContentBrowser.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="Content.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="SearchWidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="SceneView.ui">
@@ -180,6 +192,9 @@
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="MainMenu.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="Content.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>

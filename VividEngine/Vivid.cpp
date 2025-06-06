@@ -3,6 +3,7 @@
 #include "RenderTargetCube.h"
 #include "RenderTarget2D.h"
 #include <pybind11/embed.h>
+#include "GameAudio.h"
 namespace py = pybind11;
 RefCntAutoPtr<IRenderDevice>  Vivid::m_pDevice;
 RefCntAutoPtr<IDeviceContext> Vivid::m_pImmediateContext;
@@ -114,5 +115,11 @@ void Vivid::InitPython() {
 
 	printf("Result from Python: %d\n", value);
 
+
+}
+
+void Vivid::InitEngine() {
+
+	GameAudio* audio = new GameAudio;
 
 }

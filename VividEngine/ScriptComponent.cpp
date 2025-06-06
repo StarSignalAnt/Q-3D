@@ -91,6 +91,18 @@ void ScriptComponent::OnUpdate(float dt) {
 
 }
 
+void ScriptComponent::OnPlay() {
+
+	ScriptHost::m_Host->callFunc(m_ComponentPy, "Play", Pars());
+
+}
+
+void ScriptComponent::OnStop() {
+
+	ScriptHost::m_Host->callFunc(m_ComponentPy, "Stop", Pars());
+
+}
+
 std::vector<ScriptVar> ScriptComponent::GetVars() {
 
 	auto vals = ScriptHost::m_Host->GetVarNames(m_ComponentPy);
@@ -110,6 +122,9 @@ std::vector<ScriptVar> ScriptComponent::GetVars() {
 			break;
 		case VarType::T_String:
 			var.type = SVarType::VT_String;
+			break;
+		default:
+			var.type = SVarType::VT_Unknown;
 			break;
 		}
 		res.push_back(var);

@@ -20,6 +20,8 @@ public:
     virtual void Push() {};
     virtual void Pop() {};
     // Optional virtual methods to override
+    virtual void OnPlay() {};
+    virtual void OnStop() {};
     virtual void OnUpdate(float deltaTime) {}
     virtual void OnRender(GraphNode* camera) {}
     virtual void OnRenderDepth(GraphNode* camera) {};

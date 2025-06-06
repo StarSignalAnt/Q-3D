@@ -43,6 +43,7 @@ public:
 	static RefCntAutoPtr<IDeviceContext> m_pImmediateContext;
 	static RefCntAutoPtr<ISwapChain>     m_pSwapChain;
 	static RefCntAutoPtr<IShaderSourceInputStreamFactory> m_pShaderFactory;
+	static void InitEngine();
 
 	static int GetFrameWidth();
 	static int GetFrameHeight();

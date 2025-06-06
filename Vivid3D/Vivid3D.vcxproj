@@ -116,6 +116,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <QtRcc Include="Vivid3D.qrc" />
+    <QtUic Include="Content.ui" />
     <QtUic Include="MainMenu.ui" />
     <QtUic Include="MainToolBar.ui" />
     <QtUic Include="PropertiesEditor.ui" />
@@ -128,6 +129,7 @@
     <QtUic Include="Vivid3D.ui" />
     <QtMoc Include="Vivid3D.h" />
     <ClCompile Include="CameraController.cpp" />
+    <ClCompile Include="Content.cpp" />
     <ClCompile Include="ContentBrowser.cpp" />
     <ClCompile Include="MainMenu.cpp" />
     <ClCompile Include="MainToolBar.cpp" />
@@ -146,6 +148,7 @@
     <ClCompile Include="SceneGrid.cpp" />
     <ClCompile Include="SceneSelectionOverlay.cpp" />
     <ClCompile Include="SceneView.cpp" />
+    <ClCompile Include="SearchWidget.cpp" />
     <ClCompile Include="TranslateGizmo.cpp" />
     <ClCompile Include="Vivid3D.cpp" />
     <ClCompile Include="main.cpp" />
@@ -178,11 +181,13 @@
     <QtMoc Include="PropertyInt.h" />
     <QtMoc Include="NodeTree.h" />
     <QtMoc Include="ContentBrowser.h" />
+    <QtMoc Include="Content.h" />
     <ClInclude Include="RotateGizmo.h" />
     <ClInclude Include="ScaleGizmo.h" />
     <ClInclude Include="SceneGizmo.h" />
     <ClInclude Include="SceneGrid.h" />
     <ClInclude Include="SceneSelectionOverlay.h" />
+    <QtMoc Include="SearchWidget.h" />
     <ClInclude Include="TranslateGizmo.h" />
     <QtMoc Include="MainMenu.h" />
     <QtMoc Include="MainToolBar.h" />

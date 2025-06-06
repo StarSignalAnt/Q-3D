@@ -233,3 +233,35 @@ glm::mat4 GraphNode::GetWorldRotation() {
 	return root * m_Rotation;
 
 }
+
+void GraphNode::Play() {
+
+	for (auto comp : m_Components) {
+
+		comp->OnPlay();
+
+	}
+
+	for (auto node : m_Nodes) {
+
+		node->Play();
+
+	}
+
+}
+
+void GraphNode::Stop() {
+
+	for (auto comp : m_Components) {
+
+		comp->OnStop();
+
+	}
+
+	for (auto node : m_Nodes) {
+
+		node->Stop();
+
+	}
+
+}

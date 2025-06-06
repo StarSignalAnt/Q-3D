@@ -428,3 +428,14 @@ void SceneGraph::Pop()
 	m_RootNode->Pop();
 
 }
+
+void SceneGraph::Play() {
+
+	m_RootNode->Play();
+
+}
+void SceneGraph::Stop() {
+
+	m_RootNode->Stop();
+
+}

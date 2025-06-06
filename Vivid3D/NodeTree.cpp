@@ -43,6 +43,10 @@ NodeTree::NodeTree(QWidget* parent)
     m_VerticalScrollBar->hide();
     connect(m_VerticalScrollBar, &QScrollBar::valueChanged, this,&NodeTree::ScrollTo);
 
+    EntityIcon = QIcon("Edit/Icons/TreeEntity.png");
+    LightIcon = QIcon("edit/icons/treelight.png");
+
+
     setMinimumSize(200, 100);
 }
 
@@ -148,7 +152,7 @@ void NodeTree::paintEvent(QPaintEvent* event)
     painter.setRenderHint(QPainter::Antialiasing);
 
     // Fill background
-    painter.fillRect(rect(), m_BackgroundColor);
+    //painter.fillRect(rect(), m_BackgroundColor);
 
     // Set up clipping
     painter.setClipRect(event->rect());
@@ -225,7 +229,7 @@ void NodeTree::DrawTreeItem(QPainter& painter, const TreeItem& item, bool isSele
     // Draw node icon based on components
     int iconSize = 12;  // Increased size for better visibility
     int iconY = item.y_position + (ITEM_HEIGHT - iconSize) / 2;
-    QRect iconRect(item.depth * INDENT_SIZE + ICON_SIZE + 8, iconY, iconSize, iconSize);
+    QRect iconRect(item.depth * INDENT_SIZE + ICON_SIZE + 2, iconY-6, iconSize+8, iconSize+8);
 
     // Determine icon type and color based on components
     bool hasStaticMesh = (item.node->GetComponent<StaticMeshComponent>() != nullptr);
@@ -256,37 +260,41 @@ void NodeTree::DrawTreeItem(QPainter& painter, const TreeItem& item, bool isSele
 
         // Light bulb (circle for the bulb)
         QRect bulb(iconRect.center().x() - 3, iconRect.top() + 2, 6, 6);
-        painter.drawEllipse(bulb);
+      //  painter.drawEllipse(bulb);
 
         // Light base (small rectangle)
         QRect base(iconRect.center().x() - 2, iconRect.bottom() - 3, 4, 2);
-        painter.drawRect(base);
+        //painter.drawRect(base);
+
+        LightIcon.paint(&painter, iconRect);
 
         // Light rays (small lines extending from bulb)
-        painter.drawLine(iconRect.center().x() - 6, iconRect.center().y(),
-            iconRect.center().x() - 4, iconRect.center().y());
-        painter.drawLine(iconRect.center().x() + 4, iconRect.center().y(),
-            iconRect.center().x() + 6, iconRect.center().y());
-        painter.drawLine(iconRect.center().x(), iconRect.center().y() - 6,
-            iconRect.center().x(), iconRect.center().y() - 4);
+        //painter.drawLine(iconRect.center().x() - 6, iconRect.center().y(),
+       //     iconRect.center().x() - 4, iconRect.center().y());
+       // painter.drawLine(iconRect.center().x() + 4, iconRect.center().y(),
+       //     iconRect.center().x() + 6, iconRect.center().y());
+       // painter.drawLine(iconRect.center().x(), iconRect.center().y() - 6,
+        //    iconRect.center().x(), iconRect.center().y() - 4);
     }
     else if (hasStaticMesh) {
         // Draw blue 3D box for static mesh
         painter.setPen(QPen(QColor(100, 149, 237), 1));  // Cornflower blue
 
         // Draw main box outline
-        painter.drawRect(iconRect);
+        //painter.drawRect(iconRect);
 
         // Draw additional lines to give it a 3D wireframe appearance
         int offset = 2;
         QRect backRect = iconRect.adjusted(offset, -offset, offset, -offset);
-        painter.drawRect(backRect);
+        //painter.drawRect(backRect);
+        EntityIcon.paint(&painter, iconRect);
 
         // Connect the corners to create 3D effect
-        painter.drawLine(iconRect.topLeft(), backRect.topLeft());
-        painter.drawLine(iconRect.topRight(), backRect.topRight());
-        painter.drawLine(iconRect.bottomLeft(), backRect.bottomLeft());
-        painter.drawLine(iconRect.bottomRight(), backRect.bottomRight());
+        //painter.drawLine(iconRect.topLeft(), backRect.topLeft());
+        //painter.drawLine(iconRect.topRight(), backRect.topRight());
+        //painter.drawLine(iconRect.bottomLeft(), backRect.bottomLeft());
+       // painter.drawLine(iconRect.bottomRight(), backRect.bottomRight());
+
     }
     else {
         // Default green wireframe box for nodes without specific components
@@ -298,7 +306,7 @@ void NodeTree::DrawTreeItem(QPainter& painter, const TreeItem& item, bool isSele
             item.y_position + (ITEM_HEIGHT - iconSize) / 2, iconSize, iconSize);
 
         // Draw main box outline
-        painter.drawRect(iconRect);
+//        painter.drawRect(iconRect);
 
         // Draw additional lines to give it a 3D wireframe appearance
         int offset = 2;

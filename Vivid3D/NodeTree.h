@@ -115,4 +115,8 @@ private:
     QColor m_LineColor;
     QColor m_ExpanderColor;
     QColor m_DropIndicatorColor;
+
+    QIcon EntityIcon;
+    QIcon LightIcon;
+    QIcon NodeIcon;
 };

@@ -6,7 +6,8 @@
 enum SVarType {
     VT_Int,
     VT_String,
-    VT_Float
+    VT_Float,
+    VT_Unknown
 };
 
 struct ScriptVar {
@@ -22,6 +23,8 @@ class ScriptComponent :
 {
 public:
 
+    void OnPlay() override;
+    void OnStop() override;
     void SetScript(std::string file, std::string name);
     void OnUpdate(float dt) override;
     std::vector<ScriptVar> GetVars();

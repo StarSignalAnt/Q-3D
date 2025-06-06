@@ -52,6 +52,12 @@
     <Filter Include="Draw">
       <UniqueIdentifier>{c9a06c56-3981-44c6-aa67-5738fcd1483b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="audio">
+      <UniqueIdentifier>{8af36a6a-61b7-49f4-9ffa-592e999c6d17}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="soloud">
+      <UniqueIdentifier>{a15702c3-9e89-40fd-87a7-b7cf17f8c8f5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -189,6 +195,21 @@
     <ClInclude Include="MaterialOutline.h">
       <Filter>Material</Filter>
     </ClInclude>
+    <ClInclude Include="soloud\src\audiosource\wav\dr_flac.h">
+      <Filter>soloud</Filter>
+    </ClInclude>
+    <ClInclude Include="soloud\src\audiosource\wav\dr_mp3.h">
+      <Filter>soloud</Filter>
+    </ClInclude>
+    <ClInclude Include="soloud\src\audiosource\wav\dr_wav.h">
+      <Filter>soloud</Filter>
+    </ClInclude>
+    <ClInclude Include="soloud\src\audiosource\wav\stb_vorbis.h">
+      <Filter>soloud</Filter>
+    </ClInclude>
+    <ClInclude Include="GameAudio.h">
+      <Filter>audio</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="VividEngine.cpp">
@@ -325,6 +346,81 @@
     </ClCompile>
     <ClCompile Include="MaterialOutline.cpp">
       <Filter>Material</Filter>
+    </ClCompile>
+    <ClCompile Include="soloud\src\core\soloud.cpp">
+      <Filter>soloud</Filter>
+    </ClCompile>
+    <ClCompile Include="soloud\src\core\soloud_audiosource.cpp">
+      <Filter>soloud</Filter>
+    </ClCompile>
+    <ClCompile Include="soloud\src\core\soloud_bus.cpp">
+      <Filter>soloud</Filter>
+    </ClCompile>
+    <ClCompile Include="soloud\src\core\soloud_core_3d.cpp">
+      <Filter>soloud</Filter>
+    </ClCompile>
+    <ClCompile Include="soloud\src\core\soloud_core_basicops.cpp">
+      <Filter>soloud</Filter>
+    </ClCompile>
+    <ClCompile Include="soloud\src\core\soloud_core_faderops.cpp">
+      <Filter>soloud</Filter>
+    </ClCompile>
+    <ClCompile Include="soloud\src\core\soloud_core_filterops.cpp">
+      <Filter>soloud</Filter>
+    </ClCompile>
+    <ClCompile Include="soloud\src\core\soloud_core_getters.cpp">
+      <Filter>soloud</Filter>
+    </ClCompile>
+    <ClCompile Include="soloud\src\core\soloud_core_setters.cpp">
+      <Filter>soloud</Filter>
+    </ClCompile>
+    <ClCompile Include="soloud\src\core\soloud_core_voicegroup.cpp">
+      <Filter>soloud</Filter>
+    </ClCompile>
+    <ClCompile Include="soloud\src\core\soloud_core_voiceops.cpp">
+      <Filter>soloud</Filter>
+    </ClCompile>
+    <ClCompile Include="soloud\src\core\soloud_fader.cpp">
+      <Filter>soloud</Filter>
+    </ClCompile>
+    <ClCompile Include="soloud\src\core\soloud_fft.cpp">
+      <Filter>soloud</Filter>
+    </ClCompile>
+    <ClCompile Include="soloud\src\core\soloud_fft_lut.cpp">
+      <Filter>soloud</Filter>
+    </ClCompile>
+    <ClCompile Include="soloud\src\core\soloud_file.cpp">
+      <Filter>soloud</Filter>
+    </ClCompile>
+    <ClCompile Include="soloud\src\core\soloud_filter.cpp">
+      <Filter>soloud</Filter>
+    </ClCompile>
+    <ClCompile Include="soloud\src\core\soloud_misc.cpp">
+      <Filter>soloud</Filter>
+    </ClCompile>
+    <ClCompile Include="soloud\src\core\soloud_queue.cpp">
+      <Filter>soloud</Filter>
+    </ClCompile>
+    <ClCompile Include="soloud\src\core\soloud_thread.cpp">
+      <Filter>soloud</Filter>
+    </ClCompile>
+    <ClCompile Include="soloud\src\backend\wasapi\soloud_wasapi.cpp">
+      <Filter>soloud</Filter>
+    </ClCompile>
+    <ClCompile Include="soloud\src\audiosource\wav\dr_impl.cpp">
+      <Filter>soloud</Filter>
+    </ClCompile>
+    <ClCompile Include="soloud\src\audiosource\wav\soloud_wav.cpp">
+      <Filter>soloud</Filter>
+    </ClCompile>
+    <ClCompile Include="soloud\src\audiosource\wav\soloud_wavstream.cpp">
+      <Filter>soloud</Filter>
+    </ClCompile>
+    <ClCompile Include="soloud\src\audiosource\wav\stb_vorbis.c">
+      <Filter>soloud</Filter>
+    </ClCompile>
+    <ClCompile Include="GameAudio.cpp">
+      <Filter>audio</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

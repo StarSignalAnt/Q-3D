@@ -90,6 +90,8 @@ public:
 
 	// Also add this method to get a non-const reference (alternative solution)
 	std::vector<GraphNode*>& GetNodesRef() { return m_Nodes; }
+	void Play();
+	void Stop();
 private:
 
 	glm::vec3 m_Position;
