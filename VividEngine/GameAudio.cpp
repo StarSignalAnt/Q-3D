@@ -51,3 +51,15 @@ void GameAudio::StopSound(int sound) {
     gSoloud.stop(sound);
 
 }
+
+void GameAudio::SetPitch(int id, float pitch) {
+
+    gSoloud.setRelativePlaySpeed(id, pitch);
+
+}
+
+void GameAudio::SetVolume(int id, float volume) {
+
+    gSoloud.setVolume(id, volume);
+
+}

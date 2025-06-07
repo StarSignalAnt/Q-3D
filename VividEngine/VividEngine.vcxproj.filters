@@ -58,6 +58,9 @@
     <Filter Include="soloud">
       <UniqueIdentifier>{a15702c3-9e89-40fd-87a7-b7cf17f8c8f5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Physics">
+      <UniqueIdentifier>{1a122c3f-5586-4402-b36d-18331d35a8ff}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -209,6 +212,9 @@
     </ClInclude>
     <ClInclude Include="GameAudio.h">
       <Filter>audio</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics.h">
+      <Filter>Physics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -421,6 +427,9 @@
     </ClCompile>
     <ClCompile Include="GameAudio.cpp">
       <Filter>audio</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics.cpp">
+      <Filter>Physics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

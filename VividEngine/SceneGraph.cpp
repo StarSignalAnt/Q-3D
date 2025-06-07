@@ -13,8 +13,11 @@ SceneGraph* SceneGraph::m_CurrentGraph = nullptr;
 bool addedGraphFuncs = false;
 
 
+SceneGraph* SceneGraph::m_Instance = nullptr;
+
 SceneGraph::SceneGraph() {
 
+	m_Instance = this;
 	m_RootNode = new GraphNode;
 	m_Camera = new GraphNode;
 	m_Camera->AddComponent(new CameraComponent);
@@ -99,6 +102,7 @@ void SceneGraph::Update(float dt) {
 
 
 	m_CurrentGraph = this;
+	m_RootNode->UpdatePhysics();
 	m_RootNode->Update(dt);
 
 }
@@ -106,58 +110,32 @@ void SceneGraph::Update(float dt) {
 
 HitResult SceneGraph::MousePick(int x, int y)
 {
-	float fx = (float)x;
-	float fy = (float)y;
-	float mx = -1 + (float)(x) / (float)(Vivid::GetFrameWidth()) * 2;
-	float my = 1 - (float)(y) / (float)(Vivid::GetFrameHeight()) * 2;
+	float mx = -1.0f + 2.0f * (float)(x) / (float)Vivid::GetFrameWidth();
+	float my = 1.0f - 2.0f * (float)(y) / (float)Vivid::GetFrameHeight();
 
-	glm::vec3 origin = glm::vec3(mx, my, 0);
-	glm::vec3 dest = glm::vec3(mx, my, 1.0f);
+	// Create points on near and far planes in NDC space
+	glm::vec4 near_ndc = glm::vec4(mx, my, -1.0f, 1.0f);  // Near plane (z = -1)
+	glm::vec4 far_ndc = glm::vec4(mx, my, 1.0f, 1.0f);   // Far plane (z = 1)
 
+	// Get view and projection matrices
+	glm::mat4 view = glm::inverse(m_Camera->GetWorldMatrix());
+	glm::mat4 proj = m_Camera->GetComponent<CameraComponent>()->GetProjectionMatrix();
+	glm::mat4 invViewProj = glm::inverse(proj * view);
 
+	// Transform NDC points to world space
+	glm::vec4 near_world = invViewProj * near_ndc;
+	glm::vec4 far_world = invViewProj * far_ndc;
 
-	//Matrix4x4 viewProj = RenderGlobals.CurrentCamera.WorldMatrix * RenderGlobals.CurrentCamera.ProjectionMatrix;
-	glm::mat4 viewProj = m_Camera->GetComponent<CameraComponent>()->GetProjectionMatrix() * glm::inverse(m_Camera->GetWorldMatrix());
+	// Perform perspective divide
+	if (fabs(near_world.w) > 1e-6f) near_world /= near_world.w;
+	if (fabs(far_world.w) > 1e-6f) far_world /= far_world.w;
 
-	// Matrix4x4 vp;
-	// Matrix4x4.Invert(viewProj, out vp);
-	// Matrix4x4 inverseProj = vp;
+	// Extract 3D points
+	glm::vec3 ray_start = glm::vec3(near_world);
+	glm::vec3 ray_end = glm::vec3(far_world);
 
-
-	glm::mat4 inverseProj = glm::inverse(viewProj);
-
-
-
-	//****Ve
-	//Vector3 ray_origin = Vector3.Transform (origin, inverseProj);
-	//Vector3 ray_end = Vector3.TransformNormal(dest, inverseProj);
-	//Vector4 ro = Vector4.Transform(origin, inverseProj);
-	//Vector4 rd = Vector4.Transform(dest, inverseProj);
-
-	glm::vec4 ro = inverseProj * glm::vec4(origin, 1.0f);
-		glm::vec4 rd = inverseProj * glm::vec4(dest, 1.0);
-
-
-
-	glm::vec3 ray_origin = glm::vec3(ro.x / ro.w, ro.y / ro.w, ro.z / ro.w);
-	glm::vec3 ray_end = glm::vec3(rd.x / rd.w, rd.y / rd.w, rd.z / rd.w);
-	glm::vec3 ray_dir = ray_end - ray_origin;
-
-	//Vector3 ray_origin = new Vector3(ro.X / ro.W, ro.Y / ro.W, ro.Z / ro.W);
-	//Vector3 ray_end = new Vector3(rd.X / rd.W, rd.Y / rd.W, rd.Z / rd.W);
-	//Vector3 ray_dir = ray_end - ray_origin;
-
-	ray_dir = normalize(ray_dir);
-
-	//Ray ray = new Ray();
-
-
-   // ray.Pos = RenderGlobals.CurrentCamera.Position;
-   // ray.Dir = ray_dir;
-   // return ray;
-	HitResult result = RayCast(m_Camera->GetPosition(), ray_dir);
-
-
+	// Cast ray from near plane to far plane
+	HitResult result = RayCast(ray_start, ray_end);
 	return result;
 	/*
 	float mx = -1.0f + 2.0f * (float)(x) / (float)Vivid::GetFrameWidth();
@@ -204,54 +182,53 @@ std::vector<StaticMeshComponent*> GetMeshes(GraphNode* node, std::vector<StaticM
 
 	return meshes;
 
-}
-constexpr float EPSILON = 1e-6f;
-HitResult RayToTri(glm::vec3 pos, glm::vec3 end, glm::vec3 v0, glm::vec3 v1, glm::vec3 v2)
-{
+}constexpr float EPSILON = 1e-6f;
 
-	//return HitResult();
+HitResult RayToTri(glm::vec3 point1, glm::vec3 point2, glm::vec3 v0, glm::vec3 v1, glm::vec3 v2)
+{
 	glm::vec3 edge1, edge2, h, s, q;
 	float a, f, u, v;
 	HitResult res = HitResult();
 
-	edge1 = v1 - v0;// vertex1 - vertex0;
+	// Calculate ray direction from point1 to point2
+	glm::vec3 rayDir = point2 - point1;
+
+	edge1 = v1 - v0;
 	edge2 = v2 - v0;
-	h = glm::cross(end, edge2);
+	h = glm::cross(rayDir, edge2);
 
-
-
-	a = dot(edge1, h);
+	a = glm::dot(edge1, h);
 	if (a > -EPSILON && a < EPSILON)
 		return res;    // This ray is parallel to this triangle.
+
 	f = 1.0f / a;
-	s = pos - v0;
-	u = f * dot(s, h);
+	s = point1 - v0;
+	u = f * glm::dot(s, h);
 	if (u < 0.0f || u > 1.0f)
 		return res;
-	q = cross(s, edge1);
-	v = f * dot(end, q);
+
+	q = glm::cross(s, edge1);
+	v = f * glm::dot(rayDir, q);
 	if (v < 0.0f || u + v > 1.0f)
 		return res;
-	// At this stage we can compute t to find out where the intersection point is on the line.
-	float t = f * dot(edge2, q);
 
-	if (t > EPSILON) // ray intersection
+	// At this stage we can compute t to find out where the intersection point is on the line.
+	float t = f * glm::dot(edge2, q);
+
+	// Check if intersection is within the line segment (between point1 and point2)
+	if (t > EPSILON && t <= 1.0f) // t must be between 0 and 1 for line segment
 	{
-		//outIntersectionPoint = rayOrigin + rayVector * t;
 		res.m_Hit = true;
-		res.m_Point = pos + end * t;
-		res.m_Distance = glm::length(res.m_Point - pos);
+		res.m_Point = point1 + rayDir * t;
+		res.m_Distance = glm::length(res.m_Point - point1);
 		return res;
 	}
-	else // This means that there is a line intersection but not a ray intersection.
+	else // No intersection within the line segment
+	{
+		res.m_Hit = false;
 		return res;
-
-	res.m_Hit = false;
-	return res;
-
-	return res;
+	}
 }
-
 
 HitResult SceneGraph::RayCast(glm::vec3 pos, glm::vec3 end) {
 
@@ -287,6 +264,7 @@ HitResult SceneGraph::RayCast(glm::vec3 pos, glm::vec3 end) {
 					nres.m_Distance = res.Distance;
 					nres.m_Mesh = mesh;
 					nres.m_Node = mesh->GetOwner();
+					nres.m_Point = glm::vec3(res.HitPoint.x,res.HitPoint.y,res.HitPoint.z);
 					//nres.m_Node = mesh->GetOwner();
 
 					//nres.m_Entity = (NodeEntity*)mesh->GetOwner();
@@ -360,56 +338,33 @@ HitResult SceneGraph::RayCast(StaticMeshComponent* mesh, glm::vec3 pos, glm::vec
 
 HitResult SceneGraph::MousePickSelect(int x, int y, StaticMeshComponent* mesh)
 {
-	float fx = (float)x;
-	float fy = (float)y;
-	float mx = -1 + (float)(x) / (float)(Vivid::GetFrameWidth()) * 2;
-	float my = 1 - (float)(y) / (float)(Vivid::GetFrameHeight()) * 2;
+	float mx = -1.0f + 2.0f * (float)(x) / (float)Vivid::GetFrameWidth();
+	float my = 1.0f - 2.0f * (float)(y) / (float)Vivid::GetFrameHeight();
 
-	glm::vec3 origin = glm::vec3(mx, my, 0);
-	glm::vec3 dest = glm::vec3(mx, my, 1.0f);
+	// Create points on near and far planes in NDC space
+	glm::vec4 near_ndc = glm::vec4(mx, my, -1.0f, 1.0f);  // Near plane (z = -1)
+	glm::vec4 far_ndc = glm::vec4(mx, my, 1.0f, 1.0f);   // Far plane (z = 1)
 
+	// Get view and projection matrices
+	glm::mat4 view = glm::inverse(m_Camera->GetWorldMatrix());
+	glm::mat4 proj = m_Camera->GetComponent<CameraComponent>()->GetProjectionMatrix();
+	glm::mat4 invViewProj = glm::inverse(proj * view);
 
+	// Transform NDC points to world space
+	glm::vec4 near_world = invViewProj * near_ndc;
+	glm::vec4 far_world = invViewProj * far_ndc;
 
-	//Matrix4x4 viewProj = RenderGlobals.CurrentCamera.WorldMatrix * RenderGlobals.CurrentCamera.ProjectionMatrix;
-	glm::mat4 viewProj = m_Camera->GetComponent<CameraComponent>()->GetProjectionMatrix() * glm::inverse(m_Camera->GetWorldMatrix());
+	// Perform perspective divide
+	if (fabs(near_world.w) > 1e-6f) near_world /= near_world.w;
+	if (fabs(far_world.w) > 1e-6f) far_world /= far_world.w;
 
-	// Matrix4x4 vp;
-	// Matrix4x4.Invert(viewProj, out vp);
-	// Matrix4x4 inverseProj = vp;
-
-
-	glm::mat4 inverseProj = glm::inverse(viewProj);
-
-
-
-	//****Ve
-	//Vector3 ray_origin = Vector3.Transform (origin, inverseProj);
-	//Vector3 ray_end = Vector3.TransformNormal(dest, inverseProj);
-	//Vector4 ro = Vector4.Transform(origin, inverseProj);
-	//Vector4 rd = Vector4.Transform(dest, inverseProj);
-
-	glm::vec4 ro = inverseProj * glm::vec4(origin, 1.0f);
-	glm::vec4 rd = inverseProj * glm::vec4(dest, 1.0);
+	// Extract 3D points
+	glm::vec3 ray_start = glm::vec3(near_world);
+	glm::vec3 ray_end = glm::vec3(far_world);
+	HitResult result = RayCast(mesh,m_Camera->GetPosition(), ray_end);
+	//RayCast(ray_start, ray_end);
 
 
-
-	glm::vec3 ray_origin = glm::vec3(ro.x / ro.w, ro.y / ro.w, ro.z / ro.w);
-	glm::vec3 ray_end = glm::vec3(rd.x / rd.w, rd.y / rd.w, rd.z / rd.w);
-	glm::vec3 ray_dir = ray_end - ray_origin;
-
-	//Vector3 ray_origin = new Vector3(ro.X / ro.W, ro.Y / ro.W, ro.Z / ro.W);
-	//Vector3 ray_end = new Vector3(rd.X / rd.W, rd.Y / rd.W, rd.Z / rd.W);
-	//Vector3 ray_dir = ray_end - ray_origin;
-
-	ray_dir = normalize(ray_dir);
-
-	//Ray ray = new Ray();
-
-
-   // ray.Pos = RenderGlobals.CurrentCamera.Position;
-   // ray.Dir = ray_dir;
-   // return ray;
-	HitResult result = RayCast(mesh,m_Camera->GetPosition(), ray_dir);
 
 
 	return result;

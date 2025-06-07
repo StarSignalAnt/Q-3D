@@ -6,6 +6,7 @@
 #include "PropertiesEditor.h"
 #include "MaterialPBR.h"
 //Diligent Engine includes
+#include "Physics.h"
 
 
 #if D3D11_SUPPORTED
@@ -192,6 +193,16 @@ SceneView::SceneView(QWidget *parent)
     m_SceneController->Init();
     NodeTree::m_Instance->SetRoot(m_SceneGraph->GetRootNode());
     m_Draw = new Draw2D(cam);
+
+    //m_Test1->SetBody(BodyType::T_TriMesh);
+   // m_Test1->CreateBody();
+
+
+    test2->SetPosition(glm::vec3(0, 15, 0));
+
+    //m_Test1->CreateRB();
+
+
 }
 
 SceneView::~SceneView()
@@ -236,6 +247,7 @@ void SceneView::Run() {
     if (m_RunMode == RM_Running) return;
     m_SceneGraph->Push();
     m_SceneGraph->Play();
+
     m_RunMode = RM_Running;
     keysHeld.clear();
 
@@ -283,9 +295,15 @@ void SceneView::paintEvent(QPaintEvent* event)
     float tt = ( ((float)ttick) / 1000.0f);
 
     if (m_RunMode == RM_Running) {
+        Vivid::m_Physics->Update(0.01);
         m_SceneGraph->Update(tt);
     }
     
+    
+
+
+   // m_SceneGraph->Update(tt);
+
     m_SceneGraph->RenderShadows();
     m_SceneGraph->Render();
 

@@ -121,6 +121,9 @@
     <ClCompile Include="SearchWidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PropertyStringList.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="SceneView.h">
@@ -163,6 +166,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="SearchWidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="PropertyStringList.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

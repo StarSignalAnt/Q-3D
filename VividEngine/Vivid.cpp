@@ -4,6 +4,7 @@
 #include "RenderTarget2D.h"
 #include <pybind11/embed.h>
 #include "GameAudio.h"
+#include "Physics.h"
 namespace py = pybind11;
 RefCntAutoPtr<IRenderDevice>  Vivid::m_pDevice;
 RefCntAutoPtr<IDeviceContext> Vivid::m_pImmediateContext;
@@ -118,8 +119,11 @@ void Vivid::InitPython() {
 
 }
 
+Physics* Vivid::m_Physics = nullptr;
+
 void Vivid::InitEngine() {
 
 	GameAudio* audio = new GameAudio;
+	m_Physics = new Physics;
 
 }

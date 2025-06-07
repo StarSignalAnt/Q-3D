@@ -65,7 +65,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\git\assimp\include;C:\Users\antro\AppData\Local\Programs\Python\Python313\include;C:\Vivid3D\VividEngine\include;C:\Vivid3D\Vivid3D\packages\glm.1.0.1\build\native\include;C:\Vivid3D\VividEngine;C:\git\DiligentEngine\DiligentCore;C:\git\DiligentEngine\DiligentFX;C:\git\DiligentEngine\DiligentFX\PostProcess\Common\interface;C:\DiligentEngine\DiligentFX\PostProcess\ScreenSpaceReflection\interface;C:\dev\Vivid3D\VScript;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsTools\interface;C:git\DiligentEngine\DiligentCore;C:\git\DiligentEngine\DiligentTools\TextureLoader\interface;C:\git\DiligentEngine\DiligentTools\TextureLoader\include;C:\Dev\Assimp\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngine\interface;C:\git\DiligentEngine\DiligentCore\Common\interface;C:\git\DiligentEngine\DiligentCore\ThirdParty\SPIRV-Cross\include;C:\git\DiligentEngine\DiligentCore\Platforms\Basic\include;C:\git\DiligentEngine\DiligentCore\Graphics\ShaderTools\include;C:\\git\DiligentEngine\DiligentCore\Graphics\HLSL2GLSLConverterLib\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngineD3D12\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngine\include;C:\git\DiligentEngine\DiligentCore\Common\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\git\PhysX\pxshared\include;C:\git\PhysX\physx\include;C:\git\assimp\include;C:\Users\antro\AppData\Local\Programs\Python\Python313\include;C:\Vivid3D\VividEngine\include;C:\Vivid3D\Vivid3D\packages\glm.1.0.1\build\native\include;C:\Vivid3D\VividEngine;C:\git\DiligentEngine\DiligentCore;C:\git\DiligentEngine\DiligentFX;C:\git\DiligentEngine\DiligentFX\PostProcess\Common\interface;C:\DiligentEngine\DiligentFX\PostProcess\ScreenSpaceReflection\interface;C:\dev\Vivid3D\VScript;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsTools\interface;C:git\DiligentEngine\DiligentCore;C:\git\DiligentEngine\DiligentTools\TextureLoader\interface;C:\git\DiligentEngine\DiligentTools\TextureLoader\include;C:\Dev\Assimp\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngine\interface;C:\git\DiligentEngine\DiligentCore\Common\interface;C:\git\DiligentEngine\DiligentCore\ThirdParty\SPIRV-Cross\include;C:\git\DiligentEngine\DiligentCore\Platforms\Basic\include;C:\git\DiligentEngine\DiligentCore\Graphics\ShaderTools\include;C:\\git\DiligentEngine\DiligentCore\Graphics\HLSL2GLSLConverterLib\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngineD3D12\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngine\include;C:\git\DiligentEngine\DiligentCore\Common\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>PLATFORM_WIN32;D3D12_SUPPORTED;VULKAN_SUPPORTED;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -139,6 +139,7 @@
     <ClCompile Include="PropertyHeader.cpp" />
     <ClCompile Include="PropertyInt.cpp" />
     <ClCompile Include="PropertySlider.cpp" />
+    <ClCompile Include="PropertyStringList.cpp" />
     <ClCompile Include="PropertyText.cpp" />
     <ClCompile Include="PropertyVec3.cpp" />
     <ClCompile Include="RotateGizmo.cpp" />
@@ -182,6 +183,7 @@
     <QtMoc Include="NodeTree.h" />
     <QtMoc Include="ContentBrowser.h" />
     <QtMoc Include="Content.h" />
+    <QtMoc Include="PropertyStringList.h" />
     <ClInclude Include="RotateGizmo.h" />
     <ClInclude Include="ScaleGizmo.h" />
     <ClInclude Include="SceneGizmo.h" />

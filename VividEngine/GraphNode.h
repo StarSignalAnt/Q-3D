@@ -6,9 +6,40 @@
 #include <string>
 #include "BasicMath.hpp"
 #include <glm/glm.hpp>
-
+#include "PxPhysicsAPI.h"
+using namespace physx;
 using namespace Diligent;
 class Component;
+
+
+enum BodyType {
+	T_Box,T_Sphere,T_ConvexHull,T_TriMesh,T_TerrainMesh,T_None
+};
+
+// Add this struct to GraphNode.h (or create a separate header)
+struct Bounds {
+	glm::vec3 min;
+	glm::vec3 max;
+	glm::vec3 size;
+	glm::vec3 center;
+
+	Bounds() : min(FLT_MAX), max(-FLT_MAX), size(0), center(0) {}
+
+	bool IsValid() const {
+		return min.x <= max.x && min.y <= max.y && min.z <= max.z;
+	}
+
+	void CalculateDerivedValues() {
+		if (IsValid()) {
+			size = max - min;
+			center = (min + max) * 0.5f;
+		}
+		else {
+			size = glm::vec3(0);
+			center = glm::vec3(0);
+		}
+	}
+};
 
 class GraphNode
 {
@@ -92,6 +123,15 @@ public:
 	std::vector<GraphNode*>& GetNodesRef() { return m_Nodes; }
 	void Play();
 	void Stop();
+	Bounds GetStaticMeshBounds(bool includeChildren = true);
+	void SetBody(BodyType type);
+	void CreateBody();
+	void CreateRB();
+	void UpdatePhysics();
+	BodyType GetBodyType() {
+		return m_BodyType;
+	}
+
 private:
 
 	glm::vec3 m_Position;
@@ -108,5 +148,10 @@ private:
 	std::string m_Name;
 	std::vector<Component*> m_Components;
 	bool m_Updated = true;
+	BodyType m_BodyType = BodyType::T_None;
+	PxBoxGeometry m_BoxBody;
+	PxRigidDynamic* m_RB = nullptr;
+	PxRigidStatic* m_RS = nullptr;
+	PxShape* m_Shape;
 };
 

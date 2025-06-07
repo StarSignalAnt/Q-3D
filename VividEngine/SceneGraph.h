@@ -49,6 +49,7 @@ public:
 	void Stop();
 	void Push();
 	void Pop();
+	static SceneGraph* m_Instance;
 private:
 
 	GraphNode* m_RootNode = nullptr;

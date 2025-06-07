@@ -1,13 +1,21 @@
 import engine
 
+class Channel:
+	def __init__(self,id):
+		self.id = id;
+	def Stop(self):
+		engine.stopSoundGameAudio(self.id)
+	def SetPitch(self,pitch):
+		engine.setPitchGameAudio(self.id,pitch)
+	def SetVolume(self,volume):
+		engine.setVolumeGameAudio(self.id,volume)
+
+
 class Sound:
 	def __init__(self,path):
 		self.ptr = engine.loadSoundGameAudio(path)
-	def PlaySound(self):
-		self.handle = engine.playSoundGameAudio(self.ptr)
-
-	def StopSound(self):
-		engine.stopSoundGameAudio(self.handle)
+	def Play(self):
+		return Channel(engine.playSoundGameAudio(self.ptr))
 
 class GameAudio:
 	def __init__(self, name="PyComponent"):

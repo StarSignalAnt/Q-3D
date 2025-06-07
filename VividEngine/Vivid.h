@@ -32,6 +32,7 @@
 
 class RenderTargetCube;
 class RenderTarget2D;
+class Physics;
 
 using namespace Diligent;
 
@@ -55,6 +56,7 @@ public:
 	static RenderTargetCube* m_BoundRTC;
 	static RenderTarget2D* m_BoundRT2D;
 	static void InitPython();
+	static Physics* m_Physics;
 private:
 
 	static int m_FrameWidth;

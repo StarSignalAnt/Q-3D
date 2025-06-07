@@ -14,6 +14,7 @@ struct CastResult {
 	float Distance = 0.0;
 	bool Hit = false;
     int MeshIndex = -1;
+    float3 HitPoint = { 0.0f, 0.0f, 0.0f };
 
 };
 class Intersections : public CLBase
@@ -28,6 +29,7 @@ private:
     cl::Buffer m_PosBuffer;
     cl::Buffer m_DirBuffer;
     cl::Buffer m_ResultBuffer;
+    cl::Buffer m_HitPointBuffer;
     std::unordered_map<SubMesh*, cl::Buffer> m_TriBuffers;
     bool m_BuffersInitialized = false;
 

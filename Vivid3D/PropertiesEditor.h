@@ -11,7 +11,7 @@
 #include "PropertyInt.h"
 #include <functional>
 #include <qvector3d.h>
-
+#include "PropertyStringList.h"  
 class GraphNode;
 
 
@@ -49,7 +49,8 @@ public:
 
     PropertySlider* AddSlider(const QString& label, int minValue, int maxValue, int defaultValue = 0,
         std::function<void(int)> callback = nullptr);
-
+    PropertyStringList* AddStringList(const QString& label, const QStringList& options,
+        const QString& defaultValue = "", std::function<void(const QString&)> callback = nullptr);
 private:
 	Ui::PropertiesEditorClass ui;
     QVBoxLayout* m_mainLayout;

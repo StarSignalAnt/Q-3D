@@ -16,7 +16,8 @@ public:
 	void* LoadSound(std::string path);
 	int PlaySound(SoLoud::Wav* sound);
 	void StopSound(int sound);
-
+	void SetPitch(int sound, float pitch);
+	void SetVolume(int sound, float volume);
 private:
 
 	SoLoud::Soloud gSoloud;

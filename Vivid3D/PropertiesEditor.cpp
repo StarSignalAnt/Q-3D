@@ -278,6 +278,49 @@ void PropertiesEditor::SetNode(GraphNode* node) {
 
     }
 
+    AddHeader("Physics");
+
+    QStringList bodyTypes = {"None", "Box","Convex Hull","TriMesh"};
+
+    QString init = "Box";
+
+    switch (node->GetBodyType()) {
+    case T_Box:
+        init = "Box";
+        break;
+    case T_TriMesh:
+        init = "TriMesh";
+        break;
+    case T_ConvexHull:
+        init = "Convex Hull";
+        break;
+    case T_None:
+        init = "None";
+        break;
+    default:
+        init = "Box";
+        break;
+
+    }
+
+    AddStringList("Body Type", bodyTypes, init, [node](const QString& mode) {
+        // Handle render mode change
+        if (mode == "Box")
+        {
+            node->SetBody(BodyType::T_Box);
+        }
+        if (mode == "TriMesh")
+        {
+            node->SetBody(BodyType::T_TriMesh);
+        }
+        if (mode == "Convex Hull")
+        {
+            node->SetBody(BodyType::T_ConvexHull);
+        }
+        qDebug() << "Render mode changed to:" << mode;
+        // node->SetRenderMode(mode.toStdString());
+        });
+
 
     auto scripts = node->GetComponents<ScriptComponent>();
 
@@ -452,4 +495,24 @@ PropertySlider* PropertiesEditor::AddSlider(const QString& label, int minValue, 
     }
 
     return sliderProp;
+}
+
+PropertyStringList* PropertiesEditor::AddStringList(const QString& label, const QStringList& options,
+    const QString& defaultValue, std::function<void(const QString&)> callback)
+{
+    PropertyStringList* stringListProp = new PropertyStringList(label, options);
+
+    if (!defaultValue.isEmpty()) {
+        stringListProp->setCurrentText(defaultValue);
+    }
+
+    m_contentLayout->addWidget(stringListProp);
+
+    if (callback) {
+        connect(stringListProp, &PropertyStringList::valueChanged, this, [callback](const QString& value) {
+            callback(value);
+            });
+    }
+
+    return stringListProp;
 }

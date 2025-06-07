@@ -32,7 +32,8 @@ void Intersections::InitializeBuffers() {
         // Create persistent buffers - don't allocate specific sizes yet
         m_PosBuffer = cl::Buffer(context, CL_MEM_READ_ONLY, sizeof(float3));
         m_DirBuffer = cl::Buffer(context, CL_MEM_READ_ONLY, sizeof(float3));
-        m_ResultBuffer = cl::Buffer(context, CL_MEM_READ_WRITE, sizeof(int)); // Keep as int!
+        m_ResultBuffer = cl::Buffer(context, CL_MEM_READ_WRITE, sizeof(int));
+        m_HitPointBuffer = cl::Buffer(context, CL_MEM_READ_WRITE, sizeof(float3)); // Add this line
         m_BuffersInitialized = true;
     }
 }
@@ -51,10 +52,12 @@ CastResult Intersections::CastMesh(float3 pos, float3 dir, SubMesh* mesh) {
     // Initialize result with FLT_MAX converted to int (exactly like original)
     int initialResult = float_to_int(FLT_MAX);
 
+    float3 initialHitPoint = { 0.0f, 0.0f, 0.0f }; // Add this line
     // Write data to persistent buffers - use BLOCKING writes to ensure data is ready
     queue.enqueueWriteBuffer(m_PosBuffer, CL_TRUE, 0, sizeof(float3), &pos);
     queue.enqueueWriteBuffer(m_DirBuffer, CL_TRUE, 0, sizeof(float3), &dir);
     queue.enqueueWriteBuffer(m_ResultBuffer, CL_TRUE, 0, sizeof(int), &initialResult);
+    queue.enqueueWriteBuffer(m_HitPointBuffer, CL_TRUE, 0, sizeof(float3), &initialHitPoint);
 
     // Handle triangle buffer - FIXED LOGIC
     cl::Buffer* triBuffer = nullptr;
@@ -102,15 +105,19 @@ CastResult Intersections::CastMesh(float3 pos, float3 dir, SubMesh* mesh) {
     kernel.setArg(0, m_PosBuffer);
     kernel.setArg(1, m_DirBuffer);
     kernel.setArg(2, m_ResultBuffer);
-    kernel.setArg(3, *triBuffer);
+    kernel.setArg(3, m_HitPointBuffer); // Add this line
+    kernel.setArg(4, *triBuffer); // This changes from arg 3 to arg 4
 
     // Execute kernel - start simple, optimize work groups later
     cl::NDRange globalSize(numTris);
     queue.enqueueNDRangeKernel(kernel, cl::NullRange, globalSize, cl::NullRange);
 
+
     // Read result as int (exactly like original)
     int intResult;
+    float3 hitPoint; // Add this line
     queue.enqueueReadBuffer(m_ResultBuffer, CL_TRUE, 0, sizeof(int), &intResult);
+    queue.enqueueReadBuffer(m_HitPointBuffer, CL_TRUE, 0, sizeof(float3), &hitPoint);
 
     // Convert back to float (exactly like original)
     float distance = int_to_float(intResult);
@@ -119,10 +126,12 @@ CastResult Intersections::CastMesh(float3 pos, float3 dir, SubMesh* mesh) {
     CastResult result;
     result.Hit = false;
     result.Distance = -1.0f;
+    result.HitPoint = { 0.0f, 0.0f, 0.0f }; // Add this line
 
     if (distance > -1.0f && distance < 1000.0f) {
         result.Hit = true;
         result.Distance = distance;
+        result.HitPoint = hitPoint; // Add this line
     }
 
     return result;

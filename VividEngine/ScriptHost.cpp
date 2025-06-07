@@ -15,6 +15,7 @@
 #include "GraphNode.h"
 #include "GameInput.h"
 #include "GameAudio.h"
+#include "SceneGraph.h"
 
 namespace py = pybind11;
 
@@ -282,6 +283,85 @@ void sf_StopSoundGameAudio(int ptr) {
     GameAudio::m_Instance->StopSound(ptr);
 }
 
+void sf_SetPitchGameAudio(int id,float pitch) {
+
+    GameAudio::m_Instance->SetPitch(id, pitch);
+
+}
+
+void sf_SetVolumeGameAudio(int id, float volume) {
+
+    GameAudio::m_Instance->SetVolume(id, volume);
+
+}
+
+uintptr_t sf_GetScene() {
+
+    auto res = SceneGraph::m_Instance;
+
+    return reinterpret_cast<std::uintptr_t>(res);
+}
+
+py::object sf_RayCast(py::object position, py::object dir)
+{
+
+    float x = position.attr("x").cast<float>();
+    float y = position.attr("y").cast<float>();
+    float z = position.attr("z").cast<float>();
+
+    float dx = dir.attr("x").cast<float>();
+    float dy = dir.attr("y").cast<float>();
+    float dz = dir.attr("z").cast<float>();
+
+    std::cout << "Pos X:" << x << " Y:" << y << " Z:" << z << std::endl;
+    std::cout << "Dir X:" << dx << " Y:" << dy << " Z:" << dz << std::endl;
+
+
+    auto res = SceneGraph::m_CurrentGraph->RayCast(glm::vec3(x, y, z), glm::vec3(x+dx, y+dy, z+dz));
+
+
+    py::object glm = py::module_::import("glm");
+    py::object castResultClass = py::module_::import("__main__").attr("CastResult"); // Replace with actual module name
+
+    // Create result instance
+    py::object result = castResultClass();
+
+    if (res.m_Hit == false) {
+
+        result.attr("hit") = false;
+        result.attr("point") = glm.attr("vec3")(0.0f,0.0f,0.0f);
+        return result;
+
+    }
+
+    // Set fields
+    result.attr("hit") = res.m_Hit;
+    result.attr("distance") = res.m_Distance;
+    result.attr("point") = glm.attr("vec3")(res.m_Point.x,res.m_Point.y,res.m_Point.z);
+    result.attr("normal") = glm.attr("vec3")(0,0,0);
+    //result.attr("hitNode") = py::none(); // or some actual node object
+    py::object nodeResult = py::module_::import("__main__").attr("GraphNode"); // Replace with actual module name
+
+
+    // Create result instance
+    py::object node = nodeResult("");
+    
+    node.attr("cpp") = reinterpret_cast<std::uintptr_t>(res.m_Node);
+    
+    result.attr("hitNode") = node;
+
+    
+    return result;
+
+
+}   
+
+void sf_Stop() {
+
+    exit(1);
+}
+
+
 void InitNodeScript() {
 
     addFunction("updateGraphNode", sf_UpdateGraphNode);
@@ -295,6 +375,11 @@ void InitNodeScript() {
     addFunction("loadSoundGameAudio", sf_LoadSoundGameAudio);
     addFunction("playSoundGameAudio", sf_PlaySoundGameAudio);
     addFunction("stopSoundGameAudio", sf_StopSoundGameAudio);
+    addFunction("setPitchGameAudio", sf_SetPitchGameAudio);
+    addFunction("setVolumeGameAudio", sf_SetVolumeGameAudio);
+    addFunction("getScene", sf_GetScene);
+    addFunction("rayCast", sf_RayCast);
+    addFunction("stop", sf_Stop);
 }
 
 ScriptHost::ScriptHost() {
@@ -324,6 +409,7 @@ ScriptHost::ScriptHost() {
     ScanAndLoadPY("Engine/PY/Input");
    ScanAndLoadPY("Engine/PY/Node");
    ScanAndLoadPY("Engine/PY/Component");
+   ScanAndLoadPY("Engine/PY/Scene");
 
 
 
