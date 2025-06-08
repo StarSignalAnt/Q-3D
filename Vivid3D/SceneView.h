@@ -82,6 +82,8 @@ public:
 	GraphNode* m_SelectedNode = nullptr;
 	void SelectNode(GraphNode* node);
 protected:
+	void dragEnterEvent(QDragEnterEvent* event) override;
+	void dropEvent(QDropEvent* event) override;
 	void CreateGraphics();
 	void paintEvent(QPaintEvent* event) override;
 	IEngineFactory* GetEngineFactory() { return m_pDevice->GetEngineFactory(); }

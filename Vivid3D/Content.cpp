@@ -17,6 +17,7 @@ Content::Content(QWidget *parent)
     FileIcon = QIcon("edit/icons/fileIcon.png");
     EntIcon = QIcon("edit/icons/entityIcon.png");
     ImageIcon = QIcon("edit/icons/imageicon.png");
+    ScriptIcon = QIcon("edit/icons/scripticon.png");
 	//ui.setupUi(this);
 }
 
@@ -105,13 +106,17 @@ void Content::Browse(const std::string& path)
             
             auto ext = GetFileExtension(info.fileName().toStdString());
             item.ext = QString(ext.c_str());
-            if (ext == "fbx")
+            if (ext == "fbx" || ext == "gltf")
             {
                 item.type = FileType::FT_Entity;
             }
             if (ext == "png")
             {
                 item.type = FileType::FT_Texture;
+            }
+            if (ext == "py")
+            {
+                item.type = FileType::FT_Script;
             }
 
             if (item.displayName.isEmpty()) {
@@ -244,6 +249,10 @@ void Content::paintEvent(QPaintEvent* event)
                 {
                     pixmap = ImageIcon.pixmap(rr.size());
                 }
+                else if (item.type == FT_Script)
+                {
+                    pixmap = ScriptIcon.pixmap(rr.size());
+                }
                 else {
                     pixmap = FileIcon.pixmap(rr.size());
                 }
@@ -271,6 +280,9 @@ void Content::paintEvent(QPaintEvent* event)
             {
                 ImageIcon.paint(&painter, iconRect);
             }
+            else if (item.type == FT_Script) {
+                ScriptIcon.paint(&painter, iconRect);
+            }
             else {
                 FileIcon.paint(&painter, iconRect);
             }
@@ -294,6 +306,7 @@ void Content::paintEvent(QPaintEvent* event)
             draw_Y += 92;
         }
     }
+    update();
 
 }
 
@@ -334,6 +347,9 @@ void Content::fileClicked(const QString& filePath, bool isDirectory)
 {
     if (isDirectory) {
         qDebug() << "Directory double-clicked:" << filePath;
+        Browse(filePath.toStdString());
+        m_layoutDirty = true;
+        update();
         // You can implement directory navigation here
         // For example: Browse(filePath.toStdString());
     }
@@ -346,22 +362,88 @@ void Content::fileClicked(const QString& filePath, bool isDirectory)
 void Content::mouseMoveEvent(QMouseEvent* event) {
 
     QPoint clickPos = event->pos();
-
     m_OverItem = nullptr;
     auto p = m_OverItem;
 
+    // Find the item under the cursor for hover effects
     for (FileItem& item : m_items) {
         if (item.rect.contains(clickPos)) {
-            //fileClicked(item.fullPath, item.isDirectory);
             m_OverItem = &item;
-            update();
-            return;
+            break;
         }
     }
 
+    // If the mouse has moved, trigger an update for the hover effect
     if (p != nullptr) {
         update();
     }
 
+    // --- Drag and Drop Logic ---
+    if (!(event->buttons() & Qt::LeftButton))
+        return;
+    if ((event->pos() - m_dragStartPosition).manhattanLength() < QApplication::startDragDistance())
+        return;
 
+    // Find the item to drag (the one that was under the cursor on mouse press)
+    FileItem* draggedItem = nullptr;
+    for (FileItem& item : m_items) {
+        if (item.rect.contains(m_dragStartPosition)) {
+            draggedItem = &item;
+            break;
+        }
+    }
+
+    if (draggedItem) {
+        QDrag* drag = new QDrag(this);
+        QMimeData* mimeData = new QMimeData;
+
+        mimeData->setText(draggedItem->fullPath); // Set the filename with extension as data
+        drag->setMimeData(mimeData);
+
+        // 1. Get the base icon pixmap. The final drag image will have the same dimensions.
+        QIcon& icon = draggedItem->isDirectory ? DirIcon : (draggedItem->type == FT_Entity ? EntIcon : (draggedItem->type == FT_Texture ? ImageIcon : (draggedItem->type == FT_Script ? ScriptIcon : FileIcon)));
+        QPixmap iconPixmap = icon.pixmap(QSize(m_itemSize, m_itemSize));
+        QString fileName = QFileInfo(draggedItem->fullPath).fileName();
+
+        // 2. Create the new pixmap and a painter to draw on it
+        QPixmap dragPixmap(iconPixmap.size());
+        dragPixmap.fill(Qt::transparent);
+        QPainter painter(&dragPixmap);
+
+        // 3. Draw the main icon first
+        painter.drawPixmap(0, 0, iconPixmap);
+
+        // 4. Define a rectangle at the bottom of the icon for the text overlay
+        QFontMetrics fontMetrics(this->font());
+        QRect textBoundingRect = fontMetrics.boundingRect(fileName);
+        int padding = 4;
+        int bannerHeight = textBoundingRect.height() + (padding * 2);
+        QRect textBannerRect(0, dragPixmap.height() - bannerHeight, dragPixmap.width(), bannerHeight);
+
+        // 5. Draw a semi-transparent background banner for the text
+        painter.setBrush(QColor(0, 0, 0, 140)); // Black, semi-transparent
+        painter.setPen(Qt::NoPen);
+        painter.drawRect(textBannerRect);
+
+        // 6. Draw the filename, centered within the banner
+        painter.setPen(Qt::white); // White text for good contrast
+        painter.drawText(textBannerRect, Qt::AlignCenter, fileName);
+        painter.end();
+
+        // 7. Set the newly created pixmap as the drag image
+        drag->setPixmap(dragPixmap);
+
+        // 8. Adjust the "hot spot" to be the center of the cursor
+        drag->setHotSpot(QPoint(dragPixmap.width() / 2, dragPixmap.height() / 2));
+        drag->exec(Qt::CopyAction);
+    }
+
+}
+
+void Content::mousePressEvent(QMouseEvent* event)
+{
+    if (event->button() == Qt::LeftButton) {
+        m_dragStartPosition = event->pos();
+    }
+    QWidget::mousePressEvent(event);
 }

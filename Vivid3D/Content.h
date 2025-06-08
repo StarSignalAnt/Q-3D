@@ -9,12 +9,15 @@
 #include <QApplication>
 #include <QStyle>
 #include <QFontMetrics>
+#include <QDrag>
+#include <QMimeData>
+
 #include <QDebug>
 #include <string>
 #include <vector>
 #include "ui_Content.h"
 enum FileType {
-    FT_Entity, FT_Texture, FT_File
+    FT_Entity, FT_Texture, FT_File,FT_Script
 };
 
 struct FileItem {
@@ -48,6 +51,7 @@ protected:
 	void mouseDoubleClickEvent(QMouseEvent* event) override;
 	void resizeEvent(QResizeEvent* event) override;
 	void mouseMoveEvent(QMouseEvent* event) override;
+    void mousePressEvent(QMouseEvent* event) override;
 private:
 	Ui::ContentClass ui;
     void calculateLayout();
@@ -61,9 +65,11 @@ private:
     QIcon DirIcon, FileIcon;
     QIcon EntIcon;
     QIcon ImageIcon;
+    QIcon ScriptIcon;
     std::vector<QRect> m_itemRects; // Store item rectangles for hit testing
     int m_contentHeight; // Track actual content height
     FileItem* m_OverItem = nullptr;
     std::string m_SearchTerm = "";
+    QPoint m_dragStartPosition;
 };
 

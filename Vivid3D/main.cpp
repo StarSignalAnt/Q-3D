@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
 
 
 
-    QPixmap pixmap("edit/splash/vivid3d.png"); // Use a QRC or disk image
+    QPixmap pixmap("edit/splash/vivid3d.jpg"); // Use a QRC or disk image
     QSplashScreen splash(pixmap);
     splash.show();
 

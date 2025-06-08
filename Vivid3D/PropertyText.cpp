@@ -9,8 +9,8 @@ PropertyText::PropertyText(const QString& label, const QString& defaultText, QWi
 
     // Create and configure label
     m_label = new QLabel(label + ":");
-    m_label->setMinimumWidth(80);
-    m_label->setMaximumWidth(80);
+    m_label->setMinimumWidth(100);
+    m_label->setMaximumWidth(180);
     m_label->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 
     // Create line edit

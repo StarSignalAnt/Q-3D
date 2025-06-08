@@ -7,6 +7,7 @@ enum SVarType {
     VT_Int,
     VT_String,
     VT_Float,
+    VT_Object,
     VT_Unknown
 };
 
@@ -14,6 +15,7 @@ struct ScriptVar {
     std::string name;
     SVarType type;
     int ivalue = 0;
+    std::string cls;
     float fvalue = 0;
     std::string svalue = "";
 };
@@ -26,16 +28,23 @@ public:
     void OnPlay() override;
     void OnStop() override;
     void SetScript(std::string file, std::string name);
-    void OnUpdate(float dt) override;
-    std::vector<ScriptVar> GetVars();
     std::string GetName() {
         return m_Name;
     }
+    void* GetInstance() {
+        return m_ComponentPy;
+    }
+    void OnUpdate(float dt) override;
+    std::vector<ScriptVar> GetVars();
+    std::vector<ScriptVar> GetPythonVars();
+ 
     int GetInt(std::string name);
     void SetInt(std::string name, int value);
     float GetFloat(std::string name);
     void SetFloat(std::string name, float value);
     void SetString(std::string name, std::string value);
+    void SetNode(std::string name, GraphNode* node);
+    GraphNode* GetNode(std::string name);
     std::string GetString(std::string name);
     void Push() override;
     void Pop() override;

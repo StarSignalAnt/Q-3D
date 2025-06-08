@@ -9,24 +9,28 @@
 #include "PropertyFloat.h"
 #include "PropertySlider.h"
 #include "PropertyInt.h"
+#include "PropertyNode.h"
 #include <functional>
 #include <qvector3d.h>
-#include "PropertyStringList.h"  
+#include "PropertyStringList.h"
+
+// Forward declaration of GraphNode is good practice
 class GraphNode;
 
 
 
 class PropertiesEditor : public QWidget
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	PropertiesEditor(QWidget *parent = nullptr);
-	~PropertiesEditor();
-	QSize sizeHint() const override;
+    PropertiesEditor(QWidget* parent = nullptr);
+    ~PropertiesEditor();
+    QSize sizeHint() const override;
 
     static PropertiesEditor* m_Instance;
-
+    // Add to a public section of PropertiesEditor in PropertiesEditor.h
+    void AddedFromDrop(const QString& resourceName);
     void BeginUI();
     void EndUI();
     void ClearUI();
@@ -37,13 +41,17 @@ public:
     PropertyText* AddText(const QString& label, const QString& defaultText = "",
         std::function<void(const QString&)> callback = nullptr);
 
-    PropertyVec3* AddVec3(const QString& label, const QVector3D& defaultValue = QVector3D(0, 0, 0),double interval = 1.0f,
+    // Callback now takes a GraphNode pointer
+    PropertyNode* AddNodeProperty(const QString& label, const QString& defaultText = "",
+        std::function<void(GraphNode*)> callback = nullptr);
+
+    PropertyVec3* AddVec3(const QString& label, const QVector3D& defaultValue = QVector3D(0, 0, 0), double interval = 1.0f,
         std::function<void(const QVector3D&)> callback = nullptr);
 
     PropertyFloat* AddFloat(const QString& label, double minValue, double maxValue, double interval,
         double defaultValue = 0.0, std::function<void(double)> callback = nullptr);
 
-    PropertyInt* AddInt(const QString& label, int minValue,int maxValue, int interval,
+    PropertyInt* AddInt(const QString& label, int minValue, int maxValue, int interval,
         int defaultValue = 0.0, std::function<void(int)> callback = nullptr);
 
 
@@ -51,8 +59,13 @@ public:
         std::function<void(int)> callback = nullptr);
     PropertyStringList* AddStringList(const QString& label, const QStringList& options,
         const QString& defaultValue = "", std::function<void(const QString&)> callback = nullptr);
+protected:
+
+    void dragEnterEvent(QDragEnterEvent* event) override;
+    void dropEvent(QDropEvent* event) override;
+
 private:
-	Ui::PropertiesEditorClass ui;
+    Ui::PropertiesEditorClass ui;
     QVBoxLayout* m_mainLayout;
     QScrollArea* m_scrollArea;
     QWidget* m_contentWidget;
@@ -68,6 +81,6 @@ private:
     PropertyVec3* m_currentPositionProp = nullptr;
     PropertyVec3* m_currentRotationProp = nullptr;
     PropertyVec3* m_currentScaleProp = nullptr;
+    GraphNode* m_Node = nullptr;
 
 };
-

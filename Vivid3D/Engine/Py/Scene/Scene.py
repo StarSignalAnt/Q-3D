@@ -14,5 +14,9 @@ class SceneGraph:
 		self.scene = engine.getScene()
 	def RayCast(self,position,dir):
 		return engine.rayCast(position,dir)
+	def GetRootNode(self):
+		root = engine.getRootNode(self.scene)
+		return root
+
 		
 

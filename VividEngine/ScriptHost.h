@@ -6,6 +6,9 @@
 #include <string>
 #include "Pars.h"
 #include <unordered_map>
+
+class GraphNode;
+
 enum class VarType {
 	T_Int,
 	T_Float,
@@ -16,6 +19,12 @@ enum class VarType {
 	T_Object,  // for other python objects/classes
 	T_Unknown
 };
+
+struct PythonVar {
+	std::string name;
+	std::string type;
+};
+
 
 std::string VarTypeToString(VarType type);
 
@@ -34,6 +43,7 @@ public:
 	static ScriptHost* m_Host;
 	void Load(std::string name);
 	void* CreateInstance(std::string name);
+	void* CreateComponentInstance(std::string name,void* cpp);
 	void TestFunc(void* inst,std::string name);
 	void callFunc(void* obj, const std::string& method_name, const Pars& pars);
 	int GetInt(void* inst, std::string name);
@@ -49,7 +59,10 @@ public:
 	void SetIntPtr(void* inst,const std::string& name,void* val);
 	void SetPtr(void* inst, const std::string& name, uintptr_t value);
 	void SetClass(void* inst, const std::string& name, void* classPtr);
+	void SetGraphNode(void* inst,const std::string& name, GraphNode* node);
+	GraphNode* GetGraphNode(void* inst, const std::string& name);
 	std::unordered_map<std::string, VarType> GetVarNames(void* inst);
+	std::vector<PythonVar> GetVarDetails(void* inst);
 
 
 private:

@@ -4,11 +4,16 @@
 #include <QStyle>
 #include <QStyleOption>
 #include <algorithm>
-#include "SCeneView.h"
+#include "SceneView.h"
 #include "CameraComponent.h"
 #include "LightComponent.h"
 #include "StaticMeshComponent.h"
 #include "SkeletalMeshComponent.h"
+#include "Importer.h"
+#include <QMimeData>
+#include <QDrag>
+#include <QPainter>
+#include <functional> // Required for std::function
 
 NodeTree* NodeTree::m_Instance = nullptr;
 
@@ -18,10 +23,7 @@ NodeTree::NodeTree(QWidget* parent)
     , m_SelectedNode(nullptr)
     , m_ScrollY(0)
     , m_ContentHeight(0)
-    , m_IsDragging(false)
-    , m_DragNode(nullptr)
     , m_PotentialDragNode(nullptr)
-    , m_DropTargetNode(nullptr)
     , m_DropIndicatorY(-1)
     , m_ShowDropIndicator(false)
 {
@@ -41,7 +43,7 @@ NodeTree::NodeTree(QWidget* parent)
     // Create vertical scroll bar
     m_VerticalScrollBar = new QScrollBar(Qt::Vertical, this);
     m_VerticalScrollBar->hide();
-    connect(m_VerticalScrollBar, &QScrollBar::valueChanged, this,&NodeTree::ScrollTo);
+    connect(m_VerticalScrollBar, &QScrollBar::valueChanged, this, &NodeTree::ScrollTo);
 
     EntityIcon = QIcon("Edit/Icons/TreeEntity.png");
     LightIcon = QIcon("edit/icons/treelight.png");
@@ -89,24 +91,28 @@ void NodeTree::BuildTreeItemsRecursive(GraphNode* node, int depth, std::vector<T
 {
     if (!node) return;
 
-    TreeItem item(node, depth);
-    // Check if node is open (default to true for root, false for others)
-    auto it = m_NodeOpenStates.find(node);
-    if (it != m_NodeOpenStates.end()) {
-        item.expanded = it->second;
+    if (node->GetHideFromEditor()) {
     }
     else {
-        item.expanded = (depth == 0); // Root starts open, others start closed
-        m_NodeOpenStates[node] = item.expanded;
-    }
+        TreeItem item(node, depth);
+        // Check if node is open (default to true for root, false for others)
+        auto it = m_NodeOpenStates.find(node);
+        if (it != m_NodeOpenStates.end()) {
+            item.expanded = it->second;
+        }
+        else {
+            item.expanded = (depth == 0); // Root starts open, others start closed
+            m_NodeOpenStates[node] = item.expanded;
+        }
 
-    items.push_back(item);
+        items.push_back(item);
 
-    // Add children if expanded
-    if (item.expanded) {
-        auto children = node->GetNodes();
-        for (GraphNode* child : children) {
-            BuildTreeItemsRecursive(child, depth + 1, items);
+        // Add children if expanded
+        if (item.expanded) {
+            auto children = node->GetNodes();
+            for (GraphNode* child : children) {
+                BuildTreeItemsRecursive(child, depth + 1, items);
+            }
         }
     }
 }
@@ -151,13 +157,7 @@ void NodeTree::paintEvent(QPaintEvent* event)
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
 
-    // Fill background
-    //painter.fillRect(rect(), m_BackgroundColor);
-
-    // Set up clipping
     painter.setClipRect(event->rect());
-
-    // Translate for scrolling
     painter.translate(0, -m_ScrollY);
 
     // Draw connections first
@@ -168,23 +168,34 @@ void NodeTree::paintEvent(QPaintEvent* event)
         if (item.y_position + ITEM_HEIGHT >= m_ScrollY &&
             item.y_position <= m_ScrollY + height()) {
 
-            // Don't draw the item being dragged with normal appearance
-            bool isBeingDragged = (m_IsDragging && item.node == m_DragNode);
+            bool isBeingDragged = m_isInternalDragActive && item.node == m_DraggedNode;
             bool isSelected = (item.node == m_SelectedNode && !isBeingDragged);
+            bool isExternalDropTarget = (m_ExternalDropTargetNode == item.node);
 
             if (isBeingDragged) {
-                // Draw dragged item with reduced opacity
+                // Draw "ghost" of item being moved internally
                 painter.setOpacity(0.5);
                 DrawTreeItem(painter, item, false);
                 painter.setOpacity(1.0);
             }
             else {
+                // Draw backgrounds first (drop target, then selection)
+                if (isExternalDropTarget) {
+                    QColor highlightColor = m_SelectionColor;
+                    highlightColor.setAlpha(100); // Semi-transparent highlight
+                    painter.fillRect(item.bounds, highlightColor);
+                }
+                if (isSelected) {
+                    painter.fillRect(item.bounds, m_SelectionColor);
+                }
+
+                // Draw the item content (expander, icon, text)
                 DrawTreeItem(painter, item, isSelected);
             }
         }
     }
 
-    // Draw drop indicator
+    // Draw the line indicator for internal re-ordering
     if (m_ShowDropIndicator) {
         DrawDropIndicator(painter);
     }
@@ -194,141 +205,60 @@ void NodeTree::DrawTreeItem(QPainter& painter, const TreeItem& item, bool isSele
 {
     QRect itemRect = item.bounds;
 
-    // Draw selection background
     if (isSelected) {
         painter.fillRect(itemRect, m_SelectionColor);
     }
 
-    // Draw expander for nodes with children
-    auto children = item.node->GetNodes();
-    if (!children.empty()) {
+    // --- Draw Expander ---
+    if (!item.node->GetNodes().empty()) {
         QRect expanderRect(item.depth * INDENT_SIZE + 4, item.y_position + 4, ICON_SIZE, ICON_SIZE);
-
         painter.setPen(QPen(m_ExpanderColor, 2));
         painter.setBrush(Qt::NoBrush);
 
-        // Draw triangle (expanded) or square (collapsed)
-        if (item.expanded) {
-            // Draw down-pointing triangle
-            QPolygon triangle;
-            triangle << QPoint(expanderRect.left() + 2, expanderRect.top() + 4);
-            triangle << QPoint(expanderRect.right() - 2, expanderRect.top() + 4);
-            triangle << QPoint(expanderRect.center().x(), expanderRect.bottom() - 2);
-            painter.drawPolygon(triangle);
+        QPolygon triangle;
+        if (item.expanded) { // Down-pointing triangle
+            triangle << QPoint(expanderRect.left() + 2, expanderRect.top() + 4)
+                << QPoint(expanderRect.right() - 2, expanderRect.top() + 4)
+                << QPoint(expanderRect.center().x(), expanderRect.bottom() - 2);
         }
-        else {
-            // Draw right-pointing triangle
-            QPolygon triangle;
-            triangle << QPoint(expanderRect.left() + 4, expanderRect.top() + 2);
-            triangle << QPoint(expanderRect.left() + 4, expanderRect.bottom() - 2);
-            triangle << QPoint(expanderRect.right() - 2, expanderRect.center().y());
-            painter.drawPolygon(triangle);
+        else { // Right-pointing triangle
+            triangle << QPoint(expanderRect.left() + 4, expanderRect.top() + 2)
+                << QPoint(expanderRect.left() + 4, expanderRect.bottom() - 2)
+                << QPoint(expanderRect.right() - 2, expanderRect.center().y());
         }
+        painter.drawPolygon(triangle);
     }
 
-    // Draw node icon based on components
-    int iconSize = 12;  // Increased size for better visibility
+    // --- Draw Icon ---
+    int iconSize = 12;
     int iconY = item.y_position + (ITEM_HEIGHT - iconSize) / 2;
-    QRect iconRect(item.depth * INDENT_SIZE + ICON_SIZE + 2, iconY-6, iconSize+8, iconSize+8);
+    QRect iconRect(item.depth * INDENT_SIZE + ICON_SIZE + 6, iconY, ICON_SIZE, ICON_SIZE);
 
-    // Determine icon type and color based on components
-    bool hasStaticMesh = (item.node->GetComponent<StaticMeshComponent>() != nullptr);
-    bool hasCamera = (item.node->GetComponent<CameraComponent>() != nullptr);
-    bool hasLight = (item.node->GetComponent<LightComponent>() != nullptr);
+    bool hasCamera = item.node->GetComponent<CameraComponent>() != nullptr;
+    bool hasLight = item.node->GetComponent<LightComponent>() != nullptr;
+    bool hasMesh = item.node->GetComponent<StaticMeshComponent>() != nullptr || item.node->GetComponent<SkeletalMeshComponent>() != nullptr;
 
-    painter.setBrush(Qt::NoBrush);  // No fill for wireframe
-
-    if (hasCamera) {
-        // Draw camera icon
-        painter.setPen(QPen(QColor(200, 200, 200), 1));  // Light gray color
-
-        // Camera body (main rectangle)
-        QRect cameraBody = iconRect.adjusted(2, 3, -2, -3);
-        painter.drawRect(cameraBody);
-
-        // Camera lens (circle)
-        QRect lens(iconRect.center().x() - 2, iconRect.center().y() - 2, 4, 4);
-        painter.drawEllipse(lens);
-
-        // Camera viewfinder (small rectangle on top)
-        QRect viewfinder(iconRect.center().x() - 1, iconRect.top() + 1, 2, 2);
-        painter.drawRect(viewfinder);
-    }
-    else if (hasLight) {
-        // Draw light bulb icon
-        painter.setPen(QPen(QColor(255, 255, 100), 2));  // Yellow color
-
-        // Light bulb (circle for the bulb)
-        QRect bulb(iconRect.center().x() - 3, iconRect.top() + 2, 6, 6);
-      //  painter.drawEllipse(bulb);
-
-        // Light base (small rectangle)
-        QRect base(iconRect.center().x() - 2, iconRect.bottom() - 3, 4, 2);
-        //painter.drawRect(base);
-
+    if (hasLight) {
         LightIcon.paint(&painter, iconRect);
-
-        // Light rays (small lines extending from bulb)
-        //painter.drawLine(iconRect.center().x() - 6, iconRect.center().y(),
-       //     iconRect.center().x() - 4, iconRect.center().y());
-       // painter.drawLine(iconRect.center().x() + 4, iconRect.center().y(),
-       //     iconRect.center().x() + 6, iconRect.center().y());
-       // painter.drawLine(iconRect.center().x(), iconRect.center().y() - 6,
-        //    iconRect.center().x(), iconRect.center().y() - 4);
     }
-    else if (hasStaticMesh) {
-        // Draw blue 3D box for static mesh
-        painter.setPen(QPen(QColor(100, 149, 237), 1));  // Cornflower blue
-
-        // Draw main box outline
-        //painter.drawRect(iconRect);
-
-        // Draw additional lines to give it a 3D wireframe appearance
-        int offset = 2;
-        QRect backRect = iconRect.adjusted(offset, -offset, offset, -offset);
-        //painter.drawRect(backRect);
-        EntityIcon.paint(&painter, iconRect);
-
-        // Connect the corners to create 3D effect
-        //painter.drawLine(iconRect.topLeft(), backRect.topLeft());
-        //painter.drawLine(iconRect.topRight(), backRect.topRight());
-        //painter.drawLine(iconRect.bottomLeft(), backRect.bottomLeft());
-       // painter.drawLine(iconRect.bottomRight(), backRect.bottomRight());
-
+    else if (hasCamera) {
+        // You can create a CameraIcon here if you have one
+        // For now, drawing a primitive
+        painter.setPen(QPen(QColor(200, 200, 200), 1));
+        painter.drawRect(iconRect.adjusted(2, 3, -2, -3));
+        painter.drawEllipse(iconRect.center().x() - 2, iconRect.center().y() - 2, 4, 4);
     }
     else {
-        // Default green wireframe box for nodes without specific components
-        painter.setPen(QPen(QColor(144, 238, 144), 1));  // Light green color
-
-        // Smaller default icon
-        iconSize = 9;
-        iconRect = QRect(item.depth * INDENT_SIZE + ICON_SIZE + 8,
-            item.y_position + (ITEM_HEIGHT - iconSize) / 2, iconSize, iconSize);
-
-        // Draw main box outline
-//        painter.drawRect(iconRect);
-
-        // Draw additional lines to give it a 3D wireframe appearance
-        int offset = 2;
-        QRect backRect = iconRect.adjusted(offset, -offset, offset, -offset);
-        painter.drawRect(backRect);
-
-        // Connect the corners to create 3D effect
-        painter.drawLine(iconRect.topLeft(), backRect.topLeft());
-        painter.drawLine(iconRect.topRight(), backRect.topRight());
-        painter.drawLine(iconRect.bottomLeft(), backRect.bottomLeft());
-        painter.drawLine(iconRect.bottomRight(), backRect.bottomRight());
+        // Default icon for entities with/without meshes
+        EntityIcon.paint(&painter, iconRect);
     }
 
-    // Draw text
-    QRect textRect(iconRect.right() + 8, item.y_position - 2,
-        itemRect.width() - (iconRect.right() + 4), ITEM_HEIGHT);
-
+    // --- Draw Text ---
+    QRect textRect(iconRect.right() + TEXT_MARGIN, item.y_position,
+        itemRect.width() - (iconRect.right() + TEXT_MARGIN), ITEM_HEIGHT);
     painter.setPen(isSelected ? palette().color(QPalette::HighlightedText) : m_TextColor);
     painter.setFont(font());
-
-    QString nodeText = QString::fromStdString(item.node->GetName());
-    painter.drawText(textRect, Qt::AlignLeft | Qt::AlignVCenter, nodeText);
+    painter.drawText(textRect, Qt::AlignLeft | Qt::AlignVCenter, QString::fromStdString(item.node->GetName()));
 }
 
 void NodeTree::DrawConnections(QPainter& painter)
@@ -406,42 +336,20 @@ void NodeTree::mousePressEvent(QMouseEvent* event)
 {
     if (event->button() == Qt::LeftButton) {
         TreeItem* item = GetItemAtPosition(event->pos());
-        if (item) {
-            // Always set the selected node when clicking on any part of the item
-            m_SelectedNode = item->node;
-            emit NodeSelected(m_SelectedNode);
+        // Set up for a potential drag or selection-on-release.
+        m_PotentialDragNode = item ? item->node : nullptr;
+        m_DragStartPos = event->pos();
 
-            // Store potential drag start info - ONLY if we clicked on an actual item
-            m_DragStartPos = event->pos();
-            m_LastMousePos = event->pos();
-            m_PotentialDragNode = item->node;  // Store which node we might drag
-
-            // Check if clicked to the left of the text (expander area)
-            auto children = item->node->GetNodes();
-            if (!children.empty()) {
-                // Calculate the text start position
-                int textStartX = item->depth * INDENT_SIZE + ICON_SIZE + 8 + ICON_SIZE + TEXT_MARGIN;
-
-                // If clicked to the left of the text, toggle open/close state
-                if (event->pos().x() < textStartX) {
-                    // Toggle the open/close state
-                    bool currentState = m_NodeOpenStates[item->node];
-                    m_NodeOpenStates[item->node] = !currentState;
-
-                    // Rebuild the tree with new states
-                    BuildTreeItems();
-                    UpdateLayout();
-                    UpdateScrollBars();
-                }
+        // Handle expand/collapse immediately as it doesn't affect selection logic.
+        if (item && !item->node->GetNodes().empty()) {
+            int textStartX = item->depth * INDENT_SIZE + ICON_SIZE + 8 + ICON_SIZE + TEXT_MARGIN;
+            if (event->pos().x() < textStartX) {
+                m_NodeOpenStates[item->node] = !m_NodeOpenStates[item->node];
+                BuildTreeItems();
+                UpdateLayout();
+                UpdateScrollBars();
+                update(); // need to redraw after expand/collapse
             }
-
-            update();
-        }
-        else {
-            // Clicked in blank space - clear selection but don't set up for dragging
-            m_SelectedNode = nullptr;
-            m_PotentialDragNode = nullptr;
-            update();
         }
     }
 
@@ -450,62 +358,75 @@ void NodeTree::mousePressEvent(QMouseEvent* event)
 
 void NodeTree::mouseMoveEvent(QMouseEvent* event)
 {
-    if (event->buttons() & Qt::LeftButton && m_PotentialDragNode && !m_IsDragging) {
-        // Check if we've moved far enough to start dragging
-        int distance = (event->pos() - m_DragStartPos).manhattanLength();
-        if (distance >= DRAG_THRESHOLD && m_PotentialDragNode != m_RootNode) {
-            // Only start drag if the current mouse position is still over a tree item
-            TreeItem* currentItem = GetItemAtPosition(event->pos());
-            if (currentItem) {
-                StartDrag(m_PotentialDragNode, m_DragStartPos);
-            }
+    if ((event->buttons() & Qt::LeftButton) && m_PotentialDragNode) {
+        // Check if the mouse has moved far enough to be considered a drag
+        if ((event->pos() - m_DragStartPos).manhattanLength() >= DRAG_THRESHOLD) {
+            // Do not allow the root node to be dragged
+            if (m_PotentialDragNode == m_RootNode) return;
+
+            // A drag is starting. The potential drag node is now the actively dragged node.
+            m_DraggedNode = m_PotentialDragNode;
+            // Clear potential node so mouseRelease doesn't trigger a selection.
+            m_PotentialDragNode = nullptr;
+
+            // --- Initiate a Standard Qt Drag Operation ---
+            QDrag* drag = new QDrag(this);
+            QMimeData* mimeData = new QMimeData();
+
+            // We pass the memory address of the node being dragged.
+            qulonglong nodeAddress = reinterpret_cast<qulonglong>(m_DraggedNode);
+            mimeData->setData("application/x-graphnode", QByteArray::number(nodeAddress));
+            drag->setMimeData(mimeData);
+
+            // Create a pixmap to visualize the item being dragged
+            QPixmap pixmap(width(), ITEM_HEIGHT);
+            pixmap.fill(Qt::transparent);
+            QPainter painter(&pixmap);
+            // Find the item corresponding to the dragged node to draw it
+            auto it = std::find_if(m_TreeItems.begin(), m_TreeItems.end(),
+                [this](const TreeItem& item) { return item.node == m_DraggedNode; });
+            if (it != m_TreeItems.end()) DrawTreeItem(painter, *it, true);
+            drag->setPixmap(pixmap);
+            drag->setHotSpot(QPoint(10, ITEM_HEIGHT / 2));
+
+            // This is a blocking call. The drag operation starts here.
+            m_isInternalDragActive = true;
+            drag->exec(Qt::MoveAction);
+            m_isInternalDragActive = false;
+
+            // Clean up the dragged node pointer after the drag is complete
+            m_DraggedNode = nullptr;
         }
     }
-
-    if (m_IsDragging) {
-        m_LastMousePos = event->pos();
-
-        // Find drop target
-        TreeItem* item = GetItemAtPosition(event->pos());
-        if (item && CanDropOn(m_DragNode, item->node)) {
-            m_DropTargetNode = item->node;
-            m_DropIndicatorY = item->y_position + ITEM_HEIGHT;
-            m_ShowDropIndicator = true;
-        }
-        else {
-            m_DropTargetNode = nullptr;
-            m_ShowDropIndicator = false;
-        }
-
-        update();
-    }
-
     QWidget::mouseMoveEvent(event);
 }
 
 void NodeTree::mouseReleaseEvent(QMouseEvent* event)
 {
     if (event->button() == Qt::LeftButton) {
-        if (m_IsDragging) {
-            // Perform drop if we have a valid target
-            if (m_DropTargetNode && CanDropOn(m_DragNode, m_DropTargetNode)) {
-                PerformDrop(m_DragNode, m_DropTargetNode);
+        // If m_PotentialDragNode is not null, a drag didn't start. This is a click.
+        if (m_PotentialDragNode) {
+            // Select the node that was clicked.
+            if (m_SelectedNode != m_PotentialDragNode) {
+                m_SelectedNode = m_PotentialDragNode;
+                NodeSelected(m_SelectedNode); // Direct call instead of emit
             }
-
-            // Reset drag state
-            m_IsDragging = false;
-            m_DragNode = nullptr;
-            m_DropTargetNode = nullptr;
-            m_ShowDropIndicator = false;
-            unsetCursor(); // or setCursor(Qt::ArrowCursor);
-
             update();
         }
-
-        // Clear potential drag node
+        else {
+            // m_PotentialDragNode is null. This can happen if a drag occurred,
+            // or if the user clicked on empty space.
+            // If it was a click on empty space, we deselect.
+            TreeItem* item = GetItemAtPosition(event->pos());
+            if (item == nullptr && m_SelectedNode != nullptr) {
+                m_SelectedNode = nullptr;
+                NodeSelected(nullptr); // Direct call instead of emit
+                update();
+            }
+        }
+        // Always clear the potential drag node state on release.
         m_PotentialDragNode = nullptr;
     }
-
     QWidget::mouseReleaseEvent(event);
 }
 
@@ -539,14 +460,6 @@ void NodeTree::resizeEvent(QResizeEvent* event)
     QWidget::resizeEvent(event);
 }
 
-void NodeTree::StartDrag(GraphNode* node, const QPoint& startPos)
-{
-    if (!node || node == m_RootNode) return;
-
-    m_IsDragging = true;
-    m_DragNode = node;
-    setCursor(Qt::ClosedHandCursor);
-}
 
 bool NodeTree::CanDropOn(GraphNode* dragNode, GraphNode* dropTarget)
 {
@@ -598,35 +511,124 @@ void NodeTree::RemoveNodeFromParent(GraphNode* node)
     GraphNode* parent = node->GetRootNode();
     if (!parent) return;
 
-    // Use the new RemoveNode method (preferred solution)
     parent->RemoveNode(node);
 }
 
-// Drag and drop event handlers (for external drops, if needed in future)
 void NodeTree::dragEnterEvent(QDragEnterEvent* event)
 {
-    // For now, only accept internal drags
-    event->acceptProposedAction();
+    // Check for internal drag type
+    if (event->mimeData()->hasFormat("application/x-graphnode")) {
+        event->acceptProposedAction();
+        return;
+    }
+    // Check for external file drag type
+    if (event->mimeData()->hasText()) {
+        QString path = event->mimeData()->text();
+        if (path.endsWith(".fbx", Qt::CaseInsensitive) || path.endsWith(".gltf", Qt::CaseInsensitive)) {
+            event->acceptProposedAction();
+            return;
+        }
+    }
+    event->ignore();
 }
 
 void NodeTree::dragMoveEvent(QDragMoveEvent* event)
 {
-    event->acceptProposedAction();
+    m_ShowDropIndicator = false;
+    m_ExternalDropTargetNode = nullptr;
+
+    if (event->mimeData()->hasFormat("application/x-graphnode")) {
+        TreeItem* item = GetItemAtPosition(event->position().toPoint());
+        GraphNode* dropTargetNode = item ? item->node : m_RootNode;
+
+        bool ok;
+        qulonglong addr = event->mimeData()->data("application/x-graphnode").toULongLong(&ok);
+        GraphNode* dragNode = ok ? reinterpret_cast<GraphNode*>(addr) : nullptr;
+
+        if (CanDropOn(dragNode, dropTargetNode)) {
+            if (item) {
+                m_DropIndicatorY = item->y_position + ITEM_HEIGHT;
+                m_ShowDropIndicator = true;
+            }
+            event->acceptProposedAction();
+        }
+        else {
+            event->ignore();
+        }
+    }
+    else if (event->mimeData()->hasText()) {
+        TreeItem* item = GetItemAtPosition(event->position().toPoint());
+        if (item) {
+            m_ExternalDropTargetNode = item->node;
+        }
+        event->acceptProposedAction();
+    }
+    else {
+        event->ignore();
+    }
+
+    update();
 }
 
 void NodeTree::dragLeaveEvent(QDragLeaveEvent* event)
 {
     m_ShowDropIndicator = false;
+    m_ExternalDropTargetNode = nullptr;
     update();
     event->accept();
 }
 
 void NodeTree::dropEvent(QDropEvent* event)
 {
-    event->acceptProposedAction();
+    m_ShowDropIndicator = false;
+    m_ExternalDropTargetNode = nullptr;
+    if (event->mimeData()->hasFormat("application/x-graphnode")) {
+        bool ok;
+        qulonglong addr = event->mimeData()->data("application/x-graphnode").toULongLong(&ok);
+        if (!ok) { event->ignore(); update(); return; }
+
+        GraphNode* dragNode = reinterpret_cast<GraphNode*>(addr);
+        TreeItem* targetItem = GetItemAtPosition(event->position().toPoint());
+        GraphNode* dropTargetNode = targetItem ? targetItem->node : m_RootNode;
+
+        if (CanDropOn(dragNode, dropTargetNode)) {
+            PerformDrop(dragNode, dropTargetNode);
+            event->acceptProposedAction();
+        }
+        else {
+            event->ignore();
+        }
+    }
+    else if (event->mimeData()->hasText()) {
+        QString fullPath = event->mimeData()->text();
+        if (fullPath.endsWith(".fbx", Qt::CaseInsensitive) || fullPath.endsWith(".gltf", Qt::CaseInsensitive)) {
+            GraphNode* importedNode = Importer::ImportEntity(fullPath.toStdString());
+            if (importedNode) {
+                TreeItem* targetItem = GetItemAtPosition(event->position().toPoint());
+                GraphNode* parentNode = targetItem ? targetItem->node : m_RootNode;
+
+                parentNode->AddNode(importedNode);
+                m_NodeOpenStates[parentNode] = true;
+
+                BuildTreeItems();
+                UpdateLayout();
+                UpdateScrollBars();
+                emit NodeStructureChanged();
+            }
+            event->acceptProposedAction();
+        }
+        else {
+            event->ignore();
+        }
+    }
+    else {
+        event->ignore();
+    }
+    update();
 }
 
 void NodeTree::NodeSelected(GraphNode* node)
 {
+    // This implementation now matches the original one.
     SceneView::m_Instance->SelectNode(node);
 }

@@ -5,17 +5,15 @@
 void ScriptComponent::SetScript(std::string path, std::string name) {
 
 	ScriptHost::m_Host->Load(path);
-	m_ComponentPy = ScriptHost::m_Host->CreateInstance(name);
+	m_ComponentPy = ScriptHost::m_Host->CreateComponentInstance(name,m_Owner);
 	
 
 	void* o = (void*)m_Owner;
 	//PyClass pyclass_obj(reinterpret_cast<uintptr_t>(o));
 	Pars p(reinterpret_cast<uintptr_t>(o));
 
+	m_Name = name;
 
-	ScriptHost::m_Host->callFunc(m_ComponentPy, "SetNode",p);
-
-	m_Name = ScriptHost::m_Host->GetString(m_ComponentPy, "name");
 
 	//ScriptHost::m_Host->callFunc(m_ComponentPy, "Update", Pars(0.1f));
 
@@ -103,6 +101,32 @@ void ScriptComponent::OnStop() {
 
 }
 
+std::vector<ScriptVar> ScriptComponent::GetPythonVars() {
+
+	auto vals = ScriptHost::m_Host->GetVarDetails(m_ComponentPy);
+	std::vector<ScriptVar> res;
+	for (auto v : vals) {
+
+		ScriptVar nv;
+		nv.name = v.name;
+
+		if (v.type == "str")
+		{
+			nv.type = SVarType::VT_String;
+			//continue;
+		}
+		else {
+			nv.type = SVarType::VT_Object;
+			nv.cls = v.type;
+			//if(v.type == "")
+		}
+		res.push_back(nv);
+	}
+
+
+	return res;
+}
+
 std::vector<ScriptVar> ScriptComponent::GetVars() {
 
 	auto vals = ScriptHost::m_Host->GetVarNames(m_ComponentPy);
@@ -122,6 +146,9 @@ std::vector<ScriptVar> ScriptComponent::GetVars() {
 			break;
 		case VarType::T_String:
 			var.type = SVarType::VT_String;
+			break;
+		case VarType::T_Object:
+			var.type = SVarType::VT_Object;
 			break;
 		default:
 			var.type = SVarType::VT_Unknown;
@@ -223,4 +250,15 @@ void ScriptComponent::Pop() {
 	
 	}
 
+}
+
+void ScriptComponent::SetNode(std::string name, GraphNode* node) {
+
+	ScriptHost::m_Host->SetGraphNode(m_ComponentPy, name, node);
+
+}
+
+GraphNode* ScriptComponent::GetNode(std::string name)
+{
+	return ScriptHost::m_Host->GetGraphNode(m_ComponentPy, name);
 }

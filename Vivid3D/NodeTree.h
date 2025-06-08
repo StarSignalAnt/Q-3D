@@ -51,6 +51,9 @@ protected:
     void dragLeaveEvent(QDragLeaveEvent* event) override;
     void dropEvent(QDropEvent* event) override;
 
+    // Node selection is a virtual method to be implemented by subclass or directly
+    virtual void NodeSelected(GraphNode* node);
+
 private:
     struct TreeItem {
         GraphNode* node;
@@ -72,27 +75,25 @@ private:
     void ScrollTo(int y);
 
     // Drag and drop helper functions
-    void StartDrag(GraphNode* node, const QPoint& startPos);
+
     bool CanDropOn(GraphNode* dragNode, GraphNode* dropTarget);
     void PerformDrop(GraphNode* dragNode, GraphNode* dropTarget);
     void RemoveNodeFromParent(GraphNode* node);
     void DrawDropIndicator(QPainter& painter);
 
-    // Override this method to handle node selection
-    virtual void NodeSelected(GraphNode* node);
-
+    bool m_isInternalDragActive = false;
     GraphNode* m_RootNode;
     GraphNode* m_SelectedNode;
+    GraphNode* m_DraggedNode = nullptr; // The node currently being dragged
     std::vector<TreeItem> m_TreeItems;
     std::unordered_map<GraphNode*, bool> m_NodeOpenStates;
 
     // Drag and drop state
-    bool m_IsDragging;
-    GraphNode* m_DragNode;
+    GraphNode* m_ExternalDropTargetNode = nullptr;
     GraphNode* m_PotentialDragNode;  // Node that might be dragged if threshold is met
     QPoint m_DragStartPos;
-    QPoint m_LastMousePos;
-    GraphNode* m_DropTargetNode;
+
+
     int m_DropIndicatorY;
     bool m_ShowDropIndicator;
 

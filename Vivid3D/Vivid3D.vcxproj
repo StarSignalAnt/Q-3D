@@ -138,6 +138,7 @@
     <ClCompile Include="PropertyFloat.cpp" />
     <ClCompile Include="PropertyHeader.cpp" />
     <ClCompile Include="PropertyInt.cpp" />
+    <ClCompile Include="PropertyNode.cpp" />
     <ClCompile Include="PropertySlider.cpp" />
     <ClCompile Include="PropertyStringList.cpp" />
     <ClCompile Include="PropertyText.cpp" />
@@ -184,6 +185,7 @@
     <QtMoc Include="ContentBrowser.h" />
     <QtMoc Include="Content.h" />
     <QtMoc Include="PropertyStringList.h" />
+    <QtMoc Include="PropertyNode.h" />
     <ClInclude Include="RotateGizmo.h" />
     <ClInclude Include="ScaleGizmo.h" />
     <ClInclude Include="SceneGizmo.h" />

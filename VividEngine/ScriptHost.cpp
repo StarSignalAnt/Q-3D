@@ -16,6 +16,7 @@
 #include "GameInput.h"
 #include "GameAudio.h"
 #include "SceneGraph.h"
+#include "ScriptComponent.h"
 
 namespace py = pybind11;
 
@@ -362,6 +363,91 @@ void sf_Stop() {
 }
 
 
+py::object sf_GetRootNode(uintptr_t scene) {
+
+
+    SceneGraph* graph = reinterpret_cast<SceneGraph*>(scene);
+    int b = 5;
+    py::object nodeClass = py::module_::import("__main__").attr("GraphNode"); // Replace with actual module name
+    auto root = graph->GetRootNode();
+
+
+
+    py::object res = nodeClass(root->GetName());
+    res.attr("cpp") = reinterpret_cast<std::uintptr_t>(root);
+
+
+    // Pass by value (copy of py::object)
+    ScriptHost::m_Host->callFunc(&res, "Populate", Pars());
+
+    return res;
+}
+
+int sf_GetNodeCount(py::object node)
+{
+    //GraphNode* onode = reinterpret_cast<GraphNode*>(node);
+    
+    uintptr_t p = (uintptr_t)node.attr("cpp").cast<uintptr_t>();
+
+    GraphNode* onode = reinterpret_cast<GraphNode*>(p);
+    int a = 5;
+
+    //return onode->GetNodes().size();
+    return onode->GetNodes().size();
+
+}
+
+py::object sf_GetSubNode(py::object node, int index)
+{
+    uintptr_t p = (uintptr_t)node.attr("cpp").cast<uintptr_t>();
+
+    GraphNode* onode = reinterpret_cast<GraphNode*>(p);
+    
+    py::object nodeClass = py::module_::import("__main__").attr("GraphNode"); // Replace with actual module name
+    auto root = onode->GetNodes()[index];
+
+    py::object res = nodeClass(root->GetName());
+
+    res.attr("cpp") = reinterpret_cast<std::uintptr_t>(root);
+
+ 
+
+    
+    return res;
+
+}
+
+
+void sf_SetBodyType(py::object node, int type)
+{
+    uintptr_t p = (uintptr_t)node.attr("cpp").cast<uintptr_t>();
+
+    GraphNode* onode = reinterpret_cast<GraphNode*>(p);
+
+    onode->SetBody((BodyType)type);
+
+}
+
+py::object sf_GetComponent(uintptr_t node,std::string comp)
+{
+ 
+    GraphNode* onode = reinterpret_cast<GraphNode*>(node);
+    int b = 5;
+    for (auto com : onode->GetComponents<ScriptComponent>())
+    {
+        if (com->GetName() == comp) {
+
+            auto inst = com->GetInstance();
+            py::object* inst1 = static_cast<py::object*>(inst);
+
+            py::object ii = *inst1;
+            return ii;
+
+
+        }
+    }
+}
+
 void InitNodeScript() {
 
     addFunction("updateGraphNode", sf_UpdateGraphNode);
@@ -380,6 +466,11 @@ void InitNodeScript() {
     addFunction("getScene", sf_GetScene);
     addFunction("rayCast", sf_RayCast);
     addFunction("stop", sf_Stop);
+    addFunction("getRootNode", sf_GetRootNode);
+    addFunction("getNodeCount", sf_GetNodeCount);
+    addFunction("getSubNode", sf_GetSubNode);
+    addFunction("setBodyType", sf_SetBodyType);
+    addFunction("getComponent", sf_GetComponent);
 }
 
 ScriptHost::ScriptHost() {
@@ -436,6 +527,20 @@ void ScriptHost::Load(std::string path) {
 
     LoadRun(path);
 
+}
+void* ScriptHost::CreateComponentInstance(std::string name, void* cp) {
+
+    py::object my_custom_node_class = py::globals()[name.c_str()];
+    auto ii = reinterpret_cast<uintptr_t>(cp);
+
+    py::object* my_custom_node_instance = new py::object(my_custom_node_class(ii,name));
+
+
+    //*my_custom_node_class.attr() = reinterpret_cast<uintptr_t>(cp);
+
+
+
+    return static_cast<void*>(my_custom_node_instance);
 }
 
 void* ScriptHost::CreateInstance(std::string name) {
@@ -521,6 +626,44 @@ std::string ScriptHost::GetString(void* inst, const std::string& name) {
     return attr.cast<std::string>();              // Cast attribute to std::string and return
 }
 
+GraphNode* ScriptHost::GetGraphNode(void* inst, const std::string& name) {
+
+    py::object* inst1 = static_cast<py::object*>(inst);
+
+    py::object ii = *inst1;
+
+    
+
+    uintptr_t node = ii.attr(name.c_str()).attr("cpp").cast<uintptr_t>();
+
+    if (node == 0) {
+        return nullptr;
+    }
+
+    GraphNode* node2 = reinterpret_cast<GraphNode*>(node);
+
+
+    return node2;
+}
+
+void ScriptHost::SetGraphNode(void* inst, const std::string& name, GraphNode* node) {
+
+    py::object nodeClass = py::module_::import("__main__").attr("GraphNode"); // Replace with actual module name
+    auto root = node;
+
+    py::object res = nodeClass(root->GetName());
+
+    res.attr("cpp") = reinterpret_cast<std::uintptr_t>(root);
+
+    py::object* inst1 = static_cast<py::object*>(inst);
+
+    py::object ii = *inst1;
+    
+    ii.attr(name.c_str()) = res;
+        
+
+}
+
 void* ScriptHost::GetClass(void* inst, const std::string& name) {
     py::object* pyObjPtr = static_cast<py::object*>(inst);
     py::object& pyObj = *pyObjPtr;
@@ -554,6 +697,40 @@ bool ScriptHost::GetBool(void* inst, const std::string& name) {
 
 
 
+std::vector<PythonVar> ScriptHost::GetVarDetails(void* inst) {
+    // Cast the void pointer back to a py::object pointer.
+    py::object* pyObjPtr = static_cast<py::object*>(inst);
+    if (!pyObjPtr) {
+        return {}; // Return an empty vector if the pointer is null.
+    }
+    py::object& pyObj = *pyObjPtr;
+
+    std::vector<PythonVar> result;
+
+    // Check if the object has a __dict__ attribute before accessing it.
+    if (!py::hasattr(pyObj, "__dict__")) {
+        return result; // Not all types (e.g., built-ins) have __dict__.
+    }
+
+    // Get the dictionary of the object's attributes.
+    py::dict attrs = py::getattr(pyObj, "__dict__");
+
+    for (auto item : attrs) {
+        // Extract the attribute name.
+        std::string name = py::str(item.first);
+
+        // Borrow a reference to the attribute's value.
+        py::object val = py::reinterpret_borrow<py::object>(item.second);
+
+        // Get the type's name by accessing val.__class__.__name__ in Python.
+        std::string type_name = py::str(val.attr("__class__").attr("__name__"));
+
+        // Add the new variable information to our list.
+        result.push_back({ name, type_name });
+    }
+
+    return result;
+}
 std::unordered_map<std::string, VarType> ScriptHost::GetVarNames(void* inst) {
     py::object* pyObjPtr = static_cast<py::object*>(inst);
     py::object& pyObj = *pyObjPtr;

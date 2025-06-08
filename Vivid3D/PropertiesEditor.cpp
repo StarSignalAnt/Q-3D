@@ -5,142 +5,35 @@
 #include "PropertySlider.h"
 #include "PropertyFloat.h"
 #include "PropertyHeader.h"
+#include "PropertyNode.h"
 #include <string>
 #include "GraphNode.h"
 #include "SceneView.h"
 #include "ScriptComponent.h"
 #include "LightComponent.h"
-
+#include <QDragEnterEvent>
+#include <QDropEvent>
+#include <QMimeData>
+#include <QDebug>
 PropertiesEditor* PropertiesEditor::m_Instance = nullptr;
 
-PropertiesEditor::PropertiesEditor(QWidget *parent)
-	: QWidget(parent)
+PropertiesEditor::PropertiesEditor(QWidget* parent)
+    : QWidget(parent)
 {
-	//ui.setupUi(this);
-	setAutoFillBackground(true);
-	setWindowTitle("Properties");
-	QPalette pal = palette();
-	pal.setColor(QPalette::Window, QColor("#502020"));
-	setAutoFillBackground(true);
-	setPalette(pal);
-  
+    //ui.setupUi(this);
+    setAutoFillBackground(true);
+    setWindowTitle("Properties");
+    QPalette pal = palette();
+    pal.setColor(QPalette::Window, QColor("#502020"));
+    setAutoFillBackground(true);
+    setPalette(pal);
+    setAcceptDrops(true);
     m_Instance = this;
-    /*
-    BeginUI();
-
-    PropertyHeader* basicHeader = new PropertyHeader("Basic Properties");
-    m_contentLayout->addWidget(basicHeader);
-
-
-    PropertyText* m_nameProp = new PropertyText("Name", "Default Object Name");
-    PropertyText* m_tagProp = new PropertyText("Tag", "Untagged");
-
-    m_contentLayout->addWidget(m_nameProp);
-    m_contentLayout->addWidget(m_tagProp);
-
-    // Connect signals if needed
-    connect(m_nameProp, &PropertyText::textChanged,
-        this, [this](const QString& text) {
-            // Handle name change
-            qDebug() << "Name changed to:" << text;
-        });
-
-    connect(m_tagProp, &PropertyText::textChanged,
-        this, [this](const QString& text) {
-            // Handle tag change
-            qDebug() << "Tag changed to:" << text;
-        });
-
-
-    PropertyHeader* transformHeader = new PropertyHeader("Transform");
-    m_contentLayout->addWidget(transformHeader);
-    // Create property widgets
-    m_positionProp = new PropertyVec3("Position", nullptr);
-    m_scaleProp = new PropertyVec3("Scale",nullptr);
-    m_rotationProp = new PropertyVec3("Rotation",nullptr);
-
-    // Set initial values
-    m_positionProp->setValue(QVector3D(0.0f, 0.0f, 0.0f));
-    m_scaleProp->setValue(QVector3D(1.0f, 1.0f, 1.0f));
-    m_rotationProp->setValue(QVector3D(0.0f, 0.0f, 0.0f));
-
-    // Add properties to layout
-    m_contentLayout->addWidget(m_positionProp);
-    m_contentLayout->addWidget(m_scaleProp);
-    m_contentLayout->addWidget(m_rotationProp);
-
-    PropertySlider* m_opacitySlider = new PropertySlider("Opacity", 0, 100);
-    PropertySlider* m_volumeSlider = new PropertySlider("Volume", 0, 255);
-    PropertySlider* m_qualitySlider = new PropertySlider("Quality", 1, 10);
-
-    // Set initial values
-    m_opacitySlider->setValue(100);  // Full opacity
-    m_volumeSlider->setValue(128);   // Half volume
-    m_qualitySlider->setValue(5);    // Medium quality
-
-    // Add properties to layout
-    m_contentLayout->addWidget(m_opacitySlider);
-    m_contentLayout->addWidget(m_volumeSlider);
-    m_contentLayout->addWidget(m_qualitySlider);
-
-    // Connect signals if needed
-    connect(m_opacitySlider, &PropertySlider::valueChanged,
-        this, [this](int value) {
-            // Handle opacity change
-            qDebug() << "Opacity changed to:" << value;
-        });
-
-    connect(m_volumeSlider, &PropertySlider::valueChanged,
-        this, [this](int value) {
-            // Handle volume change
-            qDebug() << "Volume changed to:" << value;
-        });
-
-    PropertyFloat* m_speedProp = new PropertyFloat("Speed", 0.0, 100.0, 0.1);      // 0-100, step by 0.1
-    PropertyFloat* m_weightProp = new PropertyFloat("Weight", 0.0, 1000.0, 1.0);   // 0-1000, step by 1.0
-    PropertyFloat* m_precisionProp = new PropertyFloat("Precision", 0.0, 1.0, 0.01); // 0-1, step by 0.01
-    PropertyFloat* m_temperatureProp = new PropertyFloat("Temperature", -273.15, 1000.0, 0.5); // Celsius range
-
-    // Set initial values
-    m_speedProp->setValue(10.5);
-    m_weightProp->setValue(75.0);
-    m_precisionProp->setValue(0.85);
-    m_temperatureProp->setValue(20.0);
-
-    // Add properties to layout
-    m_contentLayout->addWidget(m_speedProp);
-    m_contentLayout->addWidget(m_weightProp);
-    m_contentLayout->addWidget(m_precisionProp);
-    m_contentLayout->addWidget(m_temperatureProp);
-
-    // Add spacer to push properties to the top
-    m_contentLayout->addStretch();
-
-    // Connect signals if needed
-    connect(m_positionProp, &PropertyVec3::valueChanged,
-        this, [this](const QVector3D& value) {
-            // Handle position change
-         //   qDebug() << "Position changed to:" << value;
-        });
-
-    connect(m_scaleProp, &PropertyVec3::valueChanged,
-        this, [this](const QVector3D& value) {
-            // Handle scale change
-     //       qDebug() << "Scale changed to:" << value;
-        });
-
-    connect(m_rotationProp, &PropertyVec3::valueChanged,
-        this, [this](const QVector3D& value) {
-            // Handle rotation change
-       //     qDebug() << "Rotation changed to:" << value;
-        });
-
-    EndUI();
-   */
 }
 
 PropertiesEditor::~PropertiesEditor()
-{}
+{
+}
 
 QVector3D ToQV(glm::vec3 v)
 {
@@ -242,17 +135,17 @@ void PropertiesEditor::SetNode(GraphNode* node) {
         node->SetName(text.toStdString());
         });
 
-    m_currentPositionProp = AddVec3("Position", ToQV(node->GetPosition()),0.5, [node](const QVector3D& value) {
+    m_currentPositionProp = AddVec3("Position", ToQV(node->GetPosition()), 0.5, [node](const QVector3D& value) {
         node->SetPosition(glm::vec3(value.x(), value.y(), value.z()));
         SceneView::m_Instance->AlignGizmo();
         });
 
-    m_currentRotationProp = AddVec3("Rotation", ToQV(node->GetEularRotation()),5.0f, [node](const QVector3D& value) {
+    m_currentRotationProp = AddVec3("Rotation", ToQV(node->GetEularRotation()), 5.0f, [node](const QVector3D& value) {
         node->SetRotation(glm::vec3(value.x(), value.y(), value.z()));
         SceneView::m_Instance->AlignGizmo();
         });
 
-    m_currentScaleProp = AddVec3("Scale", ToQV(node->GetScale()),0.1, [node](const QVector3D& value) {
+    m_currentScaleProp = AddVec3("Scale", ToQV(node->GetScale()), 0.1, [node](const QVector3D& value) {
         node->SetScale(glm::vec3(value.x(), value.y(), value.z()));
         SceneView::m_Instance->AlignGizmo();
         });
@@ -280,7 +173,7 @@ void PropertiesEditor::SetNode(GraphNode* node) {
 
     AddHeader("Physics");
 
-    QStringList bodyTypes = {"None", "Box","Convex Hull","TriMesh"};
+    QStringList bodyTypes = { "None", "Box","Convex Hull","TriMesh" };
 
     QString init = "Box";
 
@@ -324,16 +217,52 @@ void PropertiesEditor::SetNode(GraphNode* node) {
 
     auto scripts = node->GetComponents<ScriptComponent>();
 
-        for (auto sc : scripts) {
+    for (auto sc : scripts) {
 
-        auto name = "(Py)"+sc->GetName();
+        auto name = "(Py)" + sc->GetName();
         AddHeader(name.c_str());
 
-        for (auto var : sc->GetVars()) {
+        for (auto var : sc->GetPythonVars()) {
 
             switch (var.type) {
+            case VT_Object:
+
+                if (var.cls == "GraphNode")
+                {
+                    
+                    auto node = sc->GetNode(var.name);
+
+                    std::string name = "None";
+                    if (node != nullptr) {
+                       name =  node->GetName();
+                    }
+
+                    // Use the new AddNodeProperty and the new callback signature
+                    AddNodeProperty((AddSpaces(var.name) + " (Node)").c_str(),name.c_str(), [sc, var](GraphNode* droppedNode)
+                        {
+                            if (droppedNode) {
+                                // The callback now provides the GraphNode pointer directly.
+                                // We can now pass this to the script component.
+                                // For now, we'll just update the string representation,
+                                // which is how script variables are currently stored.
+                                //sc->SetString(var.name, droppedNode->GetName());
+                                sc->SetNode(var.name, droppedNode);
+
+                                
+                                
+                                //sc->SetClass(var.name,)
+
+
+
+                                // A future improvement would be to have a method like:
+                                // sc->SetObject(var.name, droppedNode);
+                            }
+                        });
+                }
+
+                break;
             case VT_Int:
-                AddInt(AddSpaces(var.name).c_str(), -1000, 1000,1, sc->GetInt(var.name), [sc, var](const int value)
+                AddInt(AddSpaces(var.name).c_str(), -1000, 1000, 1, sc->GetInt(var.name), [sc, var](const int value)
                     {
                         sc->SetInt(var.name, value);
 
@@ -341,7 +270,7 @@ void PropertiesEditor::SetNode(GraphNode* node) {
                 break;
             case VT_Float:
 
-                AddFloat(AddSpaces(var.name).c_str(), -1000, 1000, 0.001, sc->GetFloat(var.name), [sc,var](const double value)
+                AddFloat(AddSpaces(var.name).c_str(), -1000, 1000, 0.001, sc->GetFloat(var.name), [sc, var](const double value)
                     {
                         sc->SetFloat(var.name, value);
 
@@ -364,12 +293,12 @@ void PropertiesEditor::SetNode(GraphNode* node) {
     }
 
     EndUI();
-
+    m_Node = node;
 }
 
 QSize PropertiesEditor::sizeHint() const
 {
-	return QSize(300, 400);  // Suggested initial width: 300px, height: 400px
+    return QSize(300, 400);  // Suggested initial width: 300px, height: 400px
 }
 
 void PropertiesEditor::BeginUI() {
@@ -428,7 +357,24 @@ PropertyText* PropertiesEditor::AddText(const QString& label, const QString& def
     return textProp;
 }
 
-PropertyVec3* PropertiesEditor::AddVec3(const QString& label, const QVector3D& defaultValue,double interval,
+PropertyNode* PropertiesEditor::AddNodeProperty(const QString& label, const QString& defaultText,
+    std::function<void(GraphNode*)> callback)
+{
+    PropertyNode* nodeProp = new PropertyNode(label, defaultText);
+    m_contentLayout->addWidget(nodeProp);
+
+    if (callback) {
+        // Connect to the new signal that passes the GraphNode pointer
+        connect(nodeProp, &PropertyNode::nodeDropped, this, [callback](GraphNode* node) {
+            callback(node);
+            });
+    }
+
+    return nodeProp;
+}
+
+
+PropertyVec3* PropertiesEditor::AddVec3(const QString& label, const QVector3D& defaultValue, double interval,
     std::function<void(const QVector3D&)> callback)
 {
     PropertyVec3* vec3Prop = new PropertyVec3(label, nullptr);
@@ -515,4 +461,114 @@ PropertyStringList* PropertiesEditor::AddStringList(const QString& label, const 
     }
 
     return stringListProp;
+}
+
+void PropertiesEditor::dragEnterEvent(QDragEnterEvent* event)
+{
+    // Check if the dragged data contains text. In your Content widget,
+    // you set the filename as text data.
+    if (event->mimeData()->hasText()) {
+        // Accept the drag event, which allows a drop to occur.
+        event->acceptProposedAction();
+    }
+}
+
+void PropertiesEditor::dropEvent(QDropEvent* event)
+{
+    // Check again for text data and process the drop.
+    if (event->mimeData()->hasText()) {
+        QString resourceName = event->mimeData()->text();
+
+        // Call your new method with the filename.
+        AddedFromDrop(resourceName);
+
+        event->acceptProposedAction();
+    }
+}
+
+std::string getBaseName(const std::string& fullPath) {
+    // Find the position of the last directory separator
+    size_t lastSlash = fullPath.find_last_of('/');
+    size_t lastBackslash = fullPath.find_last_of('\\');
+    size_t separatorPos = std::string::npos;
+
+    // Determine the actual last separator's position
+    if (lastSlash != std::string::npos && lastBackslash != std::string::npos) {
+        separatorPos = std::max(lastSlash, lastBackslash);
+    }
+    else if (lastSlash != std::string::npos) {
+        separatorPos = lastSlash;
+    }
+    else {
+        separatorPos = lastBackslash;
+    }
+
+    // Get the substring containing just the filename (after the last separator)
+    std::string filename = (separatorPos == std::string::npos)
+        ? fullPath
+        : fullPath.substr(separatorPos + 1);
+
+    // Find the position of the last dot (the extension) in the filename
+    size_t dotPos = filename.find_last_of('.');
+
+    // If there is no dot, or if the dot is the first character (e.g., ".config"),
+    // return the entire filename, as it has no extension to remove.
+    if (dotPos == std::string::npos || dotPos == 0) {
+        return filename;
+    }
+
+    // Return the substring before the last dot
+    return filename.substr(0, dotPos);
+}
+
+std::string getFileExtension(const std::string& filePath) {
+    // Find the position of the last dot.
+    size_t dotPos = filePath.find_last_of('.');
+
+    // Check for edge cases:
+    // 1. No dot was found.
+    // 2. The dot is the last character in the path (e.g., "folder/.").
+    // 3. The dot is part of a directory name like "./" or "../"
+    if (dotPos == std::string::npos || dotPos == filePath.length() - 1) {
+        return ""; // No valid extension found
+    }
+
+    // Check if the character after the dot is a path separator
+    if (filePath[dotPos + 1] == '/' || filePath[dotPos + 1] == '\\') {
+        return ""; // Not a file extension
+    }
+
+
+    // Return the substring from the character after the dot to the end.
+    return filePath.substr(dotPos + 1);
+}
+
+void PropertiesEditor::AddedFromDrop(const QString& resourceName)
+{
+    // This is the empty method for you to implement.
+    // For now, a debug message confirms it's being called correctly.
+    qDebug() << "Resource dropped onto Properties Editor:" << resourceName;
+    if (m_Node == nullptr) return;
+
+    auto path = resourceName.toStdString();
+
+    auto name = getBaseName(resourceName.toStdString());
+
+    auto ext = getFileExtension(path);
+
+
+    if (ext == "py") {
+        auto comp = new ScriptComponent();
+        m_Node->AddComponent(comp);
+        comp->SetScript(path, name);
+        SetNode(m_Node);
+    }
+
+    int a = 5;
+
+    // You can now process the dropped resource, for example:
+    // if (m_selectedNode && resourceName.endsWith(".py")) {
+    //     m_selectedNode->AddComponent(new ScriptComponent(resourceName));
+    //     SetNode(m_selectedNode); // Refresh the UI
+    // }
 }

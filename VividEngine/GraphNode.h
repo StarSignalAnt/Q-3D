@@ -132,6 +132,14 @@ public:
 		return m_BodyType;
 	}
 
+	void SetHideFromEditor(bool hide) {
+		m_HideFromEditor = hide;
+	}
+
+	bool GetHideFromEditor() {
+		return m_HideFromEditor;
+	}
+
 private:
 
 	glm::vec3 m_Position;
@@ -153,5 +161,6 @@ private:
 	PxRigidDynamic* m_RB = nullptr;
 	PxRigidStatic* m_RS = nullptr;
 	PxShape* m_Shape;
+	bool m_HideFromEditor = false;
 };
 

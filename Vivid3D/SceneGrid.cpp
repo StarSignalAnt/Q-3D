@@ -4,6 +4,7 @@ SceneGrid::SceneGrid(SceneGraph* graph) {
 
 	m_Graph = graph;
 	m_Grid = new GraphNode;
+	m_Grid->SetHideFromEditor(true);
 	m_Graph->AddNode(m_Grid);
 	m_MainColor = glm::vec4(1, 1, 1, 1);
 	CreateGrid();

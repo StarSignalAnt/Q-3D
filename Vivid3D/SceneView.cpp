@@ -4,6 +4,9 @@
 #include <QPainter>
 #include "Vivid.h"
 #include "PropertiesEditor.h"
+#include <QDragEnterEvent>
+#include <QDropEvent>
+#include <QMimeData>
 #include "MaterialPBR.h"
 //Diligent Engine includes
 #include "Physics.h"
@@ -72,7 +75,7 @@ SceneView::SceneView(QWidget *parent)
     m_Instance = this;
     //Vivid::InitPython();
     
-
+    setAcceptDrops(true);
     Vivid::InitEngine();
 
     ScriptHost *h = new ScriptHost;
@@ -99,50 +102,18 @@ SceneView::SceneView(QWidget *parent)
 
 
 
-    m_Test1 = Importer::ImportEntity("test/test1.gltf");
-    auto test2 = Importer::ImportEntity("test/test2.gltf");
-    m_SceneGraph->AddNode(m_Test1);
-    m_SceneGraph->AddNode(test2);
+    //m_Test1 = Importer::ImportEntity("test/test1.gltf");
+    //auto test2 = Importer::ImportEntity("test/test2.gltf");
+   // m_SceneGraph->AddNode(m_Test1);
+   // m_SceneGraph->AddNode(test2);
 
-    auto sc = new ScriptComponent;
-    test2->AddComponent(sc);
-    sc->SetScript("scripts/test.py", "TestComp");
+
+    //auto sc = new ScriptComponent;
+    //test2->AddComponent(sc);
+    //sc->SetScript("scripts/test.py", "TestComp");
 
    
 
-    auto act1 = Importer::ImportSkeletal("test/actor1.fbx");
-
- //   m_SceneGraph->AddNode(act1);
-    act1->SetScale(glm::vec3(0.05f, 0.05f, 0.05f));
- //   m_Test1->SetRotation(glm::vec3(-90, 0, 0));
-
-    //for (auto& e : m_Test1->GetNodes()) {
-
-    auto e = m_Test1;
-
-    tex1 = new Texture2D("test/tex_color.png");
-
-
-		auto smc = e->GetComponent<StaticMeshComponent>();
-        for (auto m : smc->GetSubMeshes()) {
-
-			auto m1 = (MaterialPBR*)m->m_Material;
-			m1->SetColorTexture(new Texture2D("test/tex_color.png"));
-			m1->SetNormalTexture(new Texture2D("test/tex_normal.png"));
-            m1->SetMetallicTexture(new Texture2D("test/tex_metal.png"));
-			m1->SetRoughnessTexture(new Texture2D("test/tex_rough.png"));
-		//	m1->SetHeightTexture(new Texture2D("test/tex_height.png"));
-
-
-			//m1->SetIRR(new TextureCube("test/cube1.tex"));
-            //m1->SetEnvironmentMap(new TextureCube("test/cube1.tex"));
-
-
-
-
-        }
-
-    
 
     auto cam = m_SceneGraph->GetCamera();
    
@@ -150,7 +121,7 @@ SceneView::SceneView(QWidget *parent)
     auto tex1 = new Texture2D("test/tex1.png");
     
 //    auto m1 = m_Test1->GetNodes()[0]->GetComponent<StaticMeshComponent>();
-    m_Test1->SetScale(glm::vec3(1, 1, 1));
+
 //    m_Test1->GetNodes()[0]->SetScale(glm::vec3(1, 1, 1));
     
  //   for (auto& sub : m1->GetSubMeshes()) {
@@ -198,7 +169,7 @@ SceneView::SceneView(QWidget *parent)
    // m_Test1->CreateBody();
 
 
-    test2->SetPosition(glm::vec3(0, 15, 0));
+
 
     //m_Test1->CreateRB();
 
@@ -523,4 +494,59 @@ void SceneView::SelectNode(GraphNode* node)
     m_SceneController->SelectNode(node);
     PropertiesEditor::m_Instance->SetNode(node);
 
+}
+
+void SceneView::dragEnterEvent(QDragEnterEvent* event)
+{
+    // Check if the dragged data contains a file path with a valid extension.
+    if (event->mimeData()->hasText())
+    {
+        QString path = event->mimeData()->text();
+        if (path.endsWith(".fbx", Qt::CaseInsensitive) || path.endsWith(".gltf", Qt::CaseInsensitive))
+        {
+            // If the file type is valid, accept the drag to allow a drop.
+            event->acceptProposedAction();
+            return;
+        }
+    }
+    // Ignore all other types of drags.
+    event->ignore();
+}
+
+void SceneView::dropEvent(QDropEvent* event)
+{
+    const QMimeData* mime = event->mimeData();
+
+    // Final check to ensure the data is a valid file path.
+    if (mime->hasText())
+    {
+        QString fullPath = mime->text();
+        if (fullPath.endsWith(".fbx", Qt::CaseInsensitive) || fullPath.endsWith(".gltf", Qt::CaseInsensitive))
+        {
+            // 1. Import the entity using the file path.
+            GraphNode* importedNode = Importer::ImportEntity(fullPath.toStdString());
+
+            if (importedNode)
+            {
+                // 2. Add the newly created node to the scene graph.
+                m_SceneGraph->AddNode(importedNode);
+
+                // 3. Update the NodeTree to show the new node.
+                // Calling SetRoot will rebuild the entire tree from the scene graph's root.
+                if (NodeTree::m_Instance)
+                {
+                    NodeTree::m_Instance->SetRoot(m_SceneGraph->GetRootNode());
+                }
+            }
+            event->acceptProposedAction();
+        }
+        else
+        {
+            event->ignore();
+        }
+    }
+    else
+    {
+        event->ignore();
+    }
 }
