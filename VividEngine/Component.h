@@ -1,5 +1,5 @@
 #pragma once
-
+#include "VFile.h"
 class GraphNode;
 
 class Component
@@ -25,6 +25,8 @@ public:
     virtual void OnUpdate(float deltaTime) {}
     virtual void OnRender(GraphNode* camera) {}
     virtual void OnRenderDepth(GraphNode* camera) {};
+    virtual void Write(VFile* f) {};
+    virtual void Read(VFile* f) {};
 protected:
 
     // Pointer to the owner node

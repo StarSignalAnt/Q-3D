@@ -202,18 +202,22 @@ GraphNode* Importer::ImportEntity(std::string path) {
             node->AddComponent(renderer);
             auto depth_renderer = new StaticDepthRendererComponent;
 			node->AddComponent(depth_renderer);
+            node->SetResource("", ResourceType::Static);
         }
 
         // Recurse through children
         for (unsigned int i = 0; i < ainode->mNumChildren; i++) {
             GraphNode* childNode = ProcessNode(ainode->mChildren[i]);
+            //childNode->SetResource("", ResourceType::SubData);
             node->AddNode(childNode);
+
         }
 
         return node;
         };
 
     GraphNode* root = ProcessNode(scene->mRootNode);
+    root->SetResource(path, ResourceType::Static);
     return root;
 
 }

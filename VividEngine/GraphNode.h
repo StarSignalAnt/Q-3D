@@ -7,10 +7,15 @@
 #include "BasicMath.hpp"
 #include <glm/glm.hpp>
 #include "PxPhysicsAPI.h"
+#include "VFile.h"
 using namespace physx;
 using namespace Diligent;
 class Component;
 
+
+enum ResourceType {
+	Static,Skeletal,Light,Camera,SubData
+};
 
 enum BodyType {
 	T_Box,T_Sphere,T_ConvexHull,T_TriMesh,T_TerrainMesh,T_None
@@ -77,6 +82,19 @@ public:
 		}
 		return res;
 	}
+	std::vector<Component*> GetAllComponents() {
+		return m_Components;
+	}
+	std::string GetLongName() {
+
+		std::string root = "";
+		if (m_RootNode != nullptr) {
+			root = m_RootNode->GetName();
+		}
+
+		return root + "." + m_Name;
+
+	}
 	void Render(GraphNode* camera);
 	void RenderDepth(GraphNode* camera);
 	void Update(float dt);
@@ -139,7 +157,21 @@ public:
 	bool GetHideFromEditor() {
 		return m_HideFromEditor;
 	}
-
+	void Write(VFile* f);
+	void Read(VFile* f);
+	void SetResource(std::string path, ResourceType type) {
+		m_ResourcePath = path;
+		m_ResourceType = type;
+	}
+	std::string GetResourcePath() {
+		return m_ResourcePath;
+	}
+	ResourceType GetResourceType() {
+		return m_ResourceType;
+	}
+	void WriteScripts(VFile* f);
+	void ReadScripts(VFile* f);
+	GraphNode* FindNode(std::string name);
 private:
 
 	glm::vec3 m_Position;
@@ -162,5 +194,7 @@ private:
 	PxRigidStatic* m_RS = nullptr;
 	PxShape* m_Shape;
 	bool m_HideFromEditor = false;
+	std::string m_ResourcePath = "";
+	ResourceType m_ResourceType = ResourceType::SubData;
 };
 

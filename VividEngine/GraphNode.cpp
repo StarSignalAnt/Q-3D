@@ -8,7 +8,9 @@
 #include "StaticMeshComponent.h"
 #include "Physics.h"
 #include "Vivid.h"
-
+#include "Importer.h"
+#include "ScriptComponent.h"
+#include "SceneGraph.h"
 
 using namespace Diligent;
 physx::PxQuat glmMat4ToPxQuat(const glm::mat4& rotationMatrix)
@@ -559,5 +561,251 @@ void GraphNode::UpdatePhysics() {
 	for (auto node : m_Nodes) {
 		node->UpdatePhysics();
 	}
+
+}
+
+void GraphNode::Write(VFile* f) {
+
+	f->WriteVec3(m_Position);
+	f->WriteVec3(m_Scale);
+	f->WriteMatrix(m_Rotation);
+	f->WriteString(m_Name.c_str());
+	f->WriteBool(m_HideFromEditor);
+
+	f->WriteInt((int)m_ResourceType);
+	if (m_ResourceType == ResourceType::Static) {
+		f->WriteString(m_ResourcePath.c_str());
+	
+	}
+	else {
+
+
+
+	}
+
+
+
+
+	f->WriteInt(m_Nodes.size());
+
+	for (int i = 0; i < m_Nodes.size(); i++) {
+
+		m_Nodes[i]->Write(f);
+
+	}
+
+
+}
+
+void GraphNode::Read(VFile* f)
+{
+	m_Position = f->ReadVec3();
+	m_Scale = f->ReadVec3();
+	m_Rotation = f->ReadMatrix();
+	m_Name = f->ReadString();
+	m_HideFromEditor = f->ReadBool();
+
+	ResourceType type = (ResourceType)f->ReadInt();
+	switch (type) {
+	case ResourceType::Static:
+
+		
+
+		auto path = f->ReadString();
+
+		if (path == "" || path == "\0")
+		{
+			int b = 5;
+			return;
+		}
+
+		auto imp = new Importer;
+
+		auto r = imp->ImportEntity(path);
+
+		if (r == nullptr) {
+			
+
+		}
+		else {
+
+			for (auto comp : r->GetAllComponents())
+			{
+
+				AddComponent(comp);
+
+			}
+
+
+			m_ResourceType = ResourceType::Static;
+			m_ResourcePath = path;
+
+			for (auto n : r->GetNodes()) {
+
+				AddNode(n);
+
+			}
+
+		}
+		
+
+		break;
+	}
+	int nc = f->ReadInt();
+	if (m_Nodes.size() > 0) {
+		for (int i = 0; i < nc; i++)
+		{
+			auto sub = m_Nodes[i];
+			sub->Read(f);
+			
+
+			//AddNode(sub);
+		}
+	}
+	else {
+		for (int i = 0; i < nc; i++)
+		{
+			auto sub = new GraphNode;
+			sub->Read(f);
+
+			AddNode(sub);
+		}
+	}
+
+
+}
+
+
+void GraphNode::ReadScripts(VFile* f) {
+
+	int sc = f->ReadInt();
+
+	for (int i = 0; i < sc; i++) {
+
+		auto path = f->ReadString();
+		auto name = f->ReadString();
+		auto com = new ScriptComponent;
+		AddComponent(com);
+		com->SetScript(path, name);
+
+		int vc = f->ReadInt();
+		for (int v = 0; v < vc; v++) {
+
+		
+			int t = (SVarType)f->ReadInt();
+			std::string name = f->ReadString();
+			bool gn = false;
+			if (f->ReadBool()) {
+				gn = true;
+			}
+			switch (t) {
+			case VT_Object:
+				if (gn) {
+					if (f->ReadBool()) {
+						std::string namel = f->ReadString();
+						auto node = SceneGraph::m_Instance->FindNode(namel);
+						com->SetNode(name, node);
+
+						int b = 5;
+					}
+				}
+				break;
+			case VT_Int:
+				com->SetInt(name, f->ReadInt());
+				break;
+			case VT_String:
+				com->SetString(name, f->ReadString());
+				break;
+			case VT_Float:
+				com->SetFloat(name, f->ReadFloat());
+				break;
+			}
+
+		}
+
+
+
+	}
+
+	for (int i = 0; i < m_Nodes.size(); i++) {
+		m_Nodes[i]->ReadScripts(f);
+	}
+
+}
+
+void GraphNode::WriteScripts(VFile* f) {
+
+	f->WriteInt(GetComponents<ScriptComponent>().size());
+
+	for (auto s : GetComponents<ScriptComponent>()) {
+
+		f->WriteString(s->GetPath().c_str());
+		f->WriteString(s->GetName().c_str());
+
+		auto vars = s->GetPythonVars();
+		f->WriteInt(s->GetPythonVars().size());
+		for (auto v : s->GetPythonVars()) {
+			f->WriteInt((int)v.type);
+			f->WriteString(v.name.c_str());
+			if (v.cls == "GraphNode")
+			{
+				f->WriteBool(true);
+			}
+			else {
+				f->WriteBool(false);
+			}
+			switch (v.type)
+			{
+			case VT_Object:
+			{
+				if (v.cls == "GraphNode") {
+					auto val = s->GetNode(v.name);
+					if (val == nullptr) {
+						f->WriteBool(false);
+					}
+					else {
+						f->WriteBool(true);
+						f->WriteString(val->GetLongName().c_str());
+						int b = 5;
+					}
+				}
+			}
+				break;
+			case VT_Int:
+				f->WriteInt(s->GetInt(v.name));
+				break;
+			case VT_Float:
+				f->WriteFloat(s->GetFloat(v.name));
+				break;
+			case VT_String:
+				f->WriteString(s->GetString(v.name).c_str());
+				break;
+			}
+
+		}
+
+	}
+
+	//f->WriteInt(m_Nodes.size());
+	for (auto n : m_Nodes) {
+		n->WriteScripts(f);
+	}
+
+}
+
+GraphNode* GraphNode::FindNode(std::string name) {
+
+
+	if (GetLongName() == name) {
+		return this;
+	}
+
+	for (auto n : m_Nodes) {
+		
+		auto r = n->FindNode(name);
+		if (r != nullptr) return r;
+
+	}
+	return nullptr;
 
 }

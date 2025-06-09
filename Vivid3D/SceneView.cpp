@@ -3,6 +3,7 @@
 #include "SceneView.h"
 #include <QPainter>
 #include "Vivid.h"
+#include "NodeTree.h"
 #include "PropertiesEditor.h"
 #include <QDragEnterEvent>
 #include <QDropEvent>
@@ -549,4 +550,15 @@ void SceneView::dropEvent(QDropEvent* event)
     {
         event->ignore();
     }
+}
+
+void SceneView::SetScene(SceneGraph* graph)
+{
+
+    m_SceneGraph->SetRootNode(graph->GetRootNode());
+    m_Grid = new SceneGrid(m_SceneGraph);
+    //m_SceneGraph->SetCamera(graph->GetCamera());
+
+    NodeTree::m_Instance->SetRoot(m_SceneGraph->GetRootNode());
+
 }

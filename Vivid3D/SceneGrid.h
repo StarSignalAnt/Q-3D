@@ -9,6 +9,7 @@ public:
 
 	SceneGrid(SceneGraph* graph);
 	void CreateGrid();
+	void Update();
 
 private:
 

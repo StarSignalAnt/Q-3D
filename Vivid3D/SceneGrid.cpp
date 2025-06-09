@@ -8,6 +8,7 @@ SceneGrid::SceneGrid(SceneGraph* graph) {
 	m_Graph->AddNode(m_Grid);
 	m_MainColor = glm::vec4(1, 1, 1, 1);
 	CreateGrid();
+	
 
 }
 
@@ -106,5 +107,11 @@ void SceneGrid::CreateGrid() {
 	com->Finalize();
 
 	m_Grid->AddComponent(com);
+
+}
+
+void SceneGrid::Update() {
+
+
 
 }

@@ -696,37 +696,58 @@ bool ScriptHost::GetBool(void* inst, const std::string& name) {
 }
 
 
-
 std::vector<PythonVar> ScriptHost::GetVarDetails(void* inst) {
-    // Cast the void pointer back to a py::object pointer.
     py::object* pyObjPtr = static_cast<py::object*>(inst);
     if (!pyObjPtr) {
-        return {}; // Return an empty vector if the pointer is null.
+        return {};
     }
     py::object& pyObj = *pyObjPtr;
 
     std::vector<PythonVar> result;
 
-    // Check if the object has a __dict__ attribute before accessing it.
     if (!py::hasattr(pyObj, "__dict__")) {
-        return result; // Not all types (e.g., built-ins) have __dict__.
+        return result;
     }
 
-    // Get the dictionary of the object's attributes.
     py::dict attrs = py::getattr(pyObj, "__dict__");
 
     for (auto item : attrs) {
-        // Extract the attribute name.
         std::string name = py::str(item.first);
-
-        // Borrow a reference to the attribute's value.
         py::object val = py::reinterpret_borrow<py::object>(item.second);
 
-        // Get the type's name by accessing val.__class__.__name__ in Python.
-        std::string type_name = py::str(val.attr("__class__").attr("__name__"));
+        // Get raw class name from Python
+        std::string py_class = py::str(val.attr("__class__").attr("__name__"));
 
-        // Add the new variable information to our list.
-        result.push_back({ name, type_name });
+        // Map common Python types to friendly engine types
+        std::string type_str;
+
+        if (py::isinstance<py::int_>(val)) {
+            type_str = "Int";
+        }
+        else if (py::isinstance<py::float_>(val)) {
+            type_str = "Float";
+        }
+        else if (py::isinstance<py::str>(val)) {
+            type_str = "String";
+        }
+        else if (py::isinstance<py::bool_>(val)) {
+            type_str = "Bool";
+        }
+        else if (py::isinstance<py::list>(val)) {
+            type_str = "List";
+        }
+        else if (py::isinstance<py::dict>(val)) {
+            type_str = "Dict";
+        }
+        else if (py::isinstance<py::tuple>(val)) {
+            type_str = "Tuple";
+        }
+        else {
+            // Use class name for unknown or user-defined types
+            type_str = py_class;
+        }
+
+        result.push_back({ name, type_str });
     }
 
     return result;

@@ -20,6 +20,7 @@ private slots:
     void onNewFile();
     void onOpenFile();
     void onExit();
+    void onSaveScene();
 
 };
 

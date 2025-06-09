@@ -3,6 +3,7 @@
 #include<ostream>
 #include<fstream>
 #include "BasicMath.hpp"
+#include <glm/glm.hpp>
 
 using namespace Diligent;
 
@@ -26,12 +27,12 @@ public:
 	void WriteByte(char b);
 	void WriteBytes(void* data, int length);
 	void WriteBool(bool b);
-	void WriteVec3(float3 v);
-	void WriteVec4(float4 v);
-	void WriteMatrix(float4x4 v);
+	void WriteVec3(glm::vec3 v);
+	void WriteVec4(glm::vec4 v);
+	void WriteMatrix(glm::mat4 v);
 //	void WriteMatrix3x3(float3x3 v);
-	float3 ReadVec3();
-	float4 ReadVec4();
+	glm::vec3 ReadVec3();
+	glm::vec4 ReadVec4();
 
 	//void WriteVec3(Vec3 v);
 	void WriteLong(long v);
@@ -47,7 +48,7 @@ public:
 	const char* ReadString();
 	long ReadLong();
 	bool ReadBool();
-	float4x4 ReadMatrix();
+	glm::mat4 ReadMatrix();
 	void Close();
 	static long Length(const char * path);
 	void Seek(long position);

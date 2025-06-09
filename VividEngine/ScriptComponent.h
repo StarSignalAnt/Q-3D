@@ -28,6 +28,9 @@ public:
     void OnPlay() override;
     void OnStop() override;
     void SetScript(std::string file, std::string name);
+    std::string GetPath() {
+        return m_Path;
+    }
     std::string GetName() {
         return m_Name;
     }
@@ -53,5 +56,6 @@ private:
     void* m_ComponentPy = nullptr;
     std::string m_Name = "";
     std::vector<ScriptVar> m_Pushed;
+    std::string m_Path = "";
 };
 

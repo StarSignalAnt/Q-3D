@@ -75,6 +75,10 @@ public:
 	void SetSpace(SceneSpace space);
 	void AlignGizmo();
 	void Run();
+	SceneGraph* GetScene() {
+		return m_SceneGraph;
+	}
+	void SetScene(SceneGraph* graph);
 	void Stop();
 	static SceneView* m_Instance;
 	SceneMode m_Mode = SceneMode::Mode_Translate;

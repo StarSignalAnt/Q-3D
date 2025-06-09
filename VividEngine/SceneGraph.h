@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <glm/glm.hpp>
+#include <string>
 class Intersections;
 class GraphNode;
 class CubeRenderer;
@@ -49,7 +50,14 @@ public:
 	void Stop();
 	void Push();
 	void Pop();
+	
+	void SaveScene(std::string path);
+	void LoadScene(std::string path);
+	GraphNode* FindNode(std::string node);
+
 	static SceneGraph* m_Instance;
+
+
 private:
 
 	GraphNode* m_RootNode = nullptr;

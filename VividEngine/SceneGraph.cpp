@@ -9,6 +9,9 @@
 #include "Intersections.h"
 SceneGraph* SceneGraph::m_CurrentGraph = nullptr;
 #include "ScriptHost.h"
+#include "VFile.h"
+#include "CameraComponent.h"
+#include "LightComponent.h"
 
 bool addedGraphFuncs = false;
 
@@ -392,5 +395,45 @@ void SceneGraph::Play() {
 void SceneGraph::Stop() {
 
 	m_RootNode->Stop();
+
+}
+
+void SceneGraph::SaveScene(std::string path) {
+
+	VFile* f = new VFile(path.c_str(), FileMode::Write);
+
+	m_Camera->Write(f);
+
+	m_RootNode->Write(f);
+	
+	m_RootNode->WriteScripts(f);
+
+
+	f->Close();
+
+
+
+}
+
+void SceneGraph::LoadScene(std::string path) {
+
+	VFile* f = new VFile(path.c_str(), FileMode::Read);
+
+	m_Camera = new GraphNode;
+	m_Camera->AddComponent(new CameraComponent);
+	m_Camera->Read(f);
+
+	m_RootNode = new GraphNode;
+	m_RootNode->Read(f);
+
+	m_RootNode->ReadScripts(f);
+
+	f->Close();
+
+}
+
+GraphNode* SceneGraph::FindNode(std::string name) {
+
+	return m_RootNode->FindNode(name);
 
 }

@@ -1,5 +1,7 @@
 #include "Content.h"
 
+Content* Content::m_Instance = nullptr;
+
 Content::Content(QWidget *parent)
 	: QWidget(parent)
     , m_itemSize(64)
@@ -9,7 +11,7 @@ Content::Content(QWidget *parent)
     setMinimumHeight(250);
     setMouseTracking(true);
     QStyle* style = QApplication::style();
-
+    m_Instance = this;
 
     DirIcon = QIcon("edit/icons/folderIcon.png");
     // }
@@ -24,6 +26,11 @@ Content::Content(QWidget *parent)
 Content::~Content()
 {}
 
+std::string Content::GetPath() {
+
+    return m_CurrentPath;
+
+}
 
 std::string GetFileExtension(const std::string& filename) {
     size_t dotPos = filename.find_last_of('.');
@@ -67,6 +74,7 @@ void Content::Browse(const std::string& path)
 {
     m_currentPath = QString::fromStdString(path);
     m_items.clear();
+    m_CurrentPath = path;
 
     QDir dir(m_currentPath);
     if (!dir.exists()) {

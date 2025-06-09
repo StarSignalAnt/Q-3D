@@ -4,6 +4,7 @@
 
 void ScriptComponent::SetScript(std::string path, std::string name) {
 
+	m_Path = path;
 	ScriptHost::m_Host->Load(path);
 	m_ComponentPy = ScriptHost::m_Host->CreateComponentInstance(name,m_Owner);
 	
@@ -110,10 +111,18 @@ std::vector<ScriptVar> ScriptComponent::GetPythonVars() {
 		ScriptVar nv;
 		nv.name = v.name;
 
-		if (v.type == "str")
+		if (v.type == "String")
 		{
 			nv.type = SVarType::VT_String;
 			//continue;
+		}
+		else if (v.type == "Int")
+		{
+			nv.type = SVarType::VT_Int;
+		}
+		else if (v.type == "Float")
+		{
+			nv.type = SVarType::VT_Float;
 		}
 		else {
 			nv.type = SVarType::VT_Object;

@@ -23,9 +23,25 @@
 
 int main(int argc, char *argv[])
 {
+
+    QApplication::setAttribute(Qt::AA_UseStyleSheetPropagationInWidgetStyles, false);
     QApplication app(argc, argv);
 
+    app.setStyleSheet(R"(
+        QMenu {
+            background-color: #2b2b2b;
+            color: white;
+        }
 
+        QMenu::item {
+            padding: 5px 20px;
+            background-color: transparent;
+        }
+
+        QMenu::item:selected {
+            background-color: #606060;
+        }
+    )");
 
     QPixmap pixmap("edit/splash/vivid3d.jpg"); // Use a QRC or disk image
     QSplashScreen splash(pixmap);

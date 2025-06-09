@@ -37,7 +37,8 @@ public:
 	Content(QWidget *parent = nullptr);
 	~Content();
 	void Browse(const std::string& path);
-
+    static Content* m_Instance;
+    std::string GetPath();
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;
     void SetSearch(std::string term) {
@@ -63,6 +64,7 @@ private:
     QString m_currentPath;
     bool m_layoutDirty;
     QIcon DirIcon, FileIcon;
+    std::string m_CurrentPath;
     QIcon EntIcon;
     QIcon ImageIcon;
     QIcon ScriptIcon;

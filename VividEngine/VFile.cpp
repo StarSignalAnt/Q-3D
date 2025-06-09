@@ -138,7 +138,7 @@ const char* VFile::ReadString() {
 
 }
 
-void VFile::WriteVec3(float3 v) {
+void VFile::WriteVec3(glm::vec3 v) {
 
 	WriteFloat(v.x);
 	WriteFloat(v.y);
@@ -146,7 +146,7 @@ void VFile::WriteVec3(float3 v) {
 
 }
 
-void VFile::WriteVec4(float4 v)
+void VFile::WriteVec4(glm::vec4 v)
 {
 
 	WriteFloat(v.x);
@@ -155,17 +155,18 @@ void VFile::WriteVec4(float4 v)
 	WriteFloat(v.w);
 
 }
-float4 VFile::ReadVec4() {
+glm::vec4 VFile::ReadVec4() {
 
 	float xv = ReadFloat();
 	float yv = ReadFloat();
 	float zv = ReadFloat();
 	float wv = ReadFloat();
-	return float4(xv, yv, zv, wv);
+	return glm::vec4(xv, yv, zv, wv);
 
 }
 
-float3 VFile::ReadVec3() {
+glm::vec3 VFile::ReadVec3() {
+
 
 
 
@@ -173,7 +174,7 @@ float3 VFile::ReadVec3() {
 	float yv = ReadFloat();
 	float zv = ReadFloat();
 
-	float3 rv(xv, yv, zv);
+	glm::vec3 rv(xv, yv, zv);
 
 //glm::vec3 rv= glm::vec3(ReadFloat(), ReadFloat(), ReadFloat());
 
@@ -282,49 +283,37 @@ void VFile::Seek(long position) {
 
 }
 
-void VFile::WriteMatrix(float4x4 matrix) {
+void VFile::WriteMatrix(glm::mat4 matrix) {
 
-	WriteFloat(matrix.m00);
-	WriteFloat(matrix.m01);
-	WriteFloat(matrix.m02);
-	WriteFloat(matrix.m03);
-	WriteFloat(matrix.m10);
-	WriteFloat(matrix.m11);
-	WriteFloat(matrix.m12);
-	WriteFloat(matrix.m13);
-	WriteFloat(matrix.m20);
-	WriteFloat(matrix.m21);
-	WriteFloat(matrix.m22);
-	WriteFloat(matrix.m23);
-	WriteFloat(matrix.m30);
-	WriteFloat(matrix.m31);
-	WriteFloat(matrix.m32);
-	WriteFloat(matrix.m33);
+	WriteVec4(matrix[0]);
+	WriteVec4(matrix[1]);
+	WriteVec4(matrix[2]);
+	WriteVec4(matrix[3]);
+
+	//WriteFloat(matrix.m10);
+	//WriteFloat(matrix.m11);
+	//WriteFloat(matrix.m12);
+	//WriteFloat(matrix.m13);
+	//WriteFloat(matrix.m20);
+//	WriteFloat(matrix.m21);
+//	WriteFloat(matrix.m22);
+//	WriteFloat(matrix.m23);
+//	WriteFloat(matrix.m30);
+//	WriteFloat(matrix.m31);
+	//WriteFloat(matrix.m32);
+	//WriteFloat(matrix.m33);
 
 }
 
 
-float4x4 VFile::ReadMatrix() {
+glm::mat4 VFile::ReadMatrix() {
 
-	float4x4 r;
+	glm::mat4 r;
 
-	r.m00 = ReadFloat();
-	r.m01 = ReadFloat();
-	r.m02 = ReadFloat();
-	r.m03 = ReadFloat();
-
-	r.m10 = ReadFloat();
-	r.m11 = ReadFloat();
-	r.m12 = ReadFloat();
-	r.m13 = ReadFloat();
-	r.m20 = ReadFloat();
-	r.m21 = ReadFloat();
-	r.m22 = ReadFloat();
-	r.m23 = ReadFloat();
-	r.m30 = ReadFloat();
-	r.m31 = ReadFloat();
-	r.m32 = ReadFloat();
-	r.m33 = ReadFloat();
+	r[0] = ReadVec4();
+	r[1] = ReadVec4();
+	r[2] = ReadVec4();
+	r[3] = ReadVec4();
 
 	return r;
 
