@@ -11,13 +11,17 @@
 #include <QFontMetrics>
 #include <QDrag>
 #include <QMimeData>
+#include <QPixmap>
+#include <QImageReader>
+#include <QStandardPaths>
+#include <QCryptographicHash>
 
 #include <QDebug>
 #include <string>
 #include <vector>
 #include "ui_Content.h"
 enum FileType {
-    FT_Entity, FT_Texture, FT_File,FT_Script
+    FT_Entity, FT_Texture, FT_File, FT_Script
 };
 
 struct FileItem {
@@ -27,16 +31,18 @@ struct FileItem {
     QRect rect;
     QString ext;
     FileType type = FT_File;
+    QPixmap thumbnail; // Store the thumbnail pixmap
+    bool hasThumbnail = false;
 };
 
 class Content : public QWidget
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	Content(QWidget *parent = nullptr);
-	~Content();
-	void Browse(const std::string& path);
+    Content(QWidget* parent = nullptr);
+    ~Content();
+    void Browse(const std::string& path);
     static Content* m_Instance;
     std::string GetPath();
     QSize sizeHint() const override;
@@ -48,15 +54,19 @@ public:
 
     }
 protected:
-	void paintEvent(QPaintEvent* event) override;
-	void mouseDoubleClickEvent(QMouseEvent* event) override;
-	void resizeEvent(QResizeEvent* event) override;
-	void mouseMoveEvent(QMouseEvent* event) override;
+    void paintEvent(QPaintEvent* event) override;
+    void mouseDoubleClickEvent(QMouseEvent* event) override;
+    void resizeEvent(QResizeEvent* event) override;
+    void mouseMoveEvent(QMouseEvent* event) override;
     void mousePressEvent(QMouseEvent* event) override;
 private:
-	Ui::ContentClass ui;
+    Ui::ContentClass ui;
     void calculateLayout();
     void fileClicked(const QString& filePath, bool isDirectory);
+    bool isImageFile(const QString& extension);
+    QString getThumbnailPath(const QString& filePath);
+    QPixmap generateThumbnail(const QString& filePath);
+    QPixmap loadOrGenerateThumbnail(const QString& filePath);
 
     std::vector<FileItem> m_items;
     int m_itemSize;
@@ -73,5 +83,5 @@ private:
     FileItem* m_OverItem = nullptr;
     std::string m_SearchTerm = "";
     QPoint m_dragStartPosition;
+    QString m_thumbnailCacheDir; // Directory to store thumbnail cache
 };
-

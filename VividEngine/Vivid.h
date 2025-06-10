@@ -32,6 +32,7 @@
 
 class RenderTargetCube;
 class RenderTarget2D;
+class MaterialPBR;
 class Physics;
 
 using namespace Diligent;
@@ -57,7 +58,11 @@ public:
 	static RenderTarget2D* m_BoundRT2D;
 	static void InitPython();
 	static Physics* m_Physics;
+
+	static std::vector<MaterialPBR*> m_ActiveMaterials;
+
 private:
+
 
 	static int m_FrameWidth;
 	static int m_FrameHeight;

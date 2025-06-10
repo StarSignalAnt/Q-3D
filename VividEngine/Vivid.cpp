@@ -13,6 +13,8 @@ RefCntAutoPtr<IShaderSourceInputStreamFactory> Vivid::m_pShaderFactory;
 
 RenderTargetCube* Vivid::m_BoundRTC = nullptr;
 RenderTarget2D* Vivid::m_BoundRT2D = nullptr;
+std::vector<MaterialPBR*> Vivid::m_ActiveMaterials;
+
 void Vivid::SetBoundRTC(RenderTargetCube* target) {
 
 	m_BoundRTC = target;

@@ -15,6 +15,10 @@
 #include <QDropEvent>
 #include <QMimeData>
 #include <QDebug>
+#include "Texture2D.h"
+#include "MaterialPBR.h"
+
+#include "StaticMeshComponent.h"
 PropertiesEditor* PropertiesEditor::m_Instance = nullptr;
 
 PropertiesEditor::PropertiesEditor(QWidget* parent)
@@ -213,6 +217,42 @@ void PropertiesEditor::SetNode(GraphNode* node) {
         qDebug() << "Render mode changed to:" << mode;
         // node->SetRenderMode(mode.toStdString());
         });
+
+
+    auto mesh = node->GetComponent<StaticMeshComponent>();
+
+    if (mesh != nullptr) {
+
+        int i = 0;
+        for (auto m : mesh->GetSubMeshes()) {
+
+            AddHeader((std::string("Mesh ") + std::to_string(i)).c_str());
+
+            auto mat = m->m_Material;
+            if (dynamic_cast<MaterialPBR*>(mat)) {
+
+                auto pbr = (MaterialPBR*)mat;
+                AddTexture("Color", pbr->GetColorTexture()->GetPath(), [node,pbr](std::string val)
+                    {
+                        pbr->SetColorTexture(new Texture2D(val));
+                    });
+                AddTexture("Normal", pbr->GetNormalTexture()->GetPath(), [node,pbr](std::string val)
+                    {
+                        pbr->SetNormalTexture(new Texture2D(val));
+                    });
+                AddTexture("Metallic", pbr->GetMetallicTexture()->GetPath(), [node,pbr](std::string val) {
+                    pbr->SetMetallicTexture(new Texture2D(val));
+                    });
+                AddTexture("Roughness", pbr->GetRoughTexture()->GetPath(), [node,pbr](std::string val) {
+                    pbr->SetRoughnessTexture(new Texture2D(val));
+                    });
+                int b = 5;
+            }
+
+            i++;
+        }
+
+    }
 
 
     auto scripts = node->GetComponents<ScriptComponent>();
@@ -571,4 +611,66 @@ void PropertiesEditor::AddedFromDrop(const QString& resourceName)
     //     m_selectedNode->AddComponent(new ScriptComponent(resourceName));
     //     SetNode(m_selectedNode); // Refresh the UI
     // }
+}
+
+
+PropertyTexture* PropertiesEditor::AddTexture(const QString& label, const std::string& defaultPath,
+    std::function<void(const std::string&)> callback)
+{
+    PropertyTexture* textureProp = new PropertyTexture(label);
+
+    if (!defaultPath.empty()) {
+        textureProp->setTexturePath(defaultPath);
+    }
+
+    m_contentLayout->addWidget(textureProp);
+
+    if (callback) {
+        connect(textureProp, &PropertyTexture::textureChanged, this, [callback](const std::string& path) {
+            callback(path);
+            });
+    }
+
+    return textureProp;
+}
+
+void PropertiesEditor::SetMaterial(MaterialPBR* mat)
+{
+    if (!m_mainLayout) {
+        BeginUI();
+    }
+
+    ClearUI();  //
+
+    AddHeader(std::string("Material:" + mat->GetName()).c_str());
+        
+    m_Material = mat;
+   
+    if (dynamic_cast<MaterialPBR*>(mat)) {
+
+        auto pbr = (MaterialPBR*)mat;
+        AddTexture("Color", pbr->GetColorTexture()->GetPath(), [pbr](std::string val)
+            {
+                pbr->SetColorTexture(new Texture2D(val));
+                pbr->Save(pbr->GetPath());
+            });
+        AddTexture("Normal", pbr->GetNormalTexture()->GetPath(), [pbr](std::string val)
+            {
+                pbr->SetNormalTexture(new Texture2D(val));
+                pbr->Save(pbr->GetPath());
+            });
+        AddTexture("Metallic", pbr->GetMetallicTexture()->GetPath(), [pbr](std::string val) {
+            pbr->SetMetallicTexture(new Texture2D(val));
+            pbr->Save(pbr->GetPath());
+            });
+        AddTexture("Roughness", pbr->GetRoughTexture()->GetPath(), [pbr](std::string val) {
+            pbr->SetRoughnessTexture(new Texture2D(val));
+            pbr->Save(pbr->GetPath());
+            });
+        int b = 5;
+    }
+
+
+    EndUI();
+    m_Material = mat;
 }

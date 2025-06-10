@@ -16,9 +16,6 @@
     <Filter Include="SceneGraph">
       <UniqueIdentifier>{9e973708-494e-40ef-850e-90bc8be44ccc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="SceneGraph\Nodes">
-      <UniqueIdentifier>{72188105-785f-4264-95c3-320c36b1149d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Components">
       <UniqueIdentifier>{d6ce4e59-cecb-41ff-a107-1dff8eb424ce}</UniqueIdentifier>
     </Filter>
@@ -60,6 +57,9 @@
     </Filter>
     <Filter Include="Physics">
       <UniqueIdentifier>{1a122c3f-5586-4402-b36d-18331d35a8ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Components\Nodes">
+      <UniqueIdentifier>{72188105-785f-4264-95c3-320c36b1149d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -159,9 +159,6 @@
     <ClInclude Include="Intersections.h">
       <Filter>CL</Filter>
     </ClInclude>
-    <ClInclude Include="MaterialPBR.h">
-      <Filter>CL</Filter>
-    </ClInclude>
     <ClInclude Include="ScriptHost.h">
       <Filter>Script</Filter>
     </ClInclude>
@@ -215,6 +212,30 @@
     </ClInclude>
     <ClInclude Include="Physics.h">
       <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="TerrainMeshComponent.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="TerrainLayer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PixelMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TerrainMesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TerrainMeshBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TerrainRendererComponent.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialTerrain.h">
+      <Filter>Material</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialPBR.h">
+      <Filter>Material</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -430,6 +451,27 @@
     </ClCompile>
     <ClCompile Include="Physics.cpp">
       <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="TerrainMeshComponent.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="TerrainLayer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PixelMap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TerrainMesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TerrainMeshBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TerrainRendererComponent.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="MaterialTerrain.cpp">
+      <Filter>Material</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

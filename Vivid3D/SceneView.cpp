@@ -11,6 +11,8 @@
 #include "MaterialPBR.h"
 //Diligent Engine includes
 #include "Physics.h"
+#include "TerrainMeshComponent.h"
+#include "TerrainRendererComponent.h"
 
 
 #if D3D11_SUPPORTED
@@ -163,7 +165,7 @@ SceneView::SceneView(QWidget *parent)
     m_SceneController->setCamera(cam);
     m_SceneController->setScene(m_SceneGraph);
     m_SceneController->Init();
-    NodeTree::m_Instance->SetRoot(m_SceneGraph->GetRootNode());
+ 
     m_Draw = new Draw2D(cam);
 
     //m_Test1->SetBody(BodyType::T_TriMesh);
@@ -173,8 +175,15 @@ SceneView::SceneView(QWidget *parent)
 
 
     //m_Test1->CreateRB();
+    m_Terrain = new GraphNode;
 
+    auto ter = new TerrainMeshComponent(32, 32, 8, 3);
+    auto ter_ren = new TerrainRendererComponent;
+    m_Terrain->AddComponent(ter);
+    m_Terrain->AddComponent(ter_ren);
 
+    m_SceneGraph->AddNode(m_Terrain);
+    NodeTree::m_Instance->SetRoot(m_SceneGraph->GetRootNode());
 }
 
 SceneView::~SceneView()

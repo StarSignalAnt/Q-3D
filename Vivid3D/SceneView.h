@@ -151,5 +151,6 @@ private:
 	SceneSelectionOverlay* m_SelectionOverlay;
 	Draw2D* m_Draw;
 	Texture2D* tex1;
+	GraphNode* m_Terrain = nullptr;
 };
 

@@ -13,11 +13,11 @@
 #include <functional>
 #include <qvector3d.h>
 #include "PropertyStringList.h"
-
+#include "PropertyTexture.h"
 // Forward declaration of GraphNode is good practice
 class GraphNode;
 
-
+class MaterialPBR;
 
 class PropertiesEditor : public QWidget
 {
@@ -36,6 +36,7 @@ public:
     void ClearUI();
     void UpdateNode(GraphNode* node);
     void SetNode(GraphNode* node);
+    void SetMaterial(MaterialPBR* mat);
     void AddHeader(const QString& text);
 
     PropertyText* AddText(const QString& label, const QString& defaultText = "",
@@ -59,6 +60,9 @@ public:
         std::function<void(int)> callback = nullptr);
     PropertyStringList* AddStringList(const QString& label, const QStringList& options,
         const QString& defaultValue = "", std::function<void(const QString&)> callback = nullptr);
+    PropertyTexture* AddTexture(const QString& label, const std::string& defaultPath = "",
+        std::function<void(const std::string&)> callback = nullptr);
+
 protected:
 
     void dragEnterEvent(QDragEnterEvent* event) override;
@@ -82,5 +86,6 @@ private:
     PropertyVec3* m_currentRotationProp = nullptr;
     PropertyVec3* m_currentScaleProp = nullptr;
     GraphNode* m_Node = nullptr;
+    MaterialPBR* m_Material;
 
 };

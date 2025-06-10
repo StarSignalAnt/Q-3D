@@ -173,9 +173,11 @@
     <ClInclude Include="MaterialPBR.h" />
     <ClInclude Include="MaterialSkeletal.h" />
     <ClInclude Include="MaterialSkeletalDepth.h" />
+    <ClInclude Include="MaterialTerrain.h" />
     <ClInclude Include="MathsHelp.h" />
     <ClInclude Include="Pars.h" />
     <ClInclude Include="Physics.h" />
+    <ClInclude Include="PixelMap.h" />
     <ClInclude Include="PostProcess.h" />
     <ClInclude Include="PostProcessing.h" />
     <ClInclude Include="PPOutline.h" />
@@ -196,6 +198,11 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="SceneGraph.h" />
     <ClInclude Include="StaticRendererComponent.h" />
+    <ClInclude Include="TerrainLayer.h" />
+    <ClInclude Include="TerrainMesh.h" />
+    <ClInclude Include="TerrainMeshBuffer.h" />
+    <ClInclude Include="TerrainMeshComponent.h" />
+    <ClInclude Include="TerrainRendererComponent.h" />
     <ClInclude Include="Texture2D.h" />
     <ClInclude Include="TextureCube.h" />
     <ClInclude Include="VFile.h" />
@@ -225,9 +232,11 @@
     <ClCompile Include="MaterialPBR.cpp" />
     <ClCompile Include="MaterialSkeletal.cpp" />
     <ClCompile Include="MaterialSkeletalDepth.cpp" />
+    <ClCompile Include="MaterialTerrain.cpp" />
     <ClCompile Include="MathsHelp.cpp" />
     <ClCompile Include="Pars.cpp" />
     <ClCompile Include="Physics.cpp" />
+    <ClCompile Include="PixelMap.cpp" />
     <ClCompile Include="PostProcess.cpp" />
     <ClCompile Include="PostProcessing.cpp" />
     <ClCompile Include="PPOutline.cpp" />
@@ -273,6 +282,11 @@
     </ClCompile>
     <ClCompile Include="SceneGraph.cpp" />
     <ClCompile Include="StaticRendererComponent.cpp" />
+    <ClCompile Include="TerrainLayer.cpp" />
+    <ClCompile Include="TerrainMesh.cpp" />
+    <ClCompile Include="TerrainMeshBuffer.cpp" />
+    <ClCompile Include="TerrainMeshComponent.cpp" />
+    <ClCompile Include="TerrainRendererComponent.cpp" />
     <ClCompile Include="Texture2D.cpp" />
     <ClCompile Include="TextureCube.cpp" />
     <ClCompile Include="VFile.cpp" />

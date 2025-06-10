@@ -12,6 +12,7 @@
 #include "LightComponent.h"
 #include "GraphNode.h"
 #include "RenderTargetCube.h"
+#include "VFile.h"
 
 using namespace Diligent;
 
@@ -763,4 +764,60 @@ void MaterialPBR::Render() {
     attrib.Flags = DRAW_FLAG_VERIFY_ALL;
     Vivid::m_pImmediateContext->DrawIndexed(attrib);
 
+}
+
+
+bool HasExtension(const std::string& path, const std::string& extension) {
+    // Find the last dot in the path
+    size_t dotPos = path.find_last_of('.');
+    if (dotPos == std::string::npos) return false; // No extension
+
+    std::string fileExt = path.substr(dotPos + 1);
+
+    // Normalize to lowercase for case-insensitive comparison
+    std::string extLower = extension;
+    std::string fileExtLower = fileExt;
+    std::transform(extLower.begin(), extLower.end(), extLower.begin(), ::tolower);
+    std::transform(fileExtLower.begin(), fileExtLower.end(), fileExtLower.begin(), ::tolower);
+
+    return fileExtLower == extLower;
+}
+
+
+void MaterialPBR::Save(std::string path) {
+
+
+
+
+    if (!HasExtension(path, "material"))
+    {
+        path = path + ".material";
+    }
+    VFile* f = new VFile(path.c_str(), FileMode::Write);
+
+    f->WriteString(m_ColorTexture->GetPath().c_str());
+    f->WriteString(m_NormalTexture->GetPath().c_str());
+    f->WriteString(m_MetallicTexture->GetPath().c_str());
+    f->WriteString(m_RoughnessTexture->GetPath().c_str());
+
+    f->Close();
+    m_Path = path;
+
+}
+
+void MaterialPBR::Load(std::string path) {
+
+    if (!HasExtension(path, "material"))
+    {
+        path = path + ".material";
+    }
+    m_Path = path;
+    VFile* f = new VFile(path.c_str(), FileMode::Read);
+
+    m_ColorTexture = new Texture2D(f->ReadString());
+    m_NormalTexture = new Texture2D(f->ReadString());
+    m_MetallicTexture = new Texture2D(f->ReadString());
+    m_RoughnessTexture = new Texture2D(f->ReadString());
+
+    f->Close();
 }

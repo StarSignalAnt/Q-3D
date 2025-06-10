@@ -22,6 +22,8 @@ public:
 	
 	Texture2D(RenderTarget2D* target);
 	Texture2D(std::string path);
+	Texture2D(int w, int h, float* data, int bpp);
+	void Update(float* data);
 	RefCntAutoPtr<ITextureView> GetView() {
 	
 		return m_pTextureView;
@@ -29,6 +31,9 @@ public:
 	RefCntAutoPtr<ITexture> GetTex() {
 	
 		return m_pTexture;
+	}
+	std::string GetPath() {
+		return m_Path;
 	}
 private:
 

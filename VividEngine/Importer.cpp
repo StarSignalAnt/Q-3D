@@ -21,7 +21,7 @@
 #include <filesystem> // C++17 or later
 #include "Animation.h"
 #include "Animator.h"
-
+#include <random>
 namespace fs = std::filesystem; // For C++17 compatibility
 Texture2D* LoadTexture(const std::string& path) {
     // Assume this loads and returns a new Texture2D*, or nullptr on failure
@@ -54,6 +54,42 @@ Texture2D* FindTexture(const aiMaterial* material, aiTextureType type, const std
     return nullptr;
 }
 
+std::string GetFolderPath(const std::string& filePath) {
+    // Copy and normalize to backslashes
+    std::string normalizedPath = filePath;
+    std::replace(normalizedPath.begin(), normalizedPath.end(), '/', '\\');
+
+    // Find last backslash
+    size_t lastSlash = normalizedPath.find_last_of('\\');
+    if (lastSlash == std::string::npos)
+        return ""; // No slash found, likely no folder
+
+    std::string folderPath = normalizedPath.substr(0, lastSlash + 1);
+
+    // Ensure it ends with a single backslash
+    if (folderPath.back() != '\\') {
+        folderPath += '\\';
+    }
+
+    return folderPath;
+}
+std::string GenerateRandomFileName(size_t length = 12) {
+    static const char charset[] =
+        "0123456789"
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "abcdefghijklmnopqrstuvwxyz";
+
+    static std::mt19937 rng(std::random_device{}());
+    static std::uniform_int_distribution<> dist(0, sizeof(charset) - 2); // -2 to exclude null terminator
+
+    std::string result;
+    result.reserve(length);
+    for (size_t i = 0; i < length; ++i) {
+        result += charset[dist(rng)];
+    }
+
+    return result;
+}
 GraphNode* Importer::ImportEntity(std::string path) {
     std::string modelDir = fs::path(path).parent_path().string();
     Assimp::Importer importer;
@@ -75,7 +111,49 @@ GraphNode* Importer::ImportEntity(std::string path) {
 
 
             aiMaterial* aiMat = scene->mMaterials[i];
-            auto* material = new MaterialPBR;
+            
+            auto m_name = aiMat->GetName();
+
+            if (std::string(m_name.C_Str()) == "")
+            {
+                m_name = GenerateRandomFileName(8);
+
+            }
+
+            auto m_path = GetFolderPath(path);
+
+            m_path = m_path + std::string(m_name.C_Str());
+
+            auto fp = m_path + ".material";
+
+            if (VFile::Exists(fp.c_str())) {
+
+
+
+                bool found = false;
+                for (auto m : Vivid::m_ActiveMaterials) {
+
+                    if (m->GetName() == m_name.C_Str())
+                    {
+                        materials.push_back(m);
+                        found = true;
+                        break;
+                    }
+                }
+                if (found) continue;
+
+                MaterialPBR* pbr = new MaterialPBR;
+                
+                pbr->Load(m_path);
+                pbr->SetName(m_name.C_Str());
+                Vivid::m_ActiveMaterials.push_back(pbr);
+                materials.push_back(pbr);
+                continue;
+
+            }
+
+            auto material = new MaterialPBR;
+            material->SetName(m_name.C_Str());
 
             // Albedo / Base Color
             if (Texture2D* tex = FindTexture(aiMat, aiTextureType_DIFFUSE, modelDir))
@@ -90,22 +168,22 @@ GraphNode* Importer::ImportEntity(std::string path) {
 
                 //material->SetSpecularTexture(tex);
             }
-       //     if (Texture2D* tex = FindTexture(aiMat, aiTextureType_NORMALS, modelDir))
+            if (Texture2D* tex = FindTexture(aiMat, aiTextureType_NORMALS, modelDir))
             {
-         //       material->SetNormalTexture(tex);
+                material->SetNormalTexture(tex);
             }
             //aterial->SetNormal(tex);
 
-           // if (Texture2D* tex = FindTexture(aiMat, aiTextureType_METALNESS, modelDir))
+            if (Texture2D* tex = FindTexture(aiMat, aiTextureType_METALNESS, modelDir))
             {
-     //           material->SetMetallicTexture(tex);
+                material->SetMetallicTexture(tex);
             }
             //material->SetMetallic(tex);
 
 
             if (Texture2D* tex = FindTexture(aiMat, aiTextureType_DIFFUSE_ROUGHNESS, modelDir))
             {
-   //             material->SetRoughnessTexture(tex);
+                material->SetRoughnessTexture(tex);
             }
             else {
                 aiString path;
@@ -125,8 +203,9 @@ GraphNode* Importer::ImportEntity(std::string path) {
             {
             }
 
-
+            material->Save(m_path);
             materials.push_back(material);
+            Vivid::m_ActiveMaterials.push_back(material);
         }
     }
 

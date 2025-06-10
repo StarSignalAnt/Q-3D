@@ -51,7 +51,9 @@ public:
     {
         return m_MetallicTexture;
 	}
- 
+    Texture2D* GetRoughTexture() const {
+        return m_RoughnessTexture;
+    }
     TextureCube* GetEnvironmentMap() const
     {
         return m_EnvironmentMap;
@@ -64,7 +66,8 @@ public:
     {
         m_ParalaxScale = scale;
     }
-    
+    void Save(std::string path) override;
+    void Load(std::string path) override;
 private:
 
 

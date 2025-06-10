@@ -127,6 +127,9 @@
     <ClCompile Include="PropertyNode.cpp">
       <Filter>Props</Filter>
     </ClCompile>
+    <ClCompile Include="PropertyTexture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="SceneView.h">
@@ -176,6 +179,9 @@
     </QtMoc>
     <QtMoc Include="PropertyNode.h">
       <Filter>Props</Filter>
+    </QtMoc>
+    <QtMoc Include="PropertyTexture.h">
+      <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>

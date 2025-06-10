@@ -67,6 +67,17 @@ public:
 			return m_Bones[index];
 		return glm::mat4(1.0f);
 	}
+	virtual void Save(std::string path) {};
+	virtual void Load(std::string path) {};
+	std::string GetName() {
+		return m_Name;
+	}
+	void SetName(std::string name) {
+		m_Name = name;
+	}
+	std::string GetPath() {
+		return m_Path;
+	}
 protected:
 
 	GraphNode* m_Light = nullptr;
@@ -77,7 +88,8 @@ protected:
 	RefCntAutoPtr<IBuffer> m_UniformBuffer;
 	RefCntAutoPtr<IShaderResourceBinding> m_SRB;
 	RefCntAutoPtr<IShaderResourceBinding> m_SRBAdd;
-
+	std::string m_Name = "";
+	std::string m_Path = "";
 	glm::mat4 m_Bones[100];
 	int m_IndexCount = 0;
 	RefCntAutoPtr<IBuffer> m_Buffers[128];
