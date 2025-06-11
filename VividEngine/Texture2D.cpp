@@ -1,63 +1,80 @@
 #include "Texture2D.h"
 #include "RenderTarget2D.h"
+#include <filesystem>
+#include <iostream>
+
+// Static member definitions
+std::unordered_map<std::string, std::shared_ptr<CachedTexture>> Texture2D::s_textureCache;
+std::mutex Texture2D::s_cacheMutex;
+
 Texture2D::Texture2D(std::string path)
 {
     m_Path = path;
-	TextureLoadInfo loadInfo;
-    loadInfo.BindFlags = BIND_FLAGS::BIND_SHADER_RESOURCE;// | BIND_FLAGS::BIND_UNORDERED_ACCESS;
-    // loadInfo.GenerateMips = true;
-     //loadInfo.Usage = USAGE::USAGE_DYNAMIC;
 
+    // Lock for thread safety
+    std::lock_guard<std::mutex> lock(s_cacheMutex);
+
+    // Check memory cache first
+    auto cacheIt = s_textureCache.find(path);
+    if (cacheIt != s_textureCache.end()) {
+        // Found in memory cache, use cached data
+        auto cachedTex = cacheIt->second;
+        m_pTexture = cachedTex->texture;
+        m_pTextureView = cachedTex->textureView;
+        m_Width = cachedTex->width;
+        m_Height = cachedTex->height;
+        return;
+    }
+
+    // Not in memory cache, try binary cache
+    if (LoadFromBinaryCache(path)) {
+        // Successfully loaded from binary cache
+        // Add to memory cache for future use
+        auto cachedTex = std::make_shared<CachedTexture>();
+        cachedTex->texture = m_pTexture;
+        cachedTex->textureView = m_pTextureView;
+        cachedTex->width = m_Width;
+        cachedTex->height = m_Height;
+        s_textureCache[path] = cachedTex;
+        return;
+    }
+
+    // Not in any cache, load from original file
+    TextureLoadInfo loadInfo;
+    loadInfo.BindFlags = BIND_FLAGS::BIND_SHADER_RESOURCE;
     loadInfo.Format = TEX_FORMAT_RGBA16_UNORM;
-    
     loadInfo.MipLevels = 24;
-   // 
-    loadInfo.MipFilter = TEXTURE_LOAD_MIP_FILTER_DEFAULT;
     loadInfo.MipFilter = TEXTURE_LOAD_MIP_FILTER_BOX_AVERAGE;
-
-
     loadInfo.GenerateMips = true;
 
-    // 
     Vivid::m_pImmediateContext->Flush();
     CreateTextureFromFile(path.c_str(), loadInfo, Vivid::m_pDevice, &m_pTexture);
-
-
-
     Vivid::m_pImmediateContext->Flush();
-
 
     m_pTextureView = m_pTexture->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE);
-
     Vivid::m_pImmediateContext->Flush();
-
-    // StateTransitionDesc barriers[] = {
-    //    {m_pTexture, RESOURCE_STATE_UNKNOWN, RESOURCE_STATE_SHADER_RESOURCE, STATE_TRANSITION_FLAG_UPDATE_STATE},
-    // };
-
-
-
-   //  Engine::m_pImmediateContext->TransitionResourceStates(_countof(barriers), barriers);
-  //   Engine::m_pImmediateContext->Flush();
-
-   //  Engine::m_pImmediateContext->GenerateMips(m_pTextureView);
-
-
 
     m_Width = m_pTexture->GetDesc().Width;
     m_Height = m_pTexture->GetDesc().Height;
 
+    // Save to binary cache for future loads
+    SaveToBinaryCache(path);
 
-
+    // Add to memory cache
+    auto cachedTex = std::make_shared<CachedTexture>();
+    cachedTex->texture = m_pTexture;
+    cachedTex->textureView = m_pTextureView;
+    cachedTex->width = m_Width;
+    cachedTex->height = m_Height;
+    s_textureCache[path] = cachedTex;
 }
 
 Texture2D::Texture2D(RenderTarget2D* target) {
-
     m_pTexture = target->GetTexture();
     m_pTextureView = target->GetView();
-
+    m_Width = m_pTexture->GetDesc().Width;
+    m_Height = m_pTexture->GetDesc().Height;
 }
-
 
 Texture2D::Texture2D(int w, int h, float* data, int bpp)
 {
@@ -65,16 +82,14 @@ Texture2D::Texture2D(int w, int h, float* data, int bpp)
     m_Height = h;
 
     TextureDesc TexDesc;
-    TexDesc.Name = "Float Tex2D"; // Name of the texture
-    TexDesc.Type = RESOURCE_DIM_TEX_2D; // Cube map type
+    TexDesc.Name = "Float Tex2D";
+    TexDesc.Type = RESOURCE_DIM_TEX_2D;
     TexDesc.Width = w;
     TexDesc.Height = h;
-    TexDesc.Format = TEX_FORMAT_RGBA32_FLOAT; ;// Engine::m_pSwapChain->GetCurrentBackBufferRTV()->GetDesc().Format;  //DXGI_FORMAT_R32G32B32A32_FLOAT; // Assuming RGBA EXR format
+    TexDesc.Format = TEX_FORMAT_RGBA32_FLOAT;
     TexDesc.BindFlags = BIND_SHADER_RESOURCE;
     TexDesc.Usage = USAGE_DEFAULT;
-
     TexDesc.MipLevels = 1;
-    std::vector<TextureSubResData> res;
 
     TextureSubResData adata;
     adata.pData = data;
@@ -84,18 +99,13 @@ Texture2D::Texture2D(int w, int h, float* data, int bpp)
     tdata.NumSubresources = 1;
     tdata.pSubResources = &adata;
 
-
     RefCntAutoPtr<ITexture> pTexture;
     Vivid::m_pDevice->CreateTexture(TexDesc, &tdata, &pTexture);
     m_pTexture = pTexture;
     m_pTextureView = pTexture->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE);
-
 }
 
-
 void Texture2D::Update(float* data) {
-
-
     Diligent::Box updateBox;
     updateBox.MinX = 0;
     updateBox.MaxX = m_Width;
@@ -104,15 +114,228 @@ void Texture2D::Update(float* data) {
     updateBox.MinZ = 0;
     updateBox.MaxZ = 1;
 
-    // Define the data to update the texture
     Diligent::TextureSubResData subresourceData;
     subresourceData.pData = data;
-    subresourceData.Stride = updateBox.MaxX * 4 * sizeof(float); // Assuming 4 bytes per pixel (e.g., RGBA8 format)
+    subresourceData.Stride = updateBox.MaxX * 4 * sizeof(float);
 
-
-//    data_m.lock();
-    // Update the texture
-    Vivid::m_pImmediateContext->UpdateTexture(m_pTexture, 0, 0, updateBox, subresourceData, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    Vivid::m_pImmediateContext->UpdateTexture(m_pTexture, 0, 0, updateBox, subresourceData,
+        Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
     m_pTextureView = m_pTexture->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE);
-  //  data_m.unlock();
 }
+
+std::string Texture2D::GetBinaryCachePath(const std::string& texturePath) {
+    // Create cache file in the same directory as the original texture
+    std::filesystem::path originalPath(texturePath);
+    std::string cacheFilename = originalPath.stem().string() + ".texcache";
+
+    // Return path in same directory as original
+    std::filesystem::path cachePath = originalPath.parent_path() / cacheFilename;
+    return cachePath.string();
+}
+
+bool Texture2D::LoadFromBinaryCache(const std::string& path) {
+    std::string cachePath = GetBinaryCachePath(path);
+
+    // Check if cache file exists and is newer than original
+    if (!std::filesystem::exists(cachePath)) {
+        return false;
+    }
+
+    // Optional: Check if original file is newer than cache
+    if (std::filesystem::exists(path)) {
+        auto originalTime = std::filesystem::last_write_time(path);
+        auto cacheTime = std::filesystem::last_write_time(cachePath);
+        if (originalTime > cacheTime) {
+            return false; // Original is newer, cache is stale
+        }
+    }
+
+    try {
+        std::ifstream file(cachePath, std::ios::binary);
+        if (!file.is_open()) {
+            return false;
+        }
+
+        // Read header
+        BinaryCacheHeader header;
+        file.read(reinterpret_cast<char*>(&header), sizeof(header));
+
+        if (file.fail() || header.channels != 4) {
+            file.close();
+            return false;
+        }
+
+        // Read texture data
+        std::vector<uint8_t> textureData(header.dataSize);
+        file.read(reinterpret_cast<char*>(textureData.data()), header.dataSize);
+        file.close();
+
+        if (file.fail()) {
+            return false;
+        }
+
+        // Create texture from cached data using the original format and settings
+        TextureDesc TexDesc;
+        TexDesc.Name = "Cached Texture";
+        TexDesc.Type = RESOURCE_DIM_TEX_2D;
+        TexDesc.Width = header.width;
+        TexDesc.Height = header.height;
+        TexDesc.Format = static_cast<TEXTURE_FORMAT>(header.format); // Use original format
+        TexDesc.BindFlags = BIND_SHADER_RESOURCE;
+        TexDesc.Usage = USAGE_DEFAULT;
+        TexDesc.MipLevels = header.mipLevels;
+
+        // Calculate stride based on format
+        int bytesPerPixel = (header.format == TEX_FORMAT_RGBA16_UNORM) ? 8 : 4;
+
+        TextureSubResData adata;
+        adata.pData = textureData.data();
+        adata.Stride = header.width * bytesPerPixel;
+
+        TextureData tdata;
+        tdata.NumSubresources = 1;
+        tdata.pSubResources = &adata;
+
+        RefCntAutoPtr<ITexture> pTexture;
+        Vivid::m_pDevice->CreateTexture(TexDesc, &tdata, &pTexture);
+
+        if (!pTexture) {
+            return false;
+        }
+
+        m_pTexture = pTexture;
+        m_pTextureView = pTexture->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE);
+        m_Width = header.width;
+        m_Height = header.height;
+
+        return true;
+    }
+    catch (const std::exception& e) {
+        std::cerr << "Error loading from binary cache: " << e.what() << std::endl;
+        return false;
+    }
+}
+
+void Texture2D::SaveToBinaryCache(const std::string& path) {
+    try {
+        std::string cachePath = GetBinaryCachePath(path);
+
+        // Extract texture data
+        std::vector<uint8_t> textureData = ExtractTextureData();
+        if (textureData.empty()) {
+            return; // Failed to extract data
+        }
+
+        // Write cache file
+        std::ofstream file(cachePath, std::ios::binary);
+        if (!file.is_open()) {
+            return;
+        }
+
+        // Write header with original texture properties
+        BinaryCacheHeader header;
+        header.width = m_Width;
+        header.height = m_Height;
+        header.channels = 4;
+        header.format = static_cast<int>(m_pTexture->GetDesc().Format);
+        header.mipLevels = m_pTexture->GetDesc().MipLevels;
+        header.dataSize = textureData.size();
+
+        file.write(reinterpret_cast<const char*>(&header), sizeof(header));
+        file.write(reinterpret_cast<const char*>(textureData.data()), textureData.size());
+        file.close();
+    }
+    catch (const std::exception& e) {
+        std::cerr << "Error saving to binary cache: " << e.what() << std::endl;
+    }
+}
+
+std::vector<uint8_t> Texture2D::ExtractTextureData() {
+    std::vector<uint8_t> data;
+
+    try {
+        // Get original texture description
+        const TextureDesc& originalDesc = m_pTexture->GetDesc();
+
+        // Create a staging texture with exact same format as original
+        TextureDesc stagingDesc = originalDesc;
+        stagingDesc.Usage = USAGE_STAGING;
+        stagingDesc.BindFlags = BIND_NONE;
+        stagingDesc.CPUAccessFlags = CPU_ACCESS_READ;
+        stagingDesc.MipLevels = 1; // Only get the base mip level
+
+        RefCntAutoPtr<ITexture> stagingTexture;
+        Vivid::m_pDevice->CreateTexture(stagingDesc, nullptr, &stagingTexture);
+
+        if (!stagingTexture) {
+            std::cerr << "Failed to create staging texture" << std::endl;
+            return data;
+        }
+
+        // Copy texture to staging - copy only the base mip level
+        CopyTextureAttribs copyAttribs;
+        copyAttribs.pSrcTexture = m_pTexture;
+        copyAttribs.pDstTexture = stagingTexture;
+        copyAttribs.SrcMipLevel = 0;
+        copyAttribs.DstMipLevel = 0;
+        copyAttribs.SrcSlice = 0;
+        copyAttribs.DstSlice = 0;
+
+        Vivid::m_pImmediateContext->CopyTexture(copyAttribs);
+        Vivid::m_pImmediateContext->Flush();
+
+        // Map staging texture and read data
+        MappedTextureSubresource mappedData;
+        Vivid::m_pImmediateContext->MapTextureSubresource(stagingTexture, 0, 0, MAP_READ, MAP_FLAG_NONE, nullptr, mappedData);
+
+        if (mappedData.pData) {
+            // Calculate bytes per pixel based on format
+            int bytesPerPixel;
+            switch (originalDesc.Format) {
+            case TEX_FORMAT_RGBA16_UNORM:
+                bytesPerPixel = 8; // 2 bytes per channel * 4 channels
+                break;
+            case TEX_FORMAT_RGBA8_UNORM:
+            case TEX_FORMAT_RGBA8_UNORM_SRGB:
+                bytesPerPixel = 4; // 1 byte per channel * 4 channels
+                break;
+            case TEX_FORMAT_RGBA32_FLOAT:
+                bytesPerPixel = 16; // 4 bytes per channel * 4 channels
+                break;
+            default:
+                bytesPerPixel = 4; // Default fallback
+                break;
+            }
+
+            size_t dataSize = m_Width * m_Height * bytesPerPixel;
+            data.resize(dataSize);
+
+            // Copy row by row to handle potential row padding
+            const uint8_t* srcData = static_cast<const uint8_t*>(mappedData.pData);
+            uint8_t* dstData = data.data();
+
+            size_t rowSize = m_Width * bytesPerPixel;
+
+            for (int y = 0; y < m_Height; ++y) {
+                memcpy(dstData + y * rowSize, srcData + y * mappedData.Stride, rowSize);
+            }
+
+            Vivid::m_pImmediateContext->UnmapTextureSubresource(stagingTexture, 0, 0);
+        }
+        else {
+            std::cerr << "Failed to map staging texture" << std::endl;
+        }
+    }
+    catch (const std::exception& e) {
+        std::cerr << "Error extracting texture data: " << e.what() << std::endl;
+    }
+
+    return data;
+}
+
+// Static methods for cache management
+void Texture2D::ClearMemoryCache() {
+    std::lock_guard<std::mutex> lock(s_cacheMutex);
+    s_textureCache.clear();
+}
+

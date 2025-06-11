@@ -9,6 +9,9 @@ Content::Content(QWidget* parent)
     , m_itemSize(64)
     , m_itemSpacing(10)
     , m_layoutDirty(true)
+    , m_previewLabel(nullptr)
+    , m_previewTimer(nullptr)
+    , m_lastHoverItem(nullptr)
 {
     setMinimumHeight(250);
     setMouseTracking(true);
@@ -20,6 +23,16 @@ Content::Content(QWidget* parent)
     m_thumbnailCacheDir = appDataPath + "/thumbnails";
     QDir().mkpath(m_thumbnailCacheDir);
 
+    // Setup preview timer
+    m_previewTimer = new QTimer(this);
+    m_previewTimer->setSingleShot(true);
+    m_previewTimer->setInterval(500); // 500ms delay before showing preview
+    connect(m_previewTimer, &QTimer::timeout, this, [this]() {
+        if (m_lastHoverItem && m_lastHoverItem->hasThumbnail) {
+            showImagePreview(m_lastHoverItem, QCursor::pos());
+        }
+        });
+
     DirIcon = QIcon("edit/icons/folderIcon.png");
     FileIcon = QIcon("edit/icons/fileIcon.png");
     EntIcon = QIcon("edit/icons/entityIcon.png");
@@ -29,6 +42,7 @@ Content::Content(QWidget* parent)
 
 Content::~Content()
 {
+    hideImagePreview();
 }
 
 std::string Content::GetPath() {
@@ -102,6 +116,71 @@ QPixmap Content::generateThumbnail(const QString& filePath) {
     }
 
     return QPixmap::fromImage(image);
+}
+
+QPixmap Content::generateLargePreview(const QString& filePath) {
+    QImageReader reader(filePath);
+    if (!reader.canRead()) {
+        return QPixmap();
+    }
+
+    // Scale image to fit within 256x256 while maintaining aspect ratio
+    QSize originalSize = reader.size();
+    QSize targetSize(256, 256);
+
+    if (originalSize.width() > targetSize.width() || originalSize.height() > targetSize.height()) {
+        originalSize.scale(targetSize, Qt::KeepAspectRatio);
+        reader.setScaledSize(originalSize);
+    }
+
+    QImage image = reader.read();
+    if (image.isNull()) {
+        return QPixmap();
+    }
+
+    return QPixmap::fromImage(image);
+}
+
+void Content::showImagePreview(const FileItem* item, const QPoint& mousePos) {
+    if (!item || !item->hasThumbnail) return;
+
+    hideImagePreview(); // Clean up any existing preview
+
+    // Generate large preview
+    QPixmap largePreview = generateLargePreview(item->fullPath);
+    if (largePreview.isNull()) return;
+
+    // Create preview label
+    m_previewLabel = new QLabel(nullptr);
+    m_previewLabel->setWindowFlags(Qt::ToolTip | Qt::FramelessWindowHint);
+    m_previewLabel->setAttribute(Qt::WA_TranslucentBackground);
+    m_previewLabel->setStyleSheet("QLabel { background-color: rgba(0, 0, 0, 200); border: 2px solid white; border-radius: 5px; padding: 5px; }");
+    m_previewLabel->setPixmap(largePreview);
+    m_previewLabel->setFixedSize(largePreview.size() + QSize(10, 10)); // Add padding
+
+    // Position near mouse cursor but keep on screen
+    QPoint showPos = mousePos + QPoint(15, 15);
+    QRect screenRect = QGuiApplication::primaryScreen()->geometry();
+
+    // Adjust position to keep preview on screen
+    if (showPos.x() + m_previewLabel->width() > screenRect.right()) {
+        showPos.setX(mousePos.x() - m_previewLabel->width() - 15);
+    }
+    if (showPos.y() + m_previewLabel->height() > screenRect.bottom()) {
+        showPos.setY(mousePos.y() - m_previewLabel->height() - 15);
+    }
+
+    m_previewLabel->move(showPos);
+    m_previewLabel->show();
+}
+
+void Content::hideImagePreview() {
+    if (m_previewLabel) {
+        m_previewLabel->deleteLater();
+        m_previewLabel->close();
+        m_previewLabel = nullptr;
+      
+    }
 }
 
 QPixmap Content::loadOrGenerateThumbnail(const QString& filePath) {
@@ -441,9 +520,10 @@ void Content::fileClicked(const QString& filePath, bool isDirectory)
 
 void Content::mouseMoveEvent(QMouseEvent* event) {
     QPoint clickPos = event->pos();
+    FileItem* previousOverItem = m_OverItem;
     m_OverItem = nullptr;
-    auto p = m_OverItem;
 
+    // Find the item under the cursor for hover effects
     for (FileItem& item : m_items) {
         if (item.rect.contains(clickPos)) {
             m_OverItem = &item;
@@ -451,10 +531,29 @@ void Content::mouseMoveEvent(QMouseEvent* event) {
         }
     }
 
-    if (p != nullptr) {
+    // Handle image preview with improved logic
+    if (m_OverItem != m_lastHoverItem) {
+        // Mouse moved to different item or off items
+        m_previewTimer->stop();
+        hideImagePreview();
+
+        if (m_OverItem && m_OverItem->hasThumbnail) {
+            // Start timer for new item with thumbnail
+            m_lastHoverItem = m_OverItem;
+            m_previewTimer->start();
+        }
+        else {
+            // Mouse moved off item or to item without thumbnail
+            m_lastHoverItem = nullptr;
+        }
+    }
+
+    // If the mouse has moved, trigger an update for the hover effect
+    if (previousOverItem != m_OverItem) {
         update();
     }
 
+    // --- Drag and Drop Logic ---
     if (!(event->buttons() & Qt::LeftButton))
         return;
     if ((event->pos() - m_dragStartPosition).manhattanLength() < QApplication::startDragDistance())
@@ -469,6 +568,9 @@ void Content::mouseMoveEvent(QMouseEvent* event) {
     }
 
     if (draggedItem) {
+        // Hide preview during drag
+        hideImagePreview();
+
         QDrag* drag = new QDrag(this);
         QMimeData* mimeData = new QMimeData;
 
@@ -499,7 +601,7 @@ void Content::mouseMoveEvent(QMouseEvent* event) {
         QRect textBoundingRect = fontMetrics.boundingRect(fileName);
         int padding = 4;
         int bannerHeight = textBoundingRect.height() + (padding * 2);
-        QRect textBannerRect(0, dragPixmap.height() - bannerHeight, dragPixmap.width(), bannerHeight);
+        QRect textBannerRect(0, dragPixmap.width() - bannerHeight, dragPixmap.width(), bannerHeight);
 
         painter.setBrush(QColor(0, 0, 0, 140));
         painter.setPen(Qt::NoPen);
@@ -514,11 +616,28 @@ void Content::mouseMoveEvent(QMouseEvent* event) {
         drag->exec(Qt::CopyAction);
     }
 }
-
 void Content::mousePressEvent(QMouseEvent* event)
 {
     if (event->button() == Qt::LeftButton) {
         m_dragStartPosition = event->pos();
+        // Hide preview when clicking
+        hideImagePreview();
     }
     QWidget::mousePressEvent(event);
+}
+
+void Content::leaveEvent(QEvent* event) {
+    // Immediately hide preview and stop timer when mouse leaves the widget
+    m_previewTimer->stop();
+    hideImagePreview();
+
+    // Reset hover state
+    if (m_OverItem) {
+        m_OverItem = nullptr;
+        update(); // Refresh to remove hover effect
+    }
+
+    m_lastHoverItem = nullptr;
+
+    QWidget::leaveEvent(event);
 }

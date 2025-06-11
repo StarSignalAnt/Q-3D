@@ -12,10 +12,24 @@ SceneGraph* SceneGraph::m_CurrentGraph = nullptr;
 #include "VFile.h"
 #include "CameraComponent.h"
 #include "LightComponent.h"
-
+#include "TerrainMeshComponent.h"
+#include "TerrainMesh.h"
+#include <cmath>   // For std::abs and std::floor
+#include <iomanip> // For std::fixed and std::setprecision
 bool addedGraphFuncs = false;
 
-
+double floorIfCloseToZero(double number, double tolerance = 0.0001) {
+	// Check if the absolute value of the number is less than the tolerance
+	if (std::abs(number) < tolerance) {
+		return 0.0;
+		// If it is, return the floor of the number
+		//return std::floor(number);
+	}
+	else {
+		// Otherwise, return the number unchanged
+		return number;
+	}
+}
 SceneGraph* SceneGraph::m_Instance = nullptr;
 
 SceneGraph::SceneGraph() {
@@ -101,6 +115,11 @@ void SceneGraph::RenderShadows() {
 
 }
 
+void SceneGraph::Reset() {
+
+	m_RayTester = new Intersections();
+}
+
 void SceneGraph::Update(float dt) {
 
 
@@ -163,6 +182,29 @@ HitResult SceneGraph::MousePick(int x, int y)
 
 	return RayCast(ray_origin, ray_dir);
 	*/
+}
+
+
+std::vector<TerrainMeshComponent*> GetTerrainMeshes(GraphNode* node, std::vector<TerrainMeshComponent*> meshes)
+{
+
+	//NodeEntity* pEntity = dynamic_cast<NodeEntity*>(node);
+
+	auto sm = node->GetComponent<TerrainMeshComponent>();
+
+	if (sm != nullptr) {
+		meshes.push_back(sm);
+	}
+
+
+
+	for (auto sub : node->GetNodes()) {
+		meshes = GetTerrainMeshes(sub, meshes);
+
+	}
+
+	return meshes;
+
 }
 
 std::vector<StaticMeshComponent*> GetMeshes(GraphNode* node, std::vector<StaticMeshComponent*> meshes)
@@ -235,7 +277,7 @@ HitResult RayToTri(glm::vec3 point1, glm::vec3 point2, glm::vec3 v0, glm::vec3 v
 
 HitResult SceneGraph::RayCast(glm::vec3 pos, glm::vec3 end) {
 
-	
+
 	HitResult result;
 
 	std::vector<StaticMeshComponent*> meshes;
@@ -251,7 +293,7 @@ HitResult SceneGraph::RayCast(glm::vec3 pos, glm::vec3 end) {
 
 		for (auto sm : mesh->GetSubMeshes()) {
 
-			CastResult res = m_RayTester->CastMesh(float3(pos.x,pos.y,pos.z), float3(end.x,end.y,end.z), sm);
+			CastResult res = m_RayTester->CastMesh(float3(pos.x, pos.y, pos.z), float3(end.x, end.y, end.z), sm);
 
 
 			//auto res = RayToTri(pos, end, v0, v1, v2);
@@ -267,7 +309,7 @@ HitResult SceneGraph::RayCast(glm::vec3 pos, glm::vec3 end) {
 					nres.m_Distance = res.Distance;
 					nres.m_Mesh = mesh;
 					nres.m_Node = mesh->GetOwner();
-					nres.m_Point = glm::vec3(res.HitPoint.x,res.HitPoint.y,res.HitPoint.z);
+					nres.m_Point = glm::vec3(res.HitPoint.x, res.HitPoint.y, res.HitPoint.z);
 					//nres.m_Node = mesh->GetOwner();
 
 					//nres.m_Entity = (NodeEntity*)mesh->GetOwner();
@@ -283,9 +325,93 @@ HitResult SceneGraph::RayCast(glm::vec3 pos, glm::vec3 end) {
 
 	}
 
+	std::vector<TerrainMeshComponent*> tmeshes;
+
+	tmeshes = GetTerrainMeshes(m_RootNode, tmeshes);
+
+	for (auto mesh : tmeshes) {
+
+		//CastResult res = m_RayTester->CastMesh(pos, end, mesh);
+
+		auto sm = mesh->GetMesh();
+
+		CastResult res = m_RayTester->CastTerrainMesh(float3(pos.x, pos.y, pos.z), float3(end.x, end.y, end.z), sm);
+
+
+		//auto res = RayToTri(pos, end, v0, v1, v2);
+
+
+		if (res.Hit) {
+
+
+
+			if (res.Distance < cd) {
+				HitResult nres;
+				nres.m_Hit = true;
+				nres.m_Distance = res.Distance;
+				//nres.m_Mesh = mesh;
+				nres.m_Node = mesh->GetOwner();
+				nres.m_Point = glm::vec3(res.HitPoint.x, res.HitPoint.y, res.HitPoint.z);
+				//nres.m_Node = mesh->GetOwner();
+
+				//nres.m_Entity = (NodeEntity*)mesh->GetOwner();
+				cd = res.Distance;
+				close = nres;
+
+			}
+		}
+
+
+
+	}
+
+
+
 	return close;
 }
 
+HitResult SceneGraph::RayCast(TerrainMesh* mesh, glm::vec3 pos, glm::vec3 end) {
+
+
+	HitResult result;
+
+
+	float cd = 10000;
+	HitResult close;
+	close.m_Hit = false;
+
+	auto sm = mesh;
+
+	CastResult res = m_RayTester->CastTerrainMesh(float3(pos.x, pos.y, pos.z), float3(end.x, end.y, end.z), sm);
+
+
+	//auto res = RayToTri(pos, end, v0, v1, v2);
+
+
+	if (res.Hit) {
+
+
+
+		if (res.Distance < cd) {
+			HitResult nres;
+			nres.m_Hit = true;
+			nres.m_Distance = res.Distance;
+			//nres.m_Mesh = mesh;
+			nres.m_Node = mesh->GetOwner();
+			nres.m_Point = glm::vec3(res.HitPoint.x, res.HitPoint.y, res.HitPoint.z);
+
+			//nres.m_Node = mesh->GetOwner();
+
+			//nres.m_Entity = (NodeEntity*)mesh->GetOwner();
+			cd = res.Distance;
+			close = nres;
+
+		}
+	}
+
+	return close;
+
+}
 
 HitResult SceneGraph::RayCast(StaticMeshComponent* mesh, glm::vec3 pos, glm::vec3 end) {
 
@@ -338,6 +464,43 @@ HitResult SceneGraph::RayCast(StaticMeshComponent* mesh, glm::vec3 pos, glm::vec
 
 	return close;
 }
+HitResult SceneGraph::MousePickTerrain(int x, int y, TerrainMeshComponent* terrain) {
+	float mx = -1.0f + 2.0f * (float)(x) / (float)Vivid::GetFrameWidth();
+	float my = 1.0f - 2.0f * (float)(y) / (float)Vivid::GetFrameHeight();
+
+	// --- Get Matrices and Camera Position ---
+	glm::mat4 cameraWorldMatrix = m_Camera->GetWorldMatrix();
+	glm::mat4 projMatrix = m_Camera->GetComponent<CameraComponent>()->GetProjectionMatrix();
+
+	// The ray should always originate from the camera's position for a perspective view
+	glm::vec3 ray_origin = glm::vec3(cameraWorldMatrix[3]);
+
+	// --- Calculate Ray Direction ---
+	// Start with the mouse click in Normalized Device Coordinates (NDC)
+	glm::vec4 ray_clip = glm::vec4(mx, my, -1.0, 1.0);
+
+	// Transform from clip space to eye (view) space
+	glm::mat4 invProjMatrix = glm::inverse(projMatrix);
+	glm::vec4 ray_eye = invProjMatrix * ray_clip;
+
+	// In view space, the direction is forward. Set z to -1 and w to 0 to make it a direction vector.
+	ray_eye = glm::vec4(ray_eye.x, ray_eye.y, -1.0, 0.0);
+
+	// Transform the direction vector from eye (view) space to world space
+	// Note: We use the camera's world matrix, NOT the view matrix (which is the inverse)
+	glm::vec3 ray_direction = glm::normalize(glm::vec3(cameraWorldMatrix * ray_eye));
+
+	// --- Cast the Ray ---
+	// Your RayCast function may need an origin and direction, or two points.
+	// If it needs two points, create a distant point along the ray.
+	glm::vec3 ray_end = ray_origin + ray_direction * 100.0f; // 10000.0f is an arbitrary large distance
+
+	HitResult result = RayCast(terrain->GetMesh(), ray_origin, ray_end);
+
+
+	return result;
+}
+
 
 HitResult SceneGraph::MousePickSelect(int x, int y, StaticMeshComponent* mesh)
 {
@@ -419,9 +582,12 @@ void SceneGraph::LoadScene(std::string path) {
 
 	VFile* f = new VFile(path.c_str(), FileMode::Read);
 
+	auto cam = m_Camera;
 	m_Camera = new GraphNode;
 	m_Camera->AddComponent(new CameraComponent);
 	m_Camera->Read(f);
+	m_Camera = cam;
+
 
 	m_RootNode = new GraphNode;
 	m_RootNode->Read(f);
@@ -429,6 +595,21 @@ void SceneGraph::LoadScene(std::string path) {
 	m_RootNode->ReadScripts(f);
 
 	f->Close();
+
+	SetOwners(m_RootNode);
+
+}
+
+void SceneGraph::SetOwners(GraphNode* node) {
+
+	for (auto c : node->GetAllComponents()) {
+		c->OnAttach(node);
+
+	}
+
+	for (auto n : node->GetNodes()) {
+		SetOwners(n);
+	}
 
 }
 

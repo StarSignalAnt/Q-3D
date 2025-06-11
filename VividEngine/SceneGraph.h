@@ -6,6 +6,8 @@ class Intersections;
 class GraphNode;
 class CubeRenderer;
 class StaticMeshComponent;
+class TerrainMeshComponent;
+class TerrainMesh;
 
 struct HitResult {
 
@@ -45,7 +47,9 @@ public:
 	HitResult MousePick(int x, int y);
 	HitResult RayCast(glm::vec3 pos, glm::vec3 end);
 	HitResult RayCast(StaticMeshComponent* mesh,glm::vec3 pos, glm::vec3 end);
+	HitResult RayCast(TerrainMesh* mesh, glm::vec3 pos, glm::vec3 end);
 	HitResult MousePickSelect(int x, int y, StaticMeshComponent* mesh);
+	HitResult MousePickTerrain(int x, int y, TerrainMeshComponent* mesh);
 	void Play();
 	void Stop();
 	void Push();
@@ -57,7 +61,8 @@ public:
 
 	static SceneGraph* m_Instance;
 
-
+	void Reset();
+	void SetOwners(GraphNode* node);
 private:
 
 	GraphNode* m_RootNode = nullptr;
@@ -65,6 +70,8 @@ private:
 	std::vector<GraphNode*> m_Lights;
 	CubeRenderer* m_ShadowRenderer = nullptr;
 	Intersections* m_RayTester;
+	float m_TerrainX = 0;
+	float m_TerrainZ = 0;
 
 };
 

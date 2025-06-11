@@ -17,8 +17,9 @@
 #include <QDebug>
 #include "Texture2D.h"
 #include "MaterialPBR.h"
-
+#include "TerrainMeshComponent.h"
 #include "StaticMeshComponent.h"
+#include "TerrainLayer.h"
 PropertiesEditor* PropertiesEditor::m_Instance = nullptr;
 
 PropertiesEditor::PropertiesEditor(QWidget* parent)
@@ -235,16 +236,20 @@ void PropertiesEditor::SetNode(GraphNode* node) {
                 AddTexture("Color", pbr->GetColorTexture()->GetPath(), [node,pbr](std::string val)
                     {
                         pbr->SetColorTexture(new Texture2D(val));
+                        pbr->Save(pbr->GetPath());
                     });
                 AddTexture("Normal", pbr->GetNormalTexture()->GetPath(), [node,pbr](std::string val)
                     {
                         pbr->SetNormalTexture(new Texture2D(val));
+                        pbr->Save(pbr->GetPath());
                     });
                 AddTexture("Metallic", pbr->GetMetallicTexture()->GetPath(), [node,pbr](std::string val) {
                     pbr->SetMetallicTexture(new Texture2D(val));
+                    pbr->Save(pbr->GetPath());
                     });
                 AddTexture("Roughness", pbr->GetRoughTexture()->GetPath(), [node,pbr](std::string val) {
                     pbr->SetRoughnessTexture(new Texture2D(val));
+                    pbr->Save(pbr->GetPath());
                     });
                 int b = 5;
             }
@@ -673,4 +678,49 @@ void PropertiesEditor::SetMaterial(MaterialPBR* mat)
 
     EndUI();
     m_Material = mat;
+}
+
+void PropertiesEditor::SetTerrain(GraphNode* node) {
+    if (!m_mainLayout) {
+        BeginUI();
+    }
+
+    ClearUI();  //
+
+    auto tmesh = node->GetComponent<TerrainMeshComponent>();
+
+    AddHeader("Terrain");
+
+    AddInt("Edit Layer", 0, tmesh->GetLayers().size(), 1, 0, [](int v) {
+
+        SceneView::m_Instance->SetEditLayer(v);
+
+        });
+
+ 
+
+    auto layers = tmesh->GetLayers();
+
+    int ix = 0;
+    for (auto layer : layers) {
+
+        std::string head = "Layer " + std::to_string(ix);
+
+        AddHeader(head.c_str());
+
+        AddTexture("Color", layer->GetColor()->GetPath(), [layer](std::string v) {
+            layer->SetColor(new Texture2D(v));
+            });
+        AddTexture("Normal", layer->GetNormal()->GetPath(), [layer](std::string v) {
+            layer->SetNormal(new Texture2D(v));
+            });
+        AddTexture("Specular", layer->GetSpec()->GetPath(), [layer](std::string v) {
+            layer->SetSpecular(new Texture2D(v));
+            });
+        ix++;
+    }
+
+    EndUI();
+    m_Node = node;
+
 }

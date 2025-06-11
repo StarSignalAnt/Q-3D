@@ -21,6 +21,7 @@ private slots:
     void onOpenFile();
     void onExit();
     void onSaveScene();
+    void onLG();
 
 };
 

@@ -3,6 +3,9 @@
 #include <QPixmap>
 #include <QDebug>
 #include <QFileInfo>
+#include <QDir>
+#include <QStandardPaths>
+#include <QDateTime>
 
 PropertyTexture::PropertyTexture(const QString& label, QWidget* parent)
     : QWidget(parent)
@@ -76,12 +79,18 @@ void PropertyTexture::updateImageDisplay()
         return;
     }
 
-    // Load and display the texture
     QString qPath = QString::fromStdString(m_texturePath);
+
+    // Try to load from cache first
+    if (loadFromCache(qPath)) {
+        return; // Successfully loaded from cache
+    }
+
+    // Load original image and create cache
     QPixmap pixmap(qPath);
 
     if (pixmap.isNull()) {
-        // If image failed to load, show error pattern or keep white
+        // If image failed to load, show error pattern
         QPixmap errorPixmap(IMAGE_BOX_SIZE, IMAGE_BOX_SIZE);
         errorPixmap.fill(Qt::lightGray);
         m_imageBox->setPixmap(errorPixmap);
@@ -93,7 +102,70 @@ void PropertyTexture::updateImageDisplay()
             Qt::KeepAspectRatio,
             Qt::SmoothTransformation);
         m_imageBox->setPixmap(scaledPixmap);
+
+        // Save to cache for next time
+        saveToCache(qPath, scaledPixmap);
     }
+}
+
+QString PropertyTexture::getCachePath(const QString& originalPath) const
+{
+    QFileInfo fileInfo(originalPath);
+    QString cacheFileName = fileInfo.baseName() + ".texcache";
+
+    // Create cache directory in application data
+    QString cacheDir = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
+    QDir().mkpath(cacheDir + "/textures");
+
+    return cacheDir + "/textures/" + cacheFileName;
+}
+
+bool PropertyTexture::loadFromCache(const QString& originalPath)
+{
+    QString cachePath = getCachePath(originalPath);
+
+    // Check if cache exists and is valid
+    if (!isCacheValid(originalPath, cachePath)) {
+        return false;
+    }
+
+    // Load from cache
+    QPixmap cachedPixmap(cachePath);
+    if (cachedPixmap.isNull()) {
+        qDebug() << "Failed to load cached texture:" << cachePath;
+        return false;
+    }
+
+    m_imageBox->setPixmap(cachedPixmap);
+    qDebug() << "Loaded texture from cache:" << cachePath;
+    return true;
+}
+
+void PropertyTexture::saveToCache(const QString& originalPath, const QPixmap& pixmap)
+{
+    QString cachePath = getCachePath(originalPath);
+
+    // Save the scaled pixmap as PNG for good compression and quality
+    if (pixmap.save(cachePath, "PNG")) {
+        qDebug() << "Saved texture cache:" << cachePath;
+    }
+    else {
+        qDebug() << "Failed to save texture cache:" << cachePath;
+    }
+}
+
+bool PropertyTexture::isCacheValid(const QString& originalPath, const QString& cachePath) const
+{
+    QFileInfo originalFile(originalPath);
+    QFileInfo cacheFile(cachePath);
+
+    // Check if both files exist
+    if (!originalFile.exists() || !cacheFile.exists()) {
+        return false;
+    }
+
+    // Check if cache is newer than or equal to original file
+    return cacheFile.lastModified() >= originalFile.lastModified();
 }
 
 bool PropertyTexture::isImageFile(const std::string& path) const

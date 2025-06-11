@@ -3,9 +3,11 @@
 #include <QString>
 #include "Content.h"
 #include "SceneView.h"
+#include "LogicGraph.h"
 MainMenu::MainMenu(QWidget *parent)
 	: QMenuBar(parent)
 {
+
 	setupMenus();
 	//ui.setupUi(this);
 }
@@ -34,6 +36,9 @@ void MainMenu::setupMenus()
     connect(exitAction, &QAction::triggered, this, &MainMenu::onExit);
     connect(saveAction, &QAction::triggered, this, &MainMenu::onSaveScene);
 
+    QAction* openLG = toolsMenu->addAction("Logic Graph");
+
+    connect(openLG, &QAction::triggered, this, &MainMenu::onLG);
     // You can add more menus here: Edit, View, Help, etc.
 }
 
@@ -52,9 +57,14 @@ void MainMenu::onOpenFile() {
 
     if (!filePath.isEmpty()) {
         // use filePath
-        SceneGraph* new_Graph = new SceneGraph;
-        new_Graph->LoadScene(filePath.toStdString());
-        SceneView::m_Instance->SetScene(new_Graph);
+        
+        auto g = SceneView::m_Instance->GetScene();
+
+        //SceneGraph* new_Graph = new SceneGraph;
+        g->LoadScene(filePath.toStdString());
+        g->Reset();
+
+        SceneView::m_Instance->Update();
     }
 
     qDebug() << "Open file triggered";
@@ -89,5 +99,12 @@ void MainMenu::onSaveScene() {
         qDebug() << "Selected file to save:" << fileName;
         // Save logic goes here...
     }
+
+}
+
+void MainMenu::onLG() {
+
+    auto lg = new LogicGraph;
+    lg->show();
 
 }

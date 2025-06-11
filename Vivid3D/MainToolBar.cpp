@@ -27,6 +27,10 @@ void MainToolBar::setupActions()
     connect(rotateAction, &QAction::triggered, this, &MainToolBar::onRotateClicked);
     connect(scaleAction, &QAction::triggered, this, &MainToolBar::onScaleClicked);
 
+    translateAction->setToolTip("Translate Nodes");
+    rotateAction->setToolTip("Rotate Nodes");
+    scaleAction->setToolTip("Scale Nodes");
+
     auto dropdown = new QComboBox(this);
 
     // Add the three options
@@ -39,8 +43,15 @@ void MainToolBar::setupActions()
 
     addSeparator();
 
-    // Add the dropdown to the toolbar
+        // Add the dropdown to the toolbar
     addWidget(dropdown);
+
+    addSeparator();
+
+    QAction* paintTerrain = addAction(QIcon("edit/icons/terrainpaint.png"),"");
+    QAction* sculptTerrain = addAction(QIcon("edit/icons/terrainsculpt.png"), "");
+    paintTerrain->setToolTip("Terrain:Paint Mode - Draw materials to terrain");
+    sculptTerrain->setToolTip("Terrain:Sculpt Mode - Shape the terrain");
 
     addSeparator();
 
@@ -55,7 +66,10 @@ void MainToolBar::setupActions()
 
     connect(runAction, &QAction::triggered, this, &MainToolBar::onRunClicked);
     connect(stopAction, &QAction::triggered, this, &MainToolBar::onStopClicked);
+    connect(paintTerrain, &QAction::triggered, this, &MainToolBar::onPaintTerrain);
+    connect(sculptTerrain, &QAction::triggered, this, &MainToolBar::onSculptTerrain);
     // Connect to handle selection changes
+    // 
     //connect(dropdown, QOverload<const QString&>::of(&QComboBox::currentTextChanged),
      //   this, &MainWindow::onDropdownChanged);
 
@@ -112,5 +126,18 @@ void MainToolBar::onRunClicked() {
 void MainToolBar::onStopClicked() {
 
     SceneView::m_Instance->Stop();
+
+}
+
+
+void MainToolBar::onPaintTerrain() {
+
+    SceneView::m_Instance->SetMode(SceneMode::Mode_Paint);
+
+}
+
+void MainToolBar::onSculptTerrain() {
+
+    SceneView::m_Instance->SetMode(SceneMode::Mode_Sculpt);
 
 }

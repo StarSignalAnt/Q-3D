@@ -13,7 +13,10 @@
 #include "Physics.h"
 #include "TerrainMeshComponent.h"
 #include "TerrainRendererComponent.h"
-
+#include "StaticRendererComponent.h"
+#include "TerrainLayer.h"
+#include "PixelMap.h"
+#include "TerrainEditor.h"
 
 #if D3D11_SUPPORTED
 #    include "Graphics/GraphicsEngineD3D11/interface/EngineFactoryD3D11.h"
@@ -177,12 +180,16 @@ SceneView::SceneView(QWidget *parent)
     //m_Test1->CreateRB();
     m_Terrain = new GraphNode;
 
-    auto ter = new TerrainMeshComponent(32, 32, 8, 3);
+    auto ter = new TerrainMeshComponent(32, 32, 4, 3);
     auto ter_ren = new TerrainRendererComponent;
     m_Terrain->AddComponent(ter);
     m_Terrain->AddComponent(ter_ren);
 
     m_SceneGraph->AddNode(m_Terrain);
+    m_White = new Texture2D("engine/white.png");
+ 
+    m_TerrainEditor = new TerrainEditor(m_Terrain);
+
     NodeTree::m_Instance->SetRoot(m_SceneGraph->GetRootNode());
 }
 
@@ -299,6 +306,14 @@ void SceneView::paintEvent(QPaintEvent* event)
     m_SelectionOverlay->Render();
 
 
+    Vivid::ClearZ();
+
+    if (m_BrushNode) {
+
+        m_BrushNode->Render(m_SceneGraph->GetCamera());
+
+    }
+
     Vivid::m_pImmediateContext->Flush();
     Vivid::m_pImmediateContext->FinishFrame();
 
@@ -402,10 +417,23 @@ void SceneView::mousePressEvent(QMouseEvent* event)  {
     if (event->button() == Qt::RightButton) {
         rightMousePressed = true;
         lastMousePos = event->pos();
+      
+      
     }
     if (event->button() == Qt::LeftButton) {
 
-  
+        if (m_Mode == SceneMode::Mode_Paint)
+        {
+            //m_TerrainEditing = true;
+            m_TerrainEditor->BeginPaint();
+            m_TerrainEditor->Update();
+        }
+        else if (m_Mode == SceneMode::Mode_Sculpt) {
+
+            m_TerrainEditor->BeginSculpt();
+            m_TerrainEditor->Update();
+
+        }
         m_PickPos = event->pos();
         m_Pick = true;
         return;
@@ -421,7 +449,189 @@ void SceneView::mouseReleaseEvent(QMouseEvent* event) {
     }
     else {
         m_SceneController->onMouseUp();
+        //m_TerrainEditing = false;
+        if (m_Mode == SceneMode::Mode_Paint)
+        {
+            //m_TerrainEditing = true;
+            m_TerrainEditor->EndPaint();
+        }
+        else if (m_Mode == SceneMode::Mode_Sculpt) {
+            m_TerrainEditor->EndSculpt();
+        }
+
     }
+}
+constexpr double MPI = 3.14159265358979323846;
+static float Deg2Rad(float deg) {
+    return deg * (float)MPI / 180.0;
+}
+static float Rad2Deg(float r)
+{
+    float degrees = r * (180.0f / static_cast<float>(M_PI));
+    // Normalize degrees to be within 0 to 360
+
+    return degrees;
+}
+
+GraphNode* CreateTerrainBrush(float mx, float h, float my, float size, float strength) {
+
+    h = 0.0001;
+
+
+    //var ent = new Entity();
+    GraphNode* ent = new GraphNode;
+
+
+    // if (BMESH == null)
+   //  {
+         //   Vivid.Meshes.Mesh bmesh = new Mesh(ent);
+      //   BMESH = new Mesh(ent);
+ //    }
+
+
+    StaticMeshComponent* sm = new StaticMeshComponent;
+
+    ent->AddComponent(sm);
+    ent->AddComponent(new StaticRendererComponent);
+    SubMesh* msh = new SubMesh;
+    sm->AddSubMesh(msh);
+    //auto tex = ((MaterialPBR*)sm->GetSubMeshes()[0]->m_Material)->GetColorTexture();
+    sm->GetSubMeshes()[0]->m_Material = new MaterialBasic3D;
+
+    auto b3 = (MaterialBasic3D*)sm->GetSubMeshes()[0]->m_Material;
+    b3->SetColorTexture(SceneView::m_Instance->GetWhite());
+    b3->SetTexture(SceneView::m_Instance->GetWhite(), 0);
+
+
+
+    //Mesh3D* bmesh = new Mesh3D;
+    //bmesh->SetOwner(ent);
+
+
+    //Vivid.Meshes.Mesh bmesh = BMESH;
+    //BMESH.Owner = ent;
+
+
+    ent->SetPosition(glm::vec3(mx, h, my));
+
+
+    //ent.Position = new System.Numerics.Vector3(mx, 0, my);
+
+
+    Vertex3 cv;
+    cv.color = glm::vec4(1, 1, 1, 0.85f * strength);
+    cv.uv = glm::vec3(0, 0, 0);
+    cv.position = glm::vec3(0, h, 0);
+    
+  
+    
+    msh->m_Vertices.push_back(cv);
+    bool first = true;  
+    int vi = 1;
+
+    //bmesh->GetVertices.Clear();
+    for (int ang = 0; ang <= 360; ang += 20)
+    {
+
+        float ax = cos(Deg2Rad(ang)) * size;
+        float ay = sin(Deg2Rad(ang)) * size;
+
+
+        //Ray ray = new Ray();
+       // ray.Pos = new System.Numerics.Vector3(mx + ax, 30.0f, my + ay);
+       // ray.Dir = new System.Numerics.Vector3(0, -35, 0);
+
+        //var res = Vivid.Scene.Scene.CurrentScene.Raycast(ray);
+
+        auto pos = glm::vec3(mx + ax, 30.0f, my + ay);
+        auto dir = glm::vec3(0, -35, 0);
+
+        // auto res = Editor::m_Graph->RayCast(pos, dir);
+
+
+        float hy = 0;
+
+        //if (res.m_Hit)
+        {
+
+            //     int b = 5;
+          //  hy = res.m_Point.y;
+
+           // h = hy + 0.1f;
+            //    Random r = new Random(Environment.TickCount);
+                // Console.WriteLine("Hitting Terrain:"+r.Next(20,2000));
+                 //hy = hy + 0.225f;
+
+
+
+
+        }
+        //else
+        {
+            //   h = -5.0f;
+        }
+
+        //                hy = 0;
+
+                      //  float y1 = GetHeight(ax, ay);
+
+        Vertex3 v1, v2, v3;
+
+        // v1 =new Vertex();
+
+        v1.color = glm::vec4(1, 1, 1, 0);
+
+        v1.uv = glm::vec3(0, 1, 0);
+
+        v1.position = glm::vec3(ax, h, ay);
+
+        msh->m_Vertices.push_back(v1);
+
+
+
+        if (!first)
+        {
+
+            Tri3 nt;// = new Triangle();
+            nt.v0 = vi - 1;
+            nt.v2 = vi;
+            nt.v1 = 0;
+            msh->m_Triangles.push_back(nt);
+
+        }
+        first = false;
+        vi += 1;
+
+        //bmesh.AddTriangle(nt);
+
+    }
+    //ent.Meshes.Add(bmesh);
+    //ent->AddMesh(bmesh);
+    
+    sm->Finalize();
+
+    //bmesh.CreateBuffers()
+    //bmesh->Build();
+    //if (BM == null)
+   // {
+    //    BM = new Vivid.Materials.MaterialBasic(false, false, true);
+     //   CM = new Vivid.Texture.Texture2D("engine\\terrain\\brush1.png");
+        //   bmesh.BasicMaterial = new Vivid.Materials.MaterialBasic(false, false, true);
+      //     bmesh.LightMaterial.ColorMap = CM;// new Vivid.Texture.Texture2D("engine\\terrain\\brush1.png");
+
+    //}
+   // else
+    {
+
+
+    }
+    //bmesh.BasicMaterial = BM;
+    //bmesh.LightMaterial.ColorMap = CM;
+
+
+
+    return ent;
+
 }
 
 void SceneView::mouseMoveEvent(QMouseEvent* event)  {
@@ -432,6 +642,46 @@ void SceneView::mouseMoveEvent(QMouseEvent* event)  {
         lastMousePos = event->pos();
     }
     else {
+
+        QPoint localPos = event->pos();
+        qreal dpr = this->devicePixelRatioF(); // or use QWidget::window()->devicePixelRatioF()
+
+        int x = static_cast<int>(localPos.x() * dpr);
+        int y = static_cast<int>(localPos.y() * dpr);
+        //int x = localPos.x();
+        //int y = localPos.y();
+
+        std::cout << "MX:" << x << " MY:" << y << std::endl;
+        if (m_Mode == SceneMode::Mode_Paint || m_Mode == SceneMode::Mode_Sculpt) {
+            auto res = m_SceneGraph->MousePickTerrain(x, y, m_Terrain->GetComponent<TerrainMeshComponent>());
+
+            if (res.m_Hit) {
+
+                std::cout << "THit: X:" << res.m_Point.x << " Y:" << res.m_Point.y << " Z:" << res.m_Point.z << std::endl;
+                m_TerrainX = res.m_Point.x;
+                m_TerrainZ = res.m_Point.z;
+                m_TerrainEditor->SetPosition(res.m_Point);
+
+
+                //m_BrushNode = CreateTerrainBrush(res.m_Point.x, 0, res.m_Point.z, m_TerrainBrushSize, m_TerrainStrength);
+
+
+            }
+
+            m_TerrainEditor->Update();
+        
+            //if (m_TerrainEditing) {
+                switch (m_Mode) {
+                case SceneMode::Mode_Paint:
+
+                    
+
+                    break;
+                }
+
+            //}
+        }
+
         QPoint delta = event->pos() - lastMousePos;
         m_SceneController->onMouseMove(glm::vec2(delta.x(), delta.y()));
         if (m_SelectedNode != nullptr) {
@@ -502,6 +752,12 @@ void SceneView::SelectNode(GraphNode* node)
     }
     m_SelectedNode = node;
     m_SceneController->SelectNode(node);
+
+    if (node->GetComponent<TerrainMeshComponent>()) {
+        PropertiesEditor::m_Instance->SetTerrain(node);
+        return; 
+    }
+
     PropertiesEditor::m_Instance->SetNode(node);
 
 }
@@ -569,5 +825,24 @@ void SceneView::SetScene(SceneGraph* graph)
     //m_SceneGraph->SetCamera(graph->GetCamera());
 
     NodeTree::m_Instance->SetRoot(m_SceneGraph->GetRootNode());
+
+}
+
+void SceneView::Update() {
+
+    NodeTree::m_Instance->SetRoot(m_SceneGraph->GetRootNode());
+    m_Grid = new SceneGrid(m_SceneGraph);
+}
+
+void SceneView::TerrainPlot() {
+    std::cout << "!!!!!!!!!!!!!!!!!!!!! PLoting" << std::endl;
+    int b = 5;
+    //var ter = Edit.EditorGlobal.CurrentTerrain;
+  
+}
+
+void SceneView::SetEditLayer(int layer) {
+
+    m_TerrainEditor->SetEditLayer(layer);
 
 }

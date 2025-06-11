@@ -46,11 +46,12 @@ class CameraController;
 class SceneController;
 class SceneGraph;
 class GraphNode;
+class TerrainEditor;
 
 #include <QResizeEvent>
 
 enum SceneMode {
-	Mode_Translate,Mode_Rotate,Mode_Scale
+	Mode_Translate,Mode_Rotate,Mode_Scale,Mode_Sculpt,Mode_Paint
 };
 
 enum SceneSpace {
@@ -78,13 +79,18 @@ public:
 	SceneGraph* GetScene() {
 		return m_SceneGraph;
 	}
+	Texture2D* GetWhite() {
+		return m_White;
+	}
+	void Update();
 	void SetScene(SceneGraph* graph);
 	void Stop();
 	static SceneView* m_Instance;
-	SceneMode m_Mode = SceneMode::Mode_Translate;
+	SceneMode m_Mode = SceneMode::Mode_Paint;
 	SceneSpace m_Space = SceneSpace::Space_Local;
 	GraphNode* m_SelectedNode = nullptr;
 	void SelectNode(GraphNode* node);
+	void SetEditLayer(int layer);
 protected:
 	void dragEnterEvent(QDragEnterEvent* event) override;
 	void dropEvent(QDropEvent* event) override;
@@ -127,8 +133,9 @@ protected:
 
     void handleMovement();
    
+	void TerrainPlot();
 
-
+	
 private:
 	RefCntAutoPtr<IRenderDevice>  m_pDevice;
 	RefCntAutoPtr<IDeviceContext> m_pImmediateContext;
@@ -152,5 +159,14 @@ private:
 	Draw2D* m_Draw;
 	Texture2D* tex1;
 	GraphNode* m_Terrain = nullptr;
+	float m_TerrainX = 0;
+	float m_TerrainZ = 0;
+	float m_TerrainBrushSize = 0.75;
+	GraphNode* m_BrushNode = nullptr;
+	Texture2D* m_White;
+	TerrainEditor* m_TerrainEditor = nullptr;
+	float m_TerrainStrength = 0.5f;
+	bool m_TerrainEditing = false;
+	int m_TerrainLayer = 1;
 };
 

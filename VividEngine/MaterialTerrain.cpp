@@ -64,6 +64,11 @@ MaterialTerrain::MaterialTerrain() {
     // Enable depth testing
     PSOCreateInfo.GraphicsPipeline.DepthStencilDesc.DepthEnable = True;
     // clang-format on
+    BlendStateDesc b_desc;
+    b_desc.RenderTargets[0].BlendEnable = true;
+    b_desc.RenderTargets[0].SrcBlend = BLEND_FACTOR::BLEND_FACTOR_SRC_ALPHA;
+    b_desc.RenderTargets[0].DestBlend = BLEND_FACTOR::BLEND_FACTOR_INV_SRC_ALPHA;
+    PSOCreateInfo.GraphicsPipeline.BlendDesc = b_desc;
 
     ShaderCreateInfo ShaderCI;
     // Tell the system that the shader source code is in HLSL.
@@ -184,10 +189,10 @@ void MaterialTerrain::Bind(bool add) {
     auto norm = m_Textures[1];
     auto spec = m_Textures[2];
 
-    m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_Texture")->Set(col->GetView(), SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
-    m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureNorm")->Set(norm->GetView(), SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
-    m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureSpec")->Set(spec->GetView(), SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
-    m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureLayer")->Set(m_Textures[3]->GetView(), SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
+    m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_Texture")->Set(col->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
+    m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureNorm")->Set(norm->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
+    m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureSpec")->Set(spec->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
+    m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureLayer")->Set(m_Textures[3]->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
 
     m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_Shadow")->Set(m_Light->GetComponent<LightComponent>()->GetShadowMap()->GetTexView());
     //Engine::m_pImmediateContext->MapBuffer(BasicUniform, MAP_TYPE::MAP_WRITE, MAP_FLAGS::MAP_FLAG_DISCARD);
@@ -206,7 +211,7 @@ void MaterialTerrain::Bind(bool add) {
 
         dd[0].v_LightProp = glm::vec4(m_Light->GetComponent<LightComponent>()->GetRange(), 0, 0, 0);
         //dd[0].v_CameraPos = glm::vec4(camera->GetPosition(), 1.0);
-        dd[0].v_Layers = int4(index, 0, 0, 0);
+        dd[0].v_Layers = int4(m_Indices[0], 0, 0, 0);
 
 
         //MapHelper<TerrainConstants> map_data(Engine::m_pImmediateContext, m_TerrainConstants, MAP_TYPE::MAP_WRITE, MAP_FLAG_DISCARD);

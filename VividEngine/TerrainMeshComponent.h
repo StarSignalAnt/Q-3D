@@ -4,6 +4,24 @@
 
 class TerrainLayer;
 class TerrainMesh;
+class TBounds
+{
+public:
+
+    TBounds() {
+
+    };
+    glm::vec3 Min;
+    glm::vec3 Max;
+    glm::vec3 Centre;
+    glm::vec3 Size() {
+
+        return (Max - Min);
+
+    }
+
+};
+
 
 
 class TerrainMeshComponent :
@@ -24,7 +42,9 @@ public:
     std::vector<TerrainLayer*> GetLayers() {
         return m_Layers;
     }
-  //  Bounds GetTerrainBounds();
+    TBounds GetTerrainBounds();
+
+
 private:
     float m_Width;
     float m_Depth;

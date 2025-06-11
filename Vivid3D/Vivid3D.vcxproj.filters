@@ -130,6 +130,21 @@
     <ClCompile Include="PropertyTexture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TerrainEditor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LogicGraph.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LGProperties.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LGDesigner.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LogicGraphMenu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="SceneView.h">
@@ -183,6 +198,18 @@
     <QtMoc Include="PropertyTexture.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="LogicGraph.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="LGProperties.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="LGDesigner.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="LogicGraphMenu.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="SceneView.ui">
@@ -215,6 +242,15 @@
     <QtUic Include="Content.ui">
       <Filter>Form Files</Filter>
     </QtUic>
+    <QtUic Include="LogicGraph.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="LGProperties.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="LGDesigner.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CameraController.h">
@@ -239,6 +275,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SceneSelectionOverlay.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TerrainEditor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

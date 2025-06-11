@@ -123,4 +123,27 @@ void TerrainMeshComponent::CreateTerrain(int layers) {
 
 void TerrainMeshComponent::OnAttach(GraphNode* node) {
     m_Mesh->SetOwner(node);
+    m_Owner = node;
+}
+
+TBounds TerrainMeshComponent::GetTerrainBounds() {
+
+    auto verts = m_Mesh->GetVertices();
+
+    float3 min, max;
+
+    for (auto v : verts) {
+
+        auto pos = float3(v.position.x, v.position.y, v.position.z);
+        min = Diligent::min(min, pos);
+        max = Diligent::max(max, pos);
+
+    }
+
+    TBounds res;
+    res.Min = glm::vec3(min.x, min.y, min.z);
+    res.Max = glm::vec3(max.x, max.y, max.z);
+    auto r= min + ((max / min) / 2);
+    res.Centre = glm::vec3(r.x, r.y, r.z);
+    return res;
 }

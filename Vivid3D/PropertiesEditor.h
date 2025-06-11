@@ -37,6 +37,7 @@ public:
     void UpdateNode(GraphNode* node);
     void SetNode(GraphNode* node);
     void SetMaterial(MaterialPBR* mat);
+    void SetTerrain(GraphNode* node);
     void AddHeader(const QString& text);
 
     PropertyText* AddText(const QString& label, const QString& defaultText = "",

@@ -32,6 +32,10 @@ private:
     void setupImageBox();
     void updateImageDisplay();
     bool isImageFile(const std::string& path) const;
+    QString getCachePath(const QString& originalPath) const;
+    bool loadFromCache(const QString& originalPath);
+    void saveToCache(const QString& originalPath, const QPixmap& pixmap);
+    bool isCacheValid(const QString& originalPath, const QString& cachePath) const;
 
     QLabel* m_label;
     QLabel* m_imageBox;

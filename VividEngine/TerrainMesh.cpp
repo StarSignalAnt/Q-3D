@@ -44,9 +44,9 @@ void TerrainMesh::RebuildGeo() {
 
     for (auto t : tris) {
 
-        glm::vec3 v0 = glm::vec4(verts[t.v0].position,1.0) * world;
-        glm::vec3 v1 = glm::vec4(verts[t.v1].position,1.0) * world;
-        glm::vec3 v2 = glm::vec4(verts[t.v2].position,1.0) * world;
+		glm::vec3 v0 = verts[t.v0].position;// 1.0);// *world;
+		glm::vec3 v1 = verts[t.v1].position;// 1.0);// *world;
+		glm::vec3 v2 = verts[t.v2].position;// 1.0);// *world;
         m_Build.push_back(v0);
         m_Build.push_back(v1);
         m_Build.push_back(v2);

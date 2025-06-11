@@ -78,6 +78,9 @@ public:
 	std::string GetPath() {
 		return m_Path;
 	}
+	void SetIndex(int val, int idx) {
+		m_Indices[idx] = val;
+	}
 protected:
 
 	GraphNode* m_Light = nullptr;
@@ -92,6 +95,7 @@ protected:
 	std::string m_Path = "";
 	glm::mat4 m_Bones[100];
 	int m_IndexCount = 0;
+	int m_Indices[128];
 	RefCntAutoPtr<IBuffer> m_Buffers[128];
 	glm::mat4 m_RenderMatrices[256];
 	Texture2D* m_Textures[256];

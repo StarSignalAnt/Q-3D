@@ -25,9 +25,11 @@ void TerrainRendererComponent::OnRender(GraphNode* camera) {
 	//	for (auto light : SceneGraph::m_CurrentGraph->GetLights()) {
 
 
+	int li = 0;
 	for (auto layer : mesh->GetLayers()) {
 		//		for (auto& sub : mesh->GetSubMeshes()) {
-
+		
+		Vivid::ClearZ();
 		auto col = layer->GetColor();
 		auto norm = layer->GetNormal();
 		auto spec = layer->GetSpec();
@@ -51,11 +53,12 @@ void TerrainRendererComponent::OnRender(GraphNode* camera) {
 		mat->SetTexture(norm, 1);
 		mat->SetTexture(spec, 2);
 		mat->SetTexture(layer->GetLayerMap(), 3);
+		mat->SetIndex(li, 0);
 		mat->Bind(add);
 	
 
 		mat->Render();
-
+		li++;
 
 		//	}
 			//add = true;

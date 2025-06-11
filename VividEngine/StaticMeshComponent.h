@@ -38,6 +38,7 @@ struct SubMesh {
 
 
     bool RebuildIf() {
+
         if (m_FBuild == nullptr) {
             return true;
         }
@@ -85,6 +86,13 @@ class StaticMeshComponent :
 {
 public:
 
+    void OnAttach(GraphNode* n) override
+    {
+        m_Owner = n;
+        for (auto sub : m_SubMeshes) {
+            sub->m_Owner = n;
+        }
+    }
     void AddSubMesh(SubMesh* subMesh) {
         m_SubMeshes.push_back(subMesh);
         subMesh->m_Owner = m_Owner;

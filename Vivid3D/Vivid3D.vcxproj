@@ -117,6 +117,9 @@
   <ItemGroup>
     <QtRcc Include="Vivid3D.qrc" />
     <QtUic Include="Content.ui" />
+    <QtUic Include="LGDesigner.ui" />
+    <QtUic Include="LGProperties.ui" />
+    <QtUic Include="LogicGraph.ui" />
     <QtUic Include="MainMenu.ui" />
     <QtUic Include="MainToolBar.ui" />
     <QtUic Include="PropertiesEditor.ui" />
@@ -131,6 +134,10 @@
     <ClCompile Include="CameraController.cpp" />
     <ClCompile Include="Content.cpp" />
     <ClCompile Include="ContentBrowser.cpp" />
+    <ClCompile Include="LGDesigner.cpp" />
+    <ClCompile Include="LGProperties.cpp" />
+    <ClCompile Include="LogicGraph.cpp" />
+    <ClCompile Include="LogicGraphMenu.cpp" />
     <ClCompile Include="MainMenu.cpp" />
     <ClCompile Include="MainToolBar.cpp" />
     <ClCompile Include="NodeTree.cpp" />
@@ -152,6 +159,7 @@
     <ClCompile Include="SceneSelectionOverlay.cpp" />
     <ClCompile Include="SceneView.cpp" />
     <ClCompile Include="SearchWidget.cpp" />
+    <ClCompile Include="TerrainEditor.cpp" />
     <ClCompile Include="TranslateGizmo.cpp" />
     <ClCompile Include="Vivid3D.cpp" />
     <ClCompile Include="main.cpp" />
@@ -188,12 +196,17 @@
     <QtMoc Include="PropertyStringList.h" />
     <QtMoc Include="PropertyNode.h" />
     <QtMoc Include="PropertyTexture.h" />
+    <QtMoc Include="LogicGraph.h" />
+    <QtMoc Include="LGProperties.h" />
+    <QtMoc Include="LGDesigner.h" />
+    <QtMoc Include="LogicGraphMenu.h" />
     <ClInclude Include="RotateGizmo.h" />
     <ClInclude Include="ScaleGizmo.h" />
     <ClInclude Include="SceneGizmo.h" />
     <ClInclude Include="SceneGrid.h" />
     <ClInclude Include="SceneSelectionOverlay.h" />
     <QtMoc Include="SearchWidget.h" />
+    <ClInclude Include="TerrainEditor.h" />
     <ClInclude Include="TranslateGizmo.h" />
     <QtMoc Include="MainMenu.h" />
     <QtMoc Include="MainToolBar.h" />

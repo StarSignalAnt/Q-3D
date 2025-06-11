@@ -25,5 +25,7 @@ private slots:
     void onRunClicked();
     void onStopClicked();
     void onDropdownIndexChanged(int index);
+    void onPaintTerrain();
+    void onSculptTerrain();
 };
 

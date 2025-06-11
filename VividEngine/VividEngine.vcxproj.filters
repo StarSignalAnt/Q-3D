@@ -9,10 +9,6 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
     <Filter Include="SceneGraph">
       <UniqueIdentifier>{9e973708-494e-40ef-850e-90bc8be44ccc}</UniqueIdentifier>
     </Filter>
@@ -60,6 +56,16 @@
     </Filter>
     <Filter Include="Components\Nodes">
       <UniqueIdentifier>{72188105-785f-4264-95c3-320c36b1149d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Renderers\Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="LogicGraph">
+      <UniqueIdentifier>{9d83a619-1a31-430d-95ee-2809f68fb2ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LogicGraph\Nodes">
+      <UniqueIdentifier>{6a2dba87-e6cb-491c-ab95-8189e2fd63a0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -236,6 +242,24 @@
     </ClInclude>
     <ClInclude Include="MaterialPBR.h">
       <Filter>Material</Filter>
+    </ClInclude>
+    <ClInclude Include="LogicDispatcher.h">
+      <Filter>LogicGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="LGNode.h">
+      <Filter>LogicGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="LGDataNode.h">
+      <Filter>LogicGraph\Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="LGLogicNode.h">
+      <Filter>LogicGraph\Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="LGPrintDebug.h">
+      <Filter>LogicGraph\Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="LGInput.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -472,6 +496,24 @@
     </ClCompile>
     <ClCompile Include="MaterialTerrain.cpp">
       <Filter>Material</Filter>
+    </ClCompile>
+    <ClCompile Include="LogicDispatcher.cpp">
+      <Filter>LogicGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="LGNode.cpp">
+      <Filter>LogicGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="LGDataNode.cpp">
+      <Filter>LogicGraph\Nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="LGLogicNode.cpp">
+      <Filter>LogicGraph\Nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="LGPrintDebug.cpp">
+      <Filter>LogicGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="LGInput.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

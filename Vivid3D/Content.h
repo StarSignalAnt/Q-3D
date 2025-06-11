@@ -16,6 +16,9 @@
 #include <QStandardPaths>
 #include <QCryptographicHash>
 
+#include <QTimer>
+#include <QLabel>
+
 #include <QDebug>
 #include <string>
 #include <vector>
@@ -59,6 +62,7 @@ protected:
     void resizeEvent(QResizeEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
     void mousePressEvent(QMouseEvent* event) override;
+    void leaveEvent(QEvent* event) override;  // Add this line
 private:
     Ui::ContentClass ui;
     void calculateLayout();
@@ -67,6 +71,9 @@ private:
     QString getThumbnailPath(const QString& filePath);
     QPixmap generateThumbnail(const QString& filePath);
     QPixmap loadOrGenerateThumbnail(const QString& filePath);
+    void showImagePreview(const FileItem* item, const QPoint& mousePos);
+    void hideImagePreview();
+    QPixmap generateLargePreview(const QString& filePath);
 
     std::vector<FileItem> m_items;
     int m_itemSize;
@@ -84,4 +91,9 @@ private:
     std::string m_SearchTerm = "";
     QPoint m_dragStartPosition;
     QString m_thumbnailCacheDir; // Directory to store thumbnail cache
+
+    // Image preview popup
+    QLabel* m_previewLabel;
+    QTimer* m_previewTimer;
+    FileItem* m_lastHoverItem;
 };
