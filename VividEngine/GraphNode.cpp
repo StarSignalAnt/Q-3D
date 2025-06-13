@@ -572,6 +572,8 @@ void GraphNode::Write(VFile* f) {
 	f->WriteString(m_Name.c_str());
 	f->WriteBool(m_HideFromEditor);
 
+
+
 	f->WriteInt((int)m_ResourceType);
 	if (m_ResourceType == ResourceType::Static) {
 		f->WriteString(m_ResourcePath.c_str());

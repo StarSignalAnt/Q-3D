@@ -29,12 +29,19 @@ class TerrainMeshComponent :
 {
 public:
     TerrainMeshComponent(float width, float depth, float divisions, int layers);
+    TerrainMeshComponent();
     void OnAttach(GraphNode* node) override;
-
+    void AddLayer(TerrainLayer* layer)
+    {
+		m_Layers.push_back(layer);
+    }
     void CreateTerrain(int layers);
     TerrainMesh* GetMesh() {
         return m_Mesh;
     }
+    void SetMesh(TerrainMesh* mesh) {
+        m_Mesh = mesh;
+	}
     TerrainLayer* GetLayer(int i)
     {
         return m_Layers[i];

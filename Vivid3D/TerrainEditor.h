@@ -27,6 +27,18 @@ public:
 	void Paint();
 	void Sculpt();
 	void SetEditLayer(int layer);
+	void SetBrushSize(float size) {
+		m_TerrainBrushSize = size;
+	}
+	void SetBrushStrength(float strength) {
+		m_TerrainStrength = strength;
+	}
+	float GetBrushSize() const {
+		return m_TerrainBrushSize;
+	}
+	float GetTerrainStrength() const {
+		return m_TerrainStrength;
+	}
 private:
 
 	GraphNode* m_Terrain;

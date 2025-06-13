@@ -15,7 +15,7 @@ public:
     }
 
 private:
-
+    RefCntAutoPtr<IBuffer> m_LightingBuffer;
     Texture2D* m_ColorTexture;
 };
 

@@ -61,6 +61,7 @@
 #include "ScriptHost.h"
 #include "ScriptComponent.h"
 #include "NodeTree.h"
+#include "TerrainDepthRenderer.h"
 
 using namespace Diligent;
 
@@ -184,13 +185,17 @@ SceneView::SceneView(QWidget *parent)
     auto ter_ren = new TerrainRendererComponent;
     m_Terrain->AddComponent(ter);
     m_Terrain->AddComponent(ter_ren);
+    m_Terrain->AddComponent(new TerrainDepthRenderer);
 
-    m_SceneGraph->AddNode(m_Terrain);
+    m_SceneGraph->SetTerrain(m_Terrain);
     m_White = new Texture2D("engine/white.png");
  
     m_TerrainEditor = new TerrainEditor(m_Terrain);
 
     NodeTree::m_Instance->SetRoot(m_SceneGraph->GetRootNode());
+
+    Vivid::InitMono();
+
 }
 
 SceneView::~SceneView()
@@ -314,31 +319,34 @@ void SceneView::paintEvent(QPaintEvent* event)
 
     }
 
-    Vivid::m_pImmediateContext->Flush();
-    Vivid::m_pImmediateContext->FinishFrame();
 
     pSwapchain->Present();
 
 
     if (m_RunMode == RM_Stopped) {
-        if (m_Pick) {
-            m_Pick = false;
-            QPoint localPos = m_PickPos;
-            qreal dpr = this->devicePixelRatioF(); // or use QWidget::window()->devicePixelRatioF()
+        if (m_Mode == SceneMode::Mode_Translate || m_Mode == SceneMode::Mode_Rotate || m_Mode == SceneMode::Mode_Scale) {
+            //    m_SceneController->RenderGizmos();
 
-            int x = static_cast<int>(localPos.x() * dpr);
-            int y = static_cast<int>(localPos.y() * dpr);
-            m_SceneController->onMouseClick(glm::vec2(x, y));
-            auto picked = m_SceneController->GetSelected();
-            if (picked != nullptr) {
-                if (m_SelectedNode != picked) {
-                    m_SelectedNode = picked;
-                    SelectNode(m_SelectedNode);
-                    //PropertiesEditor::m_Instance->SetNode(m_SelectedNode);
-                    printf("Set Property Node\n");
+            if (m_Pick) {
+                m_Pick = false;
+                QPoint localPos = m_PickPos;
+                qreal dpr = this->devicePixelRatioF(); // or use QWidget::window()->devicePixelRatioF()
+
+                int x = static_cast<int>(localPos.x() * dpr);
+                int y = static_cast<int>(localPos.y() * dpr);
+                m_SceneController->onMouseClick(glm::vec2(x, y));
+                //  SelectNode(m_Terrain);
+                auto picked = m_SceneController->GetSelected();
+                if (picked != nullptr) {
+                    if (m_SelectedNode != picked) {
+                        m_SelectedNode = picked;
+                        SelectNode(m_SelectedNode);
+                        //PropertiesEditor::m_Instance->SetNode(m_SelectedNode);
+                        printf("Set Property Node\n");
+                    }
                 }
-            }
 
+            }
         }
     }
 
@@ -433,11 +441,17 @@ void SceneView::mousePressEvent(QMouseEvent* event)  {
             m_TerrainEditor->BeginSculpt();
             m_TerrainEditor->Update();
 
-        }
-        m_PickPos = event->pos();
-        m_Pick = true;
+        }else{
+ 
+            m_PickPos = event->pos();
+            m_Pick = true;
+       }
+
+
+
         return;
        
+
 
 
     }
@@ -635,6 +649,8 @@ GraphNode* CreateTerrainBrush(float mx, float h, float my, float size, float str
 }
 
 void SceneView::mouseMoveEvent(QMouseEvent* event)  {
+ 
+
     if (m_RunMode == RM_Running) return;
     if (rightMousePressed) {
         QPoint delta = event->pos() - lastMousePos;
@@ -653,22 +669,25 @@ void SceneView::mouseMoveEvent(QMouseEvent* event)  {
 
         std::cout << "MX:" << x << " MY:" << y << std::endl;
         if (m_Mode == SceneMode::Mode_Paint || m_Mode == SceneMode::Mode_Sculpt) {
-            auto res = m_SceneGraph->MousePickTerrain(x, y, m_Terrain->GetComponent<TerrainMeshComponent>());
 
-            if (res.m_Hit) {
+      
+            
+                auto res = m_SceneGraph->MousePickTerrain(x, y, m_Terrain->GetComponent<TerrainMeshComponent>());
+               
 
-                std::cout << "THit: X:" << res.m_Point.x << " Y:" << res.m_Point.y << " Z:" << res.m_Point.z << std::endl;
-                m_TerrainX = res.m_Point.x;
-                m_TerrainZ = res.m_Point.z;
-                m_TerrainEditor->SetPosition(res.m_Point);
+                if (res.m_Hit) {
+
+             //       std::cout << "THit: X:" << res.m_Point.x << " Y:" << res.m_Point.y << " Z:" << res.m_Point.z << std::endl;
+                    m_TerrainX = res.m_Point.x;
+                    m_TerrainZ = res.m_Point.z;
+                    m_TerrainEditor->SetPosition(res.m_Point);
 
 
-                //m_BrushNode = CreateTerrainBrush(res.m_Point.x, 0, res.m_Point.z, m_TerrainBrushSize, m_TerrainStrength);
+                    //m_BrushNode = CreateTerrainBrush(res.m_Point.x, 0, res.m_Point.z, m_TerrainBrushSize, m_TerrainStrength);
 
 
-            }
-
-            m_TerrainEditor->Update();
+                }
+                        m_TerrainEditor->Update();
         
             //if (m_TerrainEditing) {
                 switch (m_Mode) {
@@ -690,7 +709,7 @@ void SceneView::mouseMoveEvent(QMouseEvent* event)  {
         lastMousePos = event->pos();
    
     }
-   
+
 }
 void SceneView::keyPressEvent(QKeyEvent* event) {
     if (m_RunMode == RM_Stopped) {
@@ -756,6 +775,15 @@ void SceneView::SelectNode(GraphNode* node)
     if (node->GetComponent<TerrainMeshComponent>()) {
         PropertiesEditor::m_Instance->SetTerrain(node);
         return; 
+    }
+    else {
+        if(m_Mode == SceneMode::Mode_Paint || m_Mode == SceneMode::Mode_Sculpt) {
+			m_Mode = SceneMode::Mode_Translate;
+            // m_TerrainEditor->SetNode(node);
+        }
+        else {
+         //   m_TerrainEditor->SetNode(nullptr);
+		}
     }
 
     PropertiesEditor::m_Instance->SetNode(node);

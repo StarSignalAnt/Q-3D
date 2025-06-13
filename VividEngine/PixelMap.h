@@ -1,7 +1,9 @@
 #pragma once
 #include <string>
 #include "BasicMath.hpp"
+#include "VFile.h"
 using namespace Diligent;
+
 
 
 class PixelMap
@@ -25,6 +27,8 @@ public:
 	int GetBPP() {
 		return m_BPP;
 	}
+	void Write(VFile* f);
+	void Read(VFile* f);
 
 private:
 

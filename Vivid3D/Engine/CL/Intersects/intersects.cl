@@ -1,6 +1,5 @@
 #define EPSILON 1.19209290e-07F
 
-// Updated rayTri function to work with point1 to point2
 struct RayResult {
     float distance;
     float3 hitPoint;
@@ -47,8 +46,8 @@ struct RayResult rayTri(float3 point1, float3 point2, float3 v0, float3 v1, floa
 }
 
 __kernel void findClosestIntersection(
-    __global float3* point1,    // Changed from origin
-    __global float3* point2,    // Changed from dir
+    __global float3* point1,
+    __global float3* point2,
     __global int* result,
     __global float3* hitPoint,
     __global float* points
@@ -62,18 +61,32 @@ __kernel void findClosestIntersection(
 
     struct RayResult rayRes = rayTri(point1[0], point2[0], v0, v1, v2);
 
-    union { float f; int i; } u;
-    u.f = rayRes.distance;
+    // Only proceed if we found a valid intersection
+    if (rayRes.distance < 10000.0f) {
+        union { float f; int i; } u;
+        u.f = rayRes.distance;
 
-    // Atomic compare-and-swap to find the minimum distance
-    int old = *result;
-    while (u.i < old) {
-        int prev = atomic_cmpxchg(result, old, u.i);
-        if (prev == old) {
-            // We successfully updated the minimum distance, also update hit point
-            hitPoint[0] = rayRes.hitPoint;
-            break;
-        }
-        old = prev;
+        // Use a lock-free approach with proper synchronization
+        bool updated = false;
+        int old = *result;
+        
+        do {
+            union { float f; int i; } oldDist;
+            oldDist.i = old;
+            
+            // Only attempt update if our distance is better
+            if (rayRes.distance < oldDist.f) {
+                int prev = atomic_cmpxchg(result, old, u.i);
+                if (prev == old) {
+                    // We successfully updated the distance
+                    // Now update the hit point (this is safe because we're the only one updating)
+                    hitPoint[0] = rayRes.hitPoint;
+                    updated = true;
+                }
+                old = prev;
+            } else {
+                break; // Our distance is not better, exit
+            }
+        } while (!updated && old != u.i);
     }
 }

@@ -697,6 +697,15 @@ void PropertiesEditor::SetTerrain(GraphNode* node) {
 
         });
 
+    AddFloat("Brush Size",0.01,10.0f,0.1,SceneView::m_Instance->GetTerrainBrushSize(), [](double v) {
+        SceneView::m_Instance->SetTerrainBrushSize(v);
+		});
+
+    AddFloat("Brush Strength", 0.01, 15.0f, 0.01, SceneView::m_Instance->GetTerrainStrength(), [](double v) {
+        SceneView::m_Instance->SetTerrainStrength(v);
+        });
+
+
  
 
     auto layers = tmesh->GetLayers();

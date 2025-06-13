@@ -14,9 +14,15 @@ SceneGraph* SceneGraph::m_CurrentGraph = nullptr;
 #include "LightComponent.h"
 #include "TerrainMeshComponent.h"
 #include "TerrainMesh.h"
+#include "TerrainLayer.h"
+#include "Texture2D.h"
+#include "PixelMap.h"
 #include <cmath>   // For std::abs and std::floor
 #include <iomanip> // For std::fixed and std::setprecision
+#include "TerrainRendererComponent.h"
+#include "TerrainDepthRenderer.h"
 bool addedGraphFuncs = false;
+
 
 double floorIfCloseToZero(double number, double tolerance = 0.0001) {
 	// Check if the absolute value of the number is less than the tolerance
@@ -66,7 +72,9 @@ void SceneGraph::AddNode(GraphNode* node) {
 
 void SceneGraph::RenderDepth() {
 
+	
 	m_CurrentGraph = this;
+	m_Terrain->RenderDepth(m_Camera);
 	m_RootNode->RenderDepth(m_Camera);
 
 }
@@ -74,6 +82,7 @@ void SceneGraph::RenderDepth() {
 void SceneGraph::Render() {
 
 	m_CurrentGraph = this;
+	m_Terrain->Render(m_Camera);
 	m_RootNode->Render(m_Camera);
 
 //	for (auto sub : m_RootNode->GetNodes()) {
@@ -571,6 +580,13 @@ void SceneGraph::SaveScene(std::string path) {
 	
 	m_RootNode->WriteScripts(f);
 
+	if (m_Terrain != nullptr) {
+		f->WriteBool(true);
+		WriteTerrain(f,m_Terrain);
+	}
+	else {
+		f->WriteBool(false);
+	}
 
 	f->Close();
 
@@ -593,6 +609,13 @@ void SceneGraph::LoadScene(std::string path) {
 	m_RootNode->Read(f);
 
 	m_RootNode->ReadScripts(f);
+
+	if(f->ReadBool()) {
+		ReadTerrain(f);
+	}
+	else {
+		m_Terrain = nullptr;
+	}
 
 	f->Close();
 
@@ -617,4 +640,114 @@ GraphNode* SceneGraph::FindNode(std::string name) {
 
 	return m_RootNode->FindNode(name);
 
+}
+
+
+void SceneGraph::ReadTerrain(VFile* f) {
+
+	m_Terrain = new GraphNode;
+	m_Terrain->AddComponent(new TerrainMeshComponent);
+	m_Terrain->AddComponent(new TerrainRendererComponent);
+	m_Terrain->AddComponent(new TerrainDepthRenderer);
+
+	AddNode(m_Terrain);
+
+	auto tcom = m_Terrain->GetComponent<TerrainMeshComponent>();
+
+	TerrainMesh* mesh = tcom->GetMesh();
+
+	tcom->SetMesh(mesh);
+
+	int vc = f->ReadInt();
+	for (int i = 0; i < vc; i++) {
+		TerrainVertex v;
+		v.position = f->ReadVec3();
+		v.texture = f->ReadVec3();
+		v.color = f->ReadVec4();
+		v.normal = f->ReadVec3();
+		v.binormal = f->ReadVec3();
+		v.tangent = f->ReadVec3();
+		v.layercoord = f->ReadVec3();
+		mesh->AddVertex(v);
+	}
+
+	int tc = f->ReadInt();
+	for (int i = 0; i < tc; i++) {
+		Triangle t;
+		t.v0 = f->ReadInt();
+		t.v1 = f->ReadInt();
+		t.v2 = f->ReadInt();
+		mesh->AddTriangle(t);
+	}
+	mesh->Build();
+
+	int lc = f->ReadInt();
+	for (int i = 0; i < lc; i++) {
+		std::string colorPath = f->ReadString();
+		std::string normalPath = f->ReadString();
+		std::string specPath = f->ReadString();
+		Texture2D* colorTex = new Texture2D(colorPath);
+		Texture2D* normalTex = new Texture2D(normalPath);
+		Texture2D* specTex = new Texture2D(specPath);
+		TerrainLayer* layer = new TerrainLayer;
+		PixelMap* pix = new PixelMap(1, 1);
+		pix->Read(f);
+		layer->SetColor(colorTex);
+		layer->SetNormal(normalTex);
+		layer->SetSpecular(specTex);
+		layer->SetPixels(pix);
+		layer->Create();
+		tcom->AddLayer(layer);
+
+		//layer->SetPixels(new PixelMap(256, 256));
+
+		//mesh->AddLayer(layer);
+	}
+}
+
+void SceneGraph::WriteTerrain(VFile* f,GraphNode* node) {
+
+	auto mesh = node->GetComponent<TerrainMeshComponent>();
+
+	auto meshBuf = mesh->GetMesh();
+
+	f->WriteInt(meshBuf->GetVertices().size());
+	for(auto v : meshBuf->GetVertices()) {
+		f->WriteVec3(v.position);
+		f->WriteVec3(v.texture);
+		f->WriteVec4(v.color);
+		f->WriteVec3(v.normal);
+		f->WriteVec3(v.binormal);
+		f->WriteVec3(v.tangent);
+		f->WriteVec3(v.layercoord);
+	}
+	f->WriteInt(meshBuf->GetTriangles().size());
+	for(auto t : meshBuf->GetTriangles()) {
+		f->WriteInt(t.v0);
+		f->WriteInt(t.v1);
+		f->WriteInt(t.v2);
+	}
+
+	f->WriteInt(mesh->GetLayers().size());
+	for(auto layer : mesh->GetLayers()) {
+		f->WriteString(layer->GetColor()->GetPath().c_str());
+		f->WriteString(layer->GetNormal()->GetPath().c_str());
+		f->WriteString(layer->GetSpec()->GetPath().c_str());
+		auto pix = layer->GetPixels();
+		pix->Write(f);
+
+
+		//f->WriteString(layer.name);
+	//	f->WriteString(layer.texture);
+//		f->WriteFloat(layer.strength);
+	//	f->WriteFloat(layer.height);
+	}
+
+
+
+}
+
+void SceneGraph::SetTerrain(GraphNode* node) {
+	m_Terrain = node;
+	m_RootNode->AddNode(node);
 }

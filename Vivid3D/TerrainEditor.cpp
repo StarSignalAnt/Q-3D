@@ -3,6 +3,7 @@
 #include "TerrainLayer.h"
 #include "PixelMap.h"
 #include "TerrainMesh.h"
+#include "Vivid.h"
 void TerrainEditor::BeginPaint() {
 
 	m_State = E_Paint;
@@ -104,8 +105,12 @@ void TerrainEditor::EndSculpt() {
 
 }
 
+bool m_s = false;
 void TerrainEditor::Sculpt() {
 
+
+    if (m_s == true) return;
+    m_s = true;
     auto ter = m_Terrain;
 
 
@@ -149,6 +154,8 @@ void TerrainEditor::Sculpt() {
     // ter->GetMesh()->SetVertices(verts);
     ter->GetComponent<TerrainMeshComponent>()->GetMesh()->CalculateNormals();
     ter->GetComponent<TerrainMeshComponent>()->GetMesh()->Build();
+    Vivid::m_pImmediateContext->Flush();
+    Vivid::m_pImmediateContext->WaitForIdle();
 
-
+    m_s = false;
 }

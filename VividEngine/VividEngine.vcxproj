@@ -110,7 +110,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>C:\git\PhysX\pxshared\include;C:\git\PhysX\physx\include;C:\git\soloud-master\include;C:\Vivid3D\CL;C:\Users\antro\AppData\Local\Programs\Python\Python313\include;C:\Vivid3D\VividEngine\include;C:\git\assimp\include;C:\git\DiligentEngine\DiligentCore;C:\git\DiligentEngine\DiligentFX;C:\git\DiligentEngine\DiligentFX\PostProcess\Common\interface;C:\DiligentEngine\DiligentFX\PostProcess\ScreenSpaceReflection\interface;C:\dev\Vivid3D\VScript;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsTools\interface;C:git\DiligentEngine\DiligentCore;C:\git\DiligentEngine\DiligentTools\TextureLoader\interface;C:\git\DiligentEngine\DiligentTools\TextureLoader\include;C:\Dev\Assimp\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngine\interface;C:\git\DiligentEngine\DiligentCore\Common\interface;C:\git\DiligentEngine\DiligentCore\ThirdParty\SPIRV-Cross\include;C:\git\DiligentEngine\DiligentCore\Platforms\Basic\include;C:\git\DiligentEngine\DiligentCore\Graphics\ShaderTools\include;C:\\git\DiligentEngine\DiligentCore\Graphics\HLSL2GLSLConverterLib\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngineD3D12\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngine\include;C:\git\DiligentEngine\DiligentCore\Common\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\git\mono\msvc\include;C:\git\mono\msvc\include\mono;C:\git\mono\mono;C:\git\PhysX\pxshared\include;C:\git\PhysX\physx\include;C:\git\soloud-master\include;C:\Vivid3D\CL;C:\Users\antro\AppData\Local\Programs\Python\Python313\include;C:\Vivid3D\VividEngine\include;C:\git\assimp\include;C:\git\DiligentEngine\DiligentCore;C:\git\DiligentEngine\DiligentFX;C:\git\DiligentEngine\DiligentFX\PostProcess\Common\interface;C:\DiligentEngine\DiligentFX\PostProcess\ScreenSpaceReflection\interface;C:\dev\Vivid3D\VScript;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsTools\interface;C:git\DiligentEngine\DiligentCore;C:\git\DiligentEngine\DiligentTools\TextureLoader\interface;C:\git\DiligentEngine\DiligentTools\TextureLoader\include;C:\Dev\Assimp\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngine\interface;C:\git\DiligentEngine\DiligentCore\Common\interface;C:\git\DiligentEngine\DiligentCore\ThirdParty\SPIRV-Cross\include;C:\git\DiligentEngine\DiligentCore\Platforms\Basic\include;C:\git\DiligentEngine\DiligentCore\Graphics\ShaderTools\include;C:\\git\DiligentEngine\DiligentCore\Graphics\HLSL2GLSLConverterLib\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngineD3D12\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngine\include;C:\git\DiligentEngine\DiligentCore\Common\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -120,8 +120,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalLibraryDirectories>C:\git\PhysX\physx\bin\win.x86_64.vc142.mt\debug;C:\Program Files %28x86%29\OCL_SDK_Light\lib\x86_64;C:\Users\antro\AppData\Local\Programs\Python\Python313\libs;C:\git\assimp\lib\Debug;C:\Vivid3D\Vivid3D\x64\Debug;C:\Vivid3D\Deps\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opencl.lib;python313.lib;dxgi.lib;assimp-vc143-mtd.lib;d3dcompiler.lib;Archiver_64d.lib;Diligent-archiver-static.lib;Diligent-basicplatform.lib;Diligent-common.lib;DiligentCore.lib;Diligent-GLAdapterSelector.lib;Diligent-GraphicsAccessories.lib;Diligent-GraphicsEngine.lib;DiligentFX.lib;Diligent-GraphicsEngineD3D11-static.lib;Diligent-GraphicsEngineD3D12-static.lib;Diligent-GraphicsengineD3DBase.lib;Diligent-GraphicsEngineNextGenBase.lib;Diligent-GraphicsEngineOpenGL-static.lib;Diligent-GraphicsEngineVk-static.lib;Diligent-GraphicsTools.lib;Diligent-HLSL2GLSLConverterLib.lib;Diligent-Primitives.lib;Diligent-ShaderTools.lib;Diligent-TextureLoader.lib;DiligentTools.lib;Diligent-Win32Platform.lib;GenericCodeGend.lib;glslangd.lib;glslang-default-resource-limitsd.lib;GraphicsEngineD3D11_64d.lib;GraphicsEngineD3D12_64d.lib;GraphicsEngineOpenGL_64d.lib;GraphicsEngineVk_64d.lib;LibJpeg.lib;libpng16_staticd.lib;libtiff.lib;MachineIndependentd.lib;OSDependentd.lib;spirv-cross-cored.lib;spirv-cross-glsld.lib;SPIRVd.lib;SPIRV-Tools.lib;SPIRV-Tools-diff.lib;SPIRV-Tools-opt.lib;xxhash.lib;zlib.lib;PhysX_64.lib;LowLevel_static_64.lib;LowLevelAABB_static_64.lib;LowLevelDynamics_static_64.lib;PhysXCharacterKinematic_static_64.lib;PhysXCommon_64.lib;PhysXCooking_64.lib;PhysXExtensions_static_64.lib;PhysXFoundation_64.lib;PhysXPvdSDK_static_64.lib;PhysXTask_static_64.lib;PhysXVehicle_static_64.lib;SceneQuery_static_64.lib;SimulationController_static_64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\git\mono\msvc\build\sgen\x64\lib\Debug;C:\git\PhysX\physx\bin\win.x86_64.vc142.mt\debug;C:\Program Files %28x86%29\OCL_SDK_Light\lib\x86_64;C:\Users\antro\AppData\Local\Programs\Python\Python313\libs;C:\git\assimp\lib\Debug;C:\Vivid3D\Vivid3D\x64\Debug;C:\Vivid3D\Deps\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>mono-2.0-sgen.lib;opencl.lib;python313.lib;dxgi.lib;assimp-vc143-mtd.lib;d3dcompiler.lib;Archiver_64d.lib;Diligent-archiver-static.lib;Diligent-basicplatform.lib;Diligent-common.lib;DiligentCore.lib;Diligent-GLAdapterSelector.lib;Diligent-GraphicsAccessories.lib;Diligent-GraphicsEngine.lib;DiligentFX.lib;Diligent-GraphicsEngineD3D11-static.lib;Diligent-GraphicsEngineD3D12-static.lib;Diligent-GraphicsengineD3DBase.lib;Diligent-GraphicsEngineNextGenBase.lib;Diligent-GraphicsEngineOpenGL-static.lib;Diligent-GraphicsEngineVk-static.lib;Diligent-GraphicsTools.lib;Diligent-HLSL2GLSLConverterLib.lib;Diligent-Primitives.lib;Diligent-ShaderTools.lib;Diligent-TextureLoader.lib;DiligentTools.lib;Diligent-Win32Platform.lib;GenericCodeGend.lib;glslangd.lib;glslang-default-resource-limitsd.lib;GraphicsEngineD3D11_64d.lib;GraphicsEngineD3D12_64d.lib;GraphicsEngineOpenGL_64d.lib;GraphicsEngineVk_64d.lib;LibJpeg.lib;libpng16_staticd.lib;libtiff.lib;MachineIndependentd.lib;OSDependentd.lib;spirv-cross-cored.lib;spirv-cross-glsld.lib;SPIRVd.lib;SPIRV-Tools.lib;SPIRV-Tools-diff.lib;SPIRV-Tools-opt.lib;xxhash.lib;zlib.lib;PhysX_64.lib;LowLevel_static_64.lib;LowLevelAABB_static_64.lib;LowLevelDynamics_static_64.lib;PhysXCharacterKinematic_static_64.lib;PhysXCommon_64.lib;PhysXCooking_64.lib;PhysXExtensions_static_64.lib;PhysXFoundation_64.lib;PhysXPvdSDK_static_64.lib;PhysXTask_static_64.lib;PhysXVehicle_static_64.lib;SceneQuery_static_64.lib;SimulationController_static_64.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -172,6 +172,7 @@
     <ClInclude Include="LightComponent.h" />
     <ClInclude Include="LinesRendererComponent.h" />
     <ClInclude Include="LogicDispatcher.h" />
+    <ClInclude Include="MAsm.h" />
     <ClInclude Include="MaterialBasic3D.h" />
     <ClInclude Include="MaterialDepth.h" />
     <ClInclude Include="MaterialLines.h" />
@@ -180,7 +181,10 @@
     <ClInclude Include="MaterialSkeletal.h" />
     <ClInclude Include="MaterialSkeletalDepth.h" />
     <ClInclude Include="MaterialTerrain.h" />
+    <ClInclude Include="MaterialTerrainDepth.h" />
     <ClInclude Include="MathsHelp.h" />
+    <ClInclude Include="MClass.h" />
+    <ClInclude Include="MonoHost.h" />
     <ClInclude Include="Pars.h" />
     <ClInclude Include="Physics.h" />
     <ClInclude Include="PixelMap.h" />
@@ -204,6 +208,7 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="SceneGraph.h" />
     <ClInclude Include="StaticRendererComponent.h" />
+    <ClInclude Include="TerrainDepthRenderer.h" />
     <ClInclude Include="TerrainLayer.h" />
     <ClInclude Include="TerrainMesh.h" />
     <ClInclude Include="TerrainMeshBuffer.h" />
@@ -237,6 +242,7 @@
     <ClCompile Include="LightComponent.cpp" />
     <ClCompile Include="LinesRendererComponent.cpp" />
     <ClCompile Include="LogicDispatcher.cpp" />
+    <ClCompile Include="MAsm.cpp" />
     <ClCompile Include="MaterialBasic3D.cpp" />
     <ClCompile Include="MaterialDepth.cpp" />
     <ClCompile Include="MaterialLines.cpp" />
@@ -245,7 +251,10 @@
     <ClCompile Include="MaterialSkeletal.cpp" />
     <ClCompile Include="MaterialSkeletalDepth.cpp" />
     <ClCompile Include="MaterialTerrain.cpp" />
+    <ClCompile Include="MaterialTerrainDepth.cpp" />
     <ClCompile Include="MathsHelp.cpp" />
+    <ClCompile Include="MClass.cpp" />
+    <ClCompile Include="MonoHost.cpp" />
     <ClCompile Include="Pars.cpp" />
     <ClCompile Include="Physics.cpp" />
     <ClCompile Include="PixelMap.cpp" />
@@ -294,6 +303,7 @@
     </ClCompile>
     <ClCompile Include="SceneGraph.cpp" />
     <ClCompile Include="StaticRendererComponent.cpp" />
+    <ClCompile Include="TerrainDepthRenderer.cpp" />
     <ClCompile Include="TerrainLayer.cpp" />
     <ClCompile Include="TerrainMesh.cpp" />
     <ClCompile Include="TerrainMeshBuffer.cpp" />

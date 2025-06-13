@@ -44,6 +44,7 @@ public:
 	Texture2D* GetSpec() {
 		return m_Specular;
 	}
+	void Create();
 private:
 
 	Texture2D* m_Color = nullptr;

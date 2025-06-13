@@ -5,6 +5,9 @@
 #include <pybind11/embed.h>
 #include "GameAudio.h"
 #include "Physics.h"
+#include "MonoHost.h"
+#include "MAsm.h"
+#include "MClass.h"
 namespace py = pybind11;
 RefCntAutoPtr<IRenderDevice>  Vivid::m_pDevice;
 RefCntAutoPtr<IDeviceContext> Vivid::m_pImmediateContext;
@@ -78,6 +81,64 @@ int add(int a, int b) { return a + b; }
 int multiply(int a, int b) {
 	return a * b;
 }
+
+void Vivid::InitMono() {
+
+	MonoHost* host = new MonoHost;
+	MAsm* test = new MAsm("scripts/testlib.dll");
+	auto cls = test->GetClass("TestLib", "Test");
+	//cls->CallFunction("Init", 10, 30);
+//	cls->SetStaticFieldValue<int>("TestInt", 88);
+//	cls->CallStaticFunction("Init", 10, 30);
+	auto i1 = cls->CreateInstance();
+	auto other = test->GetClass("TestLib", "Other")->CreateInstance();
+
+
+//	i1->SetFieldValue<int>("TestInt", 150);
+
+
+	//cls->SetStaticClass("ThisTest", i1);
+
+
+	//auto i1 = cls->CreateInstance();
+	//int val1 = i1->GetFieldValue<int>("TestInt");
+
+	i1->SetFieldClass("Test1", other);
+
+	i1->CallFunction("Init", 20, 30);
+
+	auto v = i1->GetInstanceFields();
+
+	for (auto a : v) {
+
+		switch (a.ctype) {
+		case SharpType::SHARP_TYPE_INT:
+			std::cout << "F:" << a.name << " Value:" << i1->GetFieldValue<int>(a.name) << std::endl;
+			//	printf("Field %s is int with value %d\n", a.name.c_str(), a.value.i);
+				break;
+		}
+
+	}
+
+	int b = 5;
+
+	//MClass* ncls = i1->GetStaticFieldValue<MClass*>("ThisTest");
+	//ncls->CallFunction("Init", 20, 30);
+
+
+
+
+	//int val2 = ncls->GetFieldValue<int>("OtherInt");
+
+
+
+
+ 	//int res = i1->CallFunctionValue<int>("Add", 50, 100);
+	//std::string val = cls->GetStaticFieldValue<std::string>("TestVal");
+
+
+ }
+
 void Vivid::InitPython() {
 
 	py::scoped_interpreter guard{}; // Start the interpreter

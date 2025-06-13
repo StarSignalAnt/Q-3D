@@ -8,6 +8,7 @@ class CubeRenderer;
 class StaticMeshComponent;
 class TerrainMeshComponent;
 class TerrainMesh;
+class VFile;
 
 struct HitResult {
 
@@ -44,6 +45,9 @@ public:
 	std::vector<GraphNode*> GetLights() {
 		return m_Lights;
 	}
+	void SetTerrain(GraphNode* node);
+
+
 	HitResult MousePick(int x, int y);
 	HitResult RayCast(glm::vec3 pos, glm::vec3 end);
 	HitResult RayCast(StaticMeshComponent* mesh,glm::vec3 pos, glm::vec3 end);
@@ -58,6 +62,8 @@ public:
 	void SaveScene(std::string path);
 	void LoadScene(std::string path);
 	GraphNode* FindNode(std::string node);
+	void WriteTerrain(VFile* f,GraphNode* node);
+	void ReadTerrain(VFile* f);
 
 	static SceneGraph* m_Instance;
 
@@ -72,6 +78,6 @@ private:
 	Intersections* m_RayTester;
 	float m_TerrainX = 0;
 	float m_TerrainZ = 0;
-
+	GraphNode* m_Terrain = nullptr;
 };
 

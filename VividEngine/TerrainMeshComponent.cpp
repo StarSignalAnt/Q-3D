@@ -16,6 +16,12 @@ TerrainMeshComponent::TerrainMeshComponent(float width, float depth, float divis
 //	m_Name = "Terrain";
 }
 
+TerrainMeshComponent::TerrainMeshComponent() {
+
+    m_Mesh = new TerrainMesh;
+
+}
+
 
 void TerrainMeshComponent::CreateTerrain(int layers) {
 

@@ -72,3 +72,21 @@ void PixelMap::SetColor(int x, int y, float4 col) {
 	m_Data[loc++] = col.w;
 
 }
+
+void PixelMap::Write(VFile* f) {
+
+	f->WriteInt(m_Width);
+	f->WriteInt(m_Height);
+	f->WriteInt(m_BPP);
+	f->WriteBytes((unsigned char*)m_Data, m_Width * m_Height * m_BPP * sizeof(float));
+	
+
+}
+
+void PixelMap::Read(VFile* f) {
+	m_Width = f->ReadInt();
+	m_Height = f->ReadInt();
+	m_BPP = f->ReadInt();
+	//m_Data = new float[m_Width * m_Height * m_BPP];
+	m_Data=(float*)f->ReadBytes(m_Width * m_Height * m_BPP * sizeof(float));
+}

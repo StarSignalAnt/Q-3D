@@ -67,6 +67,9 @@
     <Filter Include="LogicGraph\Nodes">
       <UniqueIdentifier>{6a2dba87-e6cb-491c-ab95-8189e2fd63a0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Mono">
+      <UniqueIdentifier>{f69ebd7d-3837-4c59-811d-e1371087cd31}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -183,9 +186,6 @@
     <ClInclude Include="MaterialLines.h">
       <Filter>Material</Filter>
     </ClInclude>
-    <ClInclude Include="RenderTarget2D.h">
-      <Filter>RenderTarget</Filter>
-    </ClInclude>
     <ClInclude Include="Draw2D.h">
       <Filter>Draw</Filter>
     </ClInclude>
@@ -260,6 +260,24 @@
     </ClInclude>
     <ClInclude Include="LGInput.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderTarget2D.h">
+      <Filter>RenderTarget</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialTerrainDepth.h">
+      <Filter>Material</Filter>
+    </ClInclude>
+    <ClInclude Include="TerrainDepthRenderer.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="MonoHost.h">
+      <Filter>Mono</Filter>
+    </ClInclude>
+    <ClInclude Include="MClass.h">
+      <Filter>Mono</Filter>
+    </ClInclude>
+    <ClInclude Include="MAsm.h">
+      <Filter>Mono</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -514,6 +532,21 @@
     </ClCompile>
     <ClCompile Include="LGInput.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MaterialTerrainDepth.cpp">
+      <Filter>Material</Filter>
+    </ClCompile>
+    <ClCompile Include="TerrainDepthRenderer.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="MonoHost.cpp">
+      <Filter>Mono</Filter>
+    </ClCompile>
+    <ClCompile Include="MClass.cpp">
+      <Filter>Mono</Filter>
+    </ClCompile>
+    <ClCompile Include="MAsm.cpp">
+      <Filter>Mono</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

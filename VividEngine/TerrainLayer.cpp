@@ -89,3 +89,13 @@ void TerrainLayer::PlotBrush(float x, float y, int w, int h, float strength)
         m_LayerMap = new Texture2D(m_LayerPixMap->GetWidth(), m_LayerPixMap->GetHeight(), m_LayerPixMap->GetData(), 4);
     }
 }
+
+void TerrainLayer::Create() {
+
+    if (m_LayerMap != nullptr) {
+        m_LayerMap->Update(m_LayerPixMap->GetData());
+    }
+    else {
+        m_LayerMap = new Texture2D(m_LayerPixMap->GetWidth(), m_LayerPixMap->GetHeight(), m_LayerPixMap->GetData(), 4);
+    }
+}

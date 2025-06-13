@@ -1,0 +1,66 @@
+#define dx 1.0
+
+Texture2D    v_Texture;
+SamplerState v_Texture_sampler;
+Texture2D v_TextureNorm;
+SamplerState v_TextureNorm_sampler;
+Texture2D v_TextureSpec;
+SamplerState v_TextureSpec_sampler;
+Texture2D v_TextureLayer;
+SamplerState v_TextureLayer_sampler;
+TextureCube v_Shadow;
+SamplerState v_Shadow_sampler;
+
+
+cbuffer Constants
+{
+    float4x4 v_MVP;
+    float4x4 v_Proj;
+    float4x4 v_Model;
+    float4x4 v_View;
+    float4x4 v_ModelInv;
+    float4 v_CameraPos;
+    float4 v_LightPos;
+    float4 v_LightProp;
+    float4 v_LightDiff;
+    float4 v_CameraExt;
+    int4 v_Layers;
+};
+
+
+struct PSInput 
+{ 
+    float4 Pos   : SV_POSITION;
+    float4 Color : COLOR0;
+    float3 Norm : NORMAL0;
+    float3 Uv : TEX_COORD;
+    float3 LayerCoord : NORMAL6;
+    float3 WorldPos : NORMAL1;
+    float3 Tangent : NORMAL2;    // World space tangent
+    float3 Bitangent : NORMAL3;  // World space bitangent
+};
+
+struct PSOutput
+{
+    float4 Color : SV_TARGET;
+};
+
+
+
+
+void main(in PSInput PSIn, out PSOutput PSOut)
+{
+    // Sample the diffuse texture
+   float dist = distance(PSIn.WorldPos,g_CameraPosition.xyz);
+
+    float depth = PSIn.Pos.z / PSIn.Pos.w;
+
+
+   
+    float zval = dist / g_CameraExt.y;
+    if(zval>1.0){
+        zval = 1.0;
+    }
+
+     PSOut.Color = float4(zval,zval,zval,1);
+}

@@ -9,7 +9,7 @@
 #include "SceneGrid.h"
 #include "SceneSelectionOverlay.h"
 #include "Draw2D.h"
-
+#include "TerrainEditor.h"
 #if D3D11_SUPPORTED
 #    include "Graphics/GraphicsEngineD3D11/interface/EngineFactoryD3D11.h"
 #endif
@@ -86,11 +86,29 @@ public:
 	void SetScene(SceneGraph* graph);
 	void Stop();
 	static SceneView* m_Instance;
-	SceneMode m_Mode = SceneMode::Mode_Paint;
+	SceneMode m_Mode = SceneMode::Mode_Translate;
 	SceneSpace m_Space = SceneSpace::Space_Local;
 	GraphNode* m_SelectedNode = nullptr;
 	void SelectNode(GraphNode* node);
 	void SetEditLayer(int layer);
+	float GetTerrainBrushSize() {
+		return m_TerrainEditor->GetBrushSize();
+	}
+	float GetTerrainStrength() {
+		return m_TerrainEditor->GetTerrainStrength();
+	}
+	void SetTerrainStrength(float str) {
+		m_TerrainStrength = str;
+		if (m_TerrainEditor)
+			m_TerrainEditor->SetBrushStrength(str);
+
+	}
+	void SetTerrainBrushSize(float s)
+	{
+		m_TerrainBrushSize = s;
+		m_TerrainEditor->SetBrushSize(s);
+
+	}
 protected:
 	void dragEnterEvent(QDragEnterEvent* event) override;
 	void dropEvent(QDropEvent* event) override;
@@ -136,6 +154,7 @@ protected:
 	void TerrainPlot();
 
 	
+
 private:
 	RefCntAutoPtr<IRenderDevice>  m_pDevice;
 	RefCntAutoPtr<IDeviceContext> m_pImmediateContext;
@@ -168,5 +187,6 @@ private:
 	float m_TerrainStrength = 0.5f;
 	bool m_TerrainEditing = false;
 	int m_TerrainLayer = 1;
+	bool m_Picking = false;
 };
 

@@ -57,6 +57,7 @@ public:
 	static RenderTargetCube* m_BoundRTC;
 	static RenderTarget2D* m_BoundRT2D;
 	static void InitPython();
+	static void InitMono();
 	static Physics* m_Physics;
 
 	static std::vector<MaterialPBR*> m_ActiveMaterials;

@@ -22,14 +22,14 @@ void TerrainRendererComponent::OnRender(GraphNode* camera) {
 
 	bool add = false;
 	auto light = SceneGraph::m_CurrentGraph->GetLights()[0];
-	//	for (auto light : SceneGraph::m_CurrentGraph->GetLights()) {
+		for (auto light : SceneGraph::m_CurrentGraph->GetLights()) {
 
 
 	int li = 0;
 	for (auto layer : mesh->GetLayers()) {
 		//		for (auto& sub : mesh->GetSubMeshes()) {
 		
-		Vivid::ClearZ();
+
 		auto col = layer->GetColor();
 		auto norm = layer->GetNormal();
 		auto spec = layer->GetSpec();
@@ -58,12 +58,13 @@ void TerrainRendererComponent::OnRender(GraphNode* camera) {
 	
 
 		mat->Render();
+		add = true;
 		li++;
 
 		//	}
 			//add = true;
 
-	//	}
+		}
 	}
 }
 	//}

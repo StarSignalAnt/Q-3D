@@ -1,5 +1,3 @@
-
-
 #define dx 1.0
 
 Texture2D    v_Texture;
@@ -13,6 +11,15 @@ SamplerState v_TextureLayer_sampler;
 TextureCube v_Shadow;
 SamplerState v_Shadow_sampler;
 
+// Constants buffer for lighting calculations
+cbuffer LightingConstants
+{
+    float4 v_CameraPos;
+    float4 v_LightPos;
+    float4 v_LightDiff;
+    float4 v_LightRange;
+    int4 v_Layers;
+}
 
 static const float3 sampleOffsetDirections[20] = {
    float3( dx,  dx,  dx), float3( dx, -dx,  dx), float3(-dx, -dx,  dx), float3(-dx,  dx,  dx), 
@@ -22,255 +29,16 @@ static const float3 sampleOffsetDirections[20] = {
    float3( 0,  dx,  dx), float3( 0, -dx,  dx), float3( 0, -dx, -dx), float3( 0,  dx, -dx)
 };
 
-float3 light_GetNormal(float2 uv)
-{
-
-    float3 tNormal = float3(0.5, 0.0f, 1.0f);
-                                                                                 
-    tNormal = v_TextureNorm.Sample(v_TextureNorm_sampler, uv).rgb;
-
-      tNormal = normalize(tNormal * 2.0 - 1.0);
-    tNormal.y = -tNormal.y;
-
-    return tNormal;
-
-}
-
-float light_GetDist(float3 lightPos,float3 fragPos,float lightRange)
-{
-
-  float xd = lightPos.x - fragPos.x;
-    float yd = lightPos.y - fragPos.y;
-    float zd = lightPos.z - fragPos.z;
-
-
-    float dis = sqrt(xd * xd + yd * yd + zd * zd);
-
-    if (dis < 0) {
-        dis =0;
-    }
-
-    float dv = dis / lightRange;
-
-    if (dv > 1.0) {
-        dv = 1.0;
-    }
-    dv = 1.0 - dv;
-
-
-    return dv;
-
-
-}
-
-float light_GetPointDiff(float3 TLP,float3 TFP,float3 TVP,float3 tNormal,float3 lightPos,float3 fragPos)
-{
-
-
-    float3 lightDir = normalize(TLP - TFP);
-    return max(dot(lightDir, tNormal),0.0);
-
-
-}
-
-float light_GetPointSpec(float3 TLP, float3 TFP, float3 TVP, float3 tNormal, float shininess = 64.0f) {
-    // Calculate the direction vectors
-    float3 lightDir = normalize(TLP - TFP);  // Light direction from fragment to light
-    float3 viewDir = normalize(TVP - TFP);   // View direction from fragment to viewer
-
-    // Calculate the halfway vector between the light direction and view direction
-    float3 halfwayDir = normalize(lightDir + viewDir);
-
-    // Compute the dot product between the normal and the halfway vector
-    float specAngle = max(dot(tNormal, halfwayDir), 0.0);
-
-    // Compute the specular component using the shininess exponent
-    return pow(specAngle, shininess)*2;
-}
-
-
-float light_GetDirectional(float3 lightDir,float3 TLP,float3 TFP,float3 tNormal){
-
-    float3 lDir = normalize(lightDir);
-    return max(dot(lDir, tNormal),0.0);
-
-}
-
-float light_GetSpotFalloff(float3 lightPos,float3 lightDir,float3 fragPos,float lightCone)
-{
-      float3 lightPixel = normalize(fragPos - lightPos);
-      float factor = dot(lightPixel,-lightDir);
-       factor *= pow(max(factor,0.0f),lightCone);
-    return factor;
-}
-
-float light_GetShadow(float3 fragPos,float3 lightPos,float lightRange){
-
-    float3 fragToLight = fragPos - lightPos;
-    float currentDepth = abs(distance(fragPos,lightPos));
-
-    int samples = 20;
-    float diskRadius = 0.0025f;
-    float bias = 0.005;
-    float shadowVal = 0;
-    currentDepth = currentDepth / lightRange;
-
-    for(int i=0;i<samples;i++){
-
-        float closestDepth = v_Shadow.Sample(v_Shadow_sampler,normalize(fragToLight)+sampleOffsetDirections[i] * diskRadius).r;
-
-
-        if( (currentDepth-0.005)>closestDepth)
-        {
-
-         shadowVal +=1.0f;
-        
-
-        }
-    
-    }
-
-    shadowVal = shadowVal / (float)samples;
-   
- //   shadowVal = shadowVal * v_Shadow.Sample(v_Shadow_sampler,normalize(fragToLight)).g;
-   
-
-
-    shadowVal = 1.0 - shadowVal;
-    
-    //shadowVal =shadowVal * v_Shadow.Sample(v_Shadow_sampler,normalize(fragToLight)).g;
-
-    
-
-    return shadowVal;
-
-}
-
-
-
-
-struct LightValues{
-
-    float light;
-    float spec;
-    float shadow;
-
-};
-
-LightValues CalculateLighting(int LightMode,float3 tNormal,float3 TLP,float3 TFP,float3 TVP,float3 LightPos,float3 FragPos,float3 LightDir,float3 LightCone,float LocalNormal)
-{
-
-    LightValues info;
-   
-
-  if(LightMode==0){
-  
-
-        info.light = light_GetPointDiff(TLP,TFP,TVP,tNormal,LightPos,FragPos);
-        info.spec = light_GetPointSpec(TLP,TFP,TVP,tNormal);
-
-
-    }
-
-    
-    if(LightMode==1)
-    {
-
-
-         info.light = light_GetPointDiff(TLP,TFP,TVP,tNormal,LightPos,FragPos);
-         info.spec = light_GetPointSpec(TLP,TFP,TVP,tNormal); 
-         float ff = light_GetSpotFalloff(LightPos,LightDir,FragPos,LightCone.x);
-        
-         info.light = info.light * ff;
-         info.spec = info.spec * ff;
-
-    };
-
-    //Directional
-  
-   if(LightMode==2)
-    {
-        
-        info.light = light_GetDirectional(LightDir,TLP,TFP,LocalNormal);
-        info.spec = light_GetPointSpec(TLP,TFP,TVP,tNormal); 
-
-
-
-    }
-
-    info.spec = info.spec * 8.0f;
-
-    return info;
-
-}
-
-
-// Function to calculate the normalized direction from the fragment to the light source
-float3 CalculateLightDirection(float3 FragPosition, float3 LightPosition)
-{
-    return normalize(LightPosition - FragPosition);
-}
-
-// Function to calculate the diffuse lighting component
-float CalculateDiffuseLight(float3 Normal, float3 LightDirection)
-{
-    return max(0.0, dot(Normal, LightDirection));
-}
-
-// Function to calculate the specular lighting component
-float CalculateSpecularLight(float3 Normal, float3 LightDirection, float3 ViewPosition, float Shininess,float3 FragPosition)
-{
-    float3 ReflectDirection = reflect(-LightDirection, Normal);
-    float specular = pow(max(0.0, dot(ReflectDirection, normalize(ViewPosition - FragPosition))), Shininess);
-    return specular;
-}
-
-// Function to calculate the final lighting value
-float3 CalculatePointLighting(float3 ViewPosition, float3 FragPosition, float3 Normal, float3 LightPosition, float3 LightColor, float3 MaterialDiffuse, float3 MaterialSpecular, float Shininess, float3 LightSpecular,float3 UV)
-{
-    float3 LightDirection = CalculateLightDirection(FragPosition, LightPosition);
-    float Diffuse = CalculateDiffuseLight(Normal, LightDirection);
-    float Specular = light_GetPointSpec(LightPosition,FragPosition,ViewPosition,Normal);//  CalculateSpecularLight(Normal, LightDirection, ViewPosition, Shininess,FragPosition);
-    
-    float3 spec_tex =v_TextureSpec.Sample(v_TextureSpec_sampler,UV).rgb;
-
-     float3 SpecularLighting = (Specular * LightSpecular)*spec_tex;
-     float3 DiffuseLighting = Diffuse *  LightColor;
-    float3 Lighting = DiffuseLighting + SpecularLighting;
-
-    // Final lighting value
-    //float3 Lighting = (Diffuse * MaterialDiffuse + Specular * MaterialSpecular) * LightColor * LightSpecular;//
-
-
-    return Lighting;
-}
-
-
 struct PSInput 
 { 
-  float4 Pos   : SV_POSITION;
- float4 Color : COLOR0;
- float3 Norm : NORMAL0;
- float3 Uv : TEX_COORD;
-  float3 LayerCoord : NORMAL6;
- float3 TLP : NORMAL1;
- float3 TVP : NORMAL2;
- float3 TFP : NORMAL3;
- float3 v_LightPos : POSITION1;
- float3 v_CameraPos : POSITION2;
- float4 v_LightProp : POSITION3;
- float3 fragPos : POSITION4;
- float3 v_LightDiff : POSITION5;
- float3 v_LightSpec : POSITION6;
- float3 localNormal : NORMAL4;
- float3 v_LightCone : POSITION7;
- int4 v_LightMode : POSITION8;
- float3 v_LightDir : NORMAL5;
- float3 v_MatDiff : COLOR1;
- float3 v_MatSpec : COLOR2;
- int4 v_Layers : POSITION9;
-
- // float3 Norm : NORMAL0;x
+    float4 Pos   : SV_POSITION;
+    float4 Color : COLOR0;
+    float3 Norm : NORMAL0;
+    float3 Uv : TEX_COORD;
+    float3 LayerCoord : NORMAL6;
+    float3 WorldPos : NORMAL1;
+    float3 Tangent : NORMAL2;    // World space tangent
+    float3 Bitangent : NORMAL3;  // World space bitangent
 };
 
 struct PSOutput
@@ -278,84 +46,125 @@ struct PSOutput
     float4 Color : SV_TARGET;
 };
 
-// Note that if separate shader objects are not supported (this is only the case for old GLES3.0 devices), vertex
-// shader output variable name must match exactly the name of the pixel shader input variable.
-// If the variable has structure type (like in this example), the structure declarations must also be identical.
-void main(in  PSInput  PSIn,
-    out PSOutput PSOut)
+// Function to calculate per-pixel lighting with proper normal mapping and specular map
+float3 CalculateLighting(float3 worldPos, float3 worldNormal, float3 albedo, float specularIntensity)
 {
-
-    float4 col = float4(1, 0, 0, 1);
-  
-    float light = light_GetDist(PSIn.v_LightPos,PSIn.fragPos,PSIn.v_LightProp.x);
-
-    float3 tNormal = light_GetNormal(PSIn.Uv.xy);
- 
-    float spec = 0.0;
-
-    float shadowVal = 0;
-
-   // LightValues lighting;
-
- //   lighting = CalculateLighting(PSIn.v_LightMode[0],tNormal,PSIn.TLP,PSIn.TFP,PSIn.TVP,PSIn.v_LightPos,PSIn.fragPos,PSIn.v_LightDir,PSIn.v_LightCone,PSIn.localNormal);
-
-    float3 light_v = CalculatePointLighting(PSIn.TVP,PSIn.TFP,tNormal,PSIn.TLP,PSIn.v_LightDiff,PSIn.v_MatDiff,PSIn.v_MatSpec,1.0f,1.0,PSIn.Uv);
-
-    shadowVal=1.0;
- 
-
-    shadowVal = light_GetShadow(PSIn.fragPos,PSIn.v_LightPos,PSIn.v_LightProp.x);
-
+    // Normalize the normal (should already be normalized, but good practice)
+    worldNormal = normalize(worldNormal);
     
-
-
- 
-
-     float4 ffcol =(v_Texture.Sample(v_Texture_sampler, PSIn.Uv));//* float4(PSIn.v_LightDiff.x * lighting.light, PSIn.v_LightDiff.y * lighting.light, PSIn.v_LightDiff.z * lighting.light, 1.0)));
-
-
-//     float3 tSpec = v_TextureSpec.Sample(v_TextureSpec_sampler,PSIn.Uv).rgb;
-
-  //   tSpec = tSpec * PSIn.v_MatSpec;
-
-    // ffcol.rgb += float3(lighting.spec*PSIn.v_LightSpec.x,lighting.spec*PSIn.v_LightSpec.y,lighting.spec*PSIn.v_LightSpec.z) * tSpec;
-
-//    ffcol.rgb = ffcol.rgb * PSIn.v_MatDiff;
-
-
-
-    ffcol.rgb = (ffcol.rgb * light_v) * shadowVal*light;
-
-    ffcol.rgb = ffcol.rgb;
-    ffcol.a = 1.0;
- 
- 
-   
-  
- 
-    float l_val = v_TextureLayer.Sample(v_TextureLayer_sampler,PSIn.LayerCoord).r;
-
-   // ffcol.rgb = ffcol.rgb * l_val;
-
-    if(PSIn.v_Layers.x==0)
-    {
-
-      ffcol.rgb = (v_Texture.Sample(v_Texture_sampler, PSIn.Uv)).rgb * l_val * light_v * shadowVal*light;
-      ffcol.a=1.0;
+    // Calculate light direction
+    float3 lightDir = normalize(v_LightPos.xyz - worldPos);
     
-    PSOut.Color = ffcol;
-    return;
-
-    }
-
-
+    // Calculate view direction
+    float3 viewDir = normalize(v_CameraPos.xyz - worldPos);
     
-
-    ffcol.a = l_val;
-
-
-    PSOut.Color = ffcol;
-
-
+    // Diffuse lighting (Lambert)
+    float NdotL = max(dot(worldNormal, lightDir), 0.0);
+    float3 diffuse = albedo * v_LightDiff.rgb * NdotL;
+    
+    // Specular lighting (Blinn-Phong) with specular map intensity
+    float3 halfwayDir = normalize(lightDir + viewDir);
+    float NdotH = max(dot(worldNormal, halfwayDir), 0.0);
+    float specularPower = 32.0; // Fixed shininess
+    
+    float specular = pow(NdotH, specularPower) * specularIntensity;
+    
+    // Ambient lighting
+    //float3 ambient = albedo * 0.1; // 10% ambient
+    
+    return diffuse + specular * v_LightDiff.rgb;
 }
 
+
+float light_GetShadow(float3 fragPos, float3 lightPos, float lightRange)
+{
+    float3 fragToLight = fragPos - lightPos;
+    fragToLight.z = -fragToLight.z;
+
+    float currentDepth = abs(distance(fragPos, lightPos));
+    currentDepth = currentDepth / lightRange;
+
+    int samples = 20;
+    float shadowVal = 0;
+
+    for (int i = 0; i < samples; i++)
+    {
+        float closestDepth = v_Shadow.Sample(v_Shadow_sampler, normalize(fragToLight)).r;
+
+        if (closestDepth > currentDepth - 0.001 && closestDepth < currentDepth + 0.0011)
+        {
+            shadowVal += 0;
+        }
+        else if ((currentDepth - 0.0013) > closestDepth)
+        {
+            shadowVal += 1.0f;
+        }
+    }
+
+    shadowVal = shadowVal / (float)samples;
+    return 1.0 - shadowVal;
+}
+
+void main(in PSInput PSIn, out PSOutput PSOut)
+{
+    // Sample the diffuse texture
+    float4 albedo = v_Texture.Sample(v_Texture_sampler, PSIn.Uv);
+    
+    // Sample the normal map and convert from [0,1] to [-1,1]
+    float3 normalMap = v_TextureNorm.Sample(v_TextureNorm_sampler, PSIn.Uv).rgb;
+    normalMap = normalMap * 2.0 - 1.0;
+    
+    // Sample the specular map and use only the red channel for specular intensity
+    float specularIntensity = v_TextureSpec.Sample(v_TextureSpec_sampler, PSIn.Uv).r;
+    
+    // Create the TBN matrix to transform from tangent space to world space
+    float3 N = normalize(PSIn.Norm);
+    float3 T = normalize(PSIn.Tangent);
+    float3 B = normalize(PSIn.Bitangent);
+    
+    // Ensure orthogonality (Gram-Schmidt process)
+    T = normalize(T - dot(T, N) * N);
+    B = normalize(B - dot(B, N) * N - dot(B, T) * T);
+    
+    // Create TBN matrix
+    float3x3 TBN = float3x3(T, B, N);
+    
+    // Transform normal from tangent space to world space
+    float3 worldNormal = normalize(mul(normalMap, TBN));
+    //
+
+    float shadowValue = light_GetShadow(PSIn.WorldPos, v_LightPos.xyz, v_LightRange.x);
+
+    
+    // Sample the layer texture
+    float l_val = v_TextureLayer.Sample(v_TextureLayer_sampler, PSIn.LayerCoord).r;
+    
+    // Calculate per-pixel lighting using the properly transformed normal and specular intensity
+    float3 litColor = CalculateLighting(PSIn.WorldPos, worldNormal, albedo.rgb, specularIntensity);
+    
+
+    float dis = length(PSIn.WorldPos-v_LightPos.xyz);
+
+    float sv = dis / v_LightRange.x;
+
+    if(sv>1.0) sv=1.0;
+
+    sv = 1.0-sv;
+
+    // Apply your existing layering logic
+    if(v_Layers.x == 0)
+    {
+        // For layer 0, apply the lighting with layer value and shadow
+        // Note: You'll need to implement shadow calculation for shadowVal
+        //float shadowVal = 1.0; // Placeholder - implement proper shadow sampling
+        float light = 1.0;     // Placeholder - use your lighting intensity
+        float light_v = 1.0;   // Placeholder - use your lighting value
+        
+
+        PSOut.Color = float4(litColor * l_val * light_v * shadowValue * light*sv, 1.0);
+        return;
+    }
+    
+    // For other layers, use the lit color with layer alpha
+    PSOut.Color = float4(litColor*shadowValue*sv, l_val);
+}
