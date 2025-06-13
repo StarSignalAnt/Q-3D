@@ -7,7 +7,7 @@ class MAsm
 {
 public:
 
-	MAsm(std::string name);
+	MAsm(std::string name,std::string path);
 	MClass* GetClass(std::string nspace,std::string clsname);
 private:
 

@@ -111,7 +111,7 @@ public:
 	void SetRotation(glm::mat4 rotation) {
 		m_Rotation = rotation;
 	}
-	std::string GetName() {
+	std::string& GetName() {
 		return m_Name;
 	}
 	glm::vec3 GetEularRotation() const {

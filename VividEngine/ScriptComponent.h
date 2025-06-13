@@ -11,6 +11,8 @@ enum SVarType {
     VT_Unknown
 };
 
+
+
 struct ScriptVar {
     std::string name;
     SVarType type;

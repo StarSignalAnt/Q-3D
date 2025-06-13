@@ -82,9 +82,17 @@ int multiply(int a, int b) {
 	return a * b;
 }
 
+struct check {
+	int a = 5;
+	int b = 10;
+};
+
 void Vivid::InitMono() {
 
+
 	MonoHost* host = new MonoHost;
+	return;
+/*
 	MAsm* test = new MAsm("scripts/testlib.dll");
 	auto cls = test->GetClass("TestLib", "Test");
 	//cls->CallFunction("Init", 10, 30);
@@ -103,9 +111,24 @@ void Vivid::InitMono() {
 	//auto i1 = cls->CreateInstance();
 	//int val1 = i1->GetFieldValue<int>("TestInt");
 
-	i1->SetFieldClass("Test1", other);
+	//i1->SetFieldClass("Test1", other);
+
+	check* ch1 = new check;
+	ch1->a = 10;
+	ch1->b = 25;
+
+	//i1->SetNativePtr("pt1", (void*)ch1);
 
 	i1->CallFunction("Init", 20, 30);
+
+//	check* ch2 = (check*)i1->GetNativePtr("pt1");
+
+	check* p = (check*)i1->CallFunctionValue<void*>("TestPtr", (void*)&ch1, 25);
+
+
+
+
+	//check* ch2 = (check*)i1->GetNativePtr("pt1");
 
 	auto v = i1->GetInstanceFields();
 
@@ -135,7 +158,7 @@ void Vivid::InitMono() {
 
  	//int res = i1->CallFunctionValue<int>("Add", 50, 100);
 	//std::string val = cls->GetStaticFieldValue<std::string>("TestVal");
-
+	*/
 
  }
 

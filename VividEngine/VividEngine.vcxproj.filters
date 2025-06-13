@@ -255,9 +255,6 @@
     <ClInclude Include="LGLogicNode.h">
       <Filter>LogicGraph\Nodes</Filter>
     </ClInclude>
-    <ClInclude Include="LGPrintDebug.h">
-      <Filter>LogicGraph\Nodes</Filter>
-    </ClInclude>
     <ClInclude Include="LGInput.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -278,6 +275,12 @@
     </ClInclude>
     <ClInclude Include="MAsm.h">
       <Filter>Mono</Filter>
+    </ClInclude>
+    <ClInclude Include="SharpComponent.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="LGPrintDebug.h">
+      <Filter>Material</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -547,6 +550,9 @@
     </ClCompile>
     <ClCompile Include="MAsm.cpp">
       <Filter>Mono</Filter>
+    </ClCompile>
+    <ClCompile Include="SharpComponent.cpp">
+      <Filter>Components</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

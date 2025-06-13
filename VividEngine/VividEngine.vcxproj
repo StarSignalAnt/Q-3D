@@ -196,6 +196,7 @@
     <ClInclude Include="RenderTargetCube.h" />
     <ClInclude Include="ScriptComponent.h" />
     <ClInclude Include="ScriptHost.h" />
+    <ClInclude Include="SharpComponent.h" />
     <ClInclude Include="SkeletalDepthRendererComponent.h" />
     <ClInclude Include="SkeletalMeshComponent.h" />
     <ClInclude Include="SkeletalRendererComponent.h" />
@@ -266,6 +267,7 @@
     <ClCompile Include="RenderTargetCube.cpp" />
     <ClCompile Include="ScriptComponent.cpp" />
     <ClCompile Include="ScriptHost.cpp" />
+    <ClCompile Include="SharpComponent.cpp" />
     <ClCompile Include="SkeletalDepthRendererComponent.cpp" />
     <ClCompile Include="SkeletalMeshComponent.cpp" />
     <ClCompile Include="SkeletalRendererComponent.cpp" />

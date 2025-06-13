@@ -91,6 +91,45 @@ public:
         return fields;
     }
 
+    void SetNativePtr(std::string name, void* ptr)
+    {
+        // Assume `instance` is a valid `MonoObject*` of type MyClass
+       //MonoClass* klass = mono_object_get_class(instance);
+
+        // Find the field
+        MonoClassField* field = mono_class_get_field_from_name(m_Class, name.c_str());
+        if (!field)
+        {
+            std::cerr << "Field not found!" << std::endl;
+            return;
+        }
+
+        // Set the field directly (Mono and .NET treat IntPtr as void*)
+        mono_field_set_value(m_Instance, field, &ptr);
+
+    }
+
+    void* GetNativePtr(std::string name) {
+
+
+        // Find the field
+        MonoClassField* field = mono_class_get_field_from_name(m_Class,name.c_str());
+        if (!field)
+        {
+            std::cerr << "Field 'nativePtr' not found!" << std::endl;
+            return nullptr;
+        }
+
+        // Retrieve the IntPtr field as void*
+        void* nativePtr = nullptr;
+        mono_field_get_value(m_Instance, field, &nativePtr);
+
+        // Now `nativePtr` holds the pointer stored in C# as IntPtr
+        return nativePtr;
+
+    }
+
+
     template<typename T>
     T GetFieldValue(const std::string& fieldName)
     {
@@ -277,8 +316,19 @@ public:
     Ret CallFunctionValue(const std::string& methodName, Args&&... args)
     {
         MonoObject* result = CallFunction(methodName, std::forward<Args>(args)...);
-        return result ? *(Ret*)mono_object_unbox(result) : Ret{};
+        if (!result)
+            return Ret{};
+
+        if constexpr (std::is_same_v<Ret, void*>)
+        {
+            return *(void**)mono_object_unbox(result);
+        }
+        else
+        {
+            return *(Ret*)mono_object_unbox(result);
+        }
     }
+
 
     // Static method versions
     template<typename... Args>
@@ -428,7 +478,10 @@ private:
         MonoString* monoStr = mono_string_new(MonoHost::m_Instance->GetDomain(), str);
         return monoStr;
     }
-
+    void* ConvertArg(void* ptr)
+{
+    return ptr; // Mono will interpret this as an IntPtr
+}
 	MonoClass* m_Class;
     MonoObject* m_Instance;
 };

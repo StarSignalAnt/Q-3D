@@ -17,10 +17,10 @@ RenderTargetCube::RenderTargetCube(int width, int height, bool depth) {
 	tex.ArraySize = 6;
 	tex.Usage = USAGE_DEFAULT;
 	//if (depth) {
-		tex.Format = TEX_FORMAT_R32_FLOAT;
+	//	tex.Format = TEX_FORMAT_R32_FLOAT;
 //	}
 //	else {
-	//	tex.Format = Vivid::m_pSwapChain->GetCurrentBackBufferRTV()->GetDesc().Format;
+		tex.Format = Vivid::m_pSwapChain->GetCurrentBackBufferRTV()->GetDesc().Format;
 	//}
 	tex.BindFlags = BIND_FLAGS::BIND_SHADER_RESOURCE | BIND_FLAGS::BIND_RENDER_TARGET;
 	tex.ClearValue.Format = tex.Format;

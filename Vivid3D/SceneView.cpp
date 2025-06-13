@@ -62,6 +62,7 @@
 #include "ScriptComponent.h"
 #include "NodeTree.h"
 #include "TerrainDepthRenderer.h"
+#include "SharpComponent.h"
 
 using namespace Diligent;
 
@@ -110,9 +111,9 @@ SceneView::SceneView(QWidget *parent)
 
 
     //m_Test1 = Importer::ImportEntity("test/test1.gltf");
-    //auto test2 = Importer::ImportEntity("test/test2.gltf");
+    auto test2 = Importer::ImportEntity("test/test2.gltf");
    // m_SceneGraph->AddNode(m_Test1);
-   // m_SceneGraph->AddNode(test2);
+    m_SceneGraph->AddNode(test2);
 
 
     //auto sc = new ScriptComponent;
@@ -195,6 +196,11 @@ SceneView::SceneView(QWidget *parent)
     NodeTree::m_Instance->SetRoot(m_SceneGraph->GetRootNode());
 
     Vivid::InitMono();
+
+    auto cm1 = new SharpComponent;
+	test2->AddComponent(cm1);
+    cm1->SetScript("TestLib.dll", "Test");
+
 
 }
 
