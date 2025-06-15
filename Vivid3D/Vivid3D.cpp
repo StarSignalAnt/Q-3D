@@ -4,6 +4,14 @@
 #include "MainMenu.h"
 #include "ContentBrowser.h"
 #include "NodeTree.h"
+#include "ConsoleOutput.h"
+
+void ConsoleDebug(std::string value)
+{
+    ConsoleOutput::m_Instance->appendConsoleLine(value.c_str());
+    //std::cout << "Callback received! Value: " << value << std::endl;
+}
+
 Vivid3D::Vivid3D(QWidget *parent)
     : QMainWindow(parent)
 {
@@ -54,13 +62,27 @@ Vivid3D::Vivid3D(QWidget *parent)
     addDockWidget(Qt::RightDockWidgetArea, dock);
     addDockWidget(Qt::LeftDockWidgetArea, treeDock);
     addDockWidget(Qt::BottomDockWidgetArea, contentDock);
+
+	auto consoleOutput = new ConsoleOutput(this);
+
+	QDockWidget* consoleDock = new QDockWidget("Console", this);
+    consoleDock->setWidget(consoleOutput);
+	consoleDock->setAllowedAreas(Qt::BottomDockWidgetArea | Qt::TopDockWidgetArea);
+	tabifyDockWidget(contentDock, consoleDock);
+    contentDock->raise();
     QPalette pal = palette();
+
+    consoleOutput->appendConsoleText("Welcome to ", QColor::fromRgb(50, 50, 50, 255));
+    consoleOutput->appendConsoleText("Vivid3D", QColor::fromRgb(0, 128, 128));
+    consoleOutput->appendConsoleLine(" (c)Star Signal", QColor::fromRgb(50, 50,50, 255));
 
     pal.setColor(QPalette::Window, QColor("#502020"));
     setAutoFillBackground(true);
     setPalette(pal);
 
     browser->Browse("c:\\content\\");
+	Vivid::DebugLogCB = ConsoleDebug; // Set the debug callback to our console output function
+
 
 }
 

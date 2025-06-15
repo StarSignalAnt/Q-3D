@@ -145,6 +145,15 @@
     <ClCompile Include="LogicGraphMenu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PropertyButton.cpp">
+      <Filter>Props</Filter>
+    </ClCompile>
+    <ClCompile Include="ComponentSelector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ConsoleOutput.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="SceneView.h">
@@ -210,6 +219,15 @@
     <QtMoc Include="LogicGraphMenu.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="PropertyButton.h">
+      <Filter>Props</Filter>
+    </QtMoc>
+    <QtMoc Include="ComponentSelector.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="ConsoleOutput.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="SceneView.ui">
@@ -249,6 +267,9 @@
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="LGDesigner.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="ConsoleOutput.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>

@@ -62,6 +62,10 @@ enum RunMode {
 	RM_Running,RM_Stopped
 };
 
+enum EditBrushMode {
+	BM_Add, BM_Subtract, BM_Smooth,BM_Direct
+};
+
 class SceneView : public QWidget
 {
 	Q_OBJECT
@@ -92,22 +96,52 @@ public:
 	void SelectNode(GraphNode* node);
 	void SetEditLayer(int layer);
 	float GetTerrainBrushSize() {
+		if (m_Terrain == nullptr) return 0;
 		return m_TerrainEditor->GetBrushSize();
 	}
 	float GetTerrainStrength() {
-		return m_TerrainEditor->GetTerrainStrength();
+		
+		if (m_Terrain) {
+			return m_TerrainEditor->GetTerrainStrength();
+		}
+		return 0;
 	}
+
 	void SetTerrainStrength(float str) {
 		m_TerrainStrength = str;
-		if (m_TerrainEditor)
-			m_TerrainEditor->SetBrushStrength(str);
-
+		if (m_Terrain) {
+			if (m_TerrainEditor)
+				m_TerrainEditor->SetBrushStrength(str);
+		}
+		
 	}
 	void SetTerrainBrushSize(float s)
 	{
-		m_TerrainBrushSize = s;
-		m_TerrainEditor->SetBrushSize(s);
-
+		if (m_Terrain) {
+			m_TerrainBrushSize = s;
+			m_TerrainEditor->SetBrushSize(s);
+		}
+	}
+	void SetTerrainBrushMode(EditBrushMode mode) {
+		if (m_Terrain == nullptr) return;
+		m_BrushMode = mode;
+		if (m_TerrainEditor)
+			switch (mode) {
+			case BM_Add:
+				m_TerrainEditor->SetBrushMode(TerrainBrushMode::BrushMode_Add);
+				break;
+			case BM_Subtract:
+				m_TerrainEditor->SetBrushMode(TerrainBrushMode::BrushMode_Subtract);
+				break;
+			case BM_Smooth:
+				m_TerrainEditor->SetBrushMode(TerrainBrushMode::BrushMode_Smooth);
+				break;
+			case BM_Direct:
+				m_TerrainEditor->SetBrushMode(TerrainBrushMode::BrushMode_Direct);
+				break;
+			}
+		m_BrushMode = mode;
+		//	m_TerrainEditor->SetBrushMode(mode);
 	}
 protected:
 	void dragEnterEvent(QDragEnterEvent* event) override;
@@ -188,5 +222,7 @@ private:
 	bool m_TerrainEditing = false;
 	int m_TerrainLayer = 1;
 	bool m_Picking = false;
+	EditBrushMode m_BrushMode = EditBrushMode::BM_Add;
 };
+
 

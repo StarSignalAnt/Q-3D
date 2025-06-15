@@ -18,25 +18,23 @@ using namespace Diligent;
 
 struct PBRConstant {
 
-    // === TRANSFORMATION MATRICES ===
-    glm::mat4 g_ModelMatrix;        // World transform
-    glm::mat4 g_ViewMatrix;         // Camera view
-    glm::mat4 g_ProjectionMatrix;   // Projection
-    glm::mat4 g_MVPMatrix;          // Combined Model-View-Projection
-    glm::mat4 g_NormalMatrix;       // Inverse transpose of model matrix for normals
+    glm::mat4 g_ModelMatrix;
+    glm::mat4 g_ViewMatrix;
+    glm::mat4 g_ProjectionMatrix;
+    glm::mat4 g_MVPMatrix;
+    glm::mat4 g_NormalMatrix;
 
-    // === CAMERA ===
-    glm::vec4 g_CameraPosition;       // .xyz = world-space camera position, .w unused
+    glm::vec4 g_CameraPosition;
+    glm::vec4 g_LightPosition;    // Position for point/spot lights
+    glm::vec4 g_LightDirection;   // Direction for directional/spot lights
+    glm::vec4 g_LightColor;
+    glm::vec4 g_LightIntensity;
+    glm::vec4 g_LightRange;
 
-
-    // === LIGHTING: Point Light ===
-    glm::vec4 g_LightPosition;        // .xyz = position, .w unused
-    glm::vec4 g_LightColor;           // .rgb = color, .a unused
-    glm::vec4 g_LightIntensity;       // .x = intensity multiplier, .yzw unused
-    glm::vec4 g_LightRange;           // .x = effective range, .yzw unused
-    glm::vec4 g_ToneParams;
-    glm::vec4 g_AmbientColor;
-    glm::vec4 g_ParallaxParams;
+    glm::vec4 g_ToneMapParams;  // x: Exposure, y: Gamma, z: AmbientStrength, w: EnvStrength
+    glm::vec4 g_AmbientColor;   // Ambient light color (w component unused)
+    glm::vec4 g_LightType;      // x: LightType (0=point, 1=directional, 2=spot), y-w: unused
+    glm::vec4 g_SpotLightCone;  // x: inner cone angle (cos), y: outer cone angle (cos), z-w: unused
 };
 
 MaterialPBR::MaterialPBR() {
@@ -627,10 +625,15 @@ void MaterialPBR::Bind(bool add) {
             map_data[0].g_ModelMatrix = glm::transpose(model); // Remove transpose 
             map_data[0].g_NormalMatrix = normalMatrix4x4; // Remove transpose
             map_data[0].g_LightRange = glm::vec4(lc->GetRange(), 100.f, 100.f, 1.f); // Light range
-            map_data[0].g_ToneParams = glm::vec4(1.0f, 2.2f, 0.05f, 1.0f); // Tone mapping parameters (example values)
+            map_data[0].g_ToneMapParams = glm::vec4(1.0f, 2.2f, 0.05f, 1.0f); // Tone mapping parameters (example values)
             map_data[0].g_AmbientColor = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f); // Ambient color
-			map_data[0].g_ParallaxParams = glm::vec4(m_ParalaxScale, 0.05f, 0.05f, 0.05f); // Parallax parameters (example values)
+			map_data[0].g_LightType = glm::vec4((int)lc->GetLightType(), 0.0f, 0.0f, 0.0f); // Light type (0=point, 1=directional, 2=spot)
+            map_data[0].g_LightDirection = glm::vec4(m_Light->TransformVector(glm::vec3(0, 0, 1)), 1.0f);
+            map_data[0].g_SpotLightCone = glm::vec4(0.94f, 0.707, 0, 0);
+            //	map_data[0].g_ParallaxParams = glm::vec4(m_ParalaxScale, 0.05f, 0.05f, 0.05f); // Parallax parameters (example values)
         }
+
+
 
 
 
@@ -721,10 +724,12 @@ void MaterialPBR::Bind(bool add) {
             map_data[0].g_ModelMatrix = glm::transpose(model); // Remove transpose 
             map_data[0].g_NormalMatrix = normalMatrix4x4; // Remove transpose
             map_data[0].g_LightRange = glm::vec4(lc->GetRange(), 100.f, 100.f, 1.f); // Light range
-            map_data[0].g_ToneParams = glm::vec4(1.0f, 2.2f, 0.05f, 1.0f); // Tone mapping parameters (example values)
+            map_data[0].g_ToneMapParams = glm::vec4(1.0f, 2.2f, 0.05f, 1.0f); // Tone mapping parameters (example values)
             map_data[0].g_AmbientColor = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f); // Ambient color
-            map_data[0].g_ParallaxParams = glm::vec4(m_ParalaxScale, 0.05f, 0.05f, 0.05f); // Parallax parameters (example values)
-
+            //map_data[0].g_ParallaxParams = glm::vec4(m_ParalaxScale, 0.05f, 0.05f, 0.05f); // Parallax parameters (example values)
+            map_data[0].g_LightType = glm::vec4((int)lc->GetLightType(), 0.0f, 0.0f, 0.0f); // Light type (0=point, 1=directional, 2=spot)
+            map_data[0].g_LightDirection = glm::vec4(m_Light->TransformVector(glm::vec3(0, 0, 1)), 1.0f);
+            map_data[0].g_SpotLightCone = glm::vec4(0.94f, 0.707, 0, 0);
         }
 
 

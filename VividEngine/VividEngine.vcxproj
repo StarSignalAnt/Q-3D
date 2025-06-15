@@ -185,6 +185,7 @@
     <ClInclude Include="MathsHelp.h" />
     <ClInclude Include="MClass.h" />
     <ClInclude Include="MonoHost.h" />
+    <ClInclude Include="MonoLib.h" />
     <ClInclude Include="Pars.h" />
     <ClInclude Include="Physics.h" />
     <ClInclude Include="PixelMap.h" />
@@ -256,6 +257,7 @@
     <ClCompile Include="MathsHelp.cpp" />
     <ClCompile Include="MClass.cpp" />
     <ClCompile Include="MonoHost.cpp" />
+    <ClCompile Include="MonoLib.cpp" />
     <ClCompile Include="Pars.cpp" />
     <ClCompile Include="Physics.cpp" />
     <ClCompile Include="PixelMap.cpp" />

@@ -96,10 +96,20 @@ namespace Vivid.Scene
         {
             get
             {
+                if(NodePtr == IntPtr.Zero)
+                {
+                    return "NodePtr is null!";
+                }
                 var r = NativeBridge.NodeGetName(NodePtr);
                 string msg = Marshal.PtrToStringAnsi(r);
                 return msg;
             }
+        }
+
+        public string GetName()
+        {
+            return Name;
+
         }
 
         public GraphNode()
@@ -123,6 +133,43 @@ namespace Vivid.Scene
                     break;
             }
             //Console.WriteLine("Node Turned: " + x + " " + y + " " + z);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(this, obj))
+                return true;
+
+            if (obj is null || obj.GetType() != GetType())
+                return false;
+
+
+            GraphNode other = (GraphNode)obj;
+            return NodePtr == other.NodePtr;//  Id == other.Id && Name == other.Name;
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hash = 17;
+                hash = hash * 23 + NodePtr.GetHashCode();
+
+                return hash;
+            }
+        }
+
+        public static bool operator ==(GraphNode left, GraphNode right)
+        {
+            if (left is null)
+                return right is null;
+
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(GraphNode left, GraphNode right)
+        {
+            return !(left == right);
         }
 
 

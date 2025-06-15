@@ -3,6 +3,13 @@
 #include <glm/glm.hpp>
 #include "Texture2D.h"
 
+
+enum TerrainBrushMode {
+	BrushMode_Add,
+	BrushMode_Subtract,
+	BrushMode_Smooth,
+	BrushMode_Direct
+};
 enum EditorState {
 
 	E_Paint,E_Sculpt,E_None
@@ -39,6 +46,9 @@ public:
 	float GetTerrainStrength() const {
 		return m_TerrainStrength;
 	}
+	void SetBrushMode(TerrainBrushMode mode) {
+		m_BrushMode = mode;
+	}
 private:
 
 	GraphNode* m_Terrain;
@@ -50,5 +60,6 @@ private:
 	float m_TerrainStrength = 0.5f;
 	bool m_TerrainEditing = false;
 	int m_TerrainLayer = 0;
+	TerrainBrushMode m_BrushMode = TerrainBrushMode::BrushMode_Add;
 };
 

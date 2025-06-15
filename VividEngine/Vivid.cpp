@@ -8,6 +8,7 @@
 #include "MonoHost.h"
 #include "MAsm.h"
 #include "MClass.h"
+
 namespace py = pybind11;
 RefCntAutoPtr<IRenderDevice>  Vivid::m_pDevice;
 RefCntAutoPtr<IDeviceContext> Vivid::m_pImmediateContext;
@@ -17,7 +18,9 @@ RefCntAutoPtr<IShaderSourceInputStreamFactory> Vivid::m_pShaderFactory;
 RenderTargetCube* Vivid::m_BoundRTC = nullptr;
 RenderTarget2D* Vivid::m_BoundRT2D = nullptr;
 std::vector<MaterialPBR*> Vivid::m_ActiveMaterials;
-
+MonoLib* Vivid::m_MonoLib = nullptr;
+std::vector<SharpClassInfo> Vivid::m_ComponentClasses;
+VividCallbackFunc Vivid::DebugLogCB = nullptr;
 void Vivid::SetBoundRTC(RenderTargetCube* target) {
 
 	m_BoundRTC = target;
@@ -91,6 +94,18 @@ void Vivid::InitMono() {
 
 
 	MonoHost* host = new MonoHost;
+
+	m_MonoLib = new MonoLib("VividGame.dll");
+
+	auto classes = m_MonoLib->GetClasses();
+	for (auto c : classes) {
+
+		if (c.baseClassName == "Vivid.Component.SharpComponent")
+		{
+			m_ComponentClasses.push_back(c);
+		}
+
+	}
 	return;
 /*
 	MAsm* test = new MAsm("scripts/testlib.dll");

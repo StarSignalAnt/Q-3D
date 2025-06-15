@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using Vivid.Scene;
+using Vivid.Debug;
 
 namespace Vivid
 {
@@ -17,20 +19,18 @@ namespace Vivid
 
     public class Test : Vivid.Component.SharpComponent
     {
-        GraphNode root;
+ 
+
+        public float TurnSpeed = 0.1f;
+        public int TurnFactor = 1;
+        public GraphNode TestNode;// = new GraphNode();
+
         Test()
         {
-
+            
             Console.WriteLine("Test Component Created!");
 
-            var scene = new SceneGraph();
-            root = scene.RootNode;
-
-
-            //var nodes = root.Nodes;
-
-            root.Scale = new GlmNet.vec3(5, 5, 5);
-
+        
         }
 
         public override void OnUpdate(float dt)
@@ -39,17 +39,14 @@ namespace Vivid
            // Node.Turn(new GlmNet.vec3(0, 1, 0), Scene.NodeSpace.World);
 
    
-            foreach(var c in root.Nodes)
-            {
-                c.Scale = c.Scale + new GlmNet.vec3(0.04f, 0.03f, 0.02f);
-            }
-
             //Node.Position = Node.Position + new GlmNet.vec3(0, 0.1f, 0);
 
-            var rot = Node.Rotation * GlmNet.glm.rotate(0.05f,new GlmNet.vec3(0,1,0));
+            var rot = Node.Rotation * GlmNet.glm.rotate(TurnFactor,new GlmNet.vec3(0,1,0));
             Console.WriteLine("Rotation: " + rot.ToString());
-            Node.Scale = Node.Scale + new GlmNet.vec3(0.01f, 0.01f, 0.01f);
-            Node.Rotation = rot;
+        //    Node.Scale = Node.Scale + new GlmNet.vec3(0.01f, 0.01f, 0.01f);
+       //     Node.Rotation = rot;
+           // TestNode.Position = TestNode.Position + new GlmNet.vec3(0.1f,0, 0);
+            VividDebug.Log("It is working!");
 
         }
 

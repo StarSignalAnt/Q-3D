@@ -116,6 +116,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <QtRcc Include="Vivid3D.qrc" />
+    <QtUic Include="ConsoleOutput.ui" />
     <QtUic Include="Content.ui" />
     <QtUic Include="LGDesigner.ui" />
     <QtUic Include="LGProperties.ui" />
@@ -132,6 +133,8 @@
     <QtUic Include="Vivid3D.ui" />
     <QtMoc Include="Vivid3D.h" />
     <ClCompile Include="CameraController.cpp" />
+    <ClCompile Include="ComponentSelector.cpp" />
+    <ClCompile Include="ConsoleOutput.cpp" />
     <ClCompile Include="Content.cpp" />
     <ClCompile Include="ContentBrowser.cpp" />
     <ClCompile Include="LGDesigner.cpp" />
@@ -141,6 +144,7 @@
     <ClCompile Include="MainMenu.cpp" />
     <ClCompile Include="MainToolBar.cpp" />
     <ClCompile Include="NodeTree.cpp" />
+    <ClCompile Include="PropertyButton.cpp" />
     <ClCompile Include="PropertiesEditor.cpp" />
     <ClCompile Include="PropertyFloat.cpp" />
     <ClCompile Include="PropertyHeader.cpp" />
@@ -200,6 +204,9 @@
     <QtMoc Include="LGProperties.h" />
     <QtMoc Include="LGDesigner.h" />
     <QtMoc Include="LogicGraphMenu.h" />
+    <QtMoc Include="PropertyButton.h" />
+    <QtMoc Include="ComponentSelector.h" />
+    <QtMoc Include="ConsoleOutput.h" />
     <ClInclude Include="RotateGizmo.h" />
     <ClInclude Include="ScaleGizmo.h" />
     <ClInclude Include="SceneGizmo.h" />

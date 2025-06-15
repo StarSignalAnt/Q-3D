@@ -14,6 +14,7 @@
 #include <qvector3d.h>
 #include "PropertyStringList.h"
 #include "PropertyTexture.h"
+#include "PropertyButton.h" 
 // Forward declaration of GraphNode is good practice
 class GraphNode;
 
@@ -39,7 +40,8 @@ public:
     void SetMaterial(MaterialPBR* mat);
     void SetTerrain(GraphNode* node);
     void AddHeader(const QString& text);
-
+    PropertyButton* AddButton(const QString& buttonText,
+        std::function<void()> callback = nullptr);
     PropertyText* AddText(const QString& label, const QString& defaultText = "",
         std::function<void(const QString&)> callback = nullptr);
 

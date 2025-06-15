@@ -1,6 +1,7 @@
 #include "SharpComponent.h"
 #include "GraphNode.h"
 #include "SceneGraph.h"
+#include "Vivid.h"
 
 extern "C" __declspec(dllexport) void NodeTurn(void* node,float x, float y, float z)
 {
@@ -103,8 +104,33 @@ extern "C" __declspec(dllexport) void* NodeGetName(void* node) {
 	strcpy(result, msg);
 	return result;
 }
+extern "C" __declspec(dllexport) void ConsoleLog(const char* str)
+{
+	Vivid::DebugLog(str);
+
+}
 
 
+
+
+void SharpComponent::SetClass(MClass* cls,MAsm* as,MAsm* vivid) {
+
+	m_StaticClass = cls;
+	m_Assembly = as;
+	m_Vivid = vivid;
+
+	auto gnode = m_Vivid->GetClass("Vivid.Scene", "GraphNode");
+	auto gnode_inst = gnode->CreateInstance();
+
+
+	m_GraphClass = gnode_inst;
+
+	m_Instance = m_StaticClass->CreateInstance();
+	m_Instance->SetFieldClass("Node", gnode_inst);
+
+	gnode_inst->SetNativePtr("NodePtr", (void*)m_Owner);
+
+}
 void SharpComponent::SetScript(std::string dll,std::string name) {
 	// Initialization code here
 	
@@ -136,4 +162,13 @@ void SharpComponent::OnUpdate(float deltaTime) {
 	//if (m_Instance) {
 	//	m_Instance->CallMethod("Update", deltaTime);
 //	}
+}
+
+MClass* SharpComponent::CreateGraphNode() {
+
+	auto gnode = m_Vivid->GetClass("Vivid.Scene", "GraphNode");
+	auto gnode_inst = gnode->CreateInstance();
+
+	return gnode_inst;
+
 }

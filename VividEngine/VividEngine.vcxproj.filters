@@ -282,6 +282,9 @@
     <ClInclude Include="LGPrintDebug.h">
       <Filter>Material</Filter>
     </ClInclude>
+    <ClInclude Include="MonoLib.h">
+      <Filter>Mono</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="VividEngine.cpp">
@@ -553,6 +556,9 @@
     </ClCompile>
     <ClCompile Include="SharpComponent.cpp">
       <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="MonoLib.cpp">
+      <Filter>Mono</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -6,13 +6,15 @@ cbuffer Constants
     float4x4 g_MVPMatrix;
     float4x4 g_NormalMatrix;
     float4 g_CameraPosition;
-    float4 g_LightPosition;
+    float4 g_LightPosition;    // Position for point/spot lights
+    float4 g_LightDirection;   // Direction for directional/spot lights
     float4 g_LightColor;
     float4 g_LightIntensity;
     float4 g_LightRange;
     float4 g_ToneMapParams;
     float4 g_AmbientColor;
-    float4 g_Parallax;
+    float4 g_LightType;      // x: LightType (0=point, 1=directional, 2=spot), y-w: unused
+    float4 g_SpotLightCone;  // x: inner cone angle (cos), y: outer cone angle (cos), z-w: unused
 };
 
 struct VSInput
@@ -34,7 +36,6 @@ struct PSInput
     float3 Normal : TEXCOORD3;
     float3 Tangent : TEXCOORD4;
     float3 Binormal : TEXCOORD5;
-    float3 ViewDirTS : TEXCOORD6; // View direction in tangent space
 };
 
 void main(in VSInput VSIn, out PSInput PSIn)
@@ -44,10 +45,6 @@ void main(in VSInput VSIn, out PSInput PSIn)
     float3 tangent = normalize(mul(VSIn.Tang, (float3x3)g_ModelMatrix));
     float3 binormal = normalize(mul(VSIn.BiNorm, (float3x3)g_ModelMatrix));
 
-    float3 viewDirWS = normalize(g_CameraPosition.xyz - worldPos);
-    float3x3 TBN = float3x3(tangent, binormal, normal);
-    float3 viewDirTS = mul(viewDirWS, TBN);
-
     PSIn.Pos = mul(float4(VSIn.Pos, 1.0), g_MVPMatrix);
     PSIn.Uv = VSIn.Uv;
     PSIn.v_Color = VSIn.Color;
@@ -55,5 +52,4 @@ void main(in VSInput VSIn, out PSInput PSIn)
     PSIn.Normal = normal;
     PSIn.Tangent = tangent;
     PSIn.Binormal = binormal;
-    PSIn.ViewDirTS = viewDirTS;
 }

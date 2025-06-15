@@ -17,6 +17,7 @@
 #include "TerrainLayer.h"
 #include "PixelMap.h"
 #include "TerrainEditor.h"
+#include "ConsoleOutput.h"
 
 #if D3D11_SUPPORTED
 #    include "Graphics/GraphicsEngineD3D11/interface/EngineFactoryD3D11.h"
@@ -111,9 +112,9 @@ SceneView::SceneView(QWidget *parent)
 
 
     //m_Test1 = Importer::ImportEntity("test/test1.gltf");
-    auto test2 = Importer::ImportEntity("test/test2.gltf");
+    //auto test2 = Importer::ImportEntity("test/test2.gltf");
    // m_SceneGraph->AddNode(m_Test1);
-    m_SceneGraph->AddNode(test2);
+    //m_SceneGraph->AddNode(test2);
 
 
     //auto sc = new ScriptComponent;
@@ -145,16 +146,16 @@ SceneView::SceneView(QWidget *parent)
 
     auto lc = new LightComponent;
 
-	l1->AddComponent(lc);
+//	l1->AddComponent(lc);
 
-    m_SceneGraph->AddLight(l1);
+  //  m_SceneGraph->AddLight(l1);
 
     auto l2 = new GraphNode;
     l2->AddComponent(new LightComponent);
 
     l2->GetComponent<LightComponent>()->SetColor(glm::vec3(0,3,3));
 
-    m_SceneGraph->AddLight(l2);
+    //m_SceneGraph->AddLight(l2);
     l2->SetPosition(glm::vec3(0, 5, 6));
 
 
@@ -188,18 +189,18 @@ SceneView::SceneView(QWidget *parent)
     m_Terrain->AddComponent(ter_ren);
     m_Terrain->AddComponent(new TerrainDepthRenderer);
 
-    m_SceneGraph->SetTerrain(m_Terrain);
+   // m_SceneGraph->SetTerrain(m_Terrain);
     m_White = new Texture2D("engine/white.png");
  
-    m_TerrainEditor = new TerrainEditor(m_Terrain);
+   // m_TerrainEditor = new TerrainEditor(m_Terrain);
 
     NodeTree::m_Instance->SetRoot(m_SceneGraph->GetRootNode());
 
     Vivid::InitMono();
 
-    auto cm1 = new SharpComponent;
-	test2->AddComponent(cm1);
-    cm1->SetScript("TestLib.dll", "Test");
+ //   auto cm1 = new SharpComponent;
+//	test2->AddComponent(cm1);
+//    cm1->SetScript("TestLib.dll", "Test");
 
 
 }
@@ -439,14 +440,18 @@ void SceneView::mousePressEvent(QMouseEvent* event)  {
         if (m_Mode == SceneMode::Mode_Paint)
         {
             //m_TerrainEditing = true;
-            m_TerrainEditor->BeginPaint();
-            m_TerrainEditor->Update();
+            if (m_Terrain) {
+                m_TerrainEditor->BeginPaint();
+                m_TerrainEditor->Update();
+            }
         }
         else if (m_Mode == SceneMode::Mode_Sculpt) {
 
-            m_TerrainEditor->BeginSculpt();
-            m_TerrainEditor->Update();
+            if (m_Terrain) {
+                m_TerrainEditor->BeginSculpt();
+                m_TerrainEditor->Update();
 
+            }
         }else{
  
             m_PickPos = event->pos();
@@ -469,17 +474,21 @@ void SceneView::mouseReleaseEvent(QMouseEvent* event) {
     }
     else {
         m_SceneController->onMouseUp();
-        //m_TerrainEditing = false;
-        if (m_Mode == SceneMode::Mode_Paint)
-        {
-            //m_TerrainEditing = true;
-            m_TerrainEditor->EndPaint();
-        }
-        else if (m_Mode == SceneMode::Mode_Sculpt) {
-            m_TerrainEditor->EndSculpt();
-        }
+        //m_
+        //TerrainEditing = false;
+        if (m_Terrain) {
+            if (m_Mode == SceneMode::Mode_Paint)
+            {
+                //m_TerrainEditing = true;
+                m_TerrainEditor->EndPaint();
+            }
+            else if (m_Mode == SceneMode::Mode_Sculpt) {
+                m_TerrainEditor->EndSculpt();
+            }
 
+        }
     }
+
 }
 constexpr double MPI = 3.14159265358979323846;
 static float Deg2Rad(float deg) {
@@ -661,6 +670,7 @@ void SceneView::mouseMoveEvent(QMouseEvent* event)  {
     if (rightMousePressed) {
         QPoint delta = event->pos() - lastMousePos;
         m_CameraController->updateMouse(1.0f / 60.0f, delta, true);
+
         lastMousePos = event->pos();
     }
     else {
@@ -674,16 +684,17 @@ void SceneView::mouseMoveEvent(QMouseEvent* event)  {
         //int y = localPos.y();
 
         std::cout << "MX:" << x << " MY:" << y << std::endl;
-        if (m_Mode == SceneMode::Mode_Paint || m_Mode == SceneMode::Mode_Sculpt) {
+        if (m_Terrain) {
+            if (m_Mode == SceneMode::Mode_Paint || m_Mode == SceneMode::Mode_Sculpt) {
 
-      
-            
+
+
                 auto res = m_SceneGraph->MousePickTerrain(x, y, m_Terrain->GetComponent<TerrainMeshComponent>());
-               
+
 
                 if (res.m_Hit) {
 
-             //       std::cout << "THit: X:" << res.m_Point.x << " Y:" << res.m_Point.y << " Z:" << res.m_Point.z << std::endl;
+                    //       std::cout << "THit: X:" << res.m_Point.x << " Y:" << res.m_Point.y << " Z:" << res.m_Point.z << std::endl;
                     m_TerrainX = res.m_Point.x;
                     m_TerrainZ = res.m_Point.z;
                     m_TerrainEditor->SetPosition(res.m_Point);
@@ -693,18 +704,19 @@ void SceneView::mouseMoveEvent(QMouseEvent* event)  {
 
 
                 }
-                        m_TerrainEditor->Update();
-        
-            //if (m_TerrainEditing) {
+                m_TerrainEditor->Update();
+
+                //if (m_TerrainEditing) {
                 switch (m_Mode) {
                 case SceneMode::Mode_Paint:
 
-                    
+
 
                     break;
                 }
 
-            //}
+                //}
+            }
         }
 
         QPoint delta = event->pos() - lastMousePos;
@@ -712,7 +724,10 @@ void SceneView::mouseMoveEvent(QMouseEvent* event)  {
         if (m_SelectedNode != nullptr) {
             PropertiesEditor::m_Instance->UpdateNode(m_SelectedNode);
         }
+      
+
         lastMousePos = event->pos();
+
    
     }
 
@@ -765,7 +780,20 @@ void SceneView::keyReleaseEvent(QKeyEvent* event) {
 
 void SceneView::handleMovement() {
     m_CameraController->update(1.0f / 60.0f, keysHeld, QPoint(),rightMousePressed);
- 
+    auto gizNode = m_SceneController->GetGizNode();
+
+    if (gizNode != nullptr) {
+        float dist = glm::distance(gizNode->GetPosition(), m_SceneGraph->GetCamera()->GetPosition());
+
+        if (dist < 1.0) {
+            dist = -(1.0 - dist) * 12.0;
+
+        }
+
+        auto scale = 1.0 + dist * 0.1;
+     
+        gizNode->SetScale(glm::vec3(scale, scale, scale));
+    }
 
 }
 
@@ -877,6 +905,7 @@ void SceneView::TerrainPlot() {
 
 void SceneView::SetEditLayer(int layer) {
 
+    if (m_Terrain == nullptr) return;
     m_TerrainEditor->SetEditLayer(layer);
 
 }

@@ -4,9 +4,14 @@
 #include "Content.h"
 #include "SceneView.h"
 #include "LogicGraph.h"
+#include "Importer.h"
+#include "LightComponent.h"
+#include "NodeTree.h"
+#include "SceneView.h"
 MainMenu::MainMenu(QWidget *parent)
 	: QMenuBar(parent)
 {
+
 
 	setupMenus();
 	//ui.setupUi(this);
@@ -21,6 +26,7 @@ void MainMenu::setupMenus()
     // File menu
     QMenu* fileMenu = addMenu("Project");
     QMenu* editMenu = addMenu("Edit");
+	QMenu* crMenu = addMenu("Create");
     QMenu* toolsMenu = addMenu("Tools");
 
     QAction* newAction = fileMenu->addAction("New Scene");
@@ -35,6 +41,159 @@ void MainMenu::setupMenus()
     connect(openAction, &QAction::triggered, this, &MainMenu::onOpenFile);
     connect(exitAction, &QAction::triggered, this, &MainMenu::onExit);
     connect(saveAction, &QAction::triggered, this, &MainMenu::onSaveScene);
+
+	QMenu* crPrim = crMenu->addMenu("Primitives");
+	QMenu* crLight = crMenu->addMenu("Lights");
+	QMenu* crCamera = crMenu->addMenu("Camera");
+	QMenu* crTerr = crMenu->addMenu("Terrain");
+
+	auto pCube = crPrim->addAction("Cube");
+	auto pSphere = crPrim->addAction("Sphere");
+	auto pPlane = crPrim->addAction("Plane");
+	auto pCylinder = crPrim->addAction("Cylinder");
+
+	//crPrim->addAction("Capsule");
+
+	auto pCone = crPrim->addAction("Cone");
+	auto pTorus = crPrim->addAction("Torus");
+	//crPrim->addAction("Quad");
+
+
+
+   
+
+    connect(pCube, &QAction::triggered, []() {
+
+        Importer* imp = new Importer;
+
+        auto p = imp->ImportEntity("Edit/Primitives/Cube.fbx");
+
+		p->GetNodes()[0]->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
+
+        SceneGraph::m_Instance->AddNode(p->GetNodes()[0]);
+        NodeTree::m_Instance->SetRoot(SceneGraph::m_Instance->GetRootNode());
+        SceneView::m_Instance->SelectNode(p->GetNodes()[0]);
+        });
+
+        //SceneGraph::m_Instance->AddPrimitive(p);
+
+    connect(pSphere, &QAction::triggered, []() {
+
+        Importer* imp = new Importer;
+
+        auto p = imp->ImportEntity("Edit/Primitives/Sphere.fbx");
+
+        p->GetNodes()[0]->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
+
+        SceneGraph::m_Instance->AddNode(p->GetNodes()[0]);
+        NodeTree::m_Instance->SetRoot(SceneGraph::m_Instance->GetRootNode());
+        SceneView::m_Instance->SelectNode(p->GetNodes()[0]);
+        });
+
+    connect(pPlane, &QAction::triggered, []() {
+
+        Importer* imp = new Importer;
+
+        auto p = imp->ImportEntity("Edit/Primitives/Plane.fbx");
+
+        p->GetNodes()[0]->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
+
+        SceneGraph::m_Instance->AddNode(p->GetNodes()[0]);
+        NodeTree::m_Instance->SetRoot(SceneGraph::m_Instance->GetRootNode());
+        SceneView::m_Instance->SelectNode(p->GetNodes()[0]);
+        });
+   
+    connect(pCylinder, &QAction::triggered, []() {
+
+        Importer* imp = new Importer;
+
+        auto p = imp->ImportEntity("Edit/Primitives/cylinder.fbx");
+
+        p->GetNodes()[0]->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
+
+        SceneGraph::m_Instance->AddNode(p->GetNodes()[0]);
+        NodeTree::m_Instance->SetRoot(SceneGraph::m_Instance->GetRootNode());
+        SceneView::m_Instance->SelectNode(p->GetNodes()[0]);
+        });
+
+
+
+    connect(pCone, &QAction::triggered, []() {
+
+        Importer* imp = new Importer;
+
+        auto p = imp->ImportEntity("Edit/Primitives/cone.fbx");
+
+        p->GetNodes()[0]->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
+
+        SceneGraph::m_Instance->AddNode(p->GetNodes()[0]);
+        NodeTree::m_Instance->SetRoot(SceneGraph::m_Instance->GetRootNode());
+        SceneView::m_Instance->SelectNode(p->GetNodes()[0]);
+        });
+
+    connect(pTorus, &QAction::triggered, []() {
+
+        Importer* imp = new Importer;
+
+        auto p = imp->ImportEntity("Edit/Primitives/torus.fbx");
+
+        p->GetNodes()[0]->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
+
+        SceneGraph::m_Instance->AddNode(p->GetNodes()[0]);
+        NodeTree::m_Instance->SetRoot(SceneGraph::m_Instance->GetRootNode());
+        SceneView::m_Instance->SelectNode(p->GetNodes()[0]);
+        });
+
+
+	auto lPoint = crLight->addAction("Point Light");
+	auto lDir = crLight->addAction("Directional Light");
+	auto lSpot = crLight->addAction("Spot Light");
+	auto lAmb = crLight->addAction("Ambient Light");
+
+    auto tFlat = crTerr->addAction("Flat Terrain");
+	auto tHeightMap = crTerr->addAction("Heightmap Terrain");
+
+    connect(lPoint, &QAction::triggered, []() {
+        
+        auto l = new GraphNode;
+        l->SetName("Point Light");
+		l->AddComponent(new LightComponent);
+        SceneGraph::m_Instance->AddLight(l);
+		l->SetPosition(glm::vec3(0.0f, 10.0f, 0.0f));
+        NodeTree::m_Instance->SetRoot(SceneGraph::m_Instance->GetRootNode());
+        SceneView::m_Instance->SelectNode(l);
+
+		});
+
+
+    connect(lDir, &QAction::triggered, []() {
+
+        auto l = new GraphNode;
+        l->SetName("Point Light");
+        auto lc = new LightComponent;
+        l->AddComponent(lc);
+		lc->SetLightType(LightType::Directional);
+        SceneGraph::m_Instance->AddLight(l);
+        l->SetPosition(glm::vec3(0.0f, 10.0f, 0.0f));
+        NodeTree::m_Instance->SetRoot(SceneGraph::m_Instance->GetRootNode());
+        SceneView::m_Instance->SelectNode(l);
+
+        });
+
+    connect(lSpot, &QAction::triggered, []() {
+
+        auto l = new GraphNode;
+        l->SetName("Point Light");
+        auto lc = new LightComponent;
+        l->AddComponent(lc);
+        lc->SetLightType(LightType::Spot);
+        SceneGraph::m_Instance->AddLight(l);
+        l->SetPosition(glm::vec3(0.0f, 10.0f, 0.0f));
+        NodeTree::m_Instance->SetRoot(SceneGraph::m_Instance->GetRootNode());
+        SceneView::m_Instance->SelectNode(l);
+
+        });
+
 
     QAction* openLG = toolsMenu->addAction("Logic Graph");
 

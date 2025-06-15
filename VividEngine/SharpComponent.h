@@ -20,7 +20,7 @@ extern "C" __declspec(dllexport) void* SceneGetRoot();
 extern "C" __declspec(dllexport) int NodeNodeCount(void* node);
 extern "C" __declspec(dllexport) void* NodeGetNode(void* node,int index);
 extern "C" __declspec(dllexport) void* NodeGetName(void* node);
-
+extern "C" __declspec(dllexport) void DebugLog(const char* str);
 
 class SharpComponent :
     public Component
@@ -28,6 +28,11 @@ class SharpComponent :
 public:
     void SetScript(std::string file, std::string name);
     void OnUpdate(float dt) override;
+    void SetClass(MClass* cls,MAsm* as,MAsm* vivid);
+	void SetName(std::string name) { m_Name = name; }
+	std::string GetName() { return m_Name; }
+    MClass* GetClass() { return m_Instance; };
+    MClass* CreateGraphNode();
 private:
 
     MAsm* m_Assembly = nullptr;
@@ -35,5 +40,6 @@ private:
     MClass* m_StaticClass = nullptr;
     MClass* m_GraphClass;
     MClass* m_Instance = nullptr;
+    std::string m_Name;
 };
 

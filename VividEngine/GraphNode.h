@@ -123,6 +123,11 @@ public:
 	glm::mat4 GetRotation() {
 		return m_Rotation;
 	}
+	glm::vec3 TransformVector(glm::vec3 transform) {
+
+		return m_Rotation * glm::vec4(transform, 1.0);
+
+	}
 	void Push();
 	void Pop();
 	glm::vec3 GetWorldPosition();

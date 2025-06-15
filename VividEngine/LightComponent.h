@@ -6,8 +6,8 @@
 class RenderTargetCube;
 
 enum class LightType {
-    Directional,
     Point,
+    Directional,
     Spot
 };
 
@@ -35,9 +35,17 @@ public:
     {
         m_Intensity = i;
     }
+    LightType GetLightType()
+    {
+        return m_Type;
+	}
+    void SetLightType(LightType type)
+    {
+        m_Type = type;
+    }
 private:
 
-    LightType m_Type;
+    LightType m_Type = LightType::Point;
     glm::vec3 m_Color = glm::vec3(1, 1, 1);
     float m_Intensity = 40.0f;
     float m_Range = 55.0f;

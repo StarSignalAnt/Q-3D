@@ -122,7 +122,7 @@ public:
 
         // Retrieve the IntPtr field as void*
         void* nativePtr = nullptr;
-        mono_field_get_value(m_Instance, field, &nativePtr);
+        mono_field_get_value(m_Instance, field, nativePtr);
 
         // Now `nativePtr` holds the pointer stored in C# as IntPtr
         return nativePtr;
@@ -456,6 +456,31 @@ public:
         }
 
         mono_field_set_value(m_Instance, field, (void*)value->GetInstance());
+    }
+
+    std::string CallFunctionValue_String(const std::string& name) {
+        if (!m_Class || !m_Instance) {
+            std::cerr << "Class or instance is null." << std::endl;
+            return {};
+        }
+
+        MonoMethod* method = mono_class_get_method_from_name(m_Class, name.c_str(), 0);
+        if (!method) {
+            std::cerr << "Method not found: " << name << std::endl;
+            return {};
+        }
+
+        MonoObject* result = mono_runtime_invoke(method, m_Instance, nullptr, nullptr);
+        if (!result) {
+            std::cerr << "Null return from method: " << name << std::endl;
+            return {};
+        }
+
+        MonoString* monoStr = reinterpret_cast<MonoString*>(result);
+        char* cStr = mono_string_to_utf8(monoStr);
+        std::string finalStr(cStr);
+        mono_free(cStr);
+        return finalStr;
     }
 
 	MonoObject* GetInstance() const { return m_Instance; }

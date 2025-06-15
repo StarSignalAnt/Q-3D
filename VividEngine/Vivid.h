@@ -29,13 +29,16 @@
 #include "DeviceContext.h"
 #include "SwapChain.h"
 #include "BasicMath.hpp"
-
+#include "MonoLib.h"
+#include <functional>
 class RenderTargetCube;
 class RenderTarget2D;
 class MaterialPBR;
 class Physics;
 
 using namespace Diligent;
+
+using VividCallbackFunc = void(*)(std::string value);
 
 class Vivid
 {
@@ -59,12 +62,20 @@ public:
 	static void InitPython();
 	static void InitMono();
 	static Physics* m_Physics;
-
+	static VividCallbackFunc DebugLogCB;
 	static std::vector<MaterialPBR*> m_ActiveMaterials;
-
+	static MonoLib* m_MonoLib;
+	static std::vector<SharpClassInfo> m_ComponentClasses;
+	static void DebugLog(const std::string& message)
+	{
+		if (DebugLogCB) {
+			DebugLogCB(message);
+		}
+	}
 private:
 
 
+	
 	static int m_FrameWidth;
 	static int m_FrameHeight;
 

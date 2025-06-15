@@ -35,4 +35,7 @@ internal class NativeBridge
     [DllImport("__Internal", CharSet = CharSet.Ansi)]
     public static extern IntPtr NodeGetName(IntPtr node);
 
+    [DllImport("__Internal", CharSet = CharSet.Ansi)]
+    public static extern void ConsoleLog(string msg);
+
 }

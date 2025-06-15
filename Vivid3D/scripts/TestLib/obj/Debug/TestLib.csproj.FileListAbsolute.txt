@@ -2,8 +2,8 @@ C:\Vivid3D\Vivid3D\scripts\TestLib.dll
 C:\Vivid3D\Vivid3D\scripts\TestLib.pdb
 C:\Vivid3D\Vivid3D\scripts\TestLib\obj\Debug\TestLib.csproj.AssemblyReference.cache
 C:\Vivid3D\Vivid3D\scripts\TestLib\obj\Debug\TestLib.csproj.CoreCompileInputs.cache
-C:\Vivid3D\Vivid3D\scripts\TestLib\obj\Debug\TestLib.dll
-C:\Vivid3D\Vivid3D\scripts\TestLib\obj\Debug\TestLib.pdb
-C:\Vivid3D\Vivid3D\CS\TestLib.dll
-C:\Vivid3D\Vivid3D\CS\TestLib.pdb
 C:\Vivid3D\Vivid3D\scripts\TestLib\obj\Debug\TestLib.csproj.Up2Date
+C:\Vivid3D\Vivid3D\CS\VividGame.dll
+C:\Vivid3D\Vivid3D\CS\VividGame.pdb
+C:\Vivid3D\Vivid3D\scripts\TestLib\obj\Debug\VividGame.dll
+C:\Vivid3D\Vivid3D\scripts\TestLib\obj\Debug\VividGame.pdb

@@ -185,3 +185,14 @@ void SceneController::SelectNode(GraphNode* node) {
     m_ScaleGiz->AlignGizmo();
 
 }
+
+
+GraphNode* SceneController::GetGizNode() {
+
+    if (m_CurrentGizmo != nullptr) {
+
+        return m_CurrentGizmo->GetNode();
+
+    }
+
+}

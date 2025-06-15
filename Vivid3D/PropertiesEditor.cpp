@@ -19,7 +19,10 @@
 #include "MaterialPBR.h"
 #include "TerrainMeshComponent.h"
 #include "StaticMeshComponent.h"
+#include "ComponentSelector.h"
 #include "TerrainLayer.h"
+#include "SharpComponent.h"
+#include <qpointer.h>
 PropertiesEditor* PropertiesEditor::m_Instance = nullptr;
 
 PropertiesEditor::PropertiesEditor(QWidget* parent)
@@ -161,6 +164,32 @@ void PropertiesEditor::SetNode(GraphNode* node) {
 
         AddHeader("Light Component");
 
+        std::string current = "Point";
+
+        if(lc->GetLightType() == LightType::Directional) {
+            current = "Directional";
+        } else if (lc->GetLightType() == LightType::Spot) {
+            current = "Spot";
+		}
+
+        AddStringList("Light Type", { "Point","Directional","Spot" }, current.c_str(), [lc](QString op)
+            {
+                if (op == "Point") {
+                    lc->SetLightType(LightType::Point);
+                }
+                if (op == "Directional") {
+					lc->SetLightType(LightType::Directional);
+                }
+                if (op == "Spot") {
+					lc->SetLightType(LightType::Spot);
+                }
+
+
+
+                
+
+                });
+
         AddVec3("Diffuse", QVector3D(lc->GetColor().r, lc->GetColor().g, lc->GetColor().b), 0.05, [lc](const QVector3D& col)
             {
                 lc->SetColor(glm::vec3(col.x(), col.y(), col.z()));
@@ -260,6 +289,101 @@ void PropertiesEditor::SetNode(GraphNode* node) {
     }
 
 
+	auto scomp = node->GetComponents<SharpComponent>();
+
+    for (auto sc : scomp)
+    {
+
+        auto name = "(Sharp)" + sc->GetName();
+        AddHeader(name.c_str());
+
+        for (auto v : sc->GetClass()->GetInstanceFields())
+        {
+
+            switch (v.ctype) {
+            case SHARP_TYPE_VOID:
+            {
+                auto cls = v.etype;
+
+
+                if (cls == "Vivid.Scene.GraphNode")
+                {
+                    auto node = sc->GetClass()->GetFieldValue<MClass*>(v.name);
+
+                    std::string name = "None";
+                    if (node != nullptr) {
+                        //name = no
+                        auto r = node->CallFunctionValue_String("GetName");
+                        name = r;
+                        int b = 5;
+                    } else {
+
+						name = "None";
+
+
+
+                    }
+
+                    AddNodeProperty((AddSpaces(v.name) + " (Node)").c_str(), name.c_str(), [sc, v](GraphNode* droppedNode)
+                        {
+                            if (droppedNode) {
+                                // The callback now provides the GraphNode pointer directly.
+                                // We can now pass this to the script component.
+                                // For now, we'll just update the string representation,
+                                // which is how script variables are currently stored.
+                                //sc->SetString(var.name, droppedNode->GetName());
+                                //sc->SetNode(var.name, droppedNode);
+
+
+
+                                auto new_cls = sc->CreateGraphNode();
+
+                                new_cls->SetNativePtr("NodePtr", droppedNode);
+
+                                sc->GetClass()->SetFieldClass(v.name, new_cls);
+
+
+
+                                //sc->SetClass(var.name,)
+
+
+
+                                // A future improvement would be to have a method like:
+                                // sc->SetObject(var.name, droppedNode);
+                            }
+                        });
+                }
+                int b = 5;
+            }
+
+  
+            
+                break;
+            case SHARP_TYPE_INT:
+                AddInt(AddSpaces(v.name).c_str(), -1000, 1000, 1, sc->GetClass()->GetFieldValue<int>(v.name), [sc, v](const int value)
+                    {
+						sc->GetClass()->SetFieldValue(v.name, value);
+                        //sc->SetInt(var.name, value);
+
+
+                    });
+                break;
+            case SHARP_TYPE_FLOAT:
+                AddFloat(AddSpaces(v.name).c_str(), -1000, 1000, 0.001, sc->GetClass()->GetFieldValue<float>(v.name), [sc, v](const double value)
+                    {
+						sc->GetClass()->SetFieldValue(v.name, (float)value);
+
+                    });
+                break;
+            case SHARP_TYPE_STRING:
+                break;
+            }
+
+        }
+
+    }
+
+
     auto scripts = node->GetComponents<ScriptComponent>();
 
     for (auto sc : scripts) {
@@ -336,6 +460,114 @@ void PropertiesEditor::SetNode(GraphNode* node) {
         }
 
     }
+
+    AddButton("Add Component", [node, this]() {
+        qDebug() << "Add Component button clicked";
+
+        // Get or create the component selector
+        ComponentSelector* selector = ComponentSelector::getInstance(this);
+
+        if (!selector) {
+            qDebug() << "Failed to create ComponentSelector";
+            return;
+        }
+
+        // Clear any existing categories first
+        selector->clearCategories();
+        qDebug() << "Cleared existing categories";
+
+        // Add categories and their component types
+        QStringList sharpComponents;
+        auto classes = Vivid::m_ComponentClasses;
+
+        qDebug() << "Available component classes:" << classes.size();
+
+        for (auto c : classes) {
+            QString componentName = QString::fromStdString(c.className);
+            sharpComponents.append(componentName);
+            qDebug() << "Added component:" << componentName;
+        }
+
+        // DEBUGGING: Ensure we have components to add
+        if (sharpComponents.isEmpty()) {
+            qDebug() << "Warning: No Sharp Components found!";
+            // Add some test components for debugging
+            sharpComponents << "Test Component 1" << "Test Component 2" << "Test Component 3";
+        }
+
+        selector->addCategory("Sharp Components", sharpComponents);
+        selector->addCategory("Rendering", { "Static Mesh Component", "Terrain Mesh Component", "Particle System" });
+        selector->addCategory("Lighting", { "Light Component", "Environment Light", "Spot Light" });
+        selector->addCategory("Physics", { "Rigid Body", "Collider", "Kinematic Body" });
+
+        qDebug() << "Added all categories";
+
+        // CRITICAL FIX: Use QPointer to safely check if PropertiesEditor still exists
+        // Also use Qt::QueuedConnection to ensure the call is made safely
+        QPointer<PropertiesEditor> safeThis(this);
+
+        connect(selector, &ComponentSelector::itemSelected, selector,
+            [safeThis, node](const QString& category, const QString& componentType) {
+                qDebug() << "Selected component:" << componentType << "from category:" << category;
+
+                // SAFETY CHECK: Ensure PropertiesEditor still exists
+                if (!safeThis) {
+                    qDebug() << "PropertiesEditor was destroyed, ignoring signal";
+                    return;
+                }
+
+                // SAFETY CHECK: Ensure node still exists (you might want to use QPointer for node too)
+                if (!node) {
+                    qDebug() << "Node is null, ignoring signal";
+                    return;
+                }
+
+                if (category == "Sharp Components") {
+                    // Handle Sharp Components
+                    qDebug() << "Creating Sharp Component:" << componentType;
+                    auto classes = Vivid::m_ComponentClasses;
+                    for (auto c : classes) {
+                        if (c.className == componentType.toStdString()) {
+                            SharpComponent* comp = new SharpComponent;
+                            node->AddComponent(comp);
+                            auto cls = Vivid::m_MonoLib->GetClass(c.className);
+                            comp->SetClass(cls, Vivid::m_MonoLib->GetAssembly(), Vivid::m_MonoLib->GetVivid());
+                            comp->SetName(c.className);
+                            // Refresh the properties editor - use the safe pointer
+                            safeThis->SetNode(node);
+                            break;
+                        }
+                    }
+                }
+                else {
+                    qDebug() << "Creating component from category:" << category;
+                    // Handle other component types here
+                    if (componentType == "Script Component") {
+                        // Create script component
+                    }
+                    else if (componentType == "Light Component") {
+                        // Create light component
+                    }
+                }
+            }, Qt::QueuedConnection); // Use queued connection for safety
+
+        qDebug() << "Connected itemSelected signal";
+
+        // Show the selector near the mouse
+        QPoint mousePos = QCursor::pos();
+        qDebug() << "Showing selector at mouse position:" << mousePos;
+
+        selector->showAt(mousePos);
+
+        // DEBUGGING: Check if selector is actually visible
+        QTimer::singleShot(100, [selector]() {
+            if (selector) {
+                qDebug() << "Selector visibility after 100ms:" << selector->isVisible();
+                qDebug() << "Selector position:" << selector->pos();
+                qDebug() << "Selector size:" << selector->size();
+            }
+            });
+        });
 
     EndUI();
     m_Node = node;
@@ -697,6 +929,16 @@ void PropertiesEditor::SetTerrain(GraphNode* node) {
 
         });
 
+    AddStringList("Brush Mode",{"Add","Subtract","Direct"},"Add",[](QString mode) {
+        if (mode == "Add") {
+            SceneView::m_Instance->SetTerrainBrushMode(EditBrushMode::BM_Add);
+        } else if (mode == "Subtract") {
+            SceneView::m_Instance->SetTerrainBrushMode(EditBrushMode::BM_Subtract);
+        } else if (mode == "Direct") {
+            SceneView::m_Instance->SetTerrainBrushMode(EditBrushMode::BM_Direct);
+        }
+		});
+
     AddFloat("Brush Size",0.01,10.0f,0.1,SceneView::m_Instance->GetTerrainBrushSize(), [](double v) {
         SceneView::m_Instance->SetTerrainBrushSize(v);
 		});
@@ -732,4 +974,19 @@ void PropertiesEditor::SetTerrain(GraphNode* node) {
     EndUI();
     m_Node = node;
 
+}
+
+PropertyButton* PropertiesEditor::AddButton(const QString& buttonText,
+    std::function<void()> callback)
+{
+    PropertyButton* buttonProp = new PropertyButton(buttonText);
+    m_contentLayout->addWidget(buttonProp);
+
+    if (callback) {
+        connect(buttonProp, &PropertyButton::buttonClicked, this, [callback]() {
+            callback();
+            });
+    }
+
+    return buttonProp;
 }

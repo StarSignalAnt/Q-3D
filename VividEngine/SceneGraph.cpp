@@ -74,16 +74,22 @@ void SceneGraph::RenderDepth() {
 
 	
 	m_CurrentGraph = this;
-	m_Terrain->RenderDepth(m_Camera);
+	if (m_Terrain) {
+		m_Terrain->RenderDepth(m_Camera);
+	}
 	m_RootNode->RenderDepth(m_Camera);
+
 
 }
 
 void SceneGraph::Render() {
 
 	m_CurrentGraph = this;
-	m_Terrain->Render(m_Camera);
+	if (m_Terrain) {
+		m_Terrain->Render(m_Camera);
+	}
 	m_RootNode->Render(m_Camera);
+
 
 //	for (auto sub : m_RootNode->GetNodes()) {
 	
