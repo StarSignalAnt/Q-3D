@@ -1,0 +1,36 @@
+{
+    "connections": [
+        {
+            "from_node": 0,
+            "to_node": 1,
+            "type": "exec"
+        }
+    ],
+    "graph_name": "New Graph",
+    "nodes": [
+        {
+            "hasExecIn": false,
+            "hasExecOut": true,
+            "id": 0,
+            "name": "On Tick",
+            "pos_x": -323.0,
+            "pos_y": -71.0,
+            "typeName": "On Tick",
+            "unconnected_inputs": []
+        },
+        {
+            "hasExecIn": true,
+            "hasExecOut": true,
+            "id": 1,
+            "name": "Turn GraphNode",
+            "pos_x": -3.0,
+            "pos_y": 61.0,
+            "typeName": "Turn GraphNode",
+            "unconnected_inputs": [
+                {
+                    "port": 0
+                }
+            ]
+        }
+    ]
+}

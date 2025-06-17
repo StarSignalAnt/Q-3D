@@ -22,7 +22,9 @@
 #include "ComponentSelector.h"
 #include "TerrainLayer.h"
 #include "SharpComponent.h"
+#include "LGraph.h"
 #include <qpointer.h>
+#include "LogicGraphComponent.h"
 PropertiesEditor* PropertiesEditor::m_Instance = nullptr;
 
 PropertiesEditor::PropertiesEditor(QWidget* parent)
@@ -135,6 +137,8 @@ void PropertiesEditor::SetNode(GraphNode* node) {
     }
 
     ClearUI();  //
+
+    if (node == nullptr) return;
 
     AddHeader("Node");
 
@@ -459,6 +463,14 @@ void PropertiesEditor::SetNode(GraphNode* node) {
 
         }
 
+    }
+
+    auto graphs = node->GetComponents<LogicGraphComponent>();
+
+    for (auto g : graphs) {
+        auto name = "(Graph)" + g->GetName();
+        AddHeader(name.c_str());
+    
     }
 
     AddButton("Add Component", [node, this]() {
@@ -840,7 +852,21 @@ void PropertiesEditor::AddedFromDrop(const QString& resourceName)
         comp->SetScript(path, name);
         SetNode(m_Node);
     }
+    if (m_Node) {
+        if (ext == "graph") {
 
+            LGraph* tg = new LGraph("Graph");
+
+            tg = tg->LoadFromFile(resourceName.toStdString(), Vivid::GetNodeRegistry());
+            LogicGraphComponent* lg = new LogicGraphComponent;
+
+            lg->SetGraph(tg);
+
+            m_Node->AddComponent(lg);
+            SetNode(m_Node);
+
+        }
+    }
     int a = 5;
 
     // You can now process the dropped resource, for example:

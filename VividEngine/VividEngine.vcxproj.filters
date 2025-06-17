@@ -70,6 +70,15 @@
     <Filter Include="Mono">
       <UniqueIdentifier>{f69ebd7d-3837-4c59-811d-e1371087cd31}</UniqueIdentifier>
     </Filter>
+    <Filter Include="LogicGraph\Nodes\Events">
+      <UniqueIdentifier>{6e5e7b14-b07c-4dc0-81e3-c2d7c3458a10}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LogicGraph\Nodes\Logic">
+      <UniqueIdentifier>{60c487ee-139e-4f73-9e21-d9e1b102296a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LogicGraph\Nodes\Data">
+      <UniqueIdentifier>{eb485a50-1488-4f25-b1f9-522e2172ef2a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -246,7 +255,7 @@
     <ClInclude Include="LogicDispatcher.h">
       <Filter>LogicGraph</Filter>
     </ClInclude>
-    <ClInclude Include="LGNode.h">
+    <ClInclude Include="LNode.h">
       <Filter>LogicGraph</Filter>
     </ClInclude>
     <ClInclude Include="LGDataNode.h">
@@ -254,9 +263,6 @@
     </ClInclude>
     <ClInclude Include="LGLogicNode.h">
       <Filter>LogicGraph\Nodes</Filter>
-    </ClInclude>
-    <ClInclude Include="LGInput.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="RenderTarget2D.h">
       <Filter>RenderTarget</Filter>
@@ -284,6 +290,54 @@
     </ClInclude>
     <ClInclude Include="MonoLib.h">
       <Filter>Mono</Filter>
+    </ClInclude>
+    <ClInclude Include="LGInput.h">
+      <Filter>LogicGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="LEventNode.h">
+      <Filter>LogicGraph\Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="TickEventNode.h">
+      <Filter>LogicGraph\Nodes\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="LGOutput.h">
+      <Filter>LogicGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="LGraph.h">
+      <Filter>LogicGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="NodeTurnNode.h">
+      <Filter>LogicGraph\Nodes\Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="NodeTestLogic.h">
+      <Filter>LogicGraph\Nodes\Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="NodeRegistry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LogicGraphComponent.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="DataType.h">
+      <Filter>LogicGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="NodeVec3Constant.h">
+      <Filter>LogicGraph\Nodes\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="GetSceneNode.h">
+      <Filter>LogicGraph\Nodes</Filter>
+    </ClInclude>
+    <ClInclude Include="NodeExposeGraphNode.h">
+      <Filter>LogicGraph\Nodes\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="NodeBoolConstant.h">
+      <Filter>LogicGraph\Nodes\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="NodeIf.h">
+      <Filter>LogicGraph\Nodes\Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="NodeKeyDown.h">
+      <Filter>LogicGraph\Nodes\Data</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -524,7 +578,7 @@
     <ClCompile Include="LogicDispatcher.cpp">
       <Filter>LogicGraph</Filter>
     </ClCompile>
-    <ClCompile Include="LGNode.cpp">
+    <ClCompile Include="LNode.cpp">
       <Filter>LogicGraph</Filter>
     </ClCompile>
     <ClCompile Include="LGDataNode.cpp">
@@ -535,9 +589,6 @@
     </ClCompile>
     <ClCompile Include="LGPrintDebug.cpp">
       <Filter>LogicGraph</Filter>
-    </ClCompile>
-    <ClCompile Include="LGInput.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MaterialTerrainDepth.cpp">
       <Filter>Material</Filter>
@@ -559,6 +610,51 @@
     </ClCompile>
     <ClCompile Include="MonoLib.cpp">
       <Filter>Mono</Filter>
+    </ClCompile>
+    <ClCompile Include="LGInput.cpp">
+      <Filter>LogicGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="LEventNode.cpp">
+      <Filter>LogicGraph\Nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="TickEventNode.cpp">
+      <Filter>LogicGraph\Nodes\Events</Filter>
+    </ClCompile>
+    <ClCompile Include="LGOutput.cpp">
+      <Filter>LogicGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="LGraph.cpp">
+      <Filter>LogicGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="NodeTurnNode.cpp">
+      <Filter>LogicGraph\Nodes\Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="NodeTestLogic.cpp">
+      <Filter>LogicGraph\Nodes\Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="NodeRegistry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LogicGraphComponent.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="NodeVec3Constant.cpp">
+      <Filter>LogicGraph\Nodes\Data</Filter>
+    </ClCompile>
+    <ClCompile Include="GetSceneNode.cpp">
+      <Filter>LogicGraph\Nodes</Filter>
+    </ClCompile>
+    <ClCompile Include="NodeExposeGraphNode.cpp">
+      <Filter>LogicGraph\Nodes\Data</Filter>
+    </ClCompile>
+    <ClCompile Include="NodeBoolConstant.cpp">
+      <Filter>LogicGraph\Nodes\Data</Filter>
+    </ClCompile>
+    <ClCompile Include="NodeIf.cpp">
+      <Filter>LogicGraph\Nodes\Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="NodeKeyDown.cpp">
+      <Filter>LogicGraph\Nodes\Data</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

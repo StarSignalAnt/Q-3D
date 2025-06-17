@@ -1,12 +1,17 @@
 #pragma once
-#include "LGNode.h"
+#include "LNode.h"
 class LGLogicNode :
-    public LGNode
+    public LNode
 {
 public:
 
-    void Exec() override;
+    LGLogicNode() {
+        m_hasExecIn = true;
+        m_hasExecOut = true;
+    }
 
+    virtual void Exec() = 0;
+    
 private:
 };
 

@@ -14,6 +14,7 @@
 #include <QDropEvent>
 #include <QMimeData>
 #include <QDrag>
+#include <QContextMenuEvent> // Added for context menu
 #include <vector>
 #include <unordered_map>
 #include "GraphNode.h"
@@ -34,7 +35,7 @@ public:
 
 signals:
     void NodeDoubleClicked(GraphNode* node);
-    void NodeStructureChanged(); // New signal for when structure changes
+    void NodeStructureChanged(); // Signal for when structure changes
 
 protected:
     void paintEvent(QPaintEvent* event) override;
@@ -44,6 +45,7 @@ protected:
     void mouseDoubleClickEvent(QMouseEvent* event) override;
     void wheelEvent(QWheelEvent* event) override;
     void resizeEvent(QResizeEvent* event) override;
+    void contextMenuEvent(QContextMenuEvent* event) override; // Added for context menu
 
     // Drag and drop events
     void dragEnterEvent(QDragEnterEvent* event) override;
@@ -53,6 +55,12 @@ protected:
 
     // Node selection is a virtual method to be implemented by subclass or directly
     virtual void NodeSelected(GraphNode* node);
+
+private slots:
+    // Slots for context menu actions
+    void OnCreateNode();
+    void OnDeleteNode();
+    void OnRenameNode();
 
 private:
     struct TreeItem {
@@ -75,7 +83,6 @@ private:
     void ScrollTo(int y);
 
     // Drag and drop helper functions
-
     bool CanDropOn(GraphNode* dragNode, GraphNode* dropTarget);
     void PerformDrop(GraphNode* dragNode, GraphNode* dropTarget);
     void RemoveNodeFromParent(GraphNode* node);
@@ -85,6 +92,7 @@ private:
     GraphNode* m_RootNode;
     GraphNode* m_SelectedNode;
     GraphNode* m_DraggedNode = nullptr; // The node currently being dragged
+    GraphNode* m_ContextMenuNode = nullptr; // Node that was right-clicked
     std::vector<TreeItem> m_TreeItems;
     std::unordered_map<GraphNode*, bool> m_NodeOpenStates;
 

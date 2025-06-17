@@ -66,13 +66,13 @@ void MainMenu::setupMenus()
 
         Importer* imp = new Importer;
 
-        auto p = imp->ImportEntity("Edit/Primitives/Cube.fbx");
+        auto p = imp->ImportEntity("Edit/Primitives/Cube.gltf");
 
-		p->GetNodes()[0]->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
+		p->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
 
-        SceneGraph::m_Instance->AddNode(p->GetNodes()[0]);
+        SceneGraph::m_Instance->AddNode(p);
         NodeTree::m_Instance->SetRoot(SceneGraph::m_Instance->GetRootNode());
-        SceneView::m_Instance->SelectNode(p->GetNodes()[0]);
+        SceneView::m_Instance->SelectNode(p);
         });
 
         //SceneGraph::m_Instance->AddPrimitive(p);
@@ -145,14 +145,16 @@ void MainMenu::setupMenus()
         });
 
 
+
+
+
 	auto lPoint = crLight->addAction("Point Light");
 	auto lDir = crLight->addAction("Directional Light");
 	auto lSpot = crLight->addAction("Spot Light");
 	auto lAmb = crLight->addAction("Ambient Light");
-
     auto tFlat = crTerr->addAction("Flat Terrain");
-	auto tHeightMap = crTerr->addAction("Heightmap Terrain");
 
+   
     connect(lPoint, &QAction::triggered, []() {
         
         auto l = new GraphNode;
@@ -193,6 +195,15 @@ void MainMenu::setupMenus()
         SceneView::m_Instance->SelectNode(l);
 
         });
+
+    connect(tFlat, &QAction::triggered, []() {
+
+        if (SceneView::m_Instance->HasTerrain() == false) {
+            SceneView::m_Instance->CreateTerrain();
+        }
+        });
+
+    auto tHeightMap = crTerr->addAction("Heightmap Terrain");
 
 
     QAction* openLG = toolsMenu->addAction("Logic Graph");

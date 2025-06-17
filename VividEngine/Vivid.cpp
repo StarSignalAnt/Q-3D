@@ -8,6 +8,15 @@
 #include "MonoHost.h"
 #include "MAsm.h"
 #include "MClass.h"
+#include "NodeRegistry.h"
+#include "NodeTurnNode.h"
+#include "TickEventNode.h"
+#include "NodeTestLogic.h"
+#include "NodeVec3Constant.h"
+#include "GetSceneNode.h"
+#include "NodeBoolConstant.h"
+#include "NodeIf.h"
+#include "NodeKeyDown.h"
 
 namespace py = pybind11;
 RefCntAutoPtr<IRenderDevice>  Vivid::m_pDevice;
@@ -21,6 +30,10 @@ std::vector<MaterialPBR*> Vivid::m_ActiveMaterials;
 MonoLib* Vivid::m_MonoLib = nullptr;
 std::vector<SharpClassInfo> Vivid::m_ComponentClasses;
 VividCallbackFunc Vivid::DebugLogCB = nullptr;
+
+
+
+
 void Vivid::SetBoundRTC(RenderTargetCube* target) {
 
 	m_BoundRTC = target;
@@ -224,7 +237,22 @@ Physics* Vivid::m_Physics = nullptr;
 
 void Vivid::InitEngine() {
 
+	
 	GameAudio* audio = new GameAudio;
 	m_Physics = new Physics;
+	RegisterNodeTypes();
+}
 
+// --- MOVED: The registration logic now lives here, on the engine side ---
+void Vivid::RegisterNodeTypes() {
+	NodeRegistry& registry = Vivid::GetNodeRegistry();
+
+	registry.RegisterNode<TickEventNode>("On Tick");
+	registry.RegisterNode<NodeTestLogic>("Test Logic Node");
+	registry.RegisterNode<NodeTurnNode>("Turn GraphNode");
+	registry.RegisterNode<NodeVec3Constant>("Vec3 Constant");
+	registry.RegisterNode<GetSceneNode>("Get Scene Node");
+	registry.RegisterNode<NodeBoolConstant>("Bool Constant");
+	registry.RegisterNode<NodeIf>("If");
+	registry.RegisterNode<NodeKeyDown>("Input.KeyDown");
 }

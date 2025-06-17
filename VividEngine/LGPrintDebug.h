@@ -1,7 +1,7 @@
 #pragma once
-#include "LGNode.h"
+#include "LNode.h"
 class LGPrintDebug :
-    public LGNode
+    public LNode
 {
 public:
 

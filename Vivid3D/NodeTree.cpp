@@ -14,6 +14,8 @@
 #include <QDrag>
 #include <QPainter>
 #include <functional> // Required for std::function
+#include <QMenu> // Added for context menu
+#include <QInputDialog> // Added for rename/create dialog
 
 NodeTree* NodeTree::m_Instance = nullptr;
 
@@ -26,10 +28,12 @@ NodeTree::NodeTree(QWidget* parent)
     , m_PotentialDragNode(nullptr)
     , m_DropIndicatorY(-1)
     , m_ShowDropIndicator(false)
+    , m_ContextMenuNode(nullptr)
 {
     setFocusPolicy(Qt::StrongFocus);
     setMouseTracking(true);
     setAcceptDrops(true); // Enable drop events
+    setContextMenuPolicy(Qt::DefaultContextMenu); // Process contextMenuEvent
     m_Instance = this;
 
     // Initialize colors
@@ -334,22 +338,33 @@ NodeTree::TreeItem* NodeTree::GetItemAtPosition(const QPoint& pos)
 
 void NodeTree::mousePressEvent(QMouseEvent* event)
 {
+    TreeItem* item = GetItemAtPosition(event->pos());
+
     if (event->button() == Qt::LeftButton) {
-        TreeItem* item = GetItemAtPosition(event->pos());
         // Set up for a potential drag or selection-on-release.
         m_PotentialDragNode = item ? item->node : nullptr;
         m_DragStartPos = event->pos();
 
         // Handle expand/collapse immediately as it doesn't affect selection logic.
         if (item && !item->node->GetNodes().empty()) {
-            int textStartX = item->depth * INDENT_SIZE + ICON_SIZE + 8 + ICON_SIZE + TEXT_MARGIN;
-            if (event->pos().x() < textStartX) {
+            QRect expanderRect(item->depth * INDENT_SIZE, item->y_position, INDENT_SIZE + ICON_SIZE, ITEM_HEIGHT);
+            expanderRect.translate(0, -m_ScrollY);
+            if (expanderRect.contains(event->pos())) {
                 m_NodeOpenStates[item->node] = !m_NodeOpenStates[item->node];
                 BuildTreeItems();
                 UpdateLayout();
                 UpdateScrollBars();
                 update(); // need to redraw after expand/collapse
             }
+        }
+    }
+    else if (event->button() == Qt::RightButton) {
+        // Select the node under the cursor on right-click for context
+        GraphNode* node = item ? item->node : nullptr;
+        if (node != m_SelectedNode) {
+            m_SelectedNode = node;
+            NodeSelected(m_SelectedNode);
+            update();
         }
     }
 
@@ -458,6 +473,119 @@ void NodeTree::resizeEvent(QResizeEvent* event)
     UpdateLayout();
     UpdateScrollBars();
     QWidget::resizeEvent(event);
+}
+
+
+void NodeTree::contextMenuEvent(QContextMenuEvent* event)
+{
+    TreeItem* item = GetItemAtPosition(event->pos());
+    m_ContextMenuNode = item ? item->node : nullptr;
+
+    QMenu contextMenu(this);
+
+    if (m_ContextMenuNode)
+    {
+        // Menu when right-clicking on a node
+        QAction* createAction = contextMenu.addAction("Create New Node");
+        contextMenu.addSeparator();
+        QAction* renameAction = contextMenu.addAction("Rename Node");
+        QAction* deleteAction = contextMenu.addAction("Delete Node");
+
+        connect(createAction, &QAction::triggered, this, &NodeTree::OnCreateNode);
+        connect(renameAction, &QAction::triggered, this, &NodeTree::OnRenameNode);
+        connect(deleteAction, &QAction::triggered, this, &NodeTree::OnDeleteNode);
+
+        // Don't allow deleting or renaming the root node
+        if (m_ContextMenuNode == m_RootNode) {
+            deleteAction->setEnabled(false);
+            renameAction->setEnabled(false);
+        }
+    }
+    else
+    {
+        // Menu when right-clicking on empty space
+        QAction* createAction = contextMenu.addAction("Create New Node");
+        connect(createAction, &QAction::triggered, this, &NodeTree::OnCreateNode);
+    }
+
+    contextMenu.exec(event->globalPos());
+}
+
+void NodeTree::OnCreateNode()
+{
+    bool ok;
+    QString text = QInputDialog::getText(this, "Create Node",
+        "Node name:", QLineEdit::Normal,
+        "New Node", &ok);
+    if (ok && !text.isEmpty())
+    {
+        GraphNode* newNode = new GraphNode();
+        newNode->SetName(text.toStdString());
+
+        // If we right-clicked a node, add the new node as its child.
+        // Otherwise, add it to the root.
+        GraphNode* parentNode = m_ContextMenuNode ? m_ContextMenuNode : m_RootNode;
+
+        if (parentNode)
+        {
+            parentNode->AddNode(newNode);
+            m_NodeOpenStates[parentNode] = true; // Make sure parent is open to show the new node
+
+            BuildTreeItems();
+            UpdateLayout();
+            UpdateScrollBars();
+            emit NodeStructureChanged();
+            update();
+        }
+        else {
+            // Should not happen if a root exists, but as a fallback, clean up.
+            delete newNode;
+        }
+    }
+}
+
+void NodeTree::OnDeleteNode()
+{
+    if (!m_ContextMenuNode || m_ContextMenuNode == m_RootNode) return;
+
+    // Clear selection if the deleted node was selected
+    if (m_SelectedNode == m_ContextMenuNode)
+    {
+        m_SelectedNode = nullptr;
+        NodeSelected(nullptr);
+    }
+
+    RemoveNodeFromParent(m_ContextMenuNode);
+
+    // Assuming the NodeTree is responsible for deleting nodes.
+    // If GraphNode's destructor handles deleting its children, this is safe.
+    // If not, this will leak children of the deleted node.
+    delete m_ContextMenuNode;
+
+    m_ContextMenuNode = nullptr; // Avoid dangling pointer
+
+    BuildTreeItems();
+    UpdateLayout();
+    UpdateScrollBars();
+    emit NodeStructureChanged();
+    update();
+}
+
+void NodeTree::OnRenameNode()
+{
+    if (!m_ContextMenuNode || m_ContextMenuNode == m_RootNode) return;
+
+    bool ok;
+    QString currentName = QString::fromStdString(m_ContextMenuNode->GetName());
+    QString text = QInputDialog::getText(this, "Rename Node",
+        "New name:", QLineEdit::Normal,
+        currentName, &ok);
+
+    if (ok && !text.isEmpty())
+    {
+        m_ContextMenuNode->SetName(text.toStdString());
+        update(); // Just need a redraw, not a full hierarchy rebuild
+    }
 }
 
 

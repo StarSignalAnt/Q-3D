@@ -67,10 +67,10 @@ void SceneGizmo::AlignGizmo() {
 	m_Node->SetPosition(position);
 	if (m_Space == GizmoSpace::Local) {
 
-		m_Node->SetRotation(rotationMatrix*prot);
+ 		m_Node->SetRotation(m_Selected->GetRotation());
 	}
 	else {
-		m_Node->SetRotation(prot);
+		m_Node->SetRotation(glm::mat4(1.0));
 	}
 
 }

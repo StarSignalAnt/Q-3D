@@ -257,7 +257,7 @@ void Content::Browse(const std::string& path)
                 item.thumbnail = loadOrGenerateThumbnail(item.fullPath);
                 item.hasThumbnail = !item.thumbnail.isNull();
             }
-            else if (ext == "py") {
+            else if (ext == "py" || ext == "graph") {
                 item.type = FileType::FT_Script;
             }
 

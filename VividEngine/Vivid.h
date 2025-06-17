@@ -31,10 +31,14 @@
 #include "BasicMath.hpp"
 #include "MonoLib.h"
 #include <functional>
+#include "NodeRegistry.h"
 class RenderTargetCube;
 class RenderTarget2D;
 class MaterialPBR;
 class Physics;
+class NodeRegistry;
+
+
 
 using namespace Diligent;
 
@@ -72,6 +76,10 @@ public:
 			DebugLogCB(message);
 		}
 	}
+	static NodeRegistry& GetNodeRegistry() {
+		return NodeRegistry::GetInstance();
+	}
+	static void RegisterNodeTypes();
 private:
 
 

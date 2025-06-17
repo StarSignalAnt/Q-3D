@@ -2,10 +2,41 @@
 #include "RenderTarget2D.h"
 #include <filesystem>
 #include <iostream>
+#include <cstdlib> // For std::getenv
 
 // Static member definitions
 std::unordered_map<std::string, std::shared_ptr<CachedTexture>> Texture2D::s_textureCache;
 std::mutex Texture2D::s_cacheMutex;
+
+// Helper function to get the application's cache directory path
+// This avoids a dependency on Qt for path resolution.
+std::string GetAppCacheDirectory()
+{
+    std::filesystem::path cachePath;
+#ifdef _WIN32
+    const char* localAppData = std::getenv("LOCALAPPDATA");
+    if (localAppData)
+    {
+        cachePath = localAppData;
+    }
+#else // For Linux, macOS, and other UNIX-like systems
+    const char* home = std::getenv("HOME");
+    if (home)
+    {
+        cachePath = std::filesystem::path(home) / ".cache";
+    }
+#endif
+
+    // Append a directory for our specific application to avoid clutter.
+    // "Vivid" is used here, similar to how Qt would use the application name.
+    if (!cachePath.empty())
+    {
+        cachePath /= "Vivid";
+    }
+
+    return cachePath.string();
+}
+
 
 Texture2D::Texture2D(std::string path)
 {
@@ -124,29 +155,43 @@ void Texture2D::Update(float* data) {
 }
 
 std::string Texture2D::GetBinaryCachePath(const std::string& texturePath) {
-    // Create cache file in the same directory as the original texture
+    // Mimics the behavior of PropertyTexture::getCachePath to use a central cache.
     std::filesystem::path originalPath(texturePath);
-    std::string cacheFilename = originalPath.stem().string() + ".texcache";
+    std::string cacheFileName = originalPath.stem().string() + ".texcache";
 
-    // Return path in same directory as original
-    std::filesystem::path cachePath = originalPath.parent_path() / cacheFilename;
-    return cachePath.string();
+    std::string appCacheDir = GetAppCacheDirectory();
+    if (appCacheDir.empty())
+    {
+        // Fallback to old behavior: save next to the original file.
+        return (originalPath.parent_path() / cacheFileName).string();
+    }
+
+    // Use the same "/textures" subfolder as PropertyTexture.
+    std::filesystem::path cacheDir = std::filesystem::path(appCacheDir) / "textures";
+
+    // Create the directory if it does not exist.
+    if (!std::filesystem::exists(cacheDir))
+    {
+        std::filesystem::create_directories(cacheDir);
+    }
+
+    return (cacheDir / cacheFileName).string();
 }
 
 bool Texture2D::LoadFromBinaryCache(const std::string& path) {
     std::string cachePath = GetBinaryCachePath(path);
 
-    // Check if cache file exists and is newer than original
+    // Check if cache file exists
     if (!std::filesystem::exists(cachePath)) {
         return false;
     }
 
-    // Optional: Check if original file is newer than cache
+    // Check if original file is newer than cache, if the original exists
     if (std::filesystem::exists(path)) {
         auto originalTime = std::filesystem::last_write_time(path);
         auto cacheTime = std::filesystem::last_write_time(cachePath);
         if (originalTime > cacheTime) {
-            return false; // Original is newer, cache is stale
+            return false; // Original is newer, so the cache is stale.
         }
     }
 
@@ -185,8 +230,20 @@ bool Texture2D::LoadFromBinaryCache(const std::string& path) {
         TexDesc.Usage = USAGE_DEFAULT;
         TexDesc.MipLevels = header.mipLevels;
 
-        // Calculate stride based on format
-        int bytesPerPixel = (header.format == TEX_FORMAT_RGBA16_UNORM) ? 8 : 4;
+        // Calculate bytes per pixel based on the stored format
+        int bytesPerPixel;
+        switch (static_cast<TEXTURE_FORMAT>(header.format)) {
+        case TEX_FORMAT_RGBA16_UNORM:
+            bytesPerPixel = 8;
+            break;
+        case TEX_FORMAT_RGBA32_FLOAT:
+            bytesPerPixel = 16;
+            break;
+        default: // Covers RGBA8_UNORM, RGBA8_UNORM_SRGB etc.
+            bytesPerPixel = 4;
+            break;
+        }
+
 
         TextureSubResData adata;
         adata.pData = textureData.data();
@@ -338,4 +395,3 @@ void Texture2D::ClearMemoryCache() {
     std::lock_guard<std::mutex> lock(s_cacheMutex);
     s_textureCache.clear();
 }
-

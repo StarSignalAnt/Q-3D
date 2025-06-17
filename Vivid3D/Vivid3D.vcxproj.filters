@@ -154,6 +154,18 @@
     <ClCompile Include="ConsoleOutput.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="LGNode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SocketWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ConnectionItem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NodeCreationWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="SceneView.h">
@@ -228,6 +240,15 @@
     <QtMoc Include="ConsoleOutput.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="LGNode.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="SocketWidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="NodeCreationWidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="SceneView.ui">
@@ -299,6 +320,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TerrainEditor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ConnectionItem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NodeRegistry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

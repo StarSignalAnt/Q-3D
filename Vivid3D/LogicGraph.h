@@ -1,5 +1,4 @@
 #pragma once
-
 #include <QWidget>
 #include "ui_LogicGraph.h"
 #include <qsplitter.h>
@@ -12,10 +11,14 @@ class LogicGraph : public QWidget
 	Q_OBJECT
 
 public:
-	LogicGraph(QWidget *parent = nullptr);
+	LogicGraph(QWidget* parent = nullptr);
 	~LogicGraph();
-protected:
 
+private slots:
+	// Slots to handle toolbar button clicks
+	void onSaveGraph();
+	void onLoadGraph();
+	void onNewGraph();
 
 private:
 	Ui::LogicGraphClass ui;
@@ -23,4 +26,3 @@ private:
 	LGProperties* m_Properties;
 	LGDesigner* m_Designer;
 };
-

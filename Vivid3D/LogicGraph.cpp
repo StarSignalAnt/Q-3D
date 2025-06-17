@@ -1,48 +1,68 @@
 #include "LogicGraph.h"
 #include <qboxlayout.h>
 #include <qscrollarea.h>
+#include <qpushbutton.h> // Include for QPushButton
 #include "LGProperties.h"
 #include "LGDesigner.h"
-LogicGraph::LogicGraph(QWidget *parent)
-	: QWidget(parent)
+
+LogicGraph::LogicGraph(QWidget* parent)
+    : QWidget(parent)
 {
-	//ui.setupUi(this);
-	setWindowTitle("Vivid3D - LogicGraph");
-	resize(800, 600);
-	m_Splitter = new QSplitter(Qt::Horizontal,this);
-	QHBoxLayout* layout = new QHBoxLayout(this);
-	layout->setContentsMargins(0, 0, 0, 0); // Optional: no margins
-	layout->addWidget(m_Splitter);
+    ui.setupUi(this);
+    setWindowTitle("Vivid3D - LogicGraph");
+    resize(1280, 720);
 
-	m_Properties = new LGProperties(this);
-	m_Designer = new LGDesigner(this);
-	m_Properties->setMinimumWidth(200);
-	m_Designer->setMinimumWidth(400);
-	QScrollArea* scrollArea = new QScrollArea(this);
+    // --- Create Toolbar ---
+    QWidget* toolbar = new QWidget(this);
+    toolbar->setFixedHeight(32);
+    QHBoxLayout* toolbarLayout = new QHBoxLayout(toolbar);
+    toolbarLayout->setContentsMargins(5, 0, 5, 0);
+    toolbarLayout->setSpacing(5);
 
-	// 2. Configure the scroll area.
-	scrollArea->setWidgetResizable(true); // VERY IMPORTANT! Allows the inner widget to be resized.
-	scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff); // We don't want a horizontal scrollbar.
-	scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-	scrollArea->setWidget(m_Designer);
+    QPushButton* newButton = new QPushButton("New");
+    QPushButton* saveButton = new QPushButton("Save");
+    QPushButton* loadButton = new QPushButton("Load");
+    toolbarLayout->addWidget(newButton);
+    toolbarLayout->addWidget(saveButton);
+    toolbarLayout->addWidget(loadButton);
+    toolbarLayout->addStretch();
 
-	m_Splitter->addWidget(m_Properties);
-	m_Splitter->addWidget(scrollArea);
+    // --- Create Main Content ---
+    m_Splitter = new QSplitter(Qt::Horizontal, this);
+    m_Properties = new LGProperties(this);
+    m_Designer = new LGDesigner(this);
+    // ... splitter setup is the same ...
+    m_Splitter->addWidget(m_Properties);
+    m_Splitter->addWidget(m_Designer);
 
-	// Set initial sizes
-	m_Splitter->setStretchFactor(0, 1);  // Properties
-	m_Splitter->setStretchFactor(1, 3); 
-	// Graph area (wider)
-	setLayout(layout); // <<< THIS IS CRUCIAL
+    // --- Main Layout ---
+    // The main layout is now a QVBoxLayout to hold the toolbar and splitter
+    QVBoxLayout* mainLayout = new QVBoxLayout(this);
+    mainLayout->setContentsMargins(0, 0, 0, 0);
+    mainLayout->setSpacing(0);
+    mainLayout->addWidget(toolbar);
+    mainLayout->addWidget(m_Splitter);
+    setLayout(mainLayout);
 
-//	m_Properties->setStyleSheet("background-color: lightgray;");
-//	m_Designer->setStyleSheet("background-color: lightblue;");
-
-	QList<int> sizes;
-	sizes << 250 << 9999;  // 250 for left, "rest" to right
-	m_Splitter->setSizes(sizes);
+    // --- Connect Signals ---
+    connect(newButton, &QPushButton::clicked, this, &LogicGraph::onNewGraph);
+    connect(saveButton, &QPushButton::clicked, this, &LogicGraph::onSaveGraph);
+    connect(loadButton, &QPushButton::clicked, this, &LogicGraph::onLoadGraph);
 }
 
 LogicGraph::~LogicGraph()
-{}
+{
+}
 
+// --- SLOTS ---
+void LogicGraph::onSaveGraph() {
+    if (m_Designer) m_Designer->SaveGraph();
+}
+
+void LogicGraph::onLoadGraph() {
+    if (m_Designer) m_Designer->LoadGraph();
+}
+
+void LogicGraph::onNewGraph() {
+    if (m_Designer) m_Designer->NewGraph();
+}

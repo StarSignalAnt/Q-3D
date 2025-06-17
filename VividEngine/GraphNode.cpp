@@ -811,3 +811,9 @@ GraphNode* GraphNode::FindNode(std::string name) {
 	return nullptr;
 
 }
+
+void GraphNode::RemoveParent() {
+
+	m_RootNode = nullptr;
+
+}

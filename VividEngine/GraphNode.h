@@ -176,6 +176,7 @@ public:
 	}
 	void WriteScripts(VFile* f);
 	void ReadScripts(VFile* f);
+	void RemoveParent();
 	GraphNode* FindNode(std::string name);
 private:
 

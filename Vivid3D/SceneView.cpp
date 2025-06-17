@@ -64,6 +64,7 @@
 #include "NodeTree.h"
 #include "TerrainDepthRenderer.h"
 #include "SharpComponent.h"
+#include "LogicGraphComponent.h"
 
 using namespace Diligent;
 
@@ -112,9 +113,9 @@ SceneView::SceneView(QWidget *parent)
 
 
     //m_Test1 = Importer::ImportEntity("test/test1.gltf");
-    //auto test2 = Importer::ImportEntity("test/test2.gltf");
+    auto test2 = Importer::ImportEntity("test/test2.gltf");
    // m_SceneGraph->AddNode(m_Test1);
-    //m_SceneGraph->AddNode(test2);
+    m_SceneGraph->AddNode(test2);
 
 
     //auto sc = new ScriptComponent;
@@ -146,9 +147,9 @@ SceneView::SceneView(QWidget *parent)
 
     auto lc = new LightComponent;
 
-//	l1->AddComponent(lc);
+	l1->AddComponent(lc);
 
-  //  m_SceneGraph->AddLight(l1);
+    m_SceneGraph->AddLight(l1);
 
     auto l2 = new GraphNode;
     l2->AddComponent(new LightComponent);
@@ -181,18 +182,7 @@ SceneView::SceneView(QWidget *parent)
 
 
     //m_Test1->CreateRB();
-    m_Terrain = new GraphNode;
-
-    auto ter = new TerrainMeshComponent(32, 32, 4, 3);
-    auto ter_ren = new TerrainRendererComponent;
-    m_Terrain->AddComponent(ter);
-    m_Terrain->AddComponent(ter_ren);
-    m_Terrain->AddComponent(new TerrainDepthRenderer);
-
-   // m_SceneGraph->SetTerrain(m_Terrain);
-    m_White = new Texture2D("engine/white.png");
  
-   // m_TerrainEditor = new TerrainEditor(m_Terrain);
 
     NodeTree::m_Instance->SetRoot(m_SceneGraph->GetRootNode());
 
@@ -201,6 +191,10 @@ SceneView::SceneView(QWidget *parent)
  //   auto cm1 = new SharpComponent;
 //	test2->AddComponent(cm1);
 //    cm1->SetScript("TestLib.dll", "Test");
+
+   
+       
+
 
 
 }
@@ -801,6 +795,8 @@ void SceneView::SelectNode(GraphNode* node)
 {
     m_SelectionOverlay->SelectNode(node);
     if (node == nullptr) {
+        
+        PropertiesEditor::m_Instance->SetNode(nullptr);
         return;
     }
     m_SelectedNode = node;
@@ -907,5 +903,27 @@ void SceneView::SetEditLayer(int layer) {
 
     if (m_Terrain == nullptr) return;
     m_TerrainEditor->SetEditLayer(layer);
+
+}
+
+void SceneView::CreateTerrain() {
+
+    m_Terrain = new GraphNode;
+
+    m_Terrain->SetName("TerrainNode");
+
+    auto ter = new TerrainMeshComponent(32, 32, 4, 3);
+    auto ter_ren = new TerrainRendererComponent;
+    m_Terrain->AddComponent(ter);
+    m_Terrain->AddComponent(ter_ren);
+    m_Terrain->AddComponent(new TerrainDepthRenderer);
+
+    // m_SceneGraph->SetTerrain(m_Terrain);
+    m_White = new Texture2D("engine/white.png");
+
+     m_TerrainEditor = new TerrainEditor(m_Terrain);
+     m_SceneGraph->SetTerrain(m_Terrain);
+
+     NodeTree::m_Instance->SetRoot(m_SceneGraph->GetRootNode());
 
 }

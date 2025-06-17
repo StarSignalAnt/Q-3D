@@ -110,9 +110,10 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>C:\git\mono\msvc\include;C:\git\mono\msvc\include\mono;C:\git\mono\mono;C:\git\PhysX\pxshared\include;C:\git\PhysX\physx\include;C:\git\soloud-master\include;C:\Vivid3D\CL;C:\Users\antro\AppData\Local\Programs\Python\Python313\include;C:\Vivid3D\VividEngine\include;C:\git\assimp\include;C:\git\DiligentEngine\DiligentCore;C:\git\DiligentEngine\DiligentFX;C:\git\DiligentEngine\DiligentFX\PostProcess\Common\interface;C:\DiligentEngine\DiligentFX\PostProcess\ScreenSpaceReflection\interface;C:\dev\Vivid3D\VScript;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsTools\interface;C:git\DiligentEngine\DiligentCore;C:\git\DiligentEngine\DiligentTools\TextureLoader\interface;C:\git\DiligentEngine\DiligentTools\TextureLoader\include;C:\Dev\Assimp\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngine\interface;C:\git\DiligentEngine\DiligentCore\Common\interface;C:\git\DiligentEngine\DiligentCore\ThirdParty\SPIRV-Cross\include;C:\git\DiligentEngine\DiligentCore\Platforms\Basic\include;C:\git\DiligentEngine\DiligentCore\Graphics\ShaderTools\include;C:\\git\DiligentEngine\DiligentCore\Graphics\HLSL2GLSLConverterLib\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngineD3D12\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngine\include;C:\git\DiligentEngine\DiligentCore\Common\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\antro\Downloads\json-develop\json-develop\single_include\nlohmann;C:\git\mono\msvc\include;C:\git\mono\msvc\include\mono;C:\git\mono\mono;C:\git\PhysX\pxshared\include;C:\git\PhysX\physx\include;C:\git\soloud-master\include;C:\Vivid3D\CL;C:\Users\antro\AppData\Local\Programs\Python\Python313\include;C:\Vivid3D\VividEngine\include;C:\git\assimp\include;C:\git\DiligentEngine\DiligentCore;C:\git\DiligentEngine\DiligentFX;C:\git\DiligentEngine\DiligentFX\PostProcess\Common\interface;C:\DiligentEngine\DiligentFX\PostProcess\ScreenSpaceReflection\interface;C:\dev\Vivid3D\VScript;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsTools\interface;C:git\DiligentEngine\DiligentCore;C:\git\DiligentEngine\DiligentTools\TextureLoader\interface;C:\git\DiligentEngine\DiligentTools\TextureLoader\include;C:\Dev\Assimp\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngine\interface;C:\git\DiligentEngine\DiligentCore\Common\interface;C:\git\DiligentEngine\DiligentCore\ThirdParty\SPIRV-Cross\include;C:\git\DiligentEngine\DiligentCore\Platforms\Basic\include;C:\git\DiligentEngine\DiligentCore\Graphics\ShaderTools\include;C:\\git\DiligentEngine\DiligentCore\Graphics\HLSL2GLSLConverterLib\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngineD3D12\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngine\include;C:\git\DiligentEngine\DiligentCore\Common\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -157,21 +158,27 @@
     <ClInclude Include="CLBase.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="CubeRenderer.h" />
+    <ClInclude Include="DataType.h" />
     <ClInclude Include="Draw2D.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GameAudio.h" />
     <ClInclude Include="GameInput.h" />
+    <ClInclude Include="GetSceneNode.h" />
     <ClInclude Include="GraphNode.h" />
     <ClInclude Include="Importer.h" />
     <ClInclude Include="Intersections.h" />
+    <ClInclude Include="LEventNode.h" />
     <ClInclude Include="LGDataNode.h" />
     <ClInclude Include="LGInput.h" />
     <ClInclude Include="LGLogicNode.h" />
-    <ClInclude Include="LGNode.h" />
+    <ClInclude Include="LGOutput.h" />
+    <ClInclude Include="LGraph.h" />
+    <ClInclude Include="LNode.h" />
     <ClInclude Include="LGPrintDebug.h" />
     <ClInclude Include="LightComponent.h" />
     <ClInclude Include="LinesRendererComponent.h" />
     <ClInclude Include="LogicDispatcher.h" />
+    <ClInclude Include="LogicGraphComponent.h" />
     <ClInclude Include="MAsm.h" />
     <ClInclude Include="MaterialBasic3D.h" />
     <ClInclude Include="MaterialDepth.h" />
@@ -186,6 +193,14 @@
     <ClInclude Include="MClass.h" />
     <ClInclude Include="MonoHost.h" />
     <ClInclude Include="MonoLib.h" />
+    <ClInclude Include="NodeBoolConstant.h" />
+    <ClInclude Include="NodeExposeGraphNode.h" />
+    <ClInclude Include="NodeIf.h" />
+    <ClInclude Include="NodeKeyDown.h" />
+    <ClInclude Include="NodeRegistry.h" />
+    <ClInclude Include="NodeTestLogic.h" />
+    <ClInclude Include="NodeTurnNode.h" />
+    <ClInclude Include="NodeVec3Constant.h" />
     <ClInclude Include="Pars.h" />
     <ClInclude Include="Physics.h" />
     <ClInclude Include="PixelMap.h" />
@@ -218,6 +233,7 @@
     <ClInclude Include="TerrainRendererComponent.h" />
     <ClInclude Include="Texture2D.h" />
     <ClInclude Include="TextureCube.h" />
+    <ClInclude Include="TickEventNode.h" />
     <ClInclude Include="VFile.h" />
     <ClInclude Include="Vivid.h" />
   </ItemGroup>
@@ -233,17 +249,22 @@
     <ClCompile Include="Draw2D.cpp" />
     <ClCompile Include="GameAudio.cpp" />
     <ClCompile Include="GameInput.cpp" />
+    <ClCompile Include="GetSceneNode.cpp" />
     <ClCompile Include="GraphNode.cpp" />
     <ClCompile Include="Importer.cpp" />
     <ClCompile Include="Intersections.cpp" />
+    <ClCompile Include="LEventNode.cpp" />
     <ClCompile Include="LGDataNode.cpp" />
     <ClCompile Include="LGInput.cpp" />
     <ClCompile Include="LGLogicNode.cpp" />
-    <ClCompile Include="LGNode.cpp" />
+    <ClCompile Include="LGOutput.cpp" />
+    <ClCompile Include="LGraph.cpp" />
+    <ClCompile Include="LNode.cpp" />
     <ClCompile Include="LGPrintDebug.cpp" />
     <ClCompile Include="LightComponent.cpp" />
     <ClCompile Include="LinesRendererComponent.cpp" />
     <ClCompile Include="LogicDispatcher.cpp" />
+    <ClCompile Include="LogicGraphComponent.cpp" />
     <ClCompile Include="MAsm.cpp" />
     <ClCompile Include="MaterialBasic3D.cpp" />
     <ClCompile Include="MaterialDepth.cpp" />
@@ -258,6 +279,14 @@
     <ClCompile Include="MClass.cpp" />
     <ClCompile Include="MonoHost.cpp" />
     <ClCompile Include="MonoLib.cpp" />
+    <ClCompile Include="NodeBoolConstant.cpp" />
+    <ClCompile Include="NodeExposeGraphNode.cpp" />
+    <ClCompile Include="NodeIf.cpp" />
+    <ClCompile Include="NodeKeyDown.cpp" />
+    <ClCompile Include="NodeRegistry.cpp" />
+    <ClCompile Include="NodeTestLogic.cpp" />
+    <ClCompile Include="NodeTurnNode.cpp" />
+    <ClCompile Include="NodeVec3Constant.cpp" />
     <ClCompile Include="Pars.cpp" />
     <ClCompile Include="Physics.cpp" />
     <ClCompile Include="PixelMap.cpp" />
@@ -315,6 +344,7 @@
     <ClCompile Include="TerrainRendererComponent.cpp" />
     <ClCompile Include="Texture2D.cpp" />
     <ClCompile Include="TextureCube.cpp" />
+    <ClCompile Include="TickEventNode.cpp" />
     <ClCompile Include="VFile.cpp" />
     <ClCompile Include="Vivid.cpp" />
     <ClCompile Include="VividEngine.cpp" />

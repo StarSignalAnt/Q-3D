@@ -143,6 +143,12 @@ public:
 		m_BrushMode = mode;
 		//	m_TerrainEditor->SetBrushMode(mode);
 	}
+
+	void CreateTerrain();
+	bool HasTerrain() {
+		return m_Terrain != nullptr;
+	}
+
 protected:
 	void dragEnterEvent(QDragEnterEvent* event) override;
 	void dropEvent(QDropEvent* event) override;
