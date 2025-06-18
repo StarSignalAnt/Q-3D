@@ -15,12 +15,21 @@ public:
     // Public methods to set the start and end sockets
     void setStartSocket(SocketWidget* socket);
     void setEndSocket(SocketWidget* socket);
-
+    SocketWidget* getStartSocket() {
+        return m_startSocket;
+    }
+    SocketWidget* getEndSocket() {
+        return m_endSocket;
+    }
     // Public method to update the floating end point during a mouse drag
     void updateEndPos(const QPointF& pos);
 
     // Recalculates the curve based on the current state of the sockets/end position
     void updatePath();
+
+protected:
+
+    void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget = nullptr) override;
 
 private:
     void initialize(); // Common setup logic

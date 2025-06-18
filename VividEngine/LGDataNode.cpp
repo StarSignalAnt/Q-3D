@@ -5,7 +5,7 @@ LGDataNode::LGDataNode() {
     m_hasExecOut = false;
 }
 
-void LGDataNode::Exec()
+void LGDataNode::CalculateOutputs()
 {
     // This function ensures the output value is always current with the input's default value.
     // This implementation assumes a 1-to-1 mapping of inputs to outputs for data nodes.

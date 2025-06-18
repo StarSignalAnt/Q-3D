@@ -13,6 +13,42 @@ QVariant LGNode::itemChange(GraphicsItemChange change, const QVariant& value) {
                 conn->updatePath();
             }
         }
+        if (m_logicNode) {
+            const QPointF newPos = value.toPointF();
+            m_logicNode->SetEditorPosition({ (float)newPos.x(), (float)newPos.y() });
+        }
+        QList<LGNode*> allNodesInScene;
+        for (QGraphicsItem* item : scene()->items()) {
+            if (auto* node = qgraphicsitem_cast<LGNode*>(item)) {
+                allNodesInScene.append(node);
+            }
+        }
+
+        // Now, build a set of just the nodes that are overlapping another node.
+        QSet<LGNode*> nodesInCollision;
+        for (LGNode* node : allNodesInScene) {
+            // Get all items this node is colliding with.
+            const QList<QGraphicsItem*> collisions = node->collidingItems();
+            for (QGraphicsItem* collidingItem : collisions) {
+                // If the collision is with another LGNode, add both to the set.
+                if (LGNode* otherNode = qgraphicsitem_cast<LGNode*>(collidingItem)) {
+                    nodesInCollision.insert(node);
+                    nodesInCollision.insert(otherNode);
+                }
+            }
+        }
+
+        // Pass 2: Update the opacity of ALL nodes based on the collision set.
+        for (LGNode* node : allNodesInScene) {
+            // If a node is in our set of colliding nodes, make it transparent.
+            if (nodesInCollision.contains(node)) {
+                node->setOpacity(0.5);
+            }
+            else {
+                // Otherwise, ensure it is fully opaque.
+                node->setOpacity(1.0);
+            }
+        }
     }
     return QGraphicsItem::itemChange(change, value);
 }

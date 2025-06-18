@@ -11,6 +11,7 @@ LGInput::LGInput(LNode* parent, int portIndex, std::string name, DataType type)
     case DataType::Vec2:   m_defaultValue = glm::vec2(0.0f);   break;
     case DataType::Vec3:   m_defaultValue = glm::vec3(0.0f);   break;
     case DataType::Vec4:   m_defaultValue = glm::vec4(0.0f);   break;
+    case DataType::Mat4:   m_defaultValue = glm::mat4(1.0f);   break;
         // Other types can be added here as needed.
     default:               m_defaultValue = 0;                break;
     }

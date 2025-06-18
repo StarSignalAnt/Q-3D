@@ -146,3 +146,38 @@ LGraph* LGraph::LoadFromFile(const std::string& filepath, NodeRegistry& registry
 
     return graph;
 }
+
+
+void LGraph::RemoveNode(LNode* nodeToRemove)
+{
+    if (!nodeToRemove) return;
+
+    // --- Disconnect all other nodes that point TO this node ---
+    for (LNode* node : m_nodes) {
+        // Disconnect execution pins
+        for (auto& execPin : node->GetExecOutputs()) {
+            if (execPin->nextNode == nodeToRemove) {
+                execPin->nextNode = nullptr;
+            }
+        }
+        // Disconnect data pins
+        for (LGInput* input : node->GetInputs()) {
+            if (input->isConnected() && input->GetConnection()->getParentNode() == nodeToRemove) {
+                input->setConnection(nullptr);
+            }
+        }
+    }
+
+    // --- Remove the node from the graph's lists ---
+
+    // Erase from the main nodes vector
+    m_nodes.erase(std::remove(m_nodes.begin(), m_nodes.end(), nodeToRemove), m_nodes.end());
+
+    // Erase from the event nodes vector if it's an event node
+    if (nodeToRemove->GetCategory() == "Events") {
+        m_eventNodes.erase(std::remove(m_eventNodes.begin(), m_eventNodes.end(), static_cast<LEventNode*>(nodeToRemove)), m_eventNodes.end());
+    }
+
+    // --- Finally, delete the logical node object ---
+    delete nodeToRemove;
+}

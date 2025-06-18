@@ -159,17 +159,74 @@ void LGDesigner::LoadGraph() {
 }
 
 void LGDesigner::keyPressEvent(QKeyEvent* event) {
+
+    // Check if the Delete or Backspace key was pressed
+    if (event->key() == Qt::Key_Delete || event->key() == Qt::Key_Backspace) {
+
+        // Get all selected items from the scene, but make a copy of the list.
+        // This is important because we will be modifying the scene, which can invalidate the original list.
+      
+
+        const QList<QGraphicsItem*> selectedItems = scene->selectedItems();
+        if (selectedItems.isEmpty()) {
+            return;
+        }
+
+        // 2. Sort the selected items into two separate, safe lists.
+        QList<ConnectionItem*> connectionsToDelete;
+        QList<LGNode*> nodesToDelete;
+
+        for (QGraphicsItem* item : selectedItems) {
+            if (auto* conn = qgraphicsitem_cast<ConnectionItem*>(item)) {
+                connectionsToDelete.append(conn);
+            }
+            else if (auto* node = qgraphicsitem_cast<LGNode*>(item)) {
+                nodesToDelete.append(node);
+            }
+        }
+
+        // 3. Process the connection deletions first. This doesn't require a full UI rebuild.
+        for (ConnectionItem* conn : connectionsToDelete) {
+            DeleteConnection(conn);
+        }
+
+        // 4. Process the node deletions.
+        if (!nodesToDelete.isEmpty()) {
+            // First, update all logical node positions to ensure they don't jump.
+            for (QGraphicsItem* item : scene->items()) {
+                if (auto* visualNode = qgraphicsitem_cast<LGNode*>(item)) {
+                    if (LNode* logicNode = visualNode->getLogicNode()) {
+                        logicNode->SetEditorPosition(glm::vec2(visualNode->pos().x(), visualNode->pos().y()));
+                    }
+                }
+            }
+
+            // Now, delete the logical nodes.
+            for (LGNode* visualNode : nodesToDelete) {
+                m_graph->RemoveNode(visualNode->getLogicNode());
+            }
+
+            // Finally, perform a single, safe rebuild of the entire visual graph.
+            RebuildVisualsFromGraph();
+        }
+
+        // The event has been handled.
+        return;
+    }
+
+    // Handle the spacebar for node creation (your existing logic)
     QPoint viewPos = mapFromGlobal(QCursor::pos());
     if (event->key() == Qt::Key_Space && itemAt(viewPos) == nullptr) {
         m_nodeCreationPos = mapToScene(viewPos);
-        NodeCreationWidget* widget = new NodeCreationWidget(Vivid::GetNodeRegistry(),this);
+        NodeCreationWidget* widget = new NodeCreationWidget(Vivid::GetNodeRegistry(), this);
         connect(widget, &NodeCreationWidget::nodeSelected, this, &LGDesigner::onCreateNode);
         widget->move(QCursor::pos());
         widget->show();
+        return;
     }
-    else {
-        QGraphicsView::keyPressEvent(event);
-    }
+
+    // If it was any other key, pass it to the base class.
+    QGraphicsView::keyPressEvent(event);
 }
 
 void LGDesigner::onCreateNode(const std::string& nodeName) {
@@ -359,4 +416,36 @@ void LGDesigner::dragMoveEvent(QDragMoveEvent* event)
     // --- END FINAL FIX ---
 
     event->ignore();
+}
+
+void LGDesigner::DeleteConnection(ConnectionItem* conn)
+{
+    if (!conn) return;
+
+    SocketWidget* startSocket = conn->getStartSocket();
+    SocketWidget* endSocket = conn->getEndSocket();
+
+    // 1. Logically disconnect the data pins.
+    if (startSocket && endSocket && startSocket->getType() == SocketWidget::SocketType::Data) {
+        SocketWidget* inSocket = (startSocket->getDirection() == SocketWidget::SocketDirection::In) ? startSocket : endSocket;
+        SocketWidget* outSocket = (startSocket->getDirection() == SocketWidget::SocketDirection::In) ? endSocket : startSocket;
+
+        if (inSocket->getParentNode() && outSocket->getParentNode()) {
+            LGInput* logicalInput = inSocket->getParentNode()->GetInputs()[inSocket->getPortIndex()];
+            LGOutput* logicalOutput = outSocket->getParentNode()->GetOutputs()[outSocket->getPortIndex()];
+
+            if (logicalInput && logicalOutput) {
+                logicalInput->setConnection(nullptr);
+                logicalOutput->removeConnection(logicalInput);
+            }
+        }
+    }
+
+    // 2. Visually disconnect from sockets.
+    if (startSocket) startSocket->removeConnection(conn);
+    if (endSocket) endSocket->removeConnection(conn);
+
+    // 3. Delete the connection item itself.
+    scene->removeItem(conn);
+    delete conn;
 }

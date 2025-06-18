@@ -306,7 +306,7 @@ void calculateLightProperties(float3 worldPos, out float3 lightDir, out float at
     {
         lightDir = normalize(g_LightPosition.xyz - worldPos);
         attenuation = calculateAttenuation(g_LightPosition.xyz, worldPos, g_LightRange.x);
-        shadowValue = light_GetShadowCascadedPCF(worldPos, g_LightPosition.xyz, g_LightRange.x);
+        shadowValue = light_GetShadowPCF(worldPos, g_LightPosition.xyz, g_LightRange.x);
     }
     else if (lightType == 1) // Directional light
     {
@@ -329,14 +329,14 @@ void calculateLightProperties(float3 worldPos, out float3 lightDir, out float at
                                                         g_SpotLightCone.x, g_SpotLightCone.y);
         
         attenuation = distanceAttenuation * spotAttenuation;
-        shadowValue = light_GetShadowCascadedPCF(worldPos, g_LightPosition.xyz, g_LightRange.x);
+        shadowValue = light_GetShadowPCF(worldPos, g_LightPosition.xyz, g_LightRange.x);
     }
     else
     {
         // Default to point light
         lightDir = normalize(g_LightPosition.xyz - worldPos);
         attenuation = calculateAttenuation(g_LightPosition.xyz, worldPos, g_LightRange.x);
-        shadowValue =light_GetShadowCascadedPCF(worldPos, g_LightPosition.xyz, g_LightRange.x);
+        shadowValue = light_GetShadowPCF(worldPos, g_LightPosition.xyz, g_LightRange.x);
     }
 }
 

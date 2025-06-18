@@ -38,7 +38,7 @@ private slots:
 
 private:
     void RebuildVisualsFromGraph();
-
+    void DeleteConnection(ConnectionItem* conn);
     QGraphicsScene* scene;
     LGraph* m_graph;
 

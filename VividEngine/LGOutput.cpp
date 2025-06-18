@@ -9,3 +9,7 @@ LGOutput::LGOutput(LNode* parent, int portIndex, std::string name, DataType type
 void LGOutput::addConnection(LGInput* input) {
 	m_connections.push_back(input);
 }
+
+void LGOutput::removeConnection(LGInput* input) {
+	m_connections.erase(std::remove(m_connections.begin(), m_connections.end(), input), m_connections.end());
+}

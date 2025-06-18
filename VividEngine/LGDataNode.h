@@ -6,5 +6,5 @@ class LGDataNode : public LNode
 {
 public:
     LGDataNode();
-    void Exec() override;
+    void CalculateOutputs() override;
 };

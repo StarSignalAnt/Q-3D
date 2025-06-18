@@ -29,8 +29,8 @@ public:
 	// --- Connection Methods ---
 	void addConnection(LGInput* input);
 	const std::vector<LGInput*>& getConnections() const { return m_connections; }
-	using ValueVariant = std::variant<int, float, bool, std::string, glm::vec2, glm::vec3, glm::vec4, GraphNode*>;
-
+	using ValueVariant = std::variant<int, float, bool, std::string, glm::vec2, glm::vec3, glm::vec4,glm::mat4, GraphNode*>;
+	void removeConnection(LGInput* input); //
 	template<typename T>
 	void SetValue(T value) {
 		m_value = value;

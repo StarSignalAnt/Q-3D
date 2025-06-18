@@ -14,6 +14,7 @@ public:
     ~LGraph();
 
     void AddNode(LNode* node);
+    void RemoveNode(LNode* nodeToRemove); // <-- ADD THIS
     const std::vector<LNode*>& GetNodes() const;
 
     // Fires an event in the graph by its name (e.g., "On Tick").

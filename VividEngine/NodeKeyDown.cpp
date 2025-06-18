@@ -10,7 +10,7 @@ NodeKeyDown::NodeKeyDown() {
 
 }
 
-void NodeKeyDown::Exec()
+void NodeKeyDown::CalculateOutputs()
 {
     // 1. Get the string value from our "Key" input pin.
     // This value could be set by the user in the UI or by another node.

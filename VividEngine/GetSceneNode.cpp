@@ -28,7 +28,7 @@
         AddOutput("Node", DataType::GraphNodeRef);
     }
 
-    void GetSceneNode::Exec() {
+    void GetSceneNode::CalculateOutputs() {
         // This is called automatically when another node requests our output.
 
         // 1. Get the string name from our input pin's default value.

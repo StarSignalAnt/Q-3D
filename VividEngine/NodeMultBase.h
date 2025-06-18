@@ -2,12 +2,12 @@
 #include "LGDataNode.h"
 
 template<typename T>
-class NodeAddBase :
-    public LGDataNode
+class NodeMultBase : public LGDataNode
 {
 public:
 
-    NodeAddBase(DataType type, const std::string& nodeName, const std::string& typeName) {
+
+    NodeMultBase(DataType type, const std::string& nodeName, const std::string& typeName) {
         SetName(nodeName);
         SetTypeName(typeName);
 
@@ -23,15 +23,13 @@ public:
         T valB = GetInputValue<T>("B").value_or(T{});
 
         // The '+' operator works automatically for int, float, and glm vectors.
-        T result = valA + valB;
+        T result = valA * valB;
 
         // Set the result on our output pin.
         m_Outputs[0]->SetValue(result);
 
-      
-    }
 
-private:
+    }
 
 };
 

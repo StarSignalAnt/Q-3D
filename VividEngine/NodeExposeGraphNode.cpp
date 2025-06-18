@@ -9,14 +9,16 @@ NodeExposeGraphNode::NodeExposeGraphNode() {
     
     AddOutput("Name", DataType::String);
     AddOutput("Position", DataType::Vec3);
+    AddOutput("Rotation", DataType::Mat4);
     AddOutput("Scale", DataType::Vec3);
+
 
 
 
 
 }
 
-void NodeExposeGraphNode::Exec()  {
+void NodeExposeGraphNode::CalculateOutputs()  {
 
     auto gr = GetInputValue<GraphNode*>("Node").value();
 
@@ -34,7 +36,10 @@ void NodeExposeGraphNode::Exec()  {
     // Set the result on our output pin.
     m_Outputs[0]->SetValue(gr->GetName());
     m_Outputs[1]->SetValue(gr->GetPosition());
-    m_Outputs[2]->SetValue(gr->GetScale());
+    m_Outputs[2]->SetValue(gr->GetRotation());
+    m_Outputs[3]->SetValue(gr->GetScale());
+
+
 
 
 

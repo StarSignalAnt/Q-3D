@@ -196,8 +196,16 @@ public:
                         }
                         editableWidget = vecWidget;
                         break;
+
+
                     }
-                                       // (Add cases for Vec2 and Vec4 here if needed)
+                    case DataType::Mat4: {
+                        // For complex types like a matrix, we don't provide an editable
+                        // widget. It must be connected to another node's output.
+                        // By leaving editableWidget as nullptr, the layout will just add a stretch.
+                        editableWidget = nullptr;
+                        // (Add cases for Vec2 and Vec4 here if needed)
+                    }
                     default:
                         break;
                     }

@@ -147,6 +147,7 @@
     <ClCompile Include="MainToolBar.cpp" />
     <ClCompile Include="NodeCreationWidget.cpp" />
     <ClCompile Include="NodeTree.cpp" />
+    <ClCompile Include="Pathfinder.cpp" />
     <ClCompile Include="PropertyButton.cpp" />
     <ClCompile Include="PropertiesEditor.cpp" />
     <ClCompile Include="PropertyFloat.cpp" />
@@ -215,6 +216,7 @@
     <ClInclude Include="ConnectionItem.h" />
     <QtMoc Include="NodeCreationWidget.h" />
     <ClInclude Include="NodeRegistry.h" />
+    <ClInclude Include="Pathfinder.h" />
     <ClInclude Include="RotateGizmo.h" />
     <ClInclude Include="ScaleGizmo.h" />
     <ClInclude Include="SceneGizmo.h" />

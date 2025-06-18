@@ -35,7 +35,7 @@ public:
     void SetDefaultValue(T value) {
         m_defaultValue = value;
     }
-    using ValueVariant = std::variant<int, float, bool, std::string, glm::vec2, glm::vec3, glm::vec4, GraphNode*>;
+    using ValueVariant = std::variant<int, float, bool, std::string, glm::vec2, glm::vec3, glm::vec4,glm::mat4, GraphNode*>;
 
  
 

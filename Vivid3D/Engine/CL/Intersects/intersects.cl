@@ -19,7 +19,7 @@ struct RayResult rayTri(float3 point1, float3 point2, float3 v0, float3 v1, floa
     edge2 = v2 - v0;
     h = cross(rayDir, edge2);
     a = dot(edge1, h);
-    if (a > -EPSILON && a < EPSILON)
+   if (a < EPSILON)
         return result;
 
     f = 1.0f / a;

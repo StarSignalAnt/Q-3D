@@ -21,7 +21,10 @@
 #include "NodeAddVec3.h"
 #include "NodeExposeGraphNode.h"
 #include "NodeSetPositionNode.h"
-
+#include "NodeCreateRotationMatrix.h"
+#include "NodeMultMat4.h"
+#include "NodeSetRotationNode.h"
+#include "NodeSceneRayCast.h"
 namespace py = pybind11;
 RefCntAutoPtr<IRenderDevice>  Vivid::m_pDevice;
 RefCntAutoPtr<IDeviceContext> Vivid::m_pImmediateContext;
@@ -263,4 +266,8 @@ void Vivid::RegisterNodeTypes() {
 	registry.RegisterNode<NodeAddVec3>("Add(Vec3)");
 	registry.RegisterNode<NodeExposeGraphNode>("Expose Node");
 	registry.RegisterNode<NodeSetPositionNode>("Set Position GraphNode");
+	registry.RegisterNode<NodeCreateRotationMatrix>("Create Rotation Matrix");
+	registry.RegisterNode<NodeMultMat4>("Mult (mat4)");
+	registry.RegisterNode<NodeSetRotationNode>("Set Rotation GraphNode");
+	registry.RegisterNode<NodeSceneRayCast>("Scene Raycast");
 }

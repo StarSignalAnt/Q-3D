@@ -4,6 +4,19 @@
 #include "GraphNode.h"
 
 namespace glm {
+    void to_json(json& j, const glm::mat4& m) {
+        j = {
+            m[0][0], m[0][1], m[0][2], m[0][3],
+            m[1][0], m[1][1], m[1][2], m[1][3],
+            m[2][0], m[2][1], m[2][2], m[2][3],
+            m[3][0], m[3][1], m[3][2], m[3][3]
+        };
+    }
+    void from_json(const json& j, glm::mat4& m) {
+        for (int i = 0; i < 4; ++i)
+            for (int k = 0; k < 4; ++k)
+                j.at(i * 4 + k).get_to(m[i][k]);
+    }
 	void to_json(json& j, const glm::vec2& v) {
 		j = { v.x, v.y };
 	}
@@ -119,7 +132,8 @@ void LNode::FromJson(const json& j) {
                 case 4: input->SetDefaultValue(LGInput::ValueVariant{ input_json.at("value").get<glm::vec2>() }); break; // Old index 3
                 case 5: input->SetDefaultValue(LGInput::ValueVariant{ input_json.at("value").get<glm::vec3>() }); break; // Old index 4
                 case 6: input->SetDefaultValue(LGInput::ValueVariant{ input_json.at("value").get<glm::vec4>() }); break; // Old index 5
-                case 7: input->SetDefaultValue(LGInput::ValueVariant{ input_json.at("value").get<std::string>() }); break; // Old index 6 (for GraphNodeRef)
+                case 7: input->SetDefaultValue(LGInput::ValueVariant{ input_json.at("value").get<glm::mat4>() }); break;
+                case 8: input->SetDefaultValue(LGInput::ValueVariant{ input_json.at("value").get<std::string>() }); break; // Old index 6 (for GraphNodeRef)
                 }
             }
         }

@@ -13,7 +13,7 @@ public:
     enum class SocketType { Exec, Data };
 
     SocketWidget(LNode* parentNode, SocketDirection dir, SocketType type, int portIndex, QWidget* parent = nullptr);
-
+    void removeConnection(ConnectionItem* conn) { m_connections.removeAll(conn); } // <-- ADD THIS
     void addConnection(ConnectionItem* conn) { m_connections.append(conn); }
     const QList<ConnectionItem*>& getConnections() const { return m_connections; }
 

@@ -36,9 +36,6 @@
     <Filter Include="CL">
       <UniqueIdentifier>{fe0fdcf0-c245-4656-9392-ffdf61cf56a0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Script">
-      <UniqueIdentifier>{89972f5b-f012-4091-b7ab-e3ff7b32ffc6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="PP">
       <UniqueIdentifier>{95e0f6ca-1af5-4b5f-917e-97ac23e8752d}</UniqueIdentifier>
     </Filter>
@@ -78,6 +75,9 @@
     </Filter>
     <Filter Include="LogicGraph\Nodes\Data">
       <UniqueIdentifier>{eb485a50-1488-4f25-b1f9-522e2172ef2a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Script">
+      <UniqueIdentifier>{89972f5b-f012-4091-b7ab-e3ff7b32ffc6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -349,6 +349,21 @@
       <Filter>LogicGraph\Nodes\Data</Filter>
     </ClInclude>
     <ClInclude Include="NodeSetPositionNode.h">
+      <Filter>LogicGraph\Nodes\Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="NodeCreateRotationMatrix.h">
+      <Filter>LogicGraph\Nodes\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="NodeMultBase.h">
+      <Filter>LogicGraph\Nodes\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="NodeMultMat4.h">
+      <Filter>LogicGraph\Nodes\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="NodeSetRotationNode.h">
+      <Filter>LogicGraph\Nodes\Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="NodeSceneRayCast.h">
       <Filter>LogicGraph\Nodes\Logic</Filter>
     </ClInclude>
   </ItemGroup>
@@ -678,6 +693,21 @@
       <Filter>LogicGraph\Nodes\Data</Filter>
     </ClCompile>
     <ClCompile Include="NodeSetPositionNode.cpp">
+      <Filter>LogicGraph\Nodes\Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="NodeCreateRotationMatrix.cpp">
+      <Filter>LogicGraph\Nodes\Data</Filter>
+    </ClCompile>
+    <ClCompile Include="NodeMultBase.cpp">
+      <Filter>LogicGraph\Nodes\Data</Filter>
+    </ClCompile>
+    <ClCompile Include="NodeMultMat4.cpp">
+      <Filter>LogicGraph\Nodes\Data</Filter>
+    </ClCompile>
+    <ClCompile Include="NodeSetRotationNode.cpp">
+      <Filter>LogicGraph\Nodes\Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="NodeSceneRayCast.cpp">
       <Filter>LogicGraph\Nodes\Logic</Filter>
     </ClCompile>
   </ItemGroup>

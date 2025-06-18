@@ -59,8 +59,8 @@ struct SubMesh {
 
 
             glm::vec3 v0 = glm::vec3(world * glm::vec4(m_Vertices[t.v0].position, 1.0f));
-            glm::vec3 v1 = glm::vec3(world * glm::vec4(m_Vertices[t.v1].position, 1.0f));
-            glm::vec3 v2 = glm::vec3(world * glm::vec4(m_Vertices[t.v2].position, 1.0f));
+            glm::vec3 v1 = glm::vec3(world * glm::vec4(m_Vertices[t.v2].position, 1.0f));
+            glm::vec3 v2 = glm::vec3(world * glm::vec4(m_Vertices[t.v1].position, 1.0f));
 
             //	m_Build.push_back(v0);
             //	m_Build.push_back(v1);

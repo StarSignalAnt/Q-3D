@@ -7,7 +7,7 @@ public:
 
     NodeKeyDown();
     std::string GetCategory() const override { return "Input"; }
-    void Exec() override;
+    void CalculateOutputs() override;
 private:
 
 };

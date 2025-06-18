@@ -9,7 +9,7 @@ public:
     std::string GetCategory() const override { return "Scene"; }
 
     // Overriding Exec to implement the logic of finding the node.
-    void Exec() override;
+    void CalculateOutputs() override;
 
 private:
 };

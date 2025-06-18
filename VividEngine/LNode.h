@@ -52,7 +52,7 @@ public:
     virtual std::string GetCategory() const { return "Miscellaneous"; }
     const std::vector<LGInput*>& GetInputs() const { return m_Inputs; }
     const std::vector<LGOutput*>& GetOutputs() const { return m_Outputs; }
-
+    virtual void CalculateOutputs() {}
 protected:
     std::string m_Name;
     std::string m_typeName;
@@ -81,7 +81,11 @@ std::optional<T> LNode::GetInputValue(const std::string& name) {
     if (input->isConnected()) {
         LGOutput* sourceOutput = input->GetConnection();
         LNode* sourceNode = sourceOutput->getParentNode();
-        if (sourceNode) sourceNode->Exec();
+        if (sourceNode) {
+            // --- THIS IS THE KEY CHANGE ---
+            // We no longer call Exec(), we call CalculateOutputs() to prevent recursion.
+            sourceNode->CalculateOutputs();
+        }
         if (const T* pval = std::get_if<T>(&sourceOutput->GetValue())) return *pval;
     }
     else {
@@ -89,3 +93,4 @@ std::optional<T> LNode::GetInputValue(const std::string& name) {
     }
     return std::nullopt;
 }
+// ... (rest of LNode.h is unchanged)

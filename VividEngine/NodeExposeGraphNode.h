@@ -9,7 +9,7 @@ public:
 
 	NodeExposeGraphNode();
     
-    void Exec() override;
+    void CalculateOutputs() override;
 
     
 };
