@@ -58,9 +58,8 @@ public:
         : QFrame(parent)
     {
         // --- Basic Node Styling ---
-        setFrameStyle(QFrame::Panel | QFrame::Raised);
-        setStyleSheet("background-color: #383838; color: white; border-radius: 8px;");
-
+        setFrameStyle(QFrame::NoFrame);
+        setStyleSheet("background: transparent; color: white; border-radius: 8px;");
         QVBoxLayout* rootLayout = new QVBoxLayout(this);
         rootLayout->setContentsMargins(8, 8, 8, 8);
         rootLayout->setSpacing(5);
@@ -269,4 +268,9 @@ public:
         return m_widgetToInputMap;
     }
     QMap<QWidget*, LGInput*> m_widgetToInputMap;
+
+    protected:
+        // Declare that we are overriding the base class's paintEvent.
+        void paintEvent(QPaintEvent* event) override;
+
 };

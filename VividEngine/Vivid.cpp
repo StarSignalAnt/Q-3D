@@ -17,6 +17,10 @@
 #include "NodeBoolConstant.h"
 #include "NodeIf.h"
 #include "NodeKeyDown.h"
+#include "NodeAddFloat.h"
+#include "NodeAddVec3.h"
+#include "NodeExposeGraphNode.h"
+#include "NodeSetPositionNode.h"
 
 namespace py = pybind11;
 RefCntAutoPtr<IRenderDevice>  Vivid::m_pDevice;
@@ -255,4 +259,8 @@ void Vivid::RegisterNodeTypes() {
 	registry.RegisterNode<NodeBoolConstant>("Bool Constant");
 	registry.RegisterNode<NodeIf>("If");
 	registry.RegisterNode<NodeKeyDown>("Input.KeyDown");
+	registry.RegisterNode<NodeAddFloat>("Add(Float)");
+	registry.RegisterNode<NodeAddVec3>("Add(Vec3)");
+	registry.RegisterNode<NodeExposeGraphNode>("Expose Node");
+	registry.RegisterNode<NodeSetPositionNode>("Set Position GraphNode");
 }

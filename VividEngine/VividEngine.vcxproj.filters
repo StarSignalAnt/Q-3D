@@ -339,6 +339,18 @@
     <ClInclude Include="NodeKeyDown.h">
       <Filter>LogicGraph\Nodes\Data</Filter>
     </ClInclude>
+    <ClInclude Include="NodeAddBase.h">
+      <Filter>LogicGraph\Nodes\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="NodeAddFloat.h">
+      <Filter>LogicGraph\Nodes\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="NodeAddVec3.h">
+      <Filter>LogicGraph\Nodes\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="NodeSetPositionNode.h">
+      <Filter>LogicGraph\Nodes\Logic</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="VividEngine.cpp">
@@ -655,6 +667,18 @@
     </ClCompile>
     <ClCompile Include="NodeKeyDown.cpp">
       <Filter>LogicGraph\Nodes\Data</Filter>
+    </ClCompile>
+    <ClCompile Include="NodeAddBase.cpp">
+      <Filter>LogicGraph\Nodes\Data</Filter>
+    </ClCompile>
+    <ClCompile Include="NodeAddFloat.cpp">
+      <Filter>LogicGraph\Nodes\Data</Filter>
+    </ClCompile>
+    <ClCompile Include="NodeAddVec3.cpp">
+      <Filter>LogicGraph\Nodes\Data</Filter>
+    </ClCompile>
+    <ClCompile Include="NodeSetPositionNode.cpp">
+      <Filter>LogicGraph\Nodes\Logic</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

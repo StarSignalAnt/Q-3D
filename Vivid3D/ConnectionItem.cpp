@@ -9,7 +9,7 @@ void ConnectionItem::initialize() {
     m_startSocket = nullptr;
     m_endSocket = nullptr;
     m_color = Qt::black;
-    setZValue(2); // Draw connections behind nodes
+    setZValue(-1); // Draw connections behind nodes
     setPen(QPen(m_color, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
 }
 
