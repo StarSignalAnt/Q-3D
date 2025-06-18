@@ -6,7 +6,9 @@
 #include <QDragMoveEvent>  // For handling when a drag moves over the widget
 #include <QDropEvent>      // For handling the final drop action
 #include <QMimeData>       // For reading the data package being dragged
+#include "LNode.h" 
 // Forward declarations
+
 class ConnectionItem;
 class SocketWidget;
 class LGraph;
@@ -24,7 +26,13 @@ public:
     void NewGraph();
     void SaveGraph();
     void LoadGraph();
-
+    LGraph* GetGraph() {
+        return m_graph;
+    }
+signals:
+    // This signal will be emitted whenever a node is selected or deselected.
+    // It passes a pointer to the logical node, or nullptr if nothing is selected.
+    void nodeSelected(LNode* node);
 protected:
     void mousePressEvent(QMouseEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
@@ -35,6 +43,9 @@ protected:
     void dropEvent(QDropEvent* event) override;
 private slots:
     void onCreateNode(const std::string& nodeName);
+    void wheelEvent(QWheelEvent* event) override;
+    void onSceneSelectionChanged();
+
 
 private:
     void RebuildVisualsFromGraph();

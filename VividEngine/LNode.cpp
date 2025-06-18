@@ -2,48 +2,9 @@
 #include <iostream>
 #include "json.hpp" 
 #include "GraphNode.h"
+#include "JsonGlm.h"
+#include "LGraph.h"
 
-namespace glm {
-    void to_json(json& j, const glm::mat4& m) {
-        j = {
-            m[0][0], m[0][1], m[0][2], m[0][3],
-            m[1][0], m[1][1], m[1][2], m[1][3],
-            m[2][0], m[2][1], m[2][2], m[2][3],
-            m[3][0], m[3][1], m[3][2], m[3][3]
-        };
-    }
-    void from_json(const json& j, glm::mat4& m) {
-        for (int i = 0; i < 4; ++i)
-            for (int k = 0; k < 4; ++k)
-                j.at(i * 4 + k).get_to(m[i][k]);
-    }
-	void to_json(json& j, const glm::vec2& v) {
-		j = { v.x, v.y };
-	}
-	void from_json(const json& j, glm::vec2& v) {
-		j.at(0).get_to(v.x);
-		j.at(1).get_to(v.y);
-	}
-
-	void to_json(json& j, const glm::vec3& v) {
-		j = { v.x, v.y, v.z };
-	}
-	void from_json(const json& j, glm::vec3& v) {
-		j.at(0).get_to(v.x);
-		j.at(1).get_to(v.y);
-		j.at(2).get_to(v.z);
-	}
-
-	void to_json(json& j, const glm::vec4& v) {
-		j = { v.x, v.y, v.z, v.w };
-	}
-	void from_json(const json& j, glm::vec4& v) {
-		j.at(0).get_to(v.x);
-		j.at(1).get_to(v.y);
-		j.at(2).get_to(v.z);
-		j.at(3).get_to(v.w);
-	}
-}
 
 
 LNode::LNode() : m_hasExecIn(false), m_hasExecOut(false), m_id(-1) {}
@@ -107,7 +68,7 @@ void LNode::ToJson(json& j) {
     j["unconnected_inputs"] = inputs_json;
 }
 // New FromJson method
-void LNode::FromJson(const json& j) {
+void LNode::FromJson(const json& j,LGraph* graph) {
     // ... (the first part of the function is unchanged) ...
     m_id = j.at("id");
     m_Name = j.at("name");

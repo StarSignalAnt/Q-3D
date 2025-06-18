@@ -1,7 +1,7 @@
 #pragma once
-#include "LNode.h"
+#include "LGDataNode.h"
 class GetSceneNode :
-    public LNode
+    public LGDataNode
 {
 public:
 

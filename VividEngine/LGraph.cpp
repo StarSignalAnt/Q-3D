@@ -81,11 +81,19 @@ void LGraph::SaveToFile(const std::string& filepath) {
     }
     root_json["connections"] = connections_json;
 
+    json variables_json = json::array();
+    for (const auto& var : m_variables) {
+        json var_json;
+        var->ToJson(var_json);
+        variables_json.push_back(var_json);
+    }
+    root_json["variables"] = variables_json;
+
+
     std::ofstream stream(filepath);
     stream << root_json.dump(4);
     stream.close();
 }
-
 LGraph* LGraph::LoadFromFile(const std::string& filepath, NodeRegistry& registry) {
     std::ifstream stream(filepath);
     if (!stream.is_open()) {
@@ -105,19 +113,37 @@ LGraph* LGraph::LoadFromFile(const std::string& filepath, NodeRegistry& registry
     LGraph* graph = new LGraph(root_json.value("graph_name", "Loaded Graph"));
     std::map<int, LNode*> idToNodeMap;
 
-    for (const auto& node_json : root_json["nodes"]) {
-        std::string typeName = node_json.at("typeName");
-        LNode* newNode = registry.CreateNode(typeName);
-        if (newNode) {
-            newNode->FromJson(node_json);
-            graph->AddNode(newNode);
-            idToNodeMap[newNode->GetID()] = newNode;
-        }
-        else {
-            std::cerr << "LOAD ERROR: NodeRegistry could not create node of type '" << typeName << "'. Is it registered?" << std::endl;
+    // --- BEGIN FIX: The loading order is now correct ---
+
+    // 1. Load VARIABLES first.
+    // This ensures the list of variables exists before any nodes try to reference them.
+    if (root_json.contains("variables")) {
+        for (const auto& var_json : root_json["variables"]) {
+            DataType type = static_cast<DataType>(var_json.at("type").get<int>());
+            std::string name = var_json.at("name");
+            auto* newVar = new LGraphVariable(name, type);
+            newVar->FromJson(var_json);
+            graph->AddVariable(newVar);
         }
     }
 
+    // 2. Load NODES second.
+    // Now, when a GetVariableNode is created, it can successfully find its variable in the graph.
+    for (const auto& node_json : root_json["nodes"]) {
+        std::string typeName = node_json.at("typeName");
+        // Use the registry to create a blank node
+        LNode* newNode = registry.CreateNode(typeName);
+        if (newNode) {
+            // Initialize the node with its data from the file. This is where
+            // GetVariableNode will create its pins.
+            newNode->FromJson(node_json, graph);
+            graph->AddNode(newNode);
+            idToNodeMap[newNode->GetID()] = newNode;
+        }
+    }
+
+    // 3. Load CONNECTIONS last.
+    // This must be last, as it requires all nodes and their pins to be fully created.
     for (const auto& conn_json : root_json["connections"]) {
         std::string type = conn_json.at("type");
         if (type == "exec") {
@@ -144,9 +170,10 @@ LGraph* LGraph::LoadFromFile(const std::string& filepath, NodeRegistry& registry
         }
     }
 
+    // --- END FIX ---
+
     return graph;
 }
-
 
 void LGraph::RemoveNode(LNode* nodeToRemove)
 {
@@ -180,4 +207,26 @@ void LGraph::RemoveNode(LNode* nodeToRemove)
 
     // --- Finally, delete the logical node object ---
     delete nodeToRemove;
+}
+
+void LGraph::AddVariable(LGraphVariable* var) {
+    if (var) m_variables.push_back(var);
+}
+
+void LGraph::RemoveVariable(const std::string& name) {
+    m_variables.erase(std::remove_if(m_variables.begin(), m_variables.end(),
+        [&](LGraphVariable* var) {
+            if (var->GetName() == name) {
+                delete var;
+                return true;
+            }
+            return false;
+        }), m_variables.end());
+}
+
+LGraphVariable* LGraph::FindVariable(const std::string& name) {
+    for (auto* var : m_variables) {
+        if (var->GetName() == name) return var;
+    }
+    return nullptr;
 }

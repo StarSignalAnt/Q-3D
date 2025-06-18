@@ -25,6 +25,8 @@
 #include "NodeMultMat4.h"
 #include "NodeSetRotationNode.h"
 #include "NodeSceneRayCast.h"
+#include "GetVariableNode.h"
+
 namespace py = pybind11;
 RefCntAutoPtr<IRenderDevice>  Vivid::m_pDevice;
 RefCntAutoPtr<IDeviceContext> Vivid::m_pImmediateContext;
@@ -270,4 +272,5 @@ void Vivid::RegisterNodeTypes() {
 	registry.RegisterNode<NodeMultMat4>("Mult (mat4)");
 	registry.RegisterNode<NodeSetRotationNode>("Set Rotation GraphNode");
 	registry.RegisterNode<NodeSceneRayCast>("Scene Raycast");
+	registry.RegisterNode<GetVariableNode>("GetVariableNode");
 }

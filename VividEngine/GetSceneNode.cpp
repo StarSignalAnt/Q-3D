@@ -17,29 +17,33 @@
         SetName("Get Scene Node");
         SetTypeName("Get Scene Node");
 
-        // This node does not participate in the execution chain.
-        m_hasExecIn = false;
-        m_hasExecOut = false;
+  
 
         // The INPUT pin takes a string. This will automatically create a QLineEdit in the UI.
         AddInput("Node Name", DataType::String);
 
         // The OUTPUT pin provides a reference to the found GraphNode.
-        AddOutput("Node", DataType::GraphNodeRef);
+        AddOutput("NodeRef", DataType::GraphNodeRef);
     }
 
     void GetSceneNode::CalculateOutputs() {
-        // This is called automatically when another node requests our output.
-
-        // 1. Get the string name from our input pin's default value.
-        auto nodeNameOpt = GetInputValue<std::string>("Node Name");
-
-        GraphNode* foundNode = nullptr;
-        if (nodeNameOpt && !nodeNameOpt->empty()) {
-            // 2. Use the engine's API to find the actual GraphNode*.
-            foundNode = FindNodeByName(*nodeNameOpt);
+        if (m_Outputs.empty()) {
+            return;
         }
 
-        // 3. Set the output pin's value to the found pointer (or nullptr if not found).
-        m_Outputs[0]->SetValue(foundNode);
+        // Get the desired node name from our input pin.
+        // We request it as a <string> because that's its data type.
+        auto nodeNameOpt = GetInputValue<std::string>("Node Name");
+
+        if (nodeNameOpt) {
+            // The job of this node is to simply pass the name string along.
+            // We set our output pin's value to the string we got from the input.
+            // The downstream node (like NodeTurnNode) will be the one to call
+            // GetInputValue<GraphNode*>(), which will trigger our new lookup logic.
+            m_Outputs[0]->SetValue(*nodeNameOpt);
+        }
+        else {
+            // If the input is invalid, set the output to an empty string to avoid errors.
+            m_Outputs[0]->SetValue(std::string(""));
+        }
     }

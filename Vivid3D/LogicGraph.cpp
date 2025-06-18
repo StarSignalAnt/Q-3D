@@ -48,6 +48,9 @@ LogicGraph::LogicGraph(QWidget* parent)
     connect(newButton, &QPushButton::clicked, this, &LogicGraph::onNewGraph);
     connect(saveButton, &QPushButton::clicked, this, &LogicGraph::onSaveGraph);
     connect(loadButton, &QPushButton::clicked, this, &LogicGraph::onLoadGraph);
+
+    connect(m_Designer, &LGDesigner::nodeSelected, m_Properties, &LGProperties::inspectNode);
+    m_Properties->setGraph(m_Designer->GetGraph());
 }
 
 LogicGraph::~LogicGraph()
@@ -60,9 +63,15 @@ void LogicGraph::onSaveGraph() {
 }
 
 void LogicGraph::onLoadGraph() {
-    if (m_Designer) m_Designer->LoadGraph();
+    if (m_Designer) {
+        m_Designer->LoadGraph();
+        m_Properties->setGraph(m_Designer->GetGraph());
+    }
 }
 
 void LogicGraph::onNewGraph() {
-    if (m_Designer) m_Designer->NewGraph();
+    if (m_Designer) {
+        m_Designer->NewGraph();
+        m_Properties->setGraph(m_Designer->GetGraph());
+    }
 }

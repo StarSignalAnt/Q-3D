@@ -20,6 +20,7 @@ using NodeFactory = std::function<LNode* ()>;
 // This struct holds all the information the UI needs to list and create a node.
 struct NodeInfo {
     std::string name;
+    std::string typeName;   // Internal unique ID for saving (e.g., "AddFloatNode")
     std::string category; // Changed from NodeType enum to string
     NodeFactory factory;
 };
@@ -32,10 +33,14 @@ public:
 
     // Get the single, global instance of the registry.
     template<typename T>
-    void RegisterNode(const std::string& name) {
-        T tempNode; // Create a temporary instance to ask for its category
-        m_nodeRegistry[name] = { name, tempNode.GetCategory(), []() { return new T(); } };
+    void RegisterNode(const std::string& displayName) {
+        T tempNode; // Create a temporary instance to get its metadata
+        std::string internalTypeName = tempNode.GetTypeName(); // Get the internal name from the node's constructor
+
+        // The map is now keyed by the robust internal typeName, not the display name.
+        m_nodeRegistry[internalTypeName] = { displayName, internalTypeName, tempNode.GetCategory(), []() { return new T(); } };
     }
+
 
     LNode* CreateNode(const std::string& name);
     std::vector<NodeInfo> GetAllNodes() const;

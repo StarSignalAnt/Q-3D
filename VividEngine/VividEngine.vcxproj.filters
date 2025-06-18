@@ -366,6 +366,18 @@
     <ClInclude Include="NodeSceneRayCast.h">
       <Filter>LogicGraph\Nodes\Logic</Filter>
     </ClInclude>
+    <ClInclude Include="LGraphVariable.h">
+      <Filter>LogicGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="JsonGlm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GetVariableNode.h">
+      <Filter>LogicGraph\Nodes\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="SetVariableNode.h">
+      <Filter>LogicGraph\Nodes\Data</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="VividEngine.cpp">
@@ -593,9 +605,6 @@
     <ClCompile Include="TerrainMesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TerrainMeshBuffer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="TerrainRendererComponent.cpp">
       <Filter>Components</Filter>
     </ClCompile>
@@ -653,9 +662,6 @@
     <ClCompile Include="LGraph.cpp">
       <Filter>LogicGraph</Filter>
     </ClCompile>
-    <ClCompile Include="NodeTurnNode.cpp">
-      <Filter>LogicGraph\Nodes\Logic</Filter>
-    </ClCompile>
     <ClCompile Include="NodeTestLogic.cpp">
       <Filter>LogicGraph\Nodes\Logic</Filter>
     </ClCompile>
@@ -710,8 +716,28 @@
     <ClCompile Include="NodeSceneRayCast.cpp">
       <Filter>LogicGraph\Nodes\Logic</Filter>
     </ClCompile>
+    <ClCompile Include="LGraphVariable.cpp">
+      <Filter>LogicGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="JsonGlm.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NodeTurnNode.cpp">
+      <Filter>LogicGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="GetVariableNode.cpp">
+      <Filter>LogicGraph\Nodes\Data</Filter>
+    </ClCompile>
+    <ClCompile Include="SetVariableNode.cpp">
+      <Filter>LogicGraph\Nodes\Data</Filter>
+    </ClCompile>
+    <ClCompile Include="TerrainMeshBuffer.cpp">
+      <Filter>Texture</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -6,7 +6,10 @@
 #include <string>
 #include <optional>
 #include <map>
-
+#include "SceneGraph.h" 
+#include "GraphNode.h"
+#include "SceneGraph.h" 
+class LGraph;
 using json = nlohmann::json;
 
 // A new struct to define a named execution output pin
@@ -22,7 +25,7 @@ public:
     virtual ~LNode() = default;
 
     virtual void ToJson(json& j);
-    virtual void FromJson(const json& j);
+    virtual void FromJson(const json& j, LGraph* graph);
 
     // --- Data Pin Methods (Unchanged) ---
     template<typename T>
@@ -66,7 +69,6 @@ protected:
     glm::vec2 m_editorPosition;
 };
 
-// Template implementation must be in the header file
 template<typename T>
 std::optional<T> LNode::GetInputValue(const std::string& name) {
     LGInput* input = nullptr;
@@ -78,19 +80,52 @@ std::optional<T> LNode::GetInputValue(const std::string& name) {
     }
     if (!input) return std::nullopt;
 
+    // First, get the ValueVariant, whether from a connected node or a local default value.
+    std::optional<LGInput::ValueVariant> valueOpt;
     if (input->isConnected()) {
         LGOutput* sourceOutput = input->GetConnection();
         LNode* sourceNode = sourceOutput->getParentNode();
         if (sourceNode) {
-            // --- THIS IS THE KEY CHANGE ---
-            // We no longer call Exec(), we call CalculateOutputs() to prevent recursion.
+            // Ensure the source node has calculated its value
             sourceNode->CalculateOutputs();
         }
-        if (const T* pval = std::get_if<T>(&sourceOutput->GetValue())) return *pval;
+        if (sourceOutput) {
+            valueOpt = sourceOutput->GetValue();
+        }
     }
     else {
-        if (const T* pval = std::get_if<T>(&input->GetDefaultValue())) return *pval;
+        // For unconnected pins, get the local default value
+        valueOpt = input->GetDefaultValue();
     }
+
+    if (!valueOpt.has_value()) {
+        return std::nullopt;
+    }
+    const LGInput::ValueVariant& val_variant = valueOpt.value();
+
+    // --- BEGIN NEW LOGIC ---
+
+    // This 'if constexpr' block adds special handling ONLY when you explicitly
+    // request a GraphNode* (i.e., GetInputValue<GraphNode*>)
+    if constexpr (std::is_same_v<T, GraphNode*>) {
+        // Check if the variant holds a string, which is how we store GraphNode references
+        if (const std::string* nodeName = std::get_if<std::string>(&val_variant)) {
+            if (!nodeName->empty()) {
+                // If it's a string, use your SceneGraph to find the node.
+                // NOTE: You must have a way to access your scene graph,
+                // for example, through a singleton instance.
+                return SceneGraph::m_Instance->FindNode(*nodeName);
+            }
+        }
+    }
+
+    // --- END NEW LOGIC ---
+
+    // For all other cases (or if the GraphNode* was already a pointer in the variant),
+    // use the default behavior. This keeps it working for int, float, vec3, etc.
+    if (const T* pval = std::get_if<T>(&val_variant)) {
+        return *pval;
+    }
+
     return std::nullopt;
 }
-// ... (rest of LNode.h is unchanged)

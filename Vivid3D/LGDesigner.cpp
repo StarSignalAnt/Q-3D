@@ -14,7 +14,9 @@
 #include "ConnectionItem.h"
 #include "SocketWidget.h"
 #include "GraphNode.h"
-
+#include "LGNode.h"
+#include "GetVariableNode.h"
+#include "SetVariableNode.h"
 LGDesigner::LGDesigner(QWidget* parent)
     : QGraphicsView(parent),
     m_graph(nullptr),
@@ -30,7 +32,7 @@ LGDesigner::LGDesigner(QWidget* parent)
 
     scene = new QGraphicsScene(this);
     setScene(scene);
-
+    connect(scene, &QGraphicsScene::selectionChanged, this, &LGDesigner::onSceneSelectionChanged);
     NewGraph(); // Start with a clean, empty graph
 }
 
@@ -216,12 +218,16 @@ void LGDesigner::keyPressEvent(QKeyEvent* event) {
 
     // Handle the spacebar for node creation (your existing logic)
     QPoint viewPos = mapFromGlobal(QCursor::pos());
-    if (event->key() == Qt::Key_Space && itemAt(viewPos) == nullptr) {
-        m_nodeCreationPos = mapToScene(viewPos);
-        NodeCreationWidget* widget = new NodeCreationWidget(Vivid::GetNodeRegistry(), this);
+    if (event->key() == Qt::Key_Space && itemAt(mapFromGlobal(QCursor::pos())) == nullptr) {
+        m_nodeCreationPos = mapToScene(mapFromGlobal(QCursor::pos()));
+
+        // --- FIX: Pass the current graph pointer to the constructor ---
+        NodeCreationWidget* widget = new NodeCreationWidget(m_graph, Vivid::GetNodeRegistry(), this);
+
         connect(widget, &NodeCreationWidget::nodeSelected, this, &LGDesigner::onCreateNode);
         widget->move(QCursor::pos());
         widget->show();
+        event->accept();
         return;
     }
 
@@ -229,8 +235,31 @@ void LGDesigner::keyPressEvent(QKeyEvent* event) {
     QGraphicsView::keyPressEvent(event);
 }
 
-void LGDesigner::onCreateNode(const std::string& nodeName) {
-    if (LNode* logicNode = Vivid::GetNodeRegistry().CreateNode(nodeName)) {
+void LGDesigner::onCreateNode(const std::string& creationCommand) {
+    LNode* logicNode = nullptr;
+
+    // --- BEGIN FIX ---
+
+    // First, try to create the node from the registry using its name.
+    // This will correctly find and create "Get Scene Node", "Turn GraphNode", etc.
+    logicNode = Vivid::GetNodeRegistry().CreateNode(creationCommand);
+
+    // If, and only if, no registered node was found, then we check for special
+    // dynamic node types like variable getters.
+    if (!logicNode && creationCommand.rfind("Get ", 0) == 0) {
+        std::string varName = creationCommand.substr(4);
+        auto* getNode = new GetVariableNode();
+        getNode->Initialize(m_graph, varName);
+        logicNode = getNode;
+    }
+    // (A similar `if (!logicNode && ...)` check for SetVariableNode will also be needed here
+    // if you have one that follows a similar pattern)
+
+    // --- END FIX ---
+
+
+    if (logicNode) {
+        // This part remains the same.
         m_graph->AddNode(logicNode);
         auto visualNode = new LGNode(logicNode);
         visualNode->setPos(m_nodeCreationPos);
@@ -448,4 +477,54 @@ void LGDesigner::DeleteConnection(ConnectionItem* conn)
     // 3. Delete the connection item itself.
     scene->removeItem(conn);
     delete conn;
+}
+
+void LGDesigner::wheelEvent(QWheelEvent* event)
+{
+    // Check if the Control key is being held down.
+    if (event->modifiers() & Qt::ControlModifier) {
+        // Set the anchor to be where the mouse is.
+        setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+
+        const int delta = event->angleDelta().y();
+        const qreal zoomFactor = 1.15;
+
+        if (delta > 0) {
+            scale(zoomFactor, zoomFactor);
+        }
+        else {
+            scale(1.0 / zoomFactor, 1.0 / zoomFactor);
+        }
+
+        // Optional: Reset the anchor to the default behavior.
+        setTransformationAnchor(QGraphicsView::AnchorViewCenter);
+
+        event->accept();
+    }
+    else {
+        QGraphicsView::wheelEvent(event);
+    }
+}
+
+void LGDesigner::onSceneSelectionChanged()
+{
+    // Get all items currently selected in the scene.
+    const auto selectedItems = scene->selectedItems();
+
+    LNode* firstSelectedNode = nullptr;
+
+    // Check if the selection is not empty.
+    if (!selectedItems.isEmpty()) {
+        // We only care about the first selected item for the properties panel.
+        QGraphicsItem* topItem = selectedItems.first();
+        
+        // Check if the selected item is a node.
+        if (auto* visualNode = qgraphicsitem_cast<LGNode*>(topItem)) {
+            firstSelectedNode = visualNode->getLogicNode();
+        }
+    }
+
+    // Emit our signal to notify the properties panel.
+    // This will send either the first selected node or nullptr if the selection is empty.
+    emit nodeSelected(firstSelectedNode);
 }

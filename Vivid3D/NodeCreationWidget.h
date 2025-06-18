@@ -7,19 +7,19 @@ class QLineEdit;
 class QListWidget;
 class QListWidgetItem;
 class NodeRegistry;
+class LGraph; // Forward declare LGraph
 
 class NodeCreationWidget : public QFrame {
     Q_OBJECT
 
 public:
-    NodeCreationWidget(NodeRegistry& registry, QWidget* parent = nullptr);
+    // Constructor now accepts the graph to get the variable list
+    NodeCreationWidget(LGraph* graph, NodeRegistry& registry, QWidget* parent = nullptr);
 
 signals:
-    // Emitted when the user selects a node to be created
     void nodeSelected(const std::string& nodeName);
 
 protected:
-    // Close the widget if the Escape key is pressed
     void keyPressEvent(QKeyEvent* event) override;
 
 private slots:
@@ -31,6 +31,7 @@ private:
     void populateCategories();
     void populateNodes(const QString& categoryFilter, const QString& searchFilter);
 
+    LGraph* m_graph; // Pointer to the current graph
     NodeRegistry& m_registry;
     QLineEdit* m_searchBar;
     QListWidget* m_categoryList;
