@@ -1,4 +1,4 @@
-#define NOMINMAX
+
 
 #include "SceneView.h"
 #include <QPainter>
@@ -18,6 +18,7 @@
 #include "PixelMap.h"
 #include "TerrainEditor.h"
 #include "ConsoleOutput.h"
+#include "GameVideo.h"
 
 #if D3D11_SUPPORTED
 #    include "Graphics/GraphicsEngineD3D11/interface/EngineFactoryD3D11.h"
@@ -86,6 +87,7 @@ SceneView::SceneView(QWidget *parent)
     //Vivid::InitPython();
     
     setAcceptDrops(true);
+    m_SceneGraph = new SceneGraph;
     Vivid::InitEngine();
 
     ScriptHost *h = new ScriptHost;
@@ -106,7 +108,7 @@ SceneView::SceneView(QWidget *parent)
 
 
 
-    m_SceneGraph = new SceneGraph;
+  
 
     m_Grid = new SceneGrid(m_SceneGraph);
 
@@ -192,8 +194,10 @@ SceneView::SceneView(QWidget *parent)
 //	test2->AddComponent(cm1);
 //    cm1->SetScript("TestLib.dll", "Test");
 
-   
-       
+    //m_Vid1 = new GameVideo("test/video1.mp4");
+
+
+    //m_Vid1->Play();
 
 
 
@@ -309,8 +313,10 @@ void SceneView::paintEvent(QPaintEvent* event)
     //Vivid::ClearZ();
  
     Vivid::m_pImmediateContext->Flush();
-    m_SelectionOverlay->Render();
-
+ 
+    if (m_RunMode == RM_Stopped) {
+        m_SelectionOverlay->Render();
+    }
 
     Vivid::ClearZ();
 
@@ -320,6 +326,20 @@ void SceneView::paintEvent(QPaintEvent* event)
 
     }
 
+  
+    for (int i = 0; i < 5; i++) {
+    //    m_Vid1->Update();
+    }
+
+
+
+
+
+//    auto tex = m_Vid1->GetFrame();
+
+   // if (tex) {
+  //      m_Draw->Rect(tex, glm::vec2(0, 0), glm::vec2(512, 512), glm::vec4(1, 1, 1, 1));
+    //}
 
     pSwapchain->Present();
 

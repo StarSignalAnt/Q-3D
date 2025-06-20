@@ -5,12 +5,20 @@
 #include "GraphNode.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include "Vivid.h"
 
 void StaticRendererComponent::OnRender(GraphNode* camera) {
 
 	auto mesh = m_Owner->GetComponent<StaticMeshComponent>();
 	int b = 5;
 
+	if (!camera->GetComponent<CameraComponent>()->InFrustum(m_Owner->GetStaticMeshBounds()))
+	{
+		return;
+	}
+	SceneGraph::Ren_Count++;
+
+	
 
 	bool add = false;
 	for (auto light : SceneGraph::m_CurrentGraph->GetLights()) {

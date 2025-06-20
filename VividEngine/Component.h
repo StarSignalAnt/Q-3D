@@ -31,5 +31,5 @@ protected:
 
     // Pointer to the owner node
     GraphNode* m_Owner = nullptr;
-
+    bool m_Playing = false;
 };

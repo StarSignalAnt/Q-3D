@@ -85,11 +85,14 @@ void SceneGraph::RenderDepth() {
 void SceneGraph::Render() {
 
 	m_CurrentGraph = this;
+	
 	if (m_Terrain) {
 		m_Terrain->Render(m_Camera);
 	}
+	Vivid::DebugLog("Rendering Scene");
+	Ren_Count = 0;
 	m_RootNode->Render(m_Camera);
-
+	Vivid::DebugLog("Render Count:" + std::to_string(Ren_Count));
 
 //	for (auto sub : m_RootNode->GetNodes()) {
 	
@@ -757,3 +760,5 @@ void SceneGraph::SetTerrain(GraphNode* node) {
 	m_Terrain = node;
 	m_RootNode->AddNode(node);
 }
+
+int SceneGraph::Ren_Count = 0;

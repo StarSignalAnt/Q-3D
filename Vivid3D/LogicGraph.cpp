@@ -73,5 +73,6 @@ void LogicGraph::onNewGraph() {
     if (m_Designer) {
         m_Designer->NewGraph();
         m_Properties->setGraph(m_Designer->GetGraph());
+
     }
 }

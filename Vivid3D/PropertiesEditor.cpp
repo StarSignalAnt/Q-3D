@@ -25,6 +25,7 @@
 #include "LGraph.h"
 #include <qpointer.h>
 #include "LogicGraphComponent.h"
+#include <variant>
 PropertiesEditor* PropertiesEditor::m_Instance = nullptr;
 
 PropertiesEditor::PropertiesEditor(QWidget* parent)
@@ -471,6 +472,53 @@ void PropertiesEditor::SetNode(GraphNode* node) {
         auto name = "(Graph)" + g->GetName();
         AddHeader(name.c_str());
     
+        for (auto v : g->GetVars()) {
+
+            switch (v->GetType()) {
+            case DataType::Vec3:
+            {
+                glm::vec3 dv = glm::vec3(0, 0, 0);
+                if (const glm::vec3* value_ptr = std::get_if<glm::vec3>(&v->GetDefaultValue())) {
+                    // The variant holds a float. We can safely access it.
+                    dv = *value_ptr;
+
+                }
+
+                AddVec3(AddSpaces(v->GetName()).c_str(), QVector3D(dv.x, dv.y, dv.z), 1, [v, g](QVector3D v3)
+                    {
+                        v->SetDefaultValue(glm::vec3(v3.x(), v3.y(), v3.z()));
+                    });
+            }
+                break;
+            case DataType::Float:
+            {
+                float dv = 0;
+                if (const float* value_ptr = std::get_if<float>(&v->GetDefaultValue())) {
+                    // The variant holds a float. We can safely access it.
+                    dv = *value_ptr;
+
+                }
+                AddFloat(AddSpaces(v->GetName()).c_str(), -10000, 10000, 1, (float)dv, [v, g](double val) {
+
+                    v->SetDefaultValue(val);
+
+                    });
+            }
+                break;
+            case DataType::GraphNodeRef:
+            {
+                AddNodeProperty((AddSpaces(v->GetName()) + " (Node)").c_str(), name.c_str(), [v, g](GraphNode* droppedNode)
+                    {
+                        if (droppedNode) {
+                            v->SetDefaultValue(droppedNode);
+                        }
+                    });
+            }
+                break;
+            }
+
+        }
+
     }
 
     AddButton("Add Component", [node, this]() {
@@ -859,10 +907,10 @@ void PropertiesEditor::AddedFromDrop(const QString& resourceName)
 
             tg = tg->LoadFromFile(resourceName.toStdString(), Vivid::GetNodeRegistry());
             LogicGraphComponent* lg = new LogicGraphComponent;
-
+            m_Node->AddComponent(lg);
             lg->SetGraph(tg);
 
-            m_Node->AddComponent(lg);
+           
             SetNode(m_Node);
 
         }

@@ -32,12 +32,14 @@
 #include "MonoLib.h"
 #include <functional>
 #include "NodeRegistry.h"
+
+class Draw2D;
 class RenderTargetCube;
 class RenderTarget2D;
 class MaterialPBR;
 class Physics;
 class NodeRegistry;
-
+class GameVideo;
 
 
 using namespace Diligent;
@@ -53,7 +55,7 @@ public:
 	static RefCntAutoPtr<ISwapChain>     m_pSwapChain;
 	static RefCntAutoPtr<IShaderSourceInputStreamFactory> m_pShaderFactory;
 	static void InitEngine();
-
+	static GameVideo* m_CurrentVideo;
 	static int GetFrameWidth();
 	static int GetFrameHeight();
 	static void SetFrameWidth(int w);
@@ -80,6 +82,10 @@ public:
 		return NodeRegistry::GetInstance();
 	}
 	static void RegisterNodeTypes();
+	static void StartVideo(std::string path);
+	static void RenderVideo();
+	static Draw2D* m_Draw;
+
 private:
 
 

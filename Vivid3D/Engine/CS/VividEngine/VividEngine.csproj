@@ -48,11 +48,15 @@
   <ItemGroup>
     <Compile Include="Component\SharpComponent.cs" />
     <Compile Include="Debug\Debug.cs" />
+    <Compile Include="Draw\Draw2D.cs" />
+    <Compile Include="Engine\Engine.cs" />
     <Compile Include="NativeBridge.cs" />
     <Compile Include="SceneGraph\GraphNode.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SceneGraph\SceneGraph.cs" />
     <Compile Include="SceneGraph\Vec3.cs" />
+    <Compile Include="Media\Video.cs" />
+    <Compile Include="Texture\Texture2D.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

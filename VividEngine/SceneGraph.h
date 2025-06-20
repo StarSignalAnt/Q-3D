@@ -69,6 +69,7 @@ public:
 
 	void Reset();
 	void SetOwners(GraphNode* node);
+	static int Ren_Count;
 private:
 
 	GraphNode* m_RootNode = nullptr;

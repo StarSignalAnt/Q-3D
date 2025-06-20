@@ -6,6 +6,20 @@
 
 struct Vec3 {
     float x, y, z;
+    Vec3(float vx, float vy, float vz) {
+        x = vx;
+        y = vy;
+        z = vz;
+    }
+    Vec3() {
+        x = y = z = 0;
+    }
+};
+
+struct Vec2 {
+
+    float x, y;
+
 };
 
 //Node
@@ -21,13 +35,30 @@ extern "C" __declspec(dllexport) int NodeNodeCount(void* node);
 extern "C" __declspec(dllexport) void* NodeGetNode(void* node,int index);
 extern "C" __declspec(dllexport) void* NodeGetName(void* node);
 extern "C" __declspec(dllexport) void DebugLog(const char* str);
+extern "C" __declspec(dllexport) void* CreateVideo(const char* path);
+extern "C" __declspec(dllexport) void PlayVideo(void* video);
+extern "C" __declspec(dllexport) void UpdateVideo(void* video);
+extern "C" __declspec(dllexport) void* VideoGetFrame(void* video);
+extern "C" __declspec(dllexport) void RenderVideo(void* video, Vec2 pos, Vec2 size);
+extern "C" __declspec(dllexport) void* CreateDraw2D();
+extern "C" __declspec(dllexport) void DrawRect(void* draw, void* tex, Vec2 pos, Vec2 size);
+extern "C" __declspec(dllexport) void* LoadTexture2D(const char* path);
+extern "C" __declspec(dllexport) int EngineGetWidth();
+extern "C" __declspec(dllexport) int EngineGetHeight();
+extern "C" __declspec(dllexport) void* SceneRayCast(Vec3 from,Vec3 to);
+extern "C" __declspec(dllexport) bool CastResultHit(void* res);
+extern "C" __declspec(dllexport) Vec3 CastResultPoint(void* res);
+extern "C" __declspec(dllexport) void* CastResultNode(void* res);
 
 class SharpComponent :
     public Component
 {
 public:
     void SetScript(std::string file, std::string name);
+    void OnPlay() override;
+    void OnStop() override;
     void OnUpdate(float dt) override;
+    void OnRender(GraphNode* camera) override;
     void SetClass(MClass* cls,MAsm* as,MAsm* vivid);
 	void SetName(std::string name) { m_Name = name; }
 	std::string GetName() { return m_Name; }

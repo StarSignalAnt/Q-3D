@@ -31,7 +31,8 @@ void GraphNode::Reset() {
 	m_Position = glm::vec3(0, 0, 0);
 	m_Scale = glm::vec3(1, 1, 1);
 	m_Rotation = glm::mat4(1.0f);
-
+	MarkBoundsAsDirty();
+	m_Updated = true;
 
 }
 
@@ -46,6 +47,8 @@ void GraphNode::AddComponent(Component* component) {
 	component->OnAttach(this);
 	m_Components.push_back(component);
 }
+
+
 
 void GraphNode::Render(GraphNode* camera) {
 
@@ -90,7 +93,7 @@ glm::mat4 GraphNode::GetWorldMatrix(){
 void GraphNode::SetPosition(glm::vec3 position) {
 
 	m_Position = position;
-
+	MarkBoundsAsDirty();
 }
 
 void GraphNode::SetRotation(glm::vec3 rotation) {
@@ -103,10 +106,12 @@ void GraphNode::SetRotation(glm::vec3 rotation) {
     m_Rotation = glm::rotate(m_Rotation, radians.z, glm::vec3(0, 0, 1)); // Roll
     m_Rotation = glm::rotate(m_Rotation, radians.y, glm::vec3(0, 1, 0)); // Yaw
     m_Rotation = glm::rotate(m_Rotation, radians.x, glm::vec3(1, 0, 0)); // Pitch
+	MarkBoundsAsDirty();
 }
 
 void GraphNode::SetScale(glm::vec3 scale) {
 	m_Scale = scale;
+	MarkBoundsAsDirty();
 }
 
 void GraphNode::Move(glm::vec3 offset) {
@@ -120,7 +125,7 @@ void GraphNode::Move(glm::vec3 offset) {
 		GetComponent<StaticMeshComponent>()->Updated();
 
 	}
-
+	MarkBoundsAsDirty();
 }
 
 glm::mat4 f42g(const Diligent::float4x4& diligentMat)
@@ -138,7 +143,7 @@ glm::mat4 f42g(const Diligent::float4x4& diligentMat)
 void GraphNode::SetRotation(float4x4 rot) {
 
 	m_Rotation = f42g(rot);
-
+	MarkBoundsAsDirty();
 }
 
 void GraphNode::Update(float dt) {
@@ -172,12 +177,13 @@ void GraphNode::Turn(glm::vec3 delta, bool local) {
 	else {
 		m_Rotation = rot * m_Rotation;
 	}
+	MarkBoundsAsDirty();
 }
 
 void GraphNode::Translate(glm::vec3 delta) {
 
 	m_Position += delta;
-
+	MarkBoundsAsDirty();
 }
 
 void GraphNode::Push() {
@@ -196,7 +202,7 @@ void GraphNode::Push() {
 		node->Push();
 	}
 	
-
+	MarkBoundsAsDirty();
 }
 
 void GraphNode::Pop() {
@@ -214,6 +220,7 @@ void GraphNode::Pop() {
 	for (auto node : m_Nodes) {
 		node->Pop();
 	}
+	MarkBoundsAsDirty();
 }
 
 glm::vec3 GraphNode::GetWorldPosition() {
@@ -303,7 +310,7 @@ void GraphNode::Stop() {
 
 }
 
-Bounds GraphNode::GetStaticMeshBounds(bool includeChildren)  {
+Bounds GraphNode::GetStaticMeshBounds(bool includeChildren) {
 	Bounds totalBounds;
 	bool foundAnyVertices = false;
 
@@ -316,14 +323,14 @@ Bounds GraphNode::GetStaticMeshBounds(bool includeChildren)  {
 		for (const auto& subMesh : subMeshes) {
 			if (subMesh->m_Vertices.empty()) continue;
 
-			// Get world matrix for this submesh's owner
-			glm::mat4 worldMatrix = subMesh->m_Owner ? subMesh->m_Owner->GetWorldMatrix() : glm::mat4(1.0f);
+			// Get world matrix for this submesh's owner.
+			// This matrix includes the position, rotation, and scale of the GraphNode.
+			glm::mat4 worldMatrix = this->GetWorldMatrix();
 
 			// Process each vertex
 			for (const auto& vertex : subMesh->m_Vertices) {
-				// Transform vertex to world space
-				glm::vec4 worldPos = glm::vec4(vertex.position, 1.0f);
-				glm::vec3 worldPos3 = glm::vec3(worldPos);
+				// *** FIX: Transform vertex from local space to world space ***
+				glm::vec3 worldPos3 = glm::vec3(worldMatrix * glm::vec4(vertex.position, 1.0f));
 
 				if (!foundAnyVertices) {
 					// First vertex - initialize bounds
@@ -332,7 +339,7 @@ Bounds GraphNode::GetStaticMeshBounds(bool includeChildren)  {
 					foundAnyVertices = true;
 				}
 				else {
-					// Expand bounds
+					// Expand bounds using the world-space position
 					totalBounds.min = glm::min(totalBounds.min, worldPos3);
 					totalBounds.max = glm::max(totalBounds.max, worldPos3);
 				}
@@ -363,7 +370,6 @@ Bounds GraphNode::GetStaticMeshBounds(bool includeChildren)  {
 
 	return totalBounds;
 }
-
 void GraphNode::SetBody(BodyType type) {
 
 	m_BodyType = type;
@@ -816,4 +822,11 @@ void GraphNode::RemoveParent() {
 
 	m_RootNode = nullptr;
 
+}
+
+void GraphNode::MarkBoundsAsDirty() {
+	m_bBoundsAreDirty = true;
+	for (auto child : m_Nodes) {
+		child->MarkBoundsAsDirty();
+	}
 }

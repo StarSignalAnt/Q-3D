@@ -26,6 +26,14 @@
 #include "NodeSetRotationNode.h"
 #include "NodeSceneRayCast.h"
 #include "GetVariableNode.h"
+#include "NodeDebug.h"
+#include "PlayEventNode.h"
+#include "NodeStartVideo.h"
+#include "RenderEventNode.h"
+#include "NodeRenderVideo.h"
+#include "GameVideo.h"
+#include "Draw2D.h"
+
 
 namespace py = pybind11;
 RefCntAutoPtr<IRenderDevice>  Vivid::m_pDevice;
@@ -40,8 +48,28 @@ MonoLib* Vivid::m_MonoLib = nullptr;
 std::vector<SharpClassInfo> Vivid::m_ComponentClasses;
 VividCallbackFunc Vivid::DebugLogCB = nullptr;
 
+Draw2D* Vivid::m_Draw = nullptr;
 
+GameVideo* Vivid::m_CurrentVideo = nullptr;
 
+void Vivid::StartVideo(std::string path) {
+
+	m_CurrentVideo = new GameVideo(path);
+	m_CurrentVideo->Play();
+
+}
+
+void Vivid::RenderVideo() {
+
+	for (int i = 0; i < 5; i++) {
+		m_CurrentVideo->Update();
+	}
+	auto tex = m_CurrentVideo->GetFrame();
+	if (tex) {
+		m_Draw->Rect(tex, glm::vec2(0, 0), glm::vec2((float)GetFrameWidth(), (float)GetFrameHeight()),glm::vec4(1,1,1,1));
+	}
+
+}
 
 void Vivid::SetBoundRTC(RenderTargetCube* target) {
 
@@ -246,7 +274,7 @@ Physics* Vivid::m_Physics = nullptr;
 
 void Vivid::InitEngine() {
 
-	
+	m_Draw = new Draw2D(SceneGraph::m_Instance->GetCamera());
 	GameAudio* audio = new GameAudio;
 	m_Physics = new Physics;
 	RegisterNodeTypes();
@@ -273,4 +301,9 @@ void Vivid::RegisterNodeTypes() {
 	registry.RegisterNode<NodeSetRotationNode>("Set Rotation GraphNode");
 	registry.RegisterNode<NodeSceneRayCast>("Scene Raycast");
 	registry.RegisterNode<GetVariableNode>("GetVariableNode");
+	registry.RegisterNode<NodeDebug>("Debug Message");
+	registry.RegisterNode<PlayEventNode>("Play Node");
+	registry.RegisterNode<NodeStartVideo>("Start Video");
+	registry.RegisterNode<RenderEventNode>("Render Node");
+	registry.RegisterNode<NodeRenderVideo>("Render Video");
 }

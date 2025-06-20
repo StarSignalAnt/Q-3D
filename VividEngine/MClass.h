@@ -312,6 +312,34 @@ public:
         return result;
     }
 
+    MonoObject* CallFunction(const std::string& methodName)
+    {
+        MonoMethod* method = mono_class_get_method_from_name(m_Class, methodName.c_str(),0);
+        if (!method)
+        {
+            std::cerr << "Method not found: " << methodName << std::endl;
+            return nullptr;
+        }
+
+        //void* argArray[] = { ConvertArg(std::forward<Args>(args))... };
+
+
+        MonoObject* exception = nullptr;
+        MonoObject* result = mono_runtime_invoke(method, m_Instance,nullptr, &exception);
+
+        if (exception)
+        {
+            MonoString* excStr = mono_object_to_string(exception, nullptr);
+            char* excMsg = mono_string_to_utf8(excStr);
+            std::cerr << "Mono Exception: " << excMsg << std::endl;
+            mono_free(excMsg);
+            return nullptr;
+        }
+
+        return result;
+    }
+
+
     template<typename Ret, typename... Args>
     Ret CallFunctionValue(const std::string& methodName, Args&&... args)
     {
@@ -507,6 +535,12 @@ private:
 {
     return ptr; // Mono will interpret this as an IntPtr
 }
+    void* ConvertArg(MClass* value) {
+        if (value) {
+            return value->GetInstance();
+        }
+        return nullptr;
+    }
 	MonoClass* m_Class;
     MonoObject* m_Instance;
 };

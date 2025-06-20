@@ -3,38 +3,44 @@
   "WorkspaceRootPath": "C:\\Vivid3D\\Vivid3D\\scripts\\TestLib\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{CA45445B-9AA4-4B00-93E8-FDC88D268817}|TestLib.csproj|C:\\Vivid3D\\Vivid3D\\scripts\\TestLib\\class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{CA45445B-9AA4-4B00-93E8-FDC88D268817}|TestLib.csproj|c:\\vivid3d\\vivid3d\\scripts\\testlib\\class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{CA45445B-9AA4-4B00-93E8-FDC88D268817}|TestLib.csproj|solutionrelative:class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{00000000-0000-0000-0000-000000000000}|\u003CSolution\u003E|TestLib||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{BAC0E7CC-4641-4275-84EB-5954FD163488}|..\\..\\Engine\\CS\\VividEngine\\VividEngine.csproj|c:\\vivid3d\\vivid3d\\engine\\cs\\vividengine\\nativebridge.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{BAC0E7CC-4641-4275-84EB-5954FD163488}|..\\..\\Engine\\CS\\VividEngine\\VividEngine.csproj|c:\\vivid3d\\vivid3d\\engine\\cs\\vividengine\\debug\\debug.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{BAC0E7CC-4641-4275-84EB-5954FD163488}|..\\..\\Engine\\CS\\VividEngine\\VividEngine.csproj|c:\\vivid3d\\vivid3d\\engine\\cs\\vividengine\\scenegraph\\vec3.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{BAC0E7CC-4641-4275-84EB-5954FD163488}|..\\..\\Engine\\CS\\VividEngine\\VividEngine.csproj|c:\\vivid3d\\vivid3d\\engine\\cs\\vividengine\\scenegraph\\graphnode.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{00000000-0000-0000-0000-000000000000}|\u003CSolution\u003E|VividEngine||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|"
     },
     {
       "AbsoluteMoniker": "D:0:0:{BAC0E7CC-4641-4275-84EB-5954FD163488}|..\\..\\Engine\\CS\\VividEngine\\VividEngine.csproj|c:\\vivid3d\\vivid3d\\engine\\cs\\vividengine\\scenegraph\\scenegraph.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{BAC0E7CC-4641-4275-84EB-5954FD163488}|..\\..\\Engine\\CS\\VividEngine\\VividEngine.csproj|c:\\vivid3d\\vivid3d\\engine\\cs\\vividengine\\scenegraph\\graphnode.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BAC0E7CC-4641-4275-84EB-5954FD163488}|..\\..\\Engine\\CS\\VividEngine\\VividEngine.csproj|c:\\vivid3d\\vivid3d\\engine\\cs\\vividengine\\nativebridge.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BAC0E7CC-4641-4275-84EB-5954FD163488}|..\\..\\Engine\\CS\\VividEngine\\VividEngine.csproj|c:\\vivid3d\\vivid3d\\engine\\cs\\vividengine\\texture\\texture2d.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BAC0E7CC-4641-4275-84EB-5954FD163488}|..\\..\\Engine\\CS\\VividEngine\\VividEngine.csproj|c:\\vivid3d\\vivid3d\\engine\\cs\\vividengine\\engine\\engine.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BAC0E7CC-4641-4275-84EB-5954FD163488}|..\\..\\Engine\\CS\\VividEngine\\VividEngine.csproj|c:\\vivid3d\\vivid3d\\engine\\cs\\vividengine\\draw\\draw2d.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BAC0E7CC-4641-4275-84EB-5954FD163488}|..\\..\\Engine\\CS\\VividEngine\\VividEngine.csproj|c:\\vivid3d\\vivid3d\\engine\\cs\\vividengine\\media\\video.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BAC0E7CC-4641-4275-84EB-5954FD163488}|..\\..\\Engine\\CS\\VividEngine\\VividEngine.csproj|c:\\vivid3d\\vivid3d\\engine\\cs\\vividengine\\scenegraph\\vec3.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{BAC0E7CC-4641-4275-84EB-5954FD163488}|..\\..\\Engine\\CS\\VividEngine\\VividEngine.csproj|c:\\vivid3d\\vivid3d\\engine\\cs\\vividengine\\component\\sharpcomponent.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{BAC0E7CC-4641-4275-84EB-5954FD163488}|..\\..\\Engine\\CS\\VividEngine\\VividEngine.csproj|c:\\vivid3d\\vivid3d\\engine\\cs\\vividengine\\||{B270807C-D8C6-49EB-8EBE-8E8D566637A1}|a54ad834-9219-4aa6-b589-607af21c3e26"
+      "AbsoluteMoniker": "D:0:0:{00000000-0000-0000-0000-000000000000}|\u003CSolution\u003E|TestLib||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{CA45445B-9AA4-4B00-93E8-FDC88D268817}|TestLib.csproj|c:\\vivid3d\\vivid3d\\scripts\\testlib\\||{B270807C-D8C6-49EB-8EBE-8E8D566637A1}|5e9a8ac2-4f34-4521-858f-4c248ba31532"
+      "AbsoluteMoniker": "D:0:0:{BAC0E7CC-4641-4275-84EB-5954FD163488}|..\\..\\Engine\\CS\\VividEngine\\VividEngine.csproj|c:\\vivid3d\\vivid3d\\engine\\cs\\vividengine\\debug\\debug.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{00000000-0000-0000-0000-000000000000}|\u003CSolution\u003E|VividEngine||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|"
     }
   ],
   "DocumentGroupContainers": [
@@ -44,28 +50,133 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 9,
+          "SelectedChildIndex": 0,
           "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Class1.cs",
+              "DocumentMoniker": "C:\\Vivid3D\\Vivid3D\\scripts\\TestLib\\Class1.cs",
+              "RelativeDocumentMoniker": "Class1.cs",
+              "ToolTip": "C:\\Vivid3D\\Vivid3D\\scripts\\TestLib\\Class1.cs*",
+              "RelativeToolTip": "Class1.cs*",
+              "ViewState": "AgIAACwAAAAAAAAAAAAUwEAAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-13T06:48:57.971Z",
+              "IsPinned": true,
+              "EditorCaption": ""
+            },
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "Debug.cs",
-              "DocumentMoniker": "C:\\Vivid3D\\Vivid3D\\Engine\\CS\\VividEngine\\Debug\\Debug.cs",
-              "RelativeDocumentMoniker": "..\\..\\Engine\\CS\\VividEngine\\Debug\\Debug.cs",
-              "ToolTip": "C:\\Vivid3D\\Vivid3D\\Engine\\CS\\VividEngine\\Debug\\Debug.cs",
-              "RelativeToolTip": "..\\..\\Engine\\CS\\VividEngine\\Debug\\Debug.cs",
-              "ViewState": "AgIAAAEAAAAAAAAAAAArwAsAAAAbAAAAAAAAAA==",
+              "DocumentIndex": 5,
+              "Title": "Engine.cs",
+              "DocumentMoniker": "C:\\Vivid3D\\Vivid3D\\Engine\\CS\\VividEngine\\Engine\\Engine.cs",
+              "RelativeDocumentMoniker": "..\\..\\Engine\\CS\\VividEngine\\Engine\\Engine.cs",
+              "ToolTip": "C:\\Vivid3D\\Vivid3D\\Engine\\CS\\VividEngine\\Engine\\Engine.cs",
+              "RelativeToolTip": "..\\..\\Engine\\CS\\VividEngine\\Engine\\Engine.cs",
+              "ViewState": "AgIAAAgAAAAAAAAAAADwvxMAAAAVAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-15T06:58:49.097Z",
+              "WhenOpened": "2025-06-20T08:11:04.013Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 4,
+              "Title": "Texture2D.cs",
+              "DocumentMoniker": "C:\\Vivid3D\\Vivid3D\\Engine\\CS\\VividEngine\\Texture\\Texture2D.cs",
+              "RelativeDocumentMoniker": "..\\..\\Engine\\CS\\VividEngine\\Texture\\Texture2D.cs",
+              "ToolTip": "C:\\Vivid3D\\Vivid3D\\Engine\\CS\\VividEngine\\Texture\\Texture2D.cs",
+              "RelativeToolTip": "..\\..\\Engine\\CS\\VividEngine\\Texture\\Texture2D.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAIwAcAAAAPAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-20T07:08:30.543Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "Draw2D.cs",
+              "DocumentMoniker": "C:\\Vivid3D\\Vivid3D\\Engine\\CS\\VividEngine\\Draw\\Draw2D.cs",
+              "RelativeDocumentMoniker": "..\\..\\Engine\\CS\\VividEngine\\Draw\\Draw2D.cs",
+              "ToolTip": "C:\\Vivid3D\\Vivid3D\\Engine\\CS\\VividEngine\\Draw\\Draw2D.cs",
+              "RelativeToolTip": "..\\..\\Engine\\CS\\VividEngine\\Draw\\Draw2D.cs",
+              "ViewState": "AgIAAAwAAAAAAAAAAAAAwAUAAAALAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-20T07:04:26.685Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "Video.cs",
+              "DocumentMoniker": "C:\\Vivid3D\\Vivid3D\\Engine\\CS\\VividEngine\\Media\\Video.cs",
+              "RelativeDocumentMoniker": "..\\..\\Engine\\CS\\VividEngine\\Media\\Video.cs",
+              "ToolTip": "C:\\Vivid3D\\Vivid3D\\Engine\\CS\\VividEngine\\Media\\Video.cs",
+              "RelativeToolTip": "..\\..\\Engine\\CS\\VividEngine\\Media\\Video.cs",
+              "ViewState": "AgIAAAEAAAAAAAAAAAApwAYAAAALAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-20T06:56:29.165Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "NativeBridge.cs",
+              "DocumentMoniker": "C:\\Vivid3D\\Vivid3D\\Engine\\CS\\VividEngine\\NativeBridge.cs",
+              "RelativeDocumentMoniker": "..\\..\\Engine\\CS\\VividEngine\\NativeBridge.cs",
+              "ToolTip": "C:\\Vivid3D\\Vivid3D\\Engine\\CS\\VividEngine\\NativeBridge.cs*",
+              "RelativeToolTip": "..\\..\\Engine\\CS\\VividEngine\\NativeBridge.cs*",
+              "ViewState": "AgIAADcAAAAAAAAAAAApwEIAAAAfAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-13T14:06:24.718Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "GraphNode.cs",
+              "DocumentMoniker": "C:\\Vivid3D\\Vivid3D\\Engine\\CS\\VividEngine\\SceneGraph\\GraphNode.cs",
+              "RelativeDocumentMoniker": "..\\..\\Engine\\CS\\VividEngine\\SceneGraph\\GraphNode.cs",
+              "ToolTip": "C:\\Vivid3D\\Vivid3D\\Engine\\CS\\VividEngine\\SceneGraph\\GraphNode.cs*",
+              "RelativeToolTip": "..\\..\\Engine\\CS\\VividEngine\\SceneGraph\\GraphNode.cs*",
+              "ViewState": "AgIAAGEAAAAAAAAAAAAvwHMAAAAaAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-13T14:03:44.543Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "SceneGraph.cs",
+              "DocumentMoniker": "C:\\Vivid3D\\Vivid3D\\Engine\\CS\\VividEngine\\SceneGraph\\SceneGraph.cs",
+              "RelativeDocumentMoniker": "..\\..\\Engine\\CS\\VividEngine\\SceneGraph\\SceneGraph.cs",
+              "ToolTip": "C:\\Vivid3D\\Vivid3D\\Engine\\CS\\VividEngine\\SceneGraph\\SceneGraph.cs*",
+              "RelativeToolTip": "..\\..\\Engine\\CS\\VividEngine\\SceneGraph\\SceneGraph.cs*",
+              "ViewState": "AgIAACMAAAAAAAAAAAD4vzAAAABNAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-13T15:14:00.267Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "SharpComponent.cs",
+              "DocumentMoniker": "C:\\Vivid3D\\Vivid3D\\Engine\\CS\\VividEngine\\Component\\SharpComponent.cs",
+              "RelativeDocumentMoniker": "..\\..\\Engine\\CS\\VividEngine\\Component\\SharpComponent.cs",
+              "ToolTip": "C:\\Vivid3D\\Vivid3D\\Engine\\CS\\VividEngine\\Component\\SharpComponent.cs",
+              "RelativeToolTip": "..\\..\\Engine\\CS\\VividEngine\\Component\\SharpComponent.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAAAwAAAASAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-13T14:00:48.131Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
               "Title": "Vec3.cs",
               "DocumentMoniker": "C:\\Vivid3D\\Vivid3D\\Engine\\CS\\VividEngine\\SceneGraph\\Vec3.cs",
               "RelativeDocumentMoniker": "..\\..\\Engine\\CS\\VividEngine\\SceneGraph\\Vec3.cs",
@@ -78,90 +189,37 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 12,
               "Title": "VividEngine",
               "DocumentMoniker": "C:\\Vivid3D\\Vivid3D\\Engine\\CS\\VividEngine\\VividEngine.csproj",
               "RelativeDocumentMoniker": "..\\..\\Engine\\CS\\VividEngine\\VividEngine.csproj",
               "ToolTip": "C:\\Vivid3D\\Vivid3D\\Engine\\CS\\VividEngine\\VividEngine.csproj",
               "RelativeToolTip": "..\\..\\Engine\\CS\\VividEngine\\VividEngine.csproj",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2025-06-15T06:10:33.063Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-15T06:10:33.063Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "SceneGraph.cs",
-              "DocumentMoniker": "C:\\Vivid3D\\Vivid3D\\Engine\\CS\\VividEngine\\SceneGraph\\SceneGraph.cs",
-              "RelativeDocumentMoniker": "..\\..\\Engine\\CS\\VividEngine\\SceneGraph\\SceneGraph.cs",
-              "ToolTip": "C:\\Vivid3D\\Vivid3D\\Engine\\CS\\VividEngine\\SceneGraph\\SceneGraph.cs",
-              "RelativeToolTip": "..\\..\\Engine\\CS\\VividEngine\\SceneGraph\\SceneGraph.cs",
-              "ViewState": "AgIAAA0AAAAAAAAAAAAQwBkAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-13T15:14:00.267Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "NativeBridge.cs",
-              "DocumentMoniker": "C:\\Vivid3D\\Vivid3D\\Engine\\CS\\VividEngine\\NativeBridge.cs",
-              "RelativeDocumentMoniker": "..\\..\\Engine\\CS\\VividEngine\\NativeBridge.cs",
-              "ToolTip": "C:\\Vivid3D\\Vivid3D\\Engine\\CS\\VividEngine\\NativeBridge.cs",
-              "RelativeToolTip": "..\\..\\Engine\\CS\\VividEngine\\NativeBridge.cs",
-              "ViewState": "AgIAABkAAAAAAAAAAAAuwCYAAAAzAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-13T14:06:24.718Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "GraphNode.cs",
-              "DocumentMoniker": "C:\\Vivid3D\\Vivid3D\\Engine\\CS\\VividEngine\\SceneGraph\\GraphNode.cs",
-              "RelativeDocumentMoniker": "..\\..\\Engine\\CS\\VividEngine\\SceneGraph\\GraphNode.cs",
-              "ToolTip": "C:\\Vivid3D\\Vivid3D\\Engine\\CS\\VividEngine\\SceneGraph\\GraphNode.cs",
-              "RelativeToolTip": "..\\..\\Engine\\CS\\VividEngine\\SceneGraph\\GraphNode.cs",
-              "ViewState": "AgIAAJoAAAAAAAAAAAAcwKkAAABAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-13T14:03:44.543Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "SharpComponent.cs",
-              "DocumentMoniker": "C:\\Vivid3D\\Vivid3D\\Engine\\CS\\VividEngine\\Component\\SharpComponent.cs",
-              "RelativeDocumentMoniker": "..\\..\\Engine\\CS\\VividEngine\\Component\\SharpComponent.cs",
-              "ToolTip": "C:\\Vivid3D\\Vivid3D\\Engine\\CS\\VividEngine\\Component\\SharpComponent.cs",
-              "RelativeToolTip": "..\\..\\Engine\\CS\\VividEngine\\Component\\SharpComponent.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-13T14:00:48.131Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 10,
               "Title": "TestLib",
               "DocumentMoniker": "C:\\Vivid3D\\Vivid3D\\scripts\\TestLib\\TestLib.csproj",
               "RelativeDocumentMoniker": "TestLib.csproj",
               "ToolTip": "C:\\Vivid3D\\Vivid3D\\scripts\\TestLib\\TestLib.csproj",
               "RelativeToolTip": "TestLib.csproj",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2025-06-13T07:07:56.858Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-13T07:07:56.858Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "Class1.cs",
-              "DocumentMoniker": "C:\\Vivid3D\\Vivid3D\\scripts\\TestLib\\Class1.cs",
-              "RelativeDocumentMoniker": "Class1.cs",
-              "ToolTip": "C:\\Vivid3D\\Vivid3D\\scripts\\TestLib\\Class1.cs*",
-              "RelativeToolTip": "Class1.cs*",
-              "ViewState": "AgIAACEAAAAAAAAAAAAYwDAAAAAKAAAAAAAAAA==",
+              "DocumentIndex": 11,
+              "Title": "Debug.cs",
+              "DocumentMoniker": "C:\\Vivid3D\\Vivid3D\\Engine\\CS\\VividEngine\\Debug\\Debug.cs",
+              "RelativeDocumentMoniker": "..\\..\\Engine\\CS\\VividEngine\\Debug\\Debug.cs",
+              "ToolTip": "C:\\Vivid3D\\Vivid3D\\Engine\\CS\\VividEngine\\Debug\\Debug.cs",
+              "RelativeToolTip": "..\\..\\Engine\\CS\\VividEngine\\Debug\\Debug.cs",
+              "ViewState": "AgIAAAEAAAAAAAAAAAArwAsAAAAbAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-13T06:48:57.971Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-15T06:58:49.097Z"
             }
           ]
         }

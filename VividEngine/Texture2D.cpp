@@ -136,6 +136,36 @@ Texture2D::Texture2D(int w, int h, float* data, int bpp)
     m_pTextureView = pTexture->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE);
 }
 
+
+Texture2D::Texture2D(int w, int h, char* data, int bpp)
+{
+    m_Width = w;
+    m_Height = h;
+
+    TextureDesc TexDesc;
+    TexDesc.Name = "Float Tex2D";
+    TexDesc.Type = RESOURCE_DIM_TEX_2D;
+    TexDesc.Width = w;
+    TexDesc.Height = h;
+    TexDesc.Format = TEXTURE_FORMAT::TEX_FORMAT_RGBA32_FLOAT;
+    TexDesc.BindFlags = BIND_SHADER_RESOURCE;
+    TexDesc.Usage = USAGE_DEFAULT;
+    TexDesc.MipLevels = 1;
+
+    TextureSubResData adata;
+    adata.pData = data;
+    adata.Stride = w * sizeof(float) * 4;
+
+    TextureData tdata;
+    tdata.NumSubresources = 1;
+    tdata.pSubResources = &adata;
+
+    RefCntAutoPtr<ITexture> pTexture;
+    Vivid::m_pDevice->CreateTexture(TexDesc, &tdata, &pTexture);
+    m_pTexture = pTexture;
+    m_pTextureView = pTexture->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE);
+}
+
 void Texture2D::Update(float* data) {
     Diligent::Box updateBox;
     updateBox.MinX = 0;

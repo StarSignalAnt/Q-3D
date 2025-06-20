@@ -6,7 +6,7 @@ NodeTurnNode::NodeTurnNode() {
     // Set user-facing name and internal type name for saving
     SetName("Turn GraphNode");
     SetTypeName("Turn GraphNode");
-
+    AddExecOutput("Then");
     // Use the cleaner API to define the input port
     AddInput("Node", DataType::GraphNodeRef);
     AddInput("Delta", DataType::Vec3);

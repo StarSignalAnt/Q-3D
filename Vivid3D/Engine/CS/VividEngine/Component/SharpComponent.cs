@@ -12,7 +12,10 @@ namespace Vivid.Component
 
         public GraphNode Node = null;
 
+        public virtual void OnPlay() { }
+        public virtual void OnStop() { }
         public virtual void OnUpdate(float dt) { }
+        public virtual void OnRender(GraphNode camera) { }
 
     }
 }

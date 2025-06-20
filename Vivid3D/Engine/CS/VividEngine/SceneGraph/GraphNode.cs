@@ -106,19 +106,23 @@ namespace Vivid.Scene
             }
         }
 
+        public GraphNode()
+        {
+
+        }
+
+        public GraphNode(IntPtr ptr)
+        {
+            NodePtr = ptr;
+        }
+
         public string GetName()
         {
             return Name;
 
         }
 
-        public GraphNode()
-        {
-
-            System.Console.WriteLine("Graphnode created.");
-         
-
-        }
+    
 
         public void Turn(GlmNet.vec3 rotation, NodeSpace space)
         {

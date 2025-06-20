@@ -378,6 +378,24 @@
     <ClInclude Include="SetVariableNode.h">
       <Filter>LogicGraph\Nodes\Data</Filter>
     </ClInclude>
+    <ClInclude Include="NodeDebug.h">
+      <Filter>LogicGraph\Nodes\Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="GameVideo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayEventNode.h">
+      <Filter>LogicGraph\Nodes\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="NodeStartVideo.h">
+      <Filter>LogicGraph\Nodes\Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderEventNode.h">
+      <Filter>LogicGraph\Nodes\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="NodeRenderVideo.h">
+      <Filter>LogicGraph\Nodes\Logic</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="VividEngine.cpp">
@@ -733,6 +751,24 @@
     </ClCompile>
     <ClCompile Include="TerrainMeshBuffer.cpp">
       <Filter>Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="NodeDebug.cpp">
+      <Filter>LogicGraph\Nodes\Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="GameVideo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayEventNode.cpp">
+      <Filter>LogicGraph\Nodes\Events</Filter>
+    </ClCompile>
+    <ClCompile Include="NodeStartVideo.cpp">
+      <Filter>LogicGraph\Nodes\Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderEventNode.cpp">
+      <Filter>LogicGraph\Nodes\Events</Filter>
+    </ClCompile>
+    <ClCompile Include="NodeRenderVideo.cpp">
+      <Filter>LogicGraph\Nodes\Logic</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -187,6 +187,11 @@ private:
 	glm::vec3 m_ScalePush;
 	glm::mat4 m_RotationPush;
 
+	void MarkBoundsAsDirty();
+
+	bool m_bBoundsAreDirty = true;
+	Bounds m_CachedBounds;
+
 
 	GraphNode* m_RootNode = nullptr;
 

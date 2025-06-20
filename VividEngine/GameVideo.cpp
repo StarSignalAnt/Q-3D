@@ -62,12 +62,7 @@ GameVideo::GameVideo(std::string path)
     // Allocate frames
     videoFrame = av_frame_alloc();
     audioFrame = av_frame_alloc();
-    av_packet_unref(&packet);
 
-    // Initialize the software scaler (for converting video frames to RGB)
-    swsContext = sws_getContext(videoCodecCtx->width, videoCodecCtx->height, videoCodecCtx->pix_fmt,
-        videoCodecCtx->width, videoCodecCtx->height, AV_PIX_FMT_RGB24,
-        SWS_BILINEAR, nullptr, nullptr, nullptr);
     device = alcOpenDevice(nullptr);  // Use default device
     if (!device) {
         std::cerr << "Failed to open OpenAL device" << std::endl;
@@ -99,48 +94,45 @@ void GameVideo::Play() {
 
     isPlaying = true;  // Start playback
     StartClock = clock();
-    // lastFrameTime = av_gettime() / 1000000.0; // Current time in seconds
-    // ALuint source;
     alGenSources(1, &source);
-    // alSourcei(source, AL_BUFFER, buffer);
     alSourcePlay(source);
 }
 void GameVideo::Update() {
     if (!isPlaying) return;
 
-    // Read a single packet from the input file
     if (av_read_frame(formatCtx, &packet) < 0) {
-        // End of file or error
-        return;
+        return; // End of file or error
     }
 
-    //  if (m_Frames.size() > 250) return;
-      // Check if it's a video packet
     if (packet.stream_index == videoStreamIndex) {
-        // Send the packet to the video decoder
         int ret = avcodec_send_packet(videoCodecCtx, &packet);
         if (ret >= 0) {
-            // Receive a decoded frame from the video codec
             ret = avcodec_receive_frame(videoCodecCtx, videoFrame);
             if (ret >= 0) {
 
+                // CORRECTION: Lazily initialize the swsContext for the intermediate conversion.
+                if (!swsContext) {
+                    // STEP 1 SETUP: Convert to a standard 8-bit RGBA format first.
+                    swsContext = sws_getContext(
+                        videoCodecCtx->width, videoCodecCtx->height, videoCodecCtx->pix_fmt, // Source
+                        videoCodecCtx->width, videoCodecCtx->height, AV_PIX_FMT_RGBA,        // Destination
+                        SWS_BILINEAR, nullptr, nullptr, nullptr);
+                }
+
+                if (!swsContext) {
+                    std::cerr << "Could not initialize the conversion context!" << std::endl;
+                    av_packet_unref(&packet);
+                    return;
+                }
+
                 AVStream* videoStream = formatCtx->streams[videoStreamIndex];
-
-                // Get the presentation timestamp (PTS) and convert to seconds
-                // If PTS is invalid, try to use DTS (decoding timestamp) instead
                 int64_t timestamp = videoFrame->pts != AV_NOPTS_VALUE ? videoFrame->pts : videoFrame->pkt_dts;
-
                 if (timestamp != AV_NOPTS_VALUE) {
-                    // Convert timestamp to seconds using the stream's time_base
                     m_CurrentFrameTimestamp = timestamp * av_q2d(videoStream->time_base);
                 }
                 else {
-                    // If no valid timestamp, use a fallback (could be previous timestamp + frame duration)
                     double frameRate = av_q2d(videoStream->r_frame_rate);
-                    double frameDuration = frameRate > 0 ? 1.0 / frameRate : 0.04; // Default to 25fps if unknown
-
-                    // If we have a previous timestamp, increment it
-                    // Otherwise start from 0
+                    double frameDuration = frameRate > 0 ? 1.0 / frameRate : 0.04;
                     if (m_CurrentFrameTimestamp >= 0) {
                         m_CurrentFrameTimestamp += frameDuration;
                     }
@@ -149,154 +141,112 @@ void GameVideo::Update() {
                     }
                 }
 
+                // --- START: TWO-STEP CONVERSION ---
 
-                // Allocate the RGB buffer with correct size
-                int rgbBufferSize = videoCodecCtx->width * videoCodecCtx->height * 3;
-                uint8_t* rgbBuffer = new uint8_t[rgbBufferSize];
+                // STEP 1: Convert from YUV to 8-bit RGBA
+                uint8_t* intermediateRgbaBuffer = new uint8_t[videoCodecCtx->width * videoCodecCtx->height * 4];
+                int intermediateStride[1] = { videoCodecCtx->width * 4 };
+                uint8_t* intermediateData[1] = { intermediateRgbaBuffer };
 
-                // Set up the correct stride for the destination buffer
-                int rgbStride[1] = { videoCodecCtx->width * 3 };
-                uint8_t* rgbData[1] = { rgbBuffer };
-
-                // Convert the video frame to RGB
                 sws_scale(swsContext, videoFrame->data, videoFrame->linesize,
                     0, videoCodecCtx->height,
-                    rgbData, rgbStride);
+                    intermediateData, intermediateStride);
 
-                // Create a new texture with the RGB data
-                auto img = new Texture2D(videoCodecCtx->width, videoCodecCtx->height, rgbBuffer, 3);
+                // STEP 2: Manually convert from 8-bit RGBA to 32-bit float RGBA
+                const int numPixels = videoCodecCtx->width * videoCodecCtx->height;
+                float* finalFloatBuffer = new float[numPixels * 4];
 
-                delete[] rgbBuffer;
+                for (int i = 0; i < numPixels; ++i) {
+                    // Read 4 uint8_t values (0-255) and convert them to float (0.0-1.0)
+                    finalFloatBuffer[i * 4 + 0] = intermediateRgbaBuffer[i * 4 + 0] / 255.0f; // R
+                    finalFloatBuffer[i * 4 + 1] = intermediateRgbaBuffer[i * 4 + 1] / 255.0f; // G
+                    finalFloatBuffer[i * 4 + 2] = intermediateRgbaBuffer[i * 4 + 2] / 255.0f; // B
+                    finalFloatBuffer[i * 4 + 3] = intermediateRgbaBuffer[i * 4 + 3] / 255.0f; // A
+                }
+
+                // --- END: TWO-STEP CONVERSION ---
+
+                // Now, create the texture using the final float buffer
+                auto img = new Texture2D(videoCodecCtx->width, videoCodecCtx->height, finalFloatBuffer, 4);
+
+                // IMPORTANT: Clean up both buffers
+                delete[] intermediateRgbaBuffer;
+                delete[] finalFloatBuffer;
 
                 Frame* frame = new Frame;
                 frame->Image = img;
                 frame->TimeStamp = GetCurrentFrameTimestamp();
 
-
                 m_Frames.push_back(frame);
-
-
-
-                // Clean up the RGB buffer after use
-                //delete rgbBuffer;
-
             }
         }
     }
-    // Check if it's an audio packet
     else if (packet.stream_index == audioStreamIndex) {
-        // Send the packet to the audio decoder
+        // ... (audio processing code remains the same)
         int ret = avcodec_send_packet(audioCodecCtx, &packet);
         if (ret >= 0) {
-            // Receive a decoded audio frame
             ret = avcodec_receive_frame(audioCodecCtx, audioFrame);
             if (ret >= 0) {
                 ALenum format;
                 int channels = audioFrame->ch_layout.nb_channels;
-
-                // Determine the OpenAL format based on sample format and channels
                 if (channels == 2) {
-                    // Format is stereo, so we need to interleave the channels
                     format = AL_FORMAT_STEREO_FLOAT32;
-
-                    // Number of samples per channel
                     int numSamples = audioFrame->nb_samples;
-
-                    // Allocate a buffer for the interleaved data
                     float* interleavedData = new float[numSamples * channels];
-
-                    // Get the left and right channel data from the planar format
                     float* leftChannel = (float*)audioFrame->data[0];
                     float* rightChannel = (float*)audioFrame->data[1];
-
-                    // Interleave the data
                     for (int i = 0; i < numSamples; ++i) {
-                        interleavedData[2 * i] = leftChannel[i];   // Left channel
-                        interleavedData[2 * i + 1] = rightChannel[i]; // Right channel
+                        interleavedData[2 * i] = leftChannel[i];
+                        interleavedData[2 * i + 1] = rightChannel[i];
                     }
 
-                    // Calculate the data size for the interleaved data
                     int dataSize = numSamples * channels * sizeof(float);
-
-                    // Create an OpenAL buffer and fill it with the interleaved data
                     ALuint buffer;
                     alGenBuffers(1, &buffer);
                     alBufferData(buffer, format, interleavedData, dataSize, audioFrame->sample_rate);
 
-                    // Check for errors
-                    ALenum alError = alGetError();
-                    if (alError != AL_NO_ERROR) {
-                        std::cerr << "OpenAL error loading buffer data: " << alError << std::endl;
-                        delete[] interleavedData;  // Clean up allocated memory
+                    if (alGetError() != AL_NO_ERROR) {
+                        std::cerr << "OpenAL error loading buffer data" << std::endl;
+                        delete[] interleavedData;
                         return;
                     }
 
-                    // Queue the buffer to the source
                     alSourceQueueBuffers(source, 1, &buffer);
 
-                    // Check if the source is playing, start it if not
                     ALint sourceState;
                     alGetSourcei(source, AL_SOURCE_STATE, &sourceState);
                     if (sourceState != AL_PLAYING) {
                         alSourcePlay(source);
-
-                        // Check for errors
-                        alError = alGetError();
-                        if (alError != AL_NO_ERROR) {
-                            std::cerr << "OpenAL error playing source: " << alError << std::endl;
-                        }
                     }
-
-                    // Clean up allocated memory
                     delete[] interleavedData;
                 }
                 else {
                     std::cerr << "Unsupported channel count: " << channels << std::endl;
                     return;
                 }
-
             }
-
         }
     }
-    // Unreference the packet after processing it (important to avoid memory leaks)
+
     av_packet_unref(&packet);
 }
 
 Texture2D* GameVideo::GetFrame() {
-    //	return nullptr;
-       // return m_CurrentFrame;
-    int time = clock();
-    int len = time - StartClock;
-
-    double ftime = ((double)len) / 1000.0;
-
-    //std::cout << "Time:" << ftime << std::endl;
-
-
-    ftime = getSourceTime(source);
+    float ftime = getSourceTime(source);
 
     if (m_Frames.size() > 0) {
-
-        for (auto frame : m_Frames) {
-            if (frame->TimeStamp > ftime) {
-                return frame->Image;
+        for (auto it = m_Frames.begin(); it != m_Frames.end(); ) {
+            if ((*it)->TimeStamp > ftime) {
+                return (*it)->Image;
             }
             else {
-
-                frame->Image->Free();
-
-
-                m_Frames.erase(std::remove(m_Frames.begin(), m_Frames.end(), frame), m_Frames.end());
-
-
+                delete (*it)->Image;
+                delete* it;
+                it = m_Frames.erase(it);
             }
         }
-        //        Frame* frame = m_Frames[0];
-
-          //      return frame->Image;
     }
-
+    return nullptr;
 }
 
 double GameVideo::GetCurrentFrameTimestamp() const {
@@ -306,7 +256,9 @@ double GameVideo::GetCurrentFrameTimestamp() const {
 
 GameVideo::~GameVideo()
 {
-    // Close the video file
+    if (swsContext) {
+        sws_freeContext(swsContext);
+    }
     if (formatCtx) {
         avformat_close_input(&formatCtx);
     }

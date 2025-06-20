@@ -7,6 +7,10 @@ using System.Text;
 using System.Threading.Tasks;
 using Vivid.Scene;
 using Vivid.Debug;
+using Vivid.Draw;
+using Vivid.Texture;
+using VividEngine;
+using Vivid;
 
 namespace Vivid
 {
@@ -24,13 +28,18 @@ namespace Vivid
         public float TurnSpeed = 0.1f;
         public int TurnFactor = 1;
         public GraphNode TestNode;// = new GraphNode();
-
+        public Draw2D draw;
+        public Texture2D tex1;
+        public Video vid;
+        public SceneGraph graph;
         Test()
         {
-            
+            graph = new SceneGraph();
             Console.WriteLine("Test Component Created!");
+            draw = new Draw2D();
+            tex1 = new Texture2D("test/tex1.png");
+            vid = new Video("test/video1.mp4");
 
-        
         }
 
         public override void OnUpdate(float dt)
@@ -47,6 +56,34 @@ namespace Vivid
        //     Node.Rotation = rot;
            // TestNode.Position = TestNode.Position + new GlmNet.vec3(0.1f,0, 0);
             VividDebug.Log("It is working!");
+            vid.Update();
+            var r = graph.RayCast(Node.Position, Node.Position + new GlmNet.vec3(0, -10, 0));
+            VividDebug.Log("HitPoint:" + r.HitPoint);
+            if (r.Hit)
+            {
+                VividDebug.Log("HitNode:" + r.HitNode.Name);
+            }
+
+        }
+
+        public override void OnPlay()
+        {
+            vid.Play();   
+        }
+
+        public override void OnRender(GraphNode camera)
+        {
+
+            var tex = vid.GetFrame();
+
+            if (tex.obj != IntPtr.Zero)
+            {
+                draw.Rect(tex, new GlmNet.vec2(0, 0), new GlmNet.vec2(Engine.FrameWidth, Engine.FrameHeight));
+              
+            }
+
+     
+         //  draw.Rect(tex1, new GlmNet.vec2(0, 0), new GlmNet.vec2(512, 512));
 
         }
 

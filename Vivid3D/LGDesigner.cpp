@@ -45,6 +45,8 @@ void LGDesigner::NewGraph() {
     scene->clear();
     delete m_graph;
     m_graph = new LGraph("New Graph");
+    auto nv = new LGraphVariable("Node", DataType::GraphNodeRef);
+    m_graph->AddVariable(nv);
 }
 
 void LGDesigner::SaveGraph() {

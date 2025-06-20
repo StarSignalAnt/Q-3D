@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Threading.Tasks;
-using System.Runtime.InteropServices;
 
 internal class NativeBridge
 {
@@ -37,5 +38,32 @@ internal class NativeBridge
 
     [DllImport("__Internal", CharSet = CharSet.Ansi)]
     public static extern void ConsoleLog(string msg);
+    [DllImport("__Internal")]
+    public static extern IntPtr CreateDraw2D();
+    [DllImport("__Internal")]
+    public static extern void DrawRect(IntPtr draw,IntPtr tex,GlmNet.vec2 pos,GlmNet.vec2 size);
+
+    [DllImport("__Internal", CharSet = CharSet.Ansi)]
+    public static extern IntPtr LoadTexture2D(string path);
+    [DllImport("__Internal", CharSet = CharSet.Ansi)]
+    public static extern IntPtr CreateVideo(string path);
+    [DllImport("__Internal")]
+    public static extern void UpdateVideo(IntPtr video);
+    [DllImport("__Internal")]
+    public static extern IntPtr  VideoGetFrame(IntPtr video);
+    [DllImport("__Internal")]
+    public static extern void PlayVideo(IntPtr video);
+    [DllImport("__Internal")]
+    public static extern int EngineGetWidth();
+    [DllImport("__Internal")]
+    public static extern int EngineGetHeight();
+    [DllImport("__Internal")]
+    public static extern IntPtr SceneRayCast(GlmNet.vec3 from, GlmNet.vec3 to);
+    [DllImport("__Internal")]
+    public static extern bool CastResultHit(IntPtr result);
+    [DllImport("__Internal")]
+    public static extern GlmNet.vec3 CastResultPoint(IntPtr result);
+    [DllImport("__Internal")]
+    public static extern IntPtr CastResultNode(IntPtr result);
 
 }

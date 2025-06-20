@@ -47,6 +47,7 @@ class SceneController;
 class SceneGraph;
 class GraphNode;
 class TerrainEditor;
+class GameVideo;
 
 #include <QResizeEvent>
 
@@ -229,6 +230,7 @@ private:
 	int m_TerrainLayer = 1;
 	bool m_Picking = false;
 	EditBrushMode m_BrushMode = EditBrushMode::BM_Add;
+	GameVideo* m_Vid1;
 };
 
 
