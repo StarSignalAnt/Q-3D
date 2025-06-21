@@ -52,6 +52,22 @@ Draw2D* Vivid::m_Draw = nullptr;
 
 GameVideo* Vivid::m_CurrentVideo = nullptr;
 
+std::string Vivid::m_ContentPath = "";
+
+
+void Vivid::SetContentPath(std::string path) {
+
+	m_ContentPath = path;
+
+}
+
+std::string Vivid::GetContentPath() {
+
+
+	return m_ContentPath;
+
+}
+
 void Vivid::StartVideo(std::string path) {
 
 	m_CurrentVideo = new GameVideo(path);
@@ -145,7 +161,7 @@ void Vivid::InitMono() {
 
 	MonoHost* host = new MonoHost;
 
-	m_MonoLib = new MonoLib("VividGame.dll");
+	m_MonoLib = new MonoLib(m_ContentPath+"Game\\");
 
 	auto classes = m_MonoLib->GetClasses();
 	for (auto c : classes) {

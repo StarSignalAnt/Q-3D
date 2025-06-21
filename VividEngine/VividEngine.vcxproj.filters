@@ -396,6 +396,9 @@
     <ClInclude Include="NodeRenderVideo.h">
       <Filter>LogicGraph\Nodes\Logic</Filter>
     </ClInclude>
+    <ClInclude Include="stb_image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="VividEngine.cpp">

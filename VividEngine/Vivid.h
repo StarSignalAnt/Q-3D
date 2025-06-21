@@ -85,6 +85,9 @@ public:
 	static void StartVideo(std::string path);
 	static void RenderVideo();
 	static Draw2D* m_Draw;
+	static void SetContentPath(std::string path);
+	static std::string GetContentPath();
+	static std::string m_ContentPath;
 
 private:
 

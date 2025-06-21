@@ -38,6 +38,9 @@ Content::Content(QWidget* parent)
     EntIcon = QIcon("edit/icons/entityIcon.png");
     ImageIcon = QIcon("edit/icons/imageicon.png");
     ScriptIcon = QIcon("edit/icons/scripticon.png");
+    if (parent) {
+        parent->installEventFilter(this);
+    }
 }
 
 Content::~Content()
@@ -209,7 +212,9 @@ void Content::Browse(const std::string& path)
     m_currentPath = QString::fromStdString(path);
     m_items.clear();
     m_CurrentPath = path;
-
+    if (m_rootPath.isEmpty()) {
+        m_rootPath = m_currentPath;
+    }
     QDir dir(m_currentPath);
     if (!dir.exists()) {
         qDebug() << "Error: Directory does not exist:" << m_currentPath;
@@ -227,7 +232,7 @@ void Content::Browse(const std::string& path)
         update();
         return;
     }
-
+    m_layoutDirty = true;
     for (const QFileInfo& info : entries) {
         FileItem item;
         item.fullPath = info.absoluteFilePath();
@@ -270,6 +275,27 @@ void Content::Browse(const std::string& path)
     }
 
     update();
+}
+
+void Content::GoBack()
+{
+    // Use QDir::cleanPath to normalize paths (e.g., remove trailing slashes) for a reliable comparison.
+    if (!m_rootPath.isEmpty() && QDir::cleanPath(m_currentPath) == QDir::cleanPath(m_rootPath))
+    {
+        qDebug() << "Already at root content path. Cannot go back further.";
+        return; // We are at the root, do nothing.
+    }
+
+    QDir dir(m_currentPath);
+
+    // cdUp() navigates to the parent directory.
+    if (dir.cdUp()) {
+        // Browse to the new parent path.
+        Browse(dir.absolutePath().toStdString());
+    }
+    else {
+        qDebug() << "Failed to navigate up from current path:" << m_currentPath;
+    }
 }
 
 void Content::calculateLayout()
@@ -618,6 +644,11 @@ void Content::mouseMoveEvent(QMouseEvent* event) {
 }
 void Content::mousePressEvent(QMouseEvent* event)
 {
+    if (event->button() == Qt::BackButton)
+    {
+        GoBack();
+        return; // The event is handled, no need for further processing.
+    }
     if (event->button() == Qt::LeftButton) {
         m_dragStartPosition = event->pos();
         // Hide preview when clicking
@@ -640,4 +671,21 @@ void Content::leaveEvent(QEvent* event) {
     m_lastHoverItem = nullptr;
 
     QWidget::leaveEvent(event);
+}
+
+bool Content::eventFilter(QObject* watched, QEvent* event)
+{
+    // Check if the event is a mouse button press.
+    if (event->type() == QEvent::MouseButtonPress) {
+        // Cast the generic event to a mouse event to access button info.
+        QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
+        if (mouseEvent->button() == Qt::BackButton) {
+            GoBack();
+            return true; // Return true to indicate we have handled the event.
+            // It will not be passed on to the original target.
+        }
+    }
+
+    // For all other events, pass them on to the default processing.
+    return QWidget::eventFilter(watched, event);
 }

@@ -244,6 +244,7 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="SceneGraph.h" />
     <ClInclude Include="StaticRendererComponent.h" />
+    <ClInclude Include="stb_image.h" />
     <ClInclude Include="TerrainDepthRenderer.h" />
     <ClInclude Include="TerrainLayer.h" />
     <ClInclude Include="TerrainMesh.h" />

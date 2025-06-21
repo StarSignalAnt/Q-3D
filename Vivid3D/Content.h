@@ -56,6 +56,7 @@ public:
         update();
 
     }
+    void GoBack();
 protected:
     void paintEvent(QPaintEvent* event) override;
     void mouseDoubleClickEvent(QMouseEvent* event) override;
@@ -63,6 +64,7 @@ protected:
     void mouseMoveEvent(QMouseEvent* event) override;
     void mousePressEvent(QMouseEvent* event) override;
     void leaveEvent(QEvent* event) override;  // Add this line
+    bool eventFilter(QObject* watched, QEvent* event) override;
 private:
     Ui::ContentClass ui;
     void calculateLayout();
@@ -74,7 +76,7 @@ private:
     void showImagePreview(const FileItem* item, const QPoint& mousePos);
     void hideImagePreview();
     QPixmap generateLargePreview(const QString& filePath);
-
+    QString m_rootPath;
     std::vector<FileItem> m_items;
     int m_itemSize;
     int m_itemSpacing;

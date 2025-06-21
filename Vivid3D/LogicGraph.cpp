@@ -18,13 +18,25 @@ LogicGraph::LogicGraph(QWidget* parent)
     QHBoxLayout* toolbarLayout = new QHBoxLayout(toolbar);
     toolbarLayout->setContentsMargins(5, 0, 5, 0);
     toolbarLayout->setSpacing(5);
+    QPushButton* newButton = new QPushButton();
+    newButton->setIcon(QIcon("Edit/Icons/NewGraph.png"));
 
-    QPushButton* newButton = new QPushButton("New");
-    QPushButton* saveButton = new QPushButton("Save");
-    QPushButton* loadButton = new QPushButton("Load");
+    QPushButton* saveButton = new QPushButton();
+    saveButton->setIcon(QIcon("Edit/Icons/SaveGraph.png"));
+
+    QPushButton* loadButton = new QPushButton();
+    loadButton->setIcon(QIcon("Edit/Icons/LoadGraph.png"));
+
+    newButton->setToolTip("Create a new Logic Graph.");
+    saveButton->setToolTip("Save the current Logic Graph to disk.");
+    loadButton->setToolTip("Load a Logic Graph from disk.");
+
+
     toolbarLayout->addWidget(newButton);
-    toolbarLayout->addWidget(saveButton);
+
+    toolbarLayout->addSpacing(8);
     toolbarLayout->addWidget(loadButton);
+    toolbarLayout->addWidget(saveButton);
     toolbarLayout->addStretch();
 
     // --- Create Main Content ---
@@ -34,6 +46,7 @@ LogicGraph::LogicGraph(QWidget* parent)
     // ... splitter setup is the same ...
     m_Splitter->addWidget(m_Properties);
     m_Splitter->addWidget(m_Designer);
+    
 
     // --- Main Layout ---
     // The main layout is now a QVBoxLayout to hold the toolbar and splitter
@@ -51,6 +64,9 @@ LogicGraph::LogicGraph(QWidget* parent)
 
     connect(m_Designer, &LGDesigner::nodeSelected, m_Properties, &LGProperties::inspectNode);
     m_Properties->setGraph(m_Designer->GetGraph());
+
+    m_Splitter->setSizes({ 200, 500 });
+
 }
 
 LogicGraph::~LogicGraph()

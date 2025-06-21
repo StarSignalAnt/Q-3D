@@ -55,7 +55,7 @@ class LGNodeWidget : public QFrame {
     Q_OBJECT
 public:
     explicit LGNodeWidget(LNode* logicNode, QWidget* parent = nullptr)
-        : QFrame(parent)
+        : QFrame(parent), m_logicNode(logicNode)
     {
         // --- Basic Node Styling ---
         setFrameStyle(QFrame::NoFrame);
@@ -280,5 +280,6 @@ public:
     protected:
         // Declare that we are overriding the base class's paintEvent.
         void paintEvent(QPaintEvent* event) override;
-
+        private:
+            LNode* m_logicNode;
 };

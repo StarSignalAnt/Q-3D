@@ -10,8 +10,14 @@
 
 MonoLib::MonoLib(std::string dll)
 {
-	m_Assembly = new MAsm("cs/" + dll, "C:\\Vivid3D\\Vivid3D\\CS\\");
-    m_Vivid = new MAsm("cs/VividEngine.dll", "C:\\Vivid3D\\Vivid3D\\CS\\");
+
+    std::string full = dll + "game.dll";
+    std::string vivid = dll + "vividengine.dll";
+
+    m_Assembly = new MAsm(full, dll);
+    m_Vivid = new MAsm(vivid, dll);
+
+
 	//	m_handle = LoadLibraryA(m_path.c_str());
 //	if (!m_handle) {
 //		throw std::runtime_error("Failed to load library: " + m_path);

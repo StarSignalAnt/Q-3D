@@ -100,6 +100,7 @@ void LGProperties::inspectNode(LNode* node)
                 if (auto* pval = std::get_if<bool>(&input->GetDefaultValue())) editorWidget->setChecked(*pval);
                 connect(editorWidget, &QCheckBox::checkStateChanged, [input](int state) { input->SetDefaultValue(LGInput::ValueVariant{ state == Qt::Checked }); });
                 formLayout->addRow(QString::fromStdString(input->GetName()), editorWidget);
+                editorWidget->setMinimumWidth(40);
                 break;
             }
             case DataType::String:
@@ -108,6 +109,7 @@ void LGProperties::inspectNode(LNode* node)
                 if (auto* pval = std::get_if<std::string>(&input->GetDefaultValue())) editorWidget->setText(QString::fromStdString(*pval));
                 connect(editorWidget, &QLineEdit::textChanged, [input](const QString& text) { input->SetDefaultValue(LGInput::ValueVariant{ text.toStdString() }); });
                 formLayout->addRow(QString::fromStdString(input->GetName()), editorWidget);
+                editorWidget->setMinimumWidth(40);
                 break;
             }
             case DataType::Int: {
@@ -116,6 +118,7 @@ void LGProperties::inspectNode(LNode* node)
                 if (auto* pval = std::get_if<int>(&input->GetDefaultValue())) editorWidget->setValue(*pval);
                 connect(editorWidget, qOverload<int>(&QSpinBox::valueChanged), [input](int val) { input->SetDefaultValue(LGInput::ValueVariant{ val }); });
                 formLayout->addRow(QString::fromStdString(input->GetName()), editorWidget);
+                editorWidget->setMinimumWidth(40);
                 break;
             }
             case DataType::Float: {
@@ -124,6 +127,7 @@ void LGProperties::inspectNode(LNode* node)
                 if (auto* pval = std::get_if<float>(&input->GetDefaultValue())) editorWidget->setValue(*pval);
                 connect(editorWidget, qOverload<double>(&QDoubleSpinBox::valueChanged), [input](double val) { input->SetDefaultValue(LGInput::ValueVariant{ static_cast<float>(val) }); });
                 formLayout->addRow(QString::fromStdString(input->GetName()), editorWidget);
+                editorWidget->setMinimumWidth(40);
                 break;
             }
             case DataType::Vec3: {
@@ -140,6 +144,7 @@ void LGProperties::inspectNode(LNode* node)
                         currentVec[j] = static_cast<float>(value);
                         input->SetDefaultValue(LGInput::ValueVariant{ currentVec });
                         });
+                    spin->setMinimumWidth(40);
                     vecLayout->addWidget(spin, 1);
                 }
                 formLayout->addRow(QString::fromStdString(input->GetName()), vecWidget);
@@ -159,6 +164,7 @@ void LGProperties::inspectNode(LNode* node)
                         currentVec[j] = static_cast<float>(value);
                         input->SetDefaultValue(LGInput::ValueVariant{ currentVec });
                         });
+                    spin->setMinimumWidth(40);
                     vecLayout->addWidget(spin, 1);
                 }
                 formLayout->addRow(QString::fromStdString(input->GetName()), vecWidget);
@@ -225,6 +231,7 @@ void LGProperties::inspectNode(LNode* node)
                     if (auto* pval = std::get_if<bool>(&var->GetDefaultValue())) editorWidget->setChecked(*pval);
                     connect(editorWidget, &QCheckBox::checkStateChanged, [var](int state) { var->SetDefaultValue(LGInput::ValueVariant{ state == Qt::Checked }); });
                     varFormLayout->addRow(QString::fromStdString(var->GetName()), editorWidget);
+                    editorWidget->setMinimumWidth(40);
                     break;
                 }
                 case DataType::String:
@@ -233,6 +240,7 @@ void LGProperties::inspectNode(LNode* node)
                     if (auto* pval = std::get_if<std::string>(&var->GetDefaultValue())) editorWidget->setText(QString::fromStdString(*pval));
                     connect(editorWidget, &QLineEdit::textChanged, [var](const QString& text) { var->SetDefaultValue(LGInput::ValueVariant{ text.toStdString() }); });
                     varFormLayout->addRow(QString::fromStdString(var->GetName()), editorWidget);
+                    editorWidget->setMinimumWidth(40);
                     break;
                 }
                 case DataType::Int: {
@@ -241,6 +249,7 @@ void LGProperties::inspectNode(LNode* node)
                     if (auto* pval = std::get_if<int>(&var->GetDefaultValue())) editorWidget->setValue(*pval);
                     connect(editorWidget, qOverload<int>(&QSpinBox::valueChanged), [var](int val) { var->SetDefaultValue(LGInput::ValueVariant{ val }); });
                     varFormLayout->addRow(QString::fromStdString(var->GetName()), editorWidget);
+                    editorWidget->setMinimumWidth(40);
                     break;
                 }
                 case DataType::Float: {
@@ -249,6 +258,7 @@ void LGProperties::inspectNode(LNode* node)
                     if (auto* pval = std::get_if<float>(&var->GetDefaultValue())) editorWidget->setValue(*pval);
                     connect(editorWidget, qOverload<double>(&QDoubleSpinBox::valueChanged), [var](double val) { var->SetDefaultValue(LGInput::ValueVariant{ static_cast<float>(val) }); });
                     varFormLayout->addRow(QString::fromStdString(var->GetName()), editorWidget);
+                    editorWidget->setMinimumWidth(40);
                     break;
                 }
                 case DataType::Vec3: {
@@ -260,6 +270,7 @@ void LGProperties::inspectNode(LNode* node)
                         auto* spin = new QDoubleSpinBox();
                         spin->setButtonSymbols(QAbstractSpinBox::NoButtons); spin->setDecimals(2); spin->setRange(-1e12, 1e12);
                         spin->setValue(initialVec[j]);
+                        spin->setMinimumWidth(40);
                         connect(spin, qOverload<double>(&QDoubleSpinBox::valueChanged), [var, j](double value) {
                             glm::vec3 currentVec = std::get_if<glm::vec3>(&var->GetDefaultValue()) ? *std::get_if<glm::vec3>(&var->GetDefaultValue()) : glm::vec3(0.0f);
                             currentVec[j] = static_cast<float>(value);
@@ -279,6 +290,7 @@ void LGProperties::inspectNode(LNode* node)
                         auto* spin = new QDoubleSpinBox();
                         spin->setButtonSymbols(QAbstractSpinBox::NoButtons); spin->setDecimals(2); spin->setRange(-1e12, 1e12);
                         spin->setValue(initialVec[j]);
+                        spin->setMinimumWidth(40);
                         connect(spin, qOverload<double>(&QDoubleSpinBox::valueChanged), [var, j](double value) {
                             glm::vec4 currentVec = std::get_if<glm::vec4>(&var->GetDefaultValue()) ? *std::get_if<glm::vec4>(&var->GetDefaultValue()) : glm::vec4(0.0f);
                             currentVec[j] = static_cast<float>(value);

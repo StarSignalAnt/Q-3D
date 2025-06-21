@@ -18,14 +18,39 @@
 #include <QRadioButton>
 #include <QScrollBar>
 #include <QStyleFactory>
-
-
+#include "Vivid3D.h"
+#include <QStringList> // <-- Add for argument list
+#include <QDebug> 
 
 int main(int argc, char *argv[])
 {
 
     QApplication::setAttribute(Qt::AA_UseStyleSheetPropagationInWidgetStyles, false);
     QApplication app(argc, argv);
+
+    QString projectPath = "";
+    QStringList args = app.arguments();
+
+    qDebug() << "Application launched with" << args.size() << "arguments:";
+    qDebug() << args;
+
+    if (args.size() > 1)
+    {
+        // The first argument (index 0) is the executable path.
+        // The second argument (index 1) is the project path we passed.
+        projectPath = args.at(1);
+        qDebug() << "Project Path Loaded:" << projectPath + "\\";
+
+        Vivid::SetContentPath(projectPath.toStdString());
+
+    }
+    else
+    {
+        Vivid::SetContentPath("C:\\vividprojects\\Pong3D\\");
+        qDebug() << "No project path was provided on launch.";
+        // You might want to handle this case, e.g., show an error or a project selection dialog.
+    }
+
 
     app.setStyleSheet(R"(
         QMenu {

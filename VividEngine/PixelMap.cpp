@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "PixelMap.h"
-
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 PixelMap::PixelMap(int w, int h) {
 
 	m_Width = w;
@@ -18,7 +19,43 @@ PixelMap::PixelMap(int w, int h) {
 	}
 
 }
+PixelMap::PixelMap(std::string path) {
+	int w, h, bpp_in;
+	// stbi_load reads an image and returns raw pixel data.
+	// The last parameter '4' forces the image to be loaded with 4 channels (RGBA).
+	unsigned char* loaded_data = stbi_load(path.c_str(), &w, &h, &bpp_in, 4);
 
+	if (loaded_data == NULL) {
+		// If loading fails, create a default magenta error texture.
+		m_Width = 128;
+		m_Height = 128;
+		m_BPP = 4;
+		m_Data = new float[m_Width * m_Height * m_BPP];
+		m_Path = "";
+		// Fill with a solid color to indicate an error
+		for (int i = 0; i < m_Width * m_Height; ++i) {
+			m_Data[i * 4 + 0] = 1.0f; // R
+			m_Data[i * 4 + 1] = 0.0f; // G
+			m_Data[i * 4 + 2] = 1.0f; // B
+			m_Data[i * 4 + 3] = 1.0f; // A
+		}
+		return;
+	}
+
+	m_Width = w;
+	m_Height = h;
+	m_BPP = 4; // We requested 4 components (RGBA)
+	m_Data = new float[w * h * 4];
+	m_Path = path;
+
+	// Convert the 8-bit unsigned char data (0-255) to 32-bit float (0.0-1.0)
+	for (int i = 0; i < w * h * 4; i++) {
+		m_Data[i] = (float)loaded_data[i] / 255.0f;
+	}
+
+	// Free the memory allocated by stbi_load
+	stbi_image_free(loaded_data);
+}
 
 PixelMap::PixelMap(int w, int h,float4 color) {
 

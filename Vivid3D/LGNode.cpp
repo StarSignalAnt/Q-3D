@@ -1,6 +1,10 @@
 #include "LGNode.h"
 #include <QPainter>
-
+#include "LEventNode.h"
+#include "LGLogicNode.h"
+#include "LGDataNode.h"
+#include "GetVariableNode.h"
+#include "SetVariableNode.h"
 QVariant LGNode::itemChange(GraphicsItemChange change, const QVariant& value) {
     // If the node's position has changed...
     if (change == ItemPositionHasChanged && scene()) {
@@ -105,17 +109,40 @@ void LGNodeWidget::paintEvent(QPaintEvent* event)
     painter.setClipPath(clipPath);
 
     // --- END FIX ---
+    QColor headerStartColor("#5c6c80"); // Default: Lighter slate-blue
+    QColor headerEndColor("#445061");   // Default: Darker slate-blue
 
+    if (m_logicNode) {
+        // Event Nodes (e.g., Begin Play, Custom Event) -> Red
+        if (dynamic_cast<LEventNode*>(m_logicNode)) {
+            headerStartColor = QColor("#9B2D30");
+            headerEndColor = QColor("#6F2022");
+        }
+        // Variable Getter/Setter Nodes -> Purple
+        else if (dynamic_cast<GetVariableNode*>(m_logicNode) || dynamic_cast<SetVariableNode*>(m_logicNode)) {
+            headerStartColor = QColor("#8E44AD");
+            headerEndColor = QColor("#6C3483");
+        }
+        // Data-only Nodes (pure functions, calculations) -> Green
+        else if (dynamic_cast<LGDataNode*>(m_logicNode)) {
+            headerStartColor = QColor("#1E8449");
+            headerEndColor = QColor("#145A32");
+        }
+        // Logic Nodes (has execution pins) -> Default Blue/Gray
+        else if (dynamic_cast<LGLogicNode*>(m_logicNode)) {
+            headerStartColor = QColor("#5c6c80");
+            headerEndColor = QColor("#445061");
+        }
+    }
+    // --- END COLOR SELECTION LOGIC ---
 
-    // 3. Draw the header and body gradients as before.
-    //    These are simple, sharp rectangles. The clipping path will handle rounding the corners.
-
+    // Draw the header and body gradients.
     // Header Gradient
     const int headerHeight = 30;
     QRectF headerRect(0, 0, width(), headerHeight);
     QLinearGradient headerGradient(headerRect.topLeft(), headerRect.bottomLeft());
-    headerGradient.setColorAt(0, QColor("#5c6c80")); // Lighter slate-blue
-    headerGradient.setColorAt(1, QColor("#445061")); // Darker slate-blue
+    headerGradient.setColorAt(0, headerStartColor);
+    headerGradient.setColorAt(1, headerEndColor);
     painter.fillRect(headerRect, headerGradient);
 
     // Body Gradient
@@ -124,5 +151,6 @@ void LGNodeWidget::paintEvent(QPaintEvent* event)
     bodyGradient.setColorAt(0, QColor("#383838"));
     bodyGradient.setColorAt(1, QColor("#2c3e50")); // Subtle dark blue
     painter.fillRect(bodyRect, bodyGradient);
+
 
 }

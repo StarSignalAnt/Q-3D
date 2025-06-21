@@ -80,7 +80,7 @@ Vivid3D::Vivid3D(QWidget *parent)
     setAutoFillBackground(true);
     setPalette(pal);
 
-    browser->Browse("c:\\content\\");
+    browser->Browse(Vivid::GetContentPath());
 	Vivid::DebugLogCB = ConsoleDebug; // Set the debug callback to our console output function
 
 
