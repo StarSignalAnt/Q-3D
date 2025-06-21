@@ -203,7 +203,7 @@ private:
 	RefCntAutoPtr<IShaderSourceInputStreamFactory> m_pShaderFactory;
 	Ui::SceneViewClass ui;
 	bool m_Pick = false;
-
+	QTimer* m_timer;
 	//TEST members
 	GraphNode* m_Test1;
 	SceneGraph* m_SceneGraph;

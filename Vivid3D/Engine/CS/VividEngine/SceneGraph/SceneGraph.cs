@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GlmNet;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -36,20 +37,33 @@ namespace Vivid.Scene
 
         }
 
-        public CastResult RayCast(GlmNet.vec3 from,GlmNet.vec3 to)
+        public CastResult MousePick(vec2 position)
         {
 
-            VividDebug.Log("RC:");
-            var res = NativeBridge.SceneRayCast(from, to);
-            VividDebug.Log("RC2:");
+            var res = NativeBridge.SceneMousePick(position);
+
             CastResult result = new CastResult();
-            VividDebug.Log("RC3:");
+
             result.Hit = NativeBridge.CastResultHit(res);
             result.HitPoint = NativeBridge.CastResultPoint(res);
             result.HitNode = new GraphNode(NativeBridge.CastResultNode(res));
-            VividDebug.Log("RC4:");
 
-            VividDebug.Log("Hit:" + result.Hit);
+
+            return result;
+
+        }
+        public CastResult RayCast(GlmNet.vec3 from,GlmNet.vec3 to)
+        {
+
+         
+            var res = NativeBridge.SceneRayCast(from, to);
+     
+            CastResult result = new CastResult();
+    
+            result.Hit = NativeBridge.CastResultHit(res);
+            result.HitPoint = NativeBridge.CastResultPoint(res);
+            result.HitNode = new GraphNode(NativeBridge.CastResultNode(res));
+       
 
             return result;
 

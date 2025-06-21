@@ -36,6 +36,7 @@ public:
     std::string GetName() {
         return m_Name;
     }
+    void ReInit();
     void* GetInstance() {
         return m_ComponentPy;
     }

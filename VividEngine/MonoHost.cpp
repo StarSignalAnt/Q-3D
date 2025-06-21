@@ -1,53 +1,75 @@
 #include "MonoHost.h"
-
 #include <iostream>
 
-MonoHost* MonoHost::m_Instance = nullptr;
+// Initialize static instance pointer
+MonoHost* MonoHost::s_instance = nullptr;
 
-MonoHost::MonoHost() {
-    m_Instance = this;
-    const char* domain_name = "VividEngineMono";
-    mono_set_dirs("./mono/lib", "./mono/etc");
-    mono_config_parse(NULL);
-    m_Domain = mono_jit_init(domain_name);
-    if (!m_Domain)
-
-    {
-        std::cerr << "Failed to initialize Mono JIT." << std::endl;
-        return;
+MonoHost* MonoHost::GetInstance() {
+    if (!s_instance) {
+        s_instance = new MonoHost();
     }
-
-    /*
-   // MonoAssembly* assembly = mono_domain_assembly_open(domain, "scripts/TestLib.dll");
-    //if (!assembly) {
-        std::cout << "Failed to load TestAssembly.dll" << std::endl;
-        std::cout << "Make sure TestAssembly.dll is in your working directory" << std::endl;
-        mono_jit_cleanup(domain);
-        return;
-    }
-
-    MonoImage* image = mono_assembly_get_image(assembly);
-
-    // Get the class
-    MonoClass* testClass = mono_class_from_name(image, "TestLib", "Test");
-    if (!testClass) {
-        std::cout << "Failed to find TestClass" << std::endl;
-        mono_jit_cleanup(domain);
-        return;
-    }
-
-    MonoMethod* sayHelloMethod = mono_class_get_method_from_name(testClass, "Init", 0);
-    if (!sayHelloMethod) {
-        std::cout << "Failed to find SayHello method" << std::endl;
-        mono_jit_cleanup(domain);
-        return;
-    }
-
-
-    mono_runtime_invoke(sayHelloMethod, NULL, NULL, NULL);
-    */
+    return s_instance;
 }
 
-MonoDomain* MonoHost::GetDomain() {
-    return m_Domain;
+MonoHost::MonoHost() : m_rootDomain(nullptr), m_gameDomain(nullptr) {
+    // Set the path to the Mono lib and etc directories
+    mono_set_dirs("./mono/lib", "./mono/etc");
+    mono_config_parse(NULL);
+
+    // Initialize the Mono JIT runtime and create the root domain
+    m_rootDomain = mono_jit_init("VividEngineRoot");
+    if (!m_rootDomain) {
+        std::cerr << "FATAL: Failed to initialize Mono JIT." << std::endl;
+    }
+}
+
+MonoHost::~MonoHost() {
+    // Ensure the game domain is unloaded before we shut down
+    UnloadGameDomain();
+
+    if (m_rootDomain) {
+        // Clean up the JIT runtime
+        mono_jit_cleanup(m_rootDomain);
+        m_rootDomain = nullptr;
+    }
+}
+
+void MonoHost::CreateGameDomain() {
+    if (m_gameDomain) {
+        std::cerr << "Warning: CreateGameDomain called while a game domain already exists. Unloading old one first." << std::endl;
+        UnloadGameDomain();
+    }
+
+    // Create a new, separate app domain for the game logic
+    m_gameDomain = mono_domain_create_appdomain((char*)"VividGameDomain", nullptr);
+    if (!m_gameDomain) {
+        std::cerr << "FATAL: Failed to create game domain." << std::endl;
+        return;
+    }
+
+    // IMPORTANT: Set the new domain as the current one. All subsequent
+    // assembly loads will happen in this domain until it's changed.
+    if (!mono_domain_set(m_gameDomain, false)) {
+        std::cerr << "FATAL: Failed to set the current domain." << std::endl;
+    }
+}
+
+void MonoHost::UnloadGameDomain() {
+    if (m_gameDomain) {
+        // Set the current domain back to the root domain before unloading the game one
+        mono_domain_set(m_rootDomain, false);
+
+        // This function safely unloads the domain and all assemblies within it
+        mono_domain_unload(m_gameDomain);
+        m_gameDomain = nullptr;
+        std::cout << "Game Domain has been unloaded." << std::endl;
+    }
+}
+
+MonoDomain* MonoHost::GetGameDomain() const {
+    return m_gameDomain;
+}
+
+MonoDomain* MonoHost::GetRootDomain() const {
+    return m_rootDomain;
 }

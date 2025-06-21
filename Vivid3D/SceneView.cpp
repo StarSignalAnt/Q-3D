@@ -199,7 +199,14 @@ SceneView::SceneView(QWidget *parent)
 
     //m_Vid1->Play();
 
+    m_timer = new QTimer(this);
 
+    // 2. Connect the timer's timeout() signal to our desired function (onTimeout slot)
+    //    This is the core of the mechanism.
+    connect(m_timer, &QTimer::timeout, this, &Vivid::CheckDLL);
+
+    // 3. Start the timer and set the interval to 0.5 seconds (500 milliseconds)
+    m_timer->start(500);
 
 }
 
@@ -680,6 +687,7 @@ GraphNode* CreateTerrainBrush(float mx, float h, float my, float size, float str
 void SceneView::mouseMoveEvent(QMouseEvent* event)  {
  
 
+    GameInput::MousePosition = glm::vec2(event->pos().x(), event->pos().y());
     if (m_RunMode == RM_Running) return;
     if (rightMousePressed) {
         QPoint delta = event->pos() - lastMousePos;

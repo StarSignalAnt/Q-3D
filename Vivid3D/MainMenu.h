@@ -22,6 +22,7 @@ private slots:
     void onExit();
     void onSaveScene();
     void onLG();
+    void onOpenSolution();
 
 };
 

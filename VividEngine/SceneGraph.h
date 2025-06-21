@@ -9,6 +9,7 @@ class StaticMeshComponent;
 class TerrainMeshComponent;
 class TerrainMesh;
 class VFile;
+class SharpComponent;
 
 struct HitResult {
 
@@ -66,11 +67,13 @@ public:
 	void ReadTerrain(VFile* f);
 
 	static SceneGraph* m_Instance;
+	std::vector<SharpComponent*> GetAllSharpComponents();
 
 	void Reset();
 	void SetOwners(GraphNode* node);
 	static int Ren_Count;
 private:
+
 
 	GraphNode* m_RootNode = nullptr;
 	GraphNode* m_Camera;

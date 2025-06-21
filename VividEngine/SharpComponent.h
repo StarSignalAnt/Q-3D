@@ -27,6 +27,7 @@ extern "C" __declspec(dllexport) void NodeTurn(void* node,float x,float y,float 
 extern "C" __declspec(dllexport) void NodeSetPosition(void* node,Vec3 pos);
 extern "C" __declspec(dllexport) Vec3 NodeGetPosition(void* node);
 extern "C" __declspec(dllexport) void NodeGetRotation(void* node,float* out);
+extern "C" __declspec(dllexport) void NodeGetWorldMatrix(void* node, float* out);
 extern "C" __declspec(dllexport) void NodeSetRotation(void* node, float* out);
 extern "C" __declspec(dllexport) void NodeSetScale(void* node,Vec3 scale);
 extern "C" __declspec(dllexport) Vec3 NodeGetScale(void* node);
@@ -49,7 +50,9 @@ extern "C" __declspec(dllexport) void* SceneRayCast(Vec3 from,Vec3 to);
 extern "C" __declspec(dllexport) bool CastResultHit(void* res);
 extern "C" __declspec(dllexport) Vec3 CastResultPoint(void* res);
 extern "C" __declspec(dllexport) void* CastResultNode(void* res);
-
+extern "C" __declspec(dllexport) void* SceneMousePick(Vec2 pos);
+extern "C" __declspec(dllexport) int GetMouseX();
+extern "C" __declspec(dllexport) int GetMouseY();
 class SharpComponent :
     public Component
 {
@@ -63,6 +66,7 @@ public:
 	void SetName(std::string name) { m_Name = name; }
 	std::string GetName() { return m_Name; }
     MClass* GetClass() { return m_Instance; };
+    void ReInit();
     MClass* CreateGraphNode();
 private:
 

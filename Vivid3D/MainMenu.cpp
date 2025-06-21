@@ -8,6 +8,9 @@
 #include "LightComponent.h"
 #include "NodeTree.h"
 #include "SceneView.h"
+#include <QDesktopServices>
+#include <QUrl>
+#include <QString>
 MainMenu::MainMenu(QWidget *parent)
 	: QMenuBar(parent)
 {
@@ -27,7 +30,10 @@ void MainMenu::setupMenus()
     QMenu* fileMenu = addMenu("Project");
     QMenu* editMenu = addMenu("Edit");
 	QMenu* crMenu = addMenu("Create");
+    QMenu* csMenu = addMenu("Scripting");
     QMenu* toolsMenu = addMenu("Tools");
+
+    QAction* openDLL = csMenu->addAction("Open Visual Studio Solution");
 
     QAction* newAction = fileMenu->addAction("New Scene");
     QAction* openAction = fileMenu->addAction("Open Scene");
@@ -41,6 +47,8 @@ void MainMenu::setupMenus()
     connect(openAction, &QAction::triggered, this, &MainMenu::onOpenFile);
     connect(exitAction, &QAction::triggered, this, &MainMenu::onExit);
     connect(saveAction, &QAction::triggered, this, &MainMenu::onSaveScene);
+
+    connect(openDLL, &QAction::triggered, this, &MainMenu::onOpenSolution);
 
 	QMenu* crPrim = crMenu->addMenu("Primitives");
 	QMenu* crLight = crMenu->addMenu("Lights");
@@ -276,5 +284,13 @@ void MainMenu::onLG() {
 
     auto lg = new LogicGraph;
     lg->show();
+
+}
+
+void MainMenu::onOpenSolution() {
+
+    auto path = Vivid::GetContentPath() + "Game\\GameDLL.sln";
+    QString qPath = QString::fromStdString(path);
+    QDesktopServices::openUrl(QUrl::fromLocalFile(qPath));
 
 }

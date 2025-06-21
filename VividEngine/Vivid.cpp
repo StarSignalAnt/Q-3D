@@ -33,6 +33,7 @@
 #include "NodeRenderVideo.h"
 #include "GameVideo.h"
 #include "Draw2D.h"
+#include "SharpComponent.h"
 
 
 namespace py = pybind11;
@@ -155,22 +156,95 @@ struct check {
 	int a = 5;
 	int b = 10;
 };
+std::filesystem::file_time_type Vivid::s_last_dll_write_time;
+
+void Vivid::CheckDLL() {
+
+	auto dll_path = m_ContentPath + "Game\\Game.dll";
+
+	try {
+		// Get the current last write time of the DLL
+		auto current_dll_write_time = std::filesystem::last_write_time(dll_path);
+
+		// If the DLL has been updated (and the stored time is valid)
+		if (s_last_dll_write_time.time_since_epoch().count() != 0 &&
+			current_dll_write_time != s_last_dll_write_time) {
+			std::cout << "DLL has been updated. Re-initializing Mono." << std::endl;
+			InitMono();
+			DebugLog("Updated C# dll");
+		}
+	}
+	catch (const std::filesystem::filesystem_error& e) {
+		std::cerr << "Error checking DLL: " << e.what() << std::endl;
+	}
+
+}
+
+
+MonoLib* Vivid::GetMonoLib() {
+
+
+	return m_MonoLib;
+}
 
 void Vivid::InitMono() {
 
+	auto dll_path = m_ContentPath + "Game\\Game.dll";
 
-	MonoHost* host = new MonoHost;
+	std::cout << "--- DLL Hot-Reload Initiated ---" << std::endl;
 
-	m_MonoLib = new MonoLib(m_ContentPath+"Game\\");
+	MonoHost* host = MonoHost::GetInstance();
 
-	auto classes = m_MonoLib->GetClasses();
-	for (auto c : classes) {
+	// --- Unload and Reload Domains ---
+	host->UnloadGameDomain();
+	host->CreateGameDomain();
 
-		if (c.baseClassName == "Vivid.Component.SharpComponent")
+	// --- Rebuild Core Mono Library Wrapper ---
+	if (m_MonoLib) {
+		delete m_MonoLib;
+	}
+	m_MonoLib = new MonoLib(m_ContentPath + "Game\\");
+
+	// --- HERE IS THE SOLUTION: Rebuild the Component Class Cache ---
+
+	// 1. Clear the old, invalid list of component class definitions.
+	m_ComponentClasses.clear();
+	std::cout << "--- Re-caching all available SharpComponent classes... ---" << std::endl;
+
+	// 2. Get the fresh list of all classes from the newly loaded assembly.
+	auto all_classes_in_new_dll = m_MonoLib->GetClasses();
+
+	// 3. Filter this list to find only the classes that can be used as components.
+	for (const auto& classInfo : all_classes_in_new_dll)
+	{
+		// Check if the class's base class is the one we use for scripts.
+		if (classInfo.baseClassName == "Vivid.Component.SharpComponent")
 		{
-			m_ComponentClasses.push_back(c);
+			// Add the valid class info to our cache.
+			m_ComponentClasses.push_back(classInfo);
+			std::cout << "Found component class: " << classInfo.namespaceName << "." << classInfo.className << std::endl;
 		}
+	}
 
+	// --- Re-initialize all active script instances ---
+	std::cout << "--- Re-initializing all active SharpComponent instances... ---" << std::endl;
+	auto all_sharp_components = SceneGraph::m_Instance->GetAllSharpComponents();
+	for (auto* component : all_sharp_components)
+	{
+		component->ReInit();
+	}
+
+	std::cout << "--- DLL Hot-Reload Complete ---" << std::endl;
+
+	// Set the time of the last edit to compare against later
+	try {
+		s_last_dll_write_time = std::filesystem::last_write_time(dll_path);
+		std::cout << "Mono initialized. DLL last write time recorded." << std::endl;
+	}
+	catch (const std::filesystem::filesystem_error& e) {
+		std::cerr << "Error getting DLL last write time: " << e.what() << std::endl;
+		// Handle the error, maybe set the time to a default invalid state
+		s_last_dll_write_time = std::filesystem::file_time_type();
 	}
 	return;
 /*

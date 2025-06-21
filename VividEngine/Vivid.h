@@ -32,7 +32,7 @@
 #include "MonoLib.h"
 #include <functional>
 #include "NodeRegistry.h"
-
+#include <filesystem>
 class Draw2D;
 class RenderTargetCube;
 class RenderTarget2D;
@@ -88,11 +88,13 @@ public:
 	static void SetContentPath(std::string path);
 	static std::string GetContentPath();
 	static std::string m_ContentPath;
+	static void CheckDLL();
+	static MonoLib* GetMonoLib();
 
 private:
 
 
-	
+	static std::filesystem::file_time_type s_last_dll_write_time;
 	static int m_FrameWidth;
 	static int m_FrameHeight;
 

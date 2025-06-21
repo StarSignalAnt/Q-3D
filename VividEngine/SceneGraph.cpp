@@ -21,7 +21,9 @@ SceneGraph* SceneGraph::m_CurrentGraph = nullptr;
 #include <iomanip> // For std::fixed and std::setprecision
 #include "TerrainRendererComponent.h"
 #include "TerrainDepthRenderer.h"
+#include "SharpComponent.h"
 bool addedGraphFuncs = false;
+
 
 
 double floorIfCloseToZero(double number, double tolerance = 0.0001) {
@@ -89,10 +91,10 @@ void SceneGraph::Render() {
 	if (m_Terrain) {
 		m_Terrain->Render(m_Camera);
 	}
-	Vivid::DebugLog("Rendering Scene");
+
 	Ren_Count = 0;
 	m_RootNode->Render(m_Camera);
-	Vivid::DebugLog("Render Count:" + std::to_string(Ren_Count));
+	
 
 //	for (auto sub : m_RootNode->GetNodes()) {
 	
@@ -762,3 +764,40 @@ void SceneGraph::SetTerrain(GraphNode* node) {
 }
 
 int SceneGraph::Ren_Count = 0;
+
+// This is a private helper function to recursively traverse the scene graph.
+// It is not part of the SceneGraph class itself, but is a utility for it.
+void CollectSharpComponentsRecursive(GraphNode* node, std::vector<SharpComponent*>& component_list)
+{
+	if (!node)
+	{
+		return;
+	}
+
+	// Get all SharpComponents from the current node.
+	auto components_on_this_node = node->GetComponents<SharpComponent>();
+
+	// Add them to our main list if any were found.
+	if (!components_on_this_node.empty())
+	{
+		component_list.insert(component_list.end(), components_on_this_node.begin(), components_on_this_node.end());
+	}
+
+	// Recursively call this function for all children of the current node.
+	for (GraphNode* child_node : node->GetNodes())
+	{
+		CollectSharpComponentsRecursive(child_node, component_list);
+	}
+}
+
+
+std::vector<SharpComponent*> SceneGraph::GetAllSharpComponents()
+{
+	std::vector<SharpComponent*> result_list;
+	if (m_RootNode)
+	{
+		// Start the recursive collection from the root node.
+		CollectSharpComponentsRecursive(m_RootNode, result_list);
+	}
+	return result_list;
+}

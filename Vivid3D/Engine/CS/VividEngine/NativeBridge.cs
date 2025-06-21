@@ -23,6 +23,8 @@ internal class NativeBridge
     [DllImport("__Internal")]
     public static extern void NodeSetRotation(IntPtr node, float[] mat);
     [DllImport("__Internal")]
+    public static extern void NodeGetWorldMatrix(IntPtr node, float[] mat);
+    [DllImport("__Internal")]
     public static extern GlmNet.vec3 NodeGetScale(IntPtr node);
     [DllImport("__Internal")]
     public static extern void NodeSetScale(IntPtr node,GlmNet.vec3 scale);
@@ -65,5 +67,11 @@ internal class NativeBridge
     public static extern GlmNet.vec3 CastResultPoint(IntPtr result);
     [DllImport("__Internal")]
     public static extern IntPtr CastResultNode(IntPtr result);
+    [DllImport("__Internal")]
+    public static extern IntPtr SceneMousePick(GlmNet.vec2 position);
 
+    [DllImport("__Internal")]
+    public static extern int GetMouseX();
+    [DllImport("__Internal")]
+    public static extern int GetMouseY();
 }

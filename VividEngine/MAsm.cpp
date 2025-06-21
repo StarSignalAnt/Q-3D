@@ -1,29 +1,36 @@
 #include "MAsm.h"
-static MonoAssembly* assembly_preload_hook(MonoAssemblyName* aname, char** assemblies_path, void* user_data)
+#include <iostream>
+
+// The constructor now takes the specific domain it should load the assembly into.
+MAsm::MAsm(MonoDomain* domain, const std::string& assemblyPath)
+    : m_Assembly(nullptr), m_Image(nullptr),m_Domain(domain)
 {
-    const char* name = mono_assembly_name_get_name(aname);
-
-    std::string fullPath = std::string("C:\\Vivid3D\\Vivid3D\\CS\\") + name + ".dll";
-
-    MonoAssembly* loaded = mono_domain_assembly_open(mono_domain_get(), fullPath.c_str());
-
-    if (!loaded) {
-        std::cerr << "Failed to resolve referenced assembly: " << fullPath << std::endl;
+    if (!domain) {
+        std::cerr << "FATAL: MAsm created with a null domain for assembly: " << assemblyPath << std::endl;
+        return;
     }
 
-    return loaded;
+    // This is the core of the class. It loads the specified assembly
+    // directly into the provided domain.
+    m_Assembly = mono_domain_assembly_open(domain, assemblyPath.c_str());
+
+    if (!m_Assembly) {
+        std::cerr << "Error: Failed to load assembly: " << assemblyPath << std::endl;
+        return;
+    }
+
+    m_Image = mono_assembly_get_image(m_Assembly);
 }
-MAsm::MAsm(std::string name,std::string path) {
-	mono_set_assemblies_path(path.c_str());
-    mono_install_assembly_preload_hook(assembly_preload_hook, nullptr);
-	m_Assembly = mono_domain_assembly_open(MonoHost::m_Instance->GetDomain(),name.c_str());
-	m_Image = mono_assembly_get_image(m_Assembly);
 
-}
-
-MClass* MAsm::GetClass(std::string nspace,std::string clsname) {
-
-	MonoClass* testClass = mono_class_from_name(m_Image,nspace.c_str(),clsname.c_str());
-	return new MClass(testClass);
-
+MClass* MAsm::GetClass(const std::string& nspace, const std::string& clsname) {
+    if (!m_Image) {
+        return nullptr;
+    }
+    MonoClass* testClass = mono_class_from_name(m_Image, nspace.c_str(), clsname.c_str());
+    if (!testClass) {
+        std::cerr << "Error: Class not found - Namespace: " << nspace << ", Class: " << clsname << std::endl;
+        return nullptr;
+    }
+    // Assumes MClass constructor is MClass(MonoClass*)
+    return new MClass(m_Domain, testClass);
 }

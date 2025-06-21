@@ -50,6 +50,8 @@
     <Compile Include="Debug\Debug.cs" />
     <Compile Include="Draw\Draw2D.cs" />
     <Compile Include="Engine\Engine.cs" />
+    <Compile Include="Input\GameInput.cs" />
+    <Compile Include="Maths\Maths.cs" />
     <Compile Include="NativeBridge.cs" />
     <Compile Include="SceneGraph\GraphNode.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

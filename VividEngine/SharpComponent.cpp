@@ -6,6 +6,7 @@
 #include "GameVideo.h"
 #include "Texture2D.h"
 #include "Vivid.h"
+#include "GameInput.h"
 
 extern "C" __declspec(dllexport) void NodeTurn(void* node,float x, float y, float z)
 {
@@ -69,6 +70,18 @@ extern "C" __declspec(dllexport) void NodeSetRotation(void* node, float* out) {
 
 
 }
+
+extern "C" __declspec(dllexport) void NodeGetWorldMatrix(void* node, float* out) {
+
+	GraphNode* n = static_cast<GraphNode*>(node);
+
+	// Flatten into float[16] column-major
+	const float* ptr = glm::value_ptr(n->GetWorldMatrix());
+	for (int i = 0; i < 16; ++i)
+		out[i] = ptr[i];
+
+}
+
 
 extern "C" __declspec(dllexport) void NodeSetScale(void* node, Vec3 scale)
 {
@@ -240,8 +253,65 @@ extern "C" __declspec(dllexport) void* CastResultNode(void* res) {
 
 }
 
+
+extern "C" __declspec(dllexport) void* SceneMousePick(Vec2 pos) {
+
+	auto r = SceneGraph::m_Instance->MousePick((int)pos.x,(int)pos.y);
+
+	CastResult* res = new CastResult;
+	res->Hit = r.m_Hit;
+	if (r.m_Hit) {
+		res->HitPoint = Vec3(r.m_Point.x, r.m_Point.y, r.m_Point.z);
+		res->HitDistant = r.m_Distance;
+		res->HitNode = r.m_Node;
+	}
+	else {
+		res->HitPoint = Vec3(0, 0, 0);
+		res->HitDistant = 0;
+		res->HitNode = nullptr;
+	}
+	return res;
+
+}
+
+extern "C" __declspec(dllexport) int GetMouseX() {
+	return (int)GameInput::MousePosition.x;
+}
+extern "C" __declspec(dllexport) int GetMouseY()
+{
+	return (int)GameInput::MousePosition.y;
+}
+
+
 void SharpComponent::SetClass(MClass* cls,MAsm* as,MAsm* vivid) {
 
+
+	m_StaticClass = cls; // This is a handle to the class type, not an instance.
+	m_Assembly = as;
+	m_Vivid = vivid;
+
+	// Create a C# wrapper for our GraphNode.
+	m_GraphClass = CreateGraphNode();
+	if (!m_GraphClass) {
+		std::cerr << "Error: Failed to create GraphNode wrapper in SetClass." << std::endl;
+		return;
+	}
+
+	// Create an instance of the user's script (e.g., "PlayerScript").
+	m_Instance = m_StaticClass->CreateInstance();
+	if (!m_Instance) {
+		std::cerr << "Error: Failed to create instance for script class." << std::endl;
+		delete m_GraphClass;
+		return;
+	}
+
+	// Set the "Node" property on the C# script instance to our GraphNode wrapper.
+	m_Instance->SetFieldClass("Node", m_GraphClass);
+
+	// Set the internal pointer of the C# GraphNode wrapper to this component's owner.
+	// This creates the link from C# back to the C++ GraphNode.
+	m_GraphClass->SetNativePtr("NodePtr", (void*)m_Owner);
+	/*
 	m_StaticClass = cls;
 	m_Assembly = as;
 	m_Vivid = vivid;
@@ -256,11 +326,33 @@ void SharpComponent::SetClass(MClass* cls,MAsm* as,MAsm* vivid) {
 	m_Instance->SetFieldClass("Node", gnode_inst);
 
 	gnode_inst->SetNativePtr("NodePtr", (void*)m_Owner);
-
+	*/
 }
 void SharpComponent::SetScript(std::string dll,std::string name) {
 	// Initialization code here
-	
+	MonoLib* monoLib = Vivid::GetMonoLib();
+	if (!monoLib) {
+		std::cerr << "Error: SetScript failed because MonoLib is not available." << std::endl;
+		return;
+	}
+
+	// 2. Use MonoLib to get the C# class definition.
+	MClass* scriptClass = monoLib->GetClass(name); // Assumes "Vivid" namespace
+	if (!scriptClass) {
+		std::cerr << "Error: Script class definition not found: Vivid." << name << std::endl;
+		return;
+	}
+
+	// 3. Get the assembly wrappers from MonoLib.
+	MAsm* gameAssembly = monoLib->GetAssembly();
+	MAsm* vividAssembly = monoLib->GetVivid();
+
+	// 4. Call the main setup function with the retrieved class/assemblies.
+	SetClass(scriptClass, gameAssembly, vividAssembly);
+
+	// 5. Clean up the temporary class definition wrapper.
+	delete scriptClass;
+	/*
 	m_Vivid = new MAsm("cs/VividEngine.dll", "C:\\Vivid3D\\Vivid3D\\CS\\");
 
 	m_Assembly = new MAsm("cs/"+dll,"C:\\Vivid3D\\Vivid3D\\CS\\");
@@ -276,7 +368,7 @@ void SharpComponent::SetScript(std::string dll,std::string name) {
 	m_Instance->SetFieldClass("Node", gnode_inst);
 
 	gnode_inst->SetNativePtr("NodePtr", (void*)m_Owner);
-
+	*/
 	int b = 5;
 }
 
@@ -307,6 +399,22 @@ void SharpComponent::OnRender(GraphNode* cam) {
 		//m_Instance->SetFieldClass("Node", gnode_inst);
 
 		m_Instance->CallFunction("OnRender", gnode_inst);
+	} if (m_Playing && m_Instance)
+	{
+		// To pass the camera to C#, we must wrap the C++ GraphNode*
+		// in a C# GraphNode object instance.
+		MClass* camNodeWrapper = CreateGraphNode();
+		if (camNodeWrapper)
+		{
+			// Set the C# wrapper's internal pointer to our C++ camera object.
+			camNodeWrapper->SetNativePtr("NodePtr", (void*)cam);
+
+			// Call the C# OnRender method, passing the wrapped camera object.
+			m_Instance->CallFunction("OnRender", camNodeWrapper);
+
+			// Clean up the temporary wrapper object.
+			delete camNodeWrapper;
+		}
 	}
 }
 
@@ -329,4 +437,33 @@ MClass* SharpComponent::CreateGraphNode() {
 
 	return gnode_inst;
 
+}
+
+void SharpComponent::ReInit()
+{
+	std::cout << "Re-initializing script: " << m_Name << std::endl;
+
+	// 1. Clean up old, invalid Mono objects.
+	// The C# objects they pointed to are already gone with the old AppDomain.
+	// We are just cleaning up the C++ wrapper classes.
+	delete m_Instance;
+	delete m_GraphClass;
+	m_Instance = nullptr;
+	m_GraphClass = nullptr;
+	m_StaticClass = nullptr;
+	m_Assembly = nullptr;
+	m_Vivid = nullptr;
+
+	// 2. Call the original setup logic again.
+	// The m_Name (the script's class name) was preserved. We use it to
+	// find the class in the *new* AppDomain and set everything up again.
+	// The empty "cs/" string for the first parameter of SetScript is a placeholder;
+	// this function needs the class name, which it gets from m_Name.
+	SetScript("cs/", m_Name);
+
+	// 3. If the component was playing, call its OnPlay method again to restore state.
+	if (m_Playing)
+	{
+		OnPlay();
+	}
 }

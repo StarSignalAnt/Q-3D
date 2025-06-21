@@ -2,10 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-
+using Vivid.Maths;
 
 namespace Vivid.Scene
 {
@@ -70,6 +71,23 @@ namespace Vivid.Scene
                 _Rotation = value;
             }
         }
+
+        public mat4 WorldMatrix
+        {
+            get
+            {
+                float[] raw = new float[16];
+                NativeBridge.NodeGetWorldMatrix(NodePtr, raw);
+                _Rotation = new mat4(
+       new vec4(raw[0], raw[1], raw[2], raw[3]),     // Column 0
+       new vec4(raw[4], raw[5], raw[6], raw[7]),     // Column 1
+       new vec4(raw[8], raw[9], raw[10], raw[11]),   // Column 2
+       new vec4(raw[12], raw[13], raw[14], raw[15])  // Column 3
+       );
+                return _Rotation;
+            }
+        }
+
         public GlmNet.mat4 _Rotation = new GlmNet.mat4(1.0f);
         public IntPtr NodePtr = IntPtr.Zero;
 
@@ -122,7 +140,26 @@ namespace Vivid.Scene
 
         }
 
+        public GlmNet.vec3 TransformVector(GlmNet.vec3 vector)
+        {
+
+            var r = Rotation * new vec4(vector, 1.0f);
+            return new vec3(r.x, r.y, r.z);
+
+        }
+
+        public vec3 TransformPosition(vec3 position)
+        {
+            var r = WorldMatrix * new vec4(position, 1.0f);
+            return new vec3(r.x, r.y, r.z);
+        }
     
+        public vec3 TransformNormal(vec3 normal)
+        {
+            var norm = Maths.Maths.Transpose(glm.inverse(Maths.Maths.ToMat3(Rotation)));
+            return norm * normal;
+            
+        }
 
         public void Turn(GlmNet.vec3 rotation, NodeSpace space)
         {

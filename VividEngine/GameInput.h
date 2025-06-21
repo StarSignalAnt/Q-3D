@@ -1,4 +1,5 @@
 #pragma once
+#include <glm/glm.hpp>
 enum Key {
 
 	Key_W = 1,
@@ -13,6 +14,7 @@ class GameInput
 {
 public:
 
+	static glm::vec2 MousePosition;
 	static bool m_Key[255];
 	static bool m_Button[16];
 
