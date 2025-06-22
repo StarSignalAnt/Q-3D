@@ -41,9 +41,9 @@ struct PSInput
 void main(in VSInput VSIn, out PSInput PSIn)
 {
     float3 worldPos = mul(float4(VSIn.Pos, 1.0), g_ModelMatrix).xyz;
-    float3 normal = normalize(mul(VSIn.Norm, (float3x3)g_NormalMatrix));
-    float3 tangent = normalize(mul(VSIn.Tang, (float3x3)g_ModelMatrix));
-    float3 binormal = normalize(mul(VSIn.BiNorm, (float3x3)g_ModelMatrix));
+float3 normal = normalize(mul(VSIn.Norm, (float3x3)g_NormalMatrix));
+float3 tangent = normalize(mul(VSIn.Tang, (float3x3)g_NormalMatrix));
+float3 binormal = normalize(mul(VSIn.BiNorm, (float3x3)g_NormalMatrix));
 
     PSIn.Pos = mul(float4(VSIn.Pos, 1.0), g_MVPMatrix);
     PSIn.Uv = VSIn.Uv;

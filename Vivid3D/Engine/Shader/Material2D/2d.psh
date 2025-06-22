@@ -1,0 +1,60 @@
+    #define dx 1.0
+
+    Texture2D v_Texture;
+    SamplerState v_Texture_sampler;
+
+
+    struct PSInput
+    {
+        float4 Pos : SV_POSITION;
+        float3 Uv : TEX_COORD;
+        float4 v_Color : COLOR2;
+        float4 v_View : COLOR3;
+    
+    // float3 Norm : NORMAL0;x
+    };
+
+    struct PSOutput
+    {
+        float4 Color : SV_TARGET;
+    };
+
+    // Note that if separate shader objects are not supported (this is only the case for old GLES3.0 devices), vertex
+    // shader output variable name must match exactly the name of the pixel shader input variable.
+    // If the variable has structure type (like in this example), the structure declarations must also be identical.
+    void main(in PSInput PSIn,
+        out PSOutput PSOut)
+    {
+
+        float2 pixelPos = PSIn.Pos.xy;
+
+        if(pixelPos.x>=PSIn.v_View.x && pixelPos.x<=PSIn.v_View.x + PSIn.v_View.z)
+        {
+            if(pixelPos.y>=PSIn.v_View.y && pixelPos.y<=PSIn.v_View.y + PSIn.v_View.w)
+            {
+
+            }else{
+                clip(-1);
+                return;
+            }
+
+        }else{
+            clip(-1);
+            return;
+        }
+        
+
+        float4 col = float4(0, 1, 1, 1);
+    
+    
+        float4 ffcol = v_Texture.Sample(v_Texture_sampler, PSIn.Uv) * PSIn.v_Color;
+
+        //ffcol.a 
+
+        
+
+
+        PSOut.Color = ffcol;
+
+
+    }

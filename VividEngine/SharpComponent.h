@@ -22,6 +22,10 @@ struct Vec2 {
 
 };
 
+struct Vec4 {
+    float x, y, z, w;
+};
+
 //Node
 extern "C" __declspec(dllexport) void NodeTurn(void* node,float x,float y,float z);
 extern "C" __declspec(dllexport) void NodeSetPosition(void* node,Vec3 pos);
@@ -42,7 +46,9 @@ extern "C" __declspec(dllexport) void UpdateVideo(void* video);
 extern "C" __declspec(dllexport) void* VideoGetFrame(void* video);
 extern "C" __declspec(dllexport) void RenderVideo(void* video, Vec2 pos, Vec2 size);
 extern "C" __declspec(dllexport) void* CreateDraw2D();
-extern "C" __declspec(dllexport) void DrawRect(void* draw, void* tex, Vec2 pos, Vec2 size);
+extern "C" __declspec(dllexport) void DrawRect(void* draw, void* tex, Vec2 pos, Vec2 size,Vec4 color);
+extern "C" __declspec(dllexport) void DrawBegin(void* draw);
+extern "C" __declspec(dllexport) void DrawFlush(void* draw);
 extern "C" __declspec(dllexport) void* LoadTexture2D(const char* path);
 extern "C" __declspec(dllexport) int EngineGetWidth();
 extern "C" __declspec(dllexport) int EngineGetHeight();
@@ -53,6 +59,14 @@ extern "C" __declspec(dllexport) void* CastResultNode(void* res);
 extern "C" __declspec(dllexport) void* SceneMousePick(Vec2 pos);
 extern "C" __declspec(dllexport) int GetMouseX();
 extern "C" __declspec(dllexport) int GetMouseY();
+extern "C" __declspec(dllexport) bool GetMouseDown(int id);
+extern "C" __declspec(dllexport) void* LoadFont(char* path,float size);
+extern "C" __declspec(dllexport) void SetFontDraw(void* font, void* draw);
+extern "C" __declspec(dllexport) void FontDrawText(void* font,char* text,Vec2 pos, float size);
+extern "C" __declspec(dllexport) int FontTextWidth(void* font, char* text,float size);
+extern "C" __declspec(dllexport) int FontTextHeight(void* font, char* text, float size);
+extern "C" __declspec(dllexport) void SetScissor(int x,int y,int w,int h);
+
 class SharpComponent :
     public Component
 {

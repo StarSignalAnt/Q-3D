@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
     Vivid3D window;
 
     QTimer::singleShot(50, [&window]() {
-        window.show();
+        window.showMaximized();
         });
 
 

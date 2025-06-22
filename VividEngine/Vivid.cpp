@@ -55,6 +55,10 @@ GameVideo* Vivid::m_CurrentVideo = nullptr;
 
 std::string Vivid::m_ContentPath = "";
 
+int Vivid::ScX = 0;
+int Vivid::ScY = 0;
+int Vivid::ScW = 0;
+int Vivid::ScH = 0;
 
 void Vivid::SetContentPath(std::string path) {
 

@@ -41,7 +41,7 @@ class Texture2D
 public:
 
 	Texture2D(RenderTarget2D* target);
-	Texture2D(std::string path);
+	Texture2D(std::string path, bool srgb = false);
 	Texture2D(int w, int h, float* data, int bpp);
 	Texture2D(int w, int h,char* data, int bpp);
 	void Update(float* data);

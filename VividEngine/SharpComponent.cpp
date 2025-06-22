@@ -7,6 +7,7 @@
 #include "Texture2D.h"
 #include "Vivid.h"
 #include "GameInput.h"
+#include "GameFont.h"
 
 extern "C" __declspec(dllexport) void NodeTurn(void* node,float x, float y, float z)
 {
@@ -170,20 +171,30 @@ extern "C" __declspec(dllexport) void* CreateDraw2D() {
 	return (void*)draw;
 
 }
-extern "C" __declspec(dllexport) void DrawRect(void* draw,void*tex, Vec2 pos, Vec2 size)
+extern "C" __declspec(dllexport) void DrawRect(void* draw,void*tex, Vec2 pos, Vec2 size,Vec4 color)
 {
 
 	Draw2D* drawObj = static_cast<Draw2D*>(draw);
 
-	drawObj->Rect(static_cast<Texture2D*>(tex), glm::vec2(pos.x, pos.y), glm::vec2(size.x, size.y), glm::vec4(1, 1, 1, 1));
+	drawObj->Rect(static_cast<Texture2D*>(tex), glm::vec2(pos.x, pos.y), glm::vec2(size.x, size.y), glm::vec4(color.x,color.y,color.z,color.w));
 
 	
 
 }
 
+extern "C" __declspec(dllexport) void DrawBegin(void* draw) {
+	Draw2D* drawObj = static_cast<Draw2D*>(draw);
+	drawObj->BeginFrame();
+}
+extern "C" __declspec(dllexport) void DrawFlush(void* draw) {
+	Draw2D* drawObj = static_cast<Draw2D*>(draw);
+	drawObj->Flush();
+}
 extern "C" __declspec(dllexport) void* LoadTexture2D(const char* path) {
 
-	return (void*)new Texture2D(path);
+	auto cp = Vivid::GetContentPath() + std::string(path);
+
+	return (void*)new Texture2D(cp,true);
 
 }
 
@@ -280,6 +291,65 @@ extern "C" __declspec(dllexport) int GetMouseX() {
 extern "C" __declspec(dllexport) int GetMouseY()
 {
 	return (int)GameInput::MousePosition.y;
+}
+
+extern "C" __declspec(dllexport) bool GetMouseDown(int id) {
+
+	return (bool)GameInput::m_Button[id];
+
+}
+
+extern "C" __declspec(dllexport) void* LoadFont(char* path,float size)
+{
+
+	return new GameFont(path, size, SceneGraph::m_Instance->GetCamera());
+
+}
+
+extern "C" __declspec(dllexport) void FontDrawText(void* font, char* text,Vec2 pos, float size) {
+
+	GameFont* f = (GameFont*)font;
+	f->DrawTextAsTexture(text, glm::vec2(pos.x, pos.y), size, glm::vec4(1, 1, 1, 1));
+
+}
+
+extern "C" __declspec(dllexport) int FontTextWidth(void* font, char* text, float size) {
+
+	GameFont* f = (GameFont*)font;
+	return f->GetTextWidth(text, size);
+}
+
+
+extern "C" __declspec(dllexport) int FontTextHeight(void* font, char* text, float size) {
+
+	GameFont* f = (GameFont*)font;
+	return f->GetTextHeight(text, size);
+}
+
+extern "C" __declspec(dllexport) void SetFontDraw(void* font, void* draw) {
+	GameFont* f = (GameFont*)font;
+	Draw2D* d = (Draw2D*)draw;
+	f->SetDraw(d);
+}
+
+
+extern "C" __declspec(dllexport) void SetScissor( int x, int y, int w, int h) {
+
+
+	Vivid::SetScissor(x, y, w, h);
+
+	return;
+	const auto& SCDesc = Vivid::m_pSwapChain->GetDesc();
+	Rect scissorRect;
+	scissorRect.left = x;
+	scissorRect.top = y;
+	scissorRect.right = x + w;
+	scissorRect.bottom = y + h;
+	Vivid::m_pImmediateContext->SetScissorRects(1, &scissorRect, SCDesc.Width, SCDesc.Height);
+
+
+
+
 }
 
 

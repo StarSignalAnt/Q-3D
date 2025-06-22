@@ -30,7 +30,8 @@ void main(in PSInput PSIn,
    
     float4 ffcol = v_Texture.Sample(v_Texture_sampler, PSIn.Uv) * PSIn.v_Color;
 
-    ffcol.a = 1.0;
+    //ffcol.a 
+
     
 
 

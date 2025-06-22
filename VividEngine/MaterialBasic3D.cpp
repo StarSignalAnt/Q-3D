@@ -113,6 +113,7 @@ MaterialBasic3D::MaterialBasic3D() {
     gp.DepthStencilDesc = ds_desc;
     gp.SmplDesc.Count = 1;
 
+
     //gp.SmplDesc.Quality = 1.0f;
 
     //gp.NumRenderTargets = 0;
@@ -180,6 +181,7 @@ MaterialBasic3D::MaterialBasic3D() {
     gp_desc.pPS = m_PS;
     gp_desc.GraphicsPipeline = gp;
     gp_desc.PSODesc = pso_desc;
+   
     // gp_desc.ResourceSignaturesCount = 0;
 
 

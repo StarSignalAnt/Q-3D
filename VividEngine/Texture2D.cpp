@@ -3,7 +3,7 @@
 #include <filesystem>
 #include <iostream>
 #include <cstdlib> // For std::getenv
-
+#include "PixelMap.h"
 // Static member definitions
 std::unordered_map<std::string, std::shared_ptr<CachedTexture>> Texture2D::s_textureCache;
 std::mutex Texture2D::s_cacheMutex;
@@ -38,10 +38,77 @@ std::string GetAppCacheDirectory()
 }
 
 
-Texture2D::Texture2D(std::string path)
+Texture2D::Texture2D(std::string path, bool srgb)
 {
     m_Path = path;
 
+    // STEP 1: Load the image using PixelMap, forcing it into 8-bit (UINT8) mode.
+    // This ensures we get the raw, unmodified pixel data from the file.
+    PixelMap* pmap = new PixelMap(path, PixelMapDataType::UINT8);
+
+    auto col = pmap->GetIntColor(5, 5);
+
+    if (pmap->GetData() == nullptr)
+    {
+        std::cerr << "Error loading texture file via PixelMap: " << path << std::endl;
+        delete pmap;
+        return;
+    }
+
+    m_Width = pmap->GetWidth();
+    m_Height = pmap->GetHeight();
+
+    TextureDesc TexDesc;
+
+    // STEP 2: Choose the correct 8-bit texture format based on the srgb flag.
+    // The GPU hardware will handle the interpretation of this data perfectly.
+    if (srgb)
+    {
+        // For color textures, use the 8-bit SRGB format.
+        TexDesc.Format = TEX_FORMAT_RGBA8_UNORM_SRGB;
+        TexDesc.Name = "sRGB Color Texture";
+    }
+    else
+    {
+        // For data textures (like normal maps), use the 8-bit linear format.
+        // This is the key to fixing the 0.501 vs 0.5 issue.
+        TexDesc.Format = TEX_FORMAT_RGBA8_UNORM;
+        TexDesc.Name = "Linear Data Texture";
+    }
+
+    TexDesc.Type = RESOURCE_DIM_TEX_2D;
+    TexDesc.Width = m_Width;
+    TexDesc.Height = m_Height;
+    TexDesc.MipLevels = 1; // No mipmaps to eliminate it as a variable.
+    TexDesc.BindFlags = BIND_SHADER_RESOURCE;
+    TexDesc.Usage = USAGE_IMMUTABLE;
+
+    // STEP 3: Provide the raw 8-bit data to the GPU.
+    TextureSubResData subresourceData;
+    subresourceData.pData = pmap->GetData();
+    // The stride is the width * number of bytes per pixel (RGBA = 4 bytes).
+    subresourceData.Stride = m_Width * pmap->GetBPP();
+
+    TextureData initialData;
+    initialData.pSubResources = &subresourceData;
+    initialData.NumSubresources = 1;
+
+    // Create the texture on the GPU.
+    Vivid::m_pDevice->CreateTexture(TexDesc, &initialData, &m_pTexture);
+
+    // The PixelMap object is no longer needed after its data is sent to the GPU.
+    delete pmap;
+
+    if (m_pTexture)
+    {
+        m_pTextureView = m_pTexture->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE);
+    }
+    else
+    {
+        std::cerr << "Failed to create Diligent texture for: " << path << std::endl;
+    }
+    return;
+    /*
     // Lock for thread safety
     std::lock_guard<std::mutex> lock(s_cacheMutex);
 
@@ -69,14 +136,29 @@ Texture2D::Texture2D(std::string path)
         s_textureCache[path] = cachedTex;
         return;
     }
+    */
 
     // Not in any cache, load from original file
     TextureLoadInfo loadInfo;
     loadInfo.BindFlags = BIND_FLAGS::BIND_SHADER_RESOURCE;
-    loadInfo.Format = TEX_FORMAT_RGBA16_UNORM;
-    loadInfo.MipLevels = 24;
-    loadInfo.MipFilter = TEXTURE_LOAD_MIP_FILTER_BOX_AVERAGE;
+
+    if (srgb) {
+        loadInfo.Format = TEX_FORMAT_RGBA8_UNORM_SRGB;
+        //loadInfo.MipLevels = 8;
+        loadInfo.GenerateMips = true; // Generate mips ONLY for color textures
+        loadInfo.MipLevels = 16;
+    }
+    else {
+        //loadInfo.GenerateMips = false; 
+
+        loadInfo.Format = TEX_FORMAT_RGBA8_UNORM;
+    }
+    loadInfo.IsSRGB = srgb;
+    
+
+    //loadInfo.MipFilter = TEXTURE_LOAD_MIP_FILTER_BOX_AVERAGE;
     loadInfo.GenerateMips = true;
+    loadInfo.MipLevels = 16;
 
     Vivid::m_pImmediateContext->Flush();
     CreateTextureFromFile(path.c_str(), loadInfo, Vivid::m_pDevice, &m_pTexture);

@@ -47,6 +47,7 @@ class SceneController;
 class SceneGraph;
 class GraphNode;
 class TerrainEditor;
+class GameFont;
 class GameVideo;
 
 #include <QResizeEvent>
@@ -231,6 +232,7 @@ private:
 	bool m_Picking = false;
 	EditBrushMode m_BrushMode = EditBrushMode::BM_Add;
 	GameVideo* m_Vid1;
+	GameFont* m_Font;
 };
 
 

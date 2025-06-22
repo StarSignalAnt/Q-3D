@@ -1,81 +1,172 @@
 #include "pch.h"
 #include "Draw2D.h"
 #include "Texture2D.h"
-#include "MaterialBasic3D.h"
-#include "StaticMeshComponent.h"
+#include "Material2D.h"
 #include "CameraComponent.h"
+#include "Vivid.h" // Assumed to provide Graphics Engine device and context
 
-Draw2D::Draw2D(GraphNode* node) {
+// Constructor: Creates long-lived GPU resources.
+Draw2D::Draw2D(GraphNode* node)
+    : m_Camera(node), m_Override(nullptr)
+{
+    m_Material = new Material2D;
+    m_BatchVertices.reserve(MAX_QUADS_PER_BATCH * 4);
 
-	m_Material = new MaterialBasic3D;
-	m_Camera = node;
+    // Create a single dynamic Vertex Buffer that will be reused every frame.
+    BufferDesc VertBuffDesc;
+    VertBuffDesc.Name = "Draw2D_Dynamic_VB";
+    VertBuffDesc.Usage = USAGE_DYNAMIC;
+    VertBuffDesc.BindFlags = BIND_VERTEX_BUFFER;
+    VertBuffDesc.CPUAccessFlags = CPU_ACCESS_WRITE;
+    VertBuffDesc.Size = MAX_QUADS_PER_BATCH * 4 * sizeof(Draw2D_Vertex);
+    Vivid::m_pDevice->CreateBuffer(VertBuffDesc, nullptr, &m_VertexBuffer);
 
+    // Create a single immutable Index Buffer, as the pattern for drawing quads is constant.
+    std::vector<uint32_t> indices(MAX_QUADS_PER_BATCH * 6);
+    for (uint32_t i = 0; i < MAX_QUADS_PER_BATCH; ++i)
+    {
+        uint32_t offset = i * 4;
+        indices[i * 6 + 0] = offset + 0;
+        indices[i * 6 + 1] = offset + 1;
+        indices[i * 6 + 2] = offset + 2;
+        indices[i * 6 + 3] = offset + 2;
+        indices[i * 6 + 4] = offset + 3;
+        indices[i * 6 + 5] = offset + 0;
+    }
+
+    BufferDesc IdxBuffDesc;
+    IdxBuffDesc.Name = "Draw2D_Immutable_IB";
+    IdxBuffDesc.Usage = USAGE_IMMUTABLE;
+    IdxBuffDesc.BindFlags = BIND_INDEX_BUFFER;
+    IdxBuffDesc.Size = (Uint64)indices.size() * sizeof(uint32_t);
+
+    BufferData IBData;
+    IBData.pData = indices.data();
+    IBData.DataSize = IdxBuffDesc.Size;
+    Vivid::m_pDevice->CreateBuffer(IdxBuffDesc, &IBData, &m_IndexBuffer);
 }
 
-void Draw2D::Rect(Texture2D* image, glm::vec2 pos, glm::vec2 size,glm::vec4 color) {
+// Destructor: Cleans up allocated memory. RefCntAutoPtr handles GPU resources.
+Draw2D::~Draw2D()
+{
+    delete m_Material;
+}
 
-	auto smesh = new StaticMeshComponent;
+// Resets the batching system for a new frame.
+void Draw2D::BeginFrame()
+{
+    m_BatchVertices.clear();
+    m_ActiveMaterial = nullptr;
+    m_BatchTexture = nullptr;
+}
+
+// Sets the default material, flushing any pending work.
+void Draw2D::SetMaterial(Material2D* material)
+{
+    if (m_Material == material) return;
+    InternalFlush();
+    delete m_Material;
+    m_Material = material;
+}
+
+// Sets an override material, flushing any pending work.
+void Draw2D::SetOverride(RenderMaterial* mat)
+{
+    if (m_Override == mat) return;
+    InternalFlush();
+    m_Override = mat;
+}
+
+// Adds a rectangle to the current batch, flushing automatically if state changes.
+void Draw2D::Rect(Texture2D* image, glm::vec2 pos, glm::vec2 size, glm::vec4 color)
+{
+    RenderMaterial* materialToUse = m_Override != nullptr ? m_Override : (RenderMaterial*)m_Material;
+
+    // A batch must be flushed if the material or texture is different, or if the current batch is full.
+    if ((m_ActiveMaterial != nullptr && m_ActiveMaterial != materialToUse) ||
+        (m_BatchTexture != nullptr && m_BatchTexture != image) ||
+        (m_BatchVertices.size() / 4 >= MAX_QUADS_PER_BATCH))
+    {
+        InternalFlush();
+    }
+
+    // If the batch is now empty (either initially, or after a flush), set its state.
+    if (m_BatchVertices.empty())
+    {
+        m_ActiveMaterial = materialToUse;
+        m_BatchTexture = image;
+    }
+
+    // Define the four vertices of the rectangle.
+    Draw2D_Vertex v1, v2, v3, v4;
+    float z = 0.1f;
+
+    v1.position = glm::vec3(pos.x, pos.y, z);
+    v2.position = glm::vec3(pos.x + size.x, pos.y, z);
+    v3.position = glm::vec3(pos.x + size.x, pos.y + size.y, z);
+    v4.position = glm::vec3(pos.x, pos.y + size.y, z);
+
+    v1.color = v2.color = v3.color = v4.color = color;
+
+    v1.uv = glm::vec3(0, 0, 0);
+    v2.uv = glm::vec3(1, 0, 0);
+    v3.uv = glm::vec3(1, 1, 0);
+    v4.uv = glm::vec3(0, 1, 0);
+
+    v1.view = glm::vec4(Vivid::ScX, Vivid::ScY, Vivid::ScW, Vivid::ScH);
+    v2.view = v1.view;
+    v3.view = v1.view;
+    v4.view = v1.view;
+
+    glm::vec3 zeroVec(0.0f);
+   // v1.normal = v2.normal = v3.normal = v4.normal = zeroVec;
+   // v1.binormal = v2.binormal = v3.binormal = v4.binormal = zeroVec;
+    //v1.tangent = v2.tangent = v3.tangent = v4.tangent = zeroVec;
 
 
-	Vertex3 v1, v2, v3, v4;
+    m_BatchVertices.push_back(v1);
+    m_BatchVertices.push_back(v2);
+    m_BatchVertices.push_back(v3);
+    m_BatchVertices.push_back(v4);
+}
 
-	v1.position = glm::vec3(pos.x, pos.y,0.1f);
-	v2.position = glm::vec3(pos.x + size.x, pos.y, 0.1f);
-	v3.position = glm::vec3(pos.x + size.x, pos.y + size.y, 0.1f);
-	v4.position = glm::vec3(pos.x, pos.y + size.y, 0.1f);
-	v1.color = color;
-	v2.color = color;
-	v3.color = color;
-	v4.color = color;
-	v1.uv = glm::vec3(0, 0, 0);
-	v2.uv = glm::vec3(1, 0, 0);
-	v3.uv = glm::vec3(1, 1, 0);
-	v4.uv = glm::vec3(0, 1, 0);
+// The user-callable Flush, to render the final batch at the end of a frame.
+void Draw2D::Flush()
+{
+    InternalFlush();
+}
 
-	SubMesh* mesh = new SubMesh;
+// Submits the currently buffered geometry to the GPU.
+void Draw2D::InternalFlush()
+{
+    if (m_BatchVertices.empty() || m_ActiveMaterial == nullptr)
+    {
+        return;
+    }
 
-	mesh->m_Vertices.push_back(v1);
-	mesh->m_Vertices.push_back(v2);
-	mesh->m_Vertices.push_back(v3);
-	mesh->m_Vertices.push_back(v4);
+    // Map the dynamic vertex buffer, copy our CPU-side vertex data to it, and unmap.
+    void* pMappedData;
+    Vivid::m_pImmediateContext->MapBuffer(m_VertexBuffer, MAP_WRITE, MAP_FLAG_DISCARD, pMappedData);
+    memcpy(pMappedData, m_BatchVertices.data(), m_BatchVertices.size() * sizeof(Draw2D_Vertex));
+    Vivid::m_pImmediateContext->UnmapBuffer(m_VertexBuffer, MAP_WRITE);
 
-	Tri3 t1, t2;
+    // Set up material properties for the entire batch.
+    uint32_t indexCount = (uint32_t)(m_BatchVertices.size() / 4) * 6;
 
-	t1.v0 = 0;
-	t1.v1 = 1;
-	t1.v2 = 2;
+    m_ActiveMaterial->SetIndexCount(indexCount);
+    m_ActiveMaterial->SetBuffer(m_VertexBuffer, 0);
+    m_ActiveMaterial->SetBuffer(m_IndexBuffer, 1);
+    m_ActiveMaterial->SetMatrix(glm::mat4(1.0f), 0);
+    m_ActiveMaterial->SetMatrix(glm::mat4(1.0f), 1);
+    m_ActiveMaterial->SetMatrix(m_Camera->GetComponent<CameraComponent>()->Get2DProjectionMatrix(), 2);
+    m_ActiveMaterial->SetCameraPosition(m_Camera->GetPosition());
+    m_ActiveMaterial->SetCameraExt(m_Camera->GetComponent<CameraComponent>()->GetExtents());
+    m_ActiveMaterial->SetTexture(m_BatchTexture, 0);
 
-	t2.v0 = 2;
-	t2.v1 = 3;
-	t2.v2 = 0;
+    // Bind the material and render the entire batch.
+    m_ActiveMaterial->Bind(false);
+    m_ActiveMaterial->Render();
 
-	mesh->m_Triangles.push_back(t1);
-	mesh->m_Triangles.push_back(t2);
-
-	smesh->AddSubMesh(mesh);
-
-	smesh->Finalize();
-
-	RenderMaterial* mat = (RenderMaterial*)m_Material;
-	if (m_Override != nullptr) {
-		mat = m_Override;
-	}
-	mat->SetIndexCount(mesh->m_Triangles.size() * 3);
-	mat->SetBuffer(mesh->VertexBuffer, 0);
-	mat->SetBuffer(mesh->IndexBuffer, 1);
-	mat->SetMatrix(glm::mat4(1.0f), 0);
-	mat->SetMatrix(glm::mat4(1.0f), 1);
-	mat->SetMatrix(m_Camera->GetComponent<CameraComponent>()->Get2DProjectionMatrix(), 2);
-	mat->SetCameraPosition(m_Camera->GetPosition());
-	mat->SetCameraExt(m_Camera->GetComponent<CameraComponent>()->GetExtents());
-	mat->SetTexture(image, 0);
-	//	mat->SetTexture(sub.m_Material->GetColorTexture(), 0);
-	//mat->SetLight(light);
-	//mat->SetColorTexture(image);
-
-	mat->Bind(false);
-
-	mat->Render();
-
-
+    // Clear the CPU-side vertex buffer to start the next batch.
+    m_BatchVertices.clear();
 }

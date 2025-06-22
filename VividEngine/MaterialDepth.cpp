@@ -54,7 +54,8 @@ MaterialDepth::MaterialDepth() {
     RasterizerStateDesc r_desc;
 
 
-    r_desc.CullMode = CULL_MODE_BACK;
+    r_desc.CullMode = CULL_MODE_NONE;
+    
 
 
 

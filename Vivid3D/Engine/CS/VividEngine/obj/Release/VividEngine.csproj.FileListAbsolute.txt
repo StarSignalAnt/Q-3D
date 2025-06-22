@@ -1,0 +1,9 @@
+C:\Vivid3D\Vivid3D\Engine\CS\VividEngine\bin\Debug\VividEngine.dll
+C:\Vivid3D\Vivid3D\Engine\CS\VividEngine\bin\Debug\VividEngine.pdb
+C:\Vivid3D\Vivid3D\Engine\CS\VividEngine\bin\Debug\GlmNet.dll
+C:\Vivid3D\Vivid3D\Engine\CS\VividEngine\bin\Debug\GlmNet.xml
+C:\Vivid3D\Vivid3D\Engine\CS\VividEngine\obj\Release\VividEngine.csproj.AssemblyReference.cache
+C:\Vivid3D\Vivid3D\Engine\CS\VividEngine\obj\Release\VividEngine.csproj.CoreCompileInputs.cache
+C:\Vivid3D\Vivid3D\Engine\CS\VividEngine\obj\Release\VividEng.E96AB23F.Up2Date
+C:\Vivid3D\Vivid3D\Engine\CS\VividEngine\obj\Release\VividEngine.dll
+C:\Vivid3D\Vivid3D\Engine\CS\VividEngine\obj\Release\VividEngine.pdb

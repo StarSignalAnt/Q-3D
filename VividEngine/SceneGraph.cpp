@@ -702,7 +702,7 @@ void SceneGraph::ReadTerrain(VFile* f) {
 		Texture2D* specTex = new Texture2D(specPath);
 		TerrainLayer* layer = new TerrainLayer;
 		PixelMap* pix = new PixelMap(1, 1);
-		pix->Read(f);
+//		pix->Read(f);
 		layer->SetColor(colorTex);
 		layer->SetNormal(normalTex);
 		layer->SetSpecular(specTex);
@@ -745,7 +745,7 @@ void SceneGraph::WriteTerrain(VFile* f,GraphNode* node) {
 		f->WriteString(layer->GetNormal()->GetPath().c_str());
 		f->WriteString(layer->GetSpec()->GetPath().c_str());
 		auto pix = layer->GetPixels();
-		pix->Write(f);
+		//pix->Write(f);
 
 
 		//f->WriteString(layer.name);

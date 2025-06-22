@@ -104,9 +104,9 @@ void TerrainMeshComponent::CreateTerrain(int layers) {
         if (i == 0)
         {
             //layer1->SetLayerMap(new Texture2D("engine\\white.png"));
-            auto pixmap = new PixelMap(1024, 1024, float4(1, 1, 1, 1));
-            layer1->SetPixels(pixmap);
-            layer1->SetLayerMap(new Texture2D(pixmap->GetWidth(), pixmap->GetHeight(), pixmap->GetData(), 4));
+         //   auto pixmap = new PixelMap(1024, 1024, float4(1, 1, 1, 1));
+           // layer1->SetPixels(pixmap);
+         //   layer1->SetLayerMap(new Texture2D(pixmap->GetWidth(), pixmap->GetHeight(), pixmap->GetData(), 4));
             //
             // layer1->SetPixels()
 
@@ -114,7 +114,8 @@ void TerrainMeshComponent::CreateTerrain(int layers) {
         else
         {
 
-            layer1->SetLayerMap(new Texture2D(1024, 1024, layer1->GetPixels()->GetData(), 4));
+
+            //layer1->SetLayerMap(new Texture2D(1024, 1024, layer1->GetPixels()->GetData(), 4));
             //  layer1.LayerMap = new Texture.Texture2D("engine\\terrain\\layer1.png");
         }
         m_Layers.push_back(layer1);

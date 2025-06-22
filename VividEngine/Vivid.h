@@ -76,6 +76,7 @@ public:
 	{
 		if (DebugLogCB) {
 			DebugLogCB(message);
+			std::cout << "MSG:" << message << std::endl;
 		}
 	}
 	static NodeRegistry& GetNodeRegistry() {
@@ -90,7 +91,16 @@ public:
 	static std::string m_ContentPath;
 	static void CheckDLL();
 	static MonoLib* GetMonoLib();
-
+	static void SetScissor(int x, int y, int w, int h) {
+		ScX = x;
+		ScY = y;
+		ScW = w;
+		ScH = h;
+	}
+	static int ScX;
+	static int ScY;
+	static int ScW;
+	static int ScH;
 private:
 
 

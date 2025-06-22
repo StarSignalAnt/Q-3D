@@ -19,6 +19,7 @@
 #include "TerrainEditor.h"
 #include "ConsoleOutput.h"
 #include "GameVideo.h"
+#include "GameFont.h"
 
 #if D3D11_SUPPORTED
 #    include "Graphics/GraphicsEngineD3D11/interface/EngineFactoryD3D11.h"
@@ -208,6 +209,8 @@ SceneView::SceneView(QWidget *parent)
     // 3. Start the timer and set the interval to 0.5 seconds (500 milliseconds)
     m_timer->start(500);
 
+    m_Font = new GameFont("Engine/system2.ttf", 20, m_SceneGraph->GetCamera());
+
 }
 
 SceneView::~SceneView()
@@ -340,6 +343,9 @@ void SceneView::paintEvent(QPaintEvent* event)
 
 
 
+    //m_Font->DrawTextAsTexture("This is a simple test", glm::vec2(20, 150), 1.0f, glm::vec4(1, 1, 1, 1));
+
+
 
 
 //    auto tex = m_Vid1->GetFrame();
@@ -407,8 +413,14 @@ void SceneView::CreateGraphics() {
 
    // SCDesc.ColorBufferFormat = TEX_FORMAT_RGB32_FLOAT;
     SCDesc.DepthBufferFormat = TEX_FORMAT_D32_FLOAT;
+    //SCDesc.ColorBufferFormat = TEX_FORMAT_RGBA8_UNORM_SRGB;
+
+
+
 
     EngineD3D12CreateInfo EngineCI;
+
+   
 
     EngineCI.SetValidationLevel(VALIDATION_LEVEL_DISABLED);
     pFactoryD3D12->CreateDeviceAndContextsD3D12(EngineCI, &m_pDevice, &m_pImmediateContext);
@@ -453,11 +465,12 @@ void SceneView::mousePressEvent(QMouseEvent* event)  {
     if (event->button() == Qt::RightButton) {
         rightMousePressed = true;
         lastMousePos = event->pos();
-      
+        GameInput::m_Button[1] = true;
       
     }
     if (event->button() == Qt::LeftButton) {
 
+        GameInput::m_Button[0] = true;
         if (m_Mode == SceneMode::Mode_Paint)
         {
             //m_TerrainEditing = true;
@@ -492,8 +505,10 @@ void SceneView::mousePressEvent(QMouseEvent* event)  {
 void SceneView::mouseReleaseEvent(QMouseEvent* event) {
     if (event->button() == Qt::RightButton) {
         rightMousePressed = false;
+        GameInput::m_Button[1] = false;
     }
     else {
+        GameInput::m_Button[0] = false;
         m_SceneController->onMouseUp();
         //m_
         //TerrainEditing = false;

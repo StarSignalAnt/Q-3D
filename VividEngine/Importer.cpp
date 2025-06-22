@@ -95,7 +95,7 @@ GraphNode* Importer::ImportEntity(std::string path) {
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile(path,
         aiProcess_Triangulate |
-        aiProcess_GenSmoothNormals |
+        aiProcess_GenNormals | 
         aiProcess_FlipUVs |
         aiProcess_CalcTangentSpace);
 
