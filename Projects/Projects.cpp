@@ -16,6 +16,7 @@ Projects::Projects(QWidget *parent)
     m_projectList->addItem("Projects");
     m_projectList->addItem("Vivid3D SDKs");
     m_projectList->addItem("Build & Run");
+    m_projectList->addItem("Team Hub");
 
     // --- 3. Create the right-side stacked widget ---
     m_rightPanelStack = new QStackedWidget(m_mainSplitter);

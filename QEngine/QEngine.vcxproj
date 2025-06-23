@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{96a4650f-adfa-40b2-805d-8a20a096a37a}</ProjectGuid>
+    <RootNamespace>QEngine</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>QEngine</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>
+      </SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>
+      </SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_LIB;PLATFORM_WIN32;D3D12_SUPPORTED;VULKAN_SUPPORTED;_CRT_SECURE_NO_WARNINGS;WITH_WASAPI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>C:\Q3D\freetype\include;C:\git\openal-soft-master\include;C:\Q3D\ffmpeg\include;C:\Users\antro\Downloads\json-develop\json-develop\single_include\nlohmann;C:\git\mono\msvc\include;C:\git\mono\msvc\include\mono;C:\git\mono\mono;C:\git\PhysX\pxshared\include;C:\git\PhysX\physx\include;C:\git\soloud-master\include;C:\Q3D\CL;C:\Users\antro\AppData\Local\Programs\Python\Python313\include;C:\Q3D\QEngine\include;C:\git\assimp\include;C:\git\DiligentEngine\DiligentCore;C:\git\DiligentEngine\DiligentFX;C:\git\DiligentEngine\DiligentFX\PostProcess\Common\interface;C:\DiligentEngine\DiligentFX\PostProcess\ScreenSpaceReflection\interface;C:\dev\Vivid3D\VScript;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsTools\interface;C:git\DiligentEngine\DiligentCore;C:\git\DiligentEngine\DiligentTools\TextureLoader\interface;C:\git\DiligentEngine\DiligentTools\TextureLoader\include;C:\Dev\Assimp\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngine\interface;C:\git\DiligentEngine\DiligentCore\Common\interface;C:\git\DiligentEngine\DiligentCore\ThirdParty\SPIRV-Cross\include;C:\git\DiligentEngine\DiligentCore\Platforms\Basic\include;C:\git\DiligentEngine\DiligentCore\Graphics\ShaderTools\include;C:\\git\DiligentEngine\DiligentCore\Graphics\HLSL2GLSLConverterLib\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngineD3D12\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngine\include;C:\git\DiligentEngine\DiligentCore\Common\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <SubSystem>
+      </SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Lib>
+      <AdditionalLibraryDirectories>C:\Q3D\freetype\release static\vs2015-2022\win64;C:\git\openal-soft-master\build\Release;C:\Q3D\ffmpeg\lib;C:\git\mono\msvc\build\sgen\x64\lib\Release;C:\git\PhysX\physx\bin\win.x86_64.vc142.mt\debug;C:\Program Files %28x86%29\OCL_SDK_Light\lib\x86_64;C:\Users\antro\AppData\Local\Programs\Python\Python313\libs;C:\git\assimp\lib\Debug;C:\Q3D\Q3D\x64\Debug;C:\Q3D\Deps\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>OpenAL32.lib;alsoft.common.lib;alsoft.excommon.lib;avcodec.lib;avdevice.lib;avfilter.lib;avformat.lib;avutil.lib;postproc.lib;swresample.lib;swscale.lib;mono-2.0-sgen.lib;opencl.lib;python313.lib;dxgi.lib;assimp-vc143-mtd.lib;d3dcompiler.lib;Archiver_64d.lib;Diligent-archiver-static.lib;Diligent-basicplatform.lib;Diligent-common.lib;DiligentCore.lib;Diligent-GLAdapterSelector.lib;Diligent-GraphicsAccessories.lib;Diligent-GraphicsEngine.lib;DiligentFX.lib;Diligent-GraphicsEngineD3D11-static.lib;Diligent-GraphicsEngineD3D12-static.lib;Diligent-GraphicsengineD3DBase.lib;Diligent-GraphicsEngineNextGenBase.lib;Diligent-GraphicsEngineOpenGL-static.lib;Diligent-GraphicsEngineVk-static.lib;Diligent-GraphicsTools.lib;Diligent-HLSL2GLSLConverterLib.lib;Diligent-Primitives.lib;Diligent-ShaderTools.lib;Diligent-TextureLoader.lib;DiligentTools.lib;Diligent-Win32Platform.lib;GenericCodeGend.lib;glslangd.lib;glslang-default-resource-limitsd.lib;GraphicsEngineD3D11_64d.lib;GraphicsEngineD3D12_64d.lib;GraphicsEngineOpenGL_64d.lib;GraphicsEngineVk_64d.lib;LibJpeg.lib;libpng16_staticd.lib;libtiff.lib;MachineIndependentd.lib;OSDependentd.lib;spirv-cross-cored.lib;spirv-cross-glsld.lib;SPIRVd.lib;SPIRV-Tools.lib;SPIRV-Tools-diff.lib;SPIRV-Tools-opt.lib;xxhash.lib;zlib.lib;PhysX_64.lib;LowLevel_static_64.lib;LowLevelAABB_static_64.lib;LowLevelDynamics_static_64.lib;PhysXCharacterKinematic_static_64.lib;PhysXCommon_64.lib;PhysXCooking_64.lib;PhysXExtensions_static_64.lib;PhysXFoundation_64.lib;PhysXPvdSDK_static_64.lib;PhysXTask_static_64.lib;PhysXVehicle_static_64.lib;SceneQuery_static_64.lib;SimulationController_static_64.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_LIB;PLATFORM_WIN32;D3D12_SUPPORTED;VULKAN_SUPPORTED;_CRT_SECURE_NO_WARNINGS;WITH_WASAPI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>C:\Q3D\freetype\include;C:\git\openal-soft-master\include;C:\Q3D\ffmpeg\include;C:\Users\antro\Downloads\json-develop\json-develop\single_include\nlohmann;C:\git\mono\msvc\include;C:\git\mono\msvc\include\mono;C:\git\mono\mono;C:\git\PhysX\pxshared\include;C:\git\PhysX\physx\include;C:\git\soloud-master\include;C:\Q3D\CL;C:\Users\antro\AppData\Local\Programs\Python\Python313\include;C:\Q3D\QEngine\include;C:\git\assimp\include;C:\git\DiligentEngine\DiligentCore;C:\git\DiligentEngine\DiligentFX;C:\git\DiligentEngine\DiligentFX\PostProcess\Common\interface;C:\DiligentEngine\DiligentFX\PostProcess\ScreenSpaceReflection\interface;C:\dev\Vivid3D\VScript;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsTools\interface;C:git\DiligentEngine\DiligentCore;C:\git\DiligentEngine\DiligentTools\TextureLoader\interface;C:\git\DiligentEngine\DiligentTools\TextureLoader\include;C:\Dev\Assimp\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngine\interface;C:\git\DiligentEngine\DiligentCore\Common\interface;C:\git\DiligentEngine\DiligentCore\ThirdParty\SPIRV-Cross\include;C:\git\DiligentEngine\DiligentCore\Platforms\Basic\include;C:\git\DiligentEngine\DiligentCore\Graphics\ShaderTools\include;C:\\git\DiligentEngine\DiligentCore\Graphics\HLSL2GLSLConverterLib\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngineD3D12\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngine\include;C:\git\DiligentEngine\DiligentCore\Common\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+    </ClCompile>
+    <Link>
+      <SubSystem>
+      </SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Lib>
+      <AdditionalDependencies>OpenAL32.lib;alsoft.common.lib;alsoft.excommon.lib;avcodec.lib;mono-2.0-sgen.lib;opencl.lib;avdevice.lib;avfilter.lib;avformat.lib;avutil.lib;postproc.lib;swresample.lib;swscale.lib;python313.lib;dxgi.lib;assimp-vc143-mt.lib;d3dcompiler.lib;Archiver_64r.lib;Diligent-archiver-static.lib;Diligent-basicplatform.lib;Diligent-common.lib;DiligentCore.lib;Diligent-GLAdapterSelector.lib;Diligent-GraphicsAccessories.lib;Diligent-GraphicsEngine.lib;DiligentFX.lib;Diligent-GraphicsEngineD3D11-static.lib;Diligent-GraphicsEngineD3D12-static.lib;Diligent-GraphicsengineD3DBase.lib;Diligent-GraphicsEngineNextGenBase.lib;Diligent-GraphicsEngineOpenGL-static.lib;Diligent-GraphicsEngineVk-static.lib;Diligent-GraphicsTools.lib;Diligent-HLSL2GLSLConverterLib.lib;Diligent-Primitives.lib;Diligent-ShaderTools.lib;Diligent-TextureLoader.lib;DiligentTools.lib;Diligent-Win32Platform.lib;GenericCodeGen.lib;glslang.lib;glslang-default-resource-limits.lib;GraphicsEngineD3D11_64r.lib;GraphicsEngineD3D12_64r.lib;GraphicsEngineOpenGL_64r.lib;GraphicsEngineVk_64r.lib;LibJpeg.lib;libpng16_static.lib;libtiff.lib;MachineIndependent.lib;OSDependent.lib;spirv-cross-core.lib;spirv-cross-glsl.lib;SPIRV.lib;SPIRV-Tools.lib;SPIRV-Tools-diff.lib;SPIRV-Tools-opt.lib;xxhash.lib;zlib.lib;PhysX_64.lib;LowLevel_static_64.lib;LowLevelAABB_static_64.lib;LowLevelDynamics_static_64.lib;PhysXCharacterKinematic_static_64.lib;PhysXCommon_64.lib;PhysXCooking_64.lib;PhysXExtensions_static_64.lib;PhysXFoundation_64.lib;PhysXPvdSDK_static_64.lib;PhysXTask_static_64.lib;PhysXVehicle_static_64.lib;SceneQuery_static_64.lib;SimulationController_static_64.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Q3D\freetype\release static\vs2015-2022\win64;C:\git\mono\msvc\build\sgen\x64\lib\Release;C:\git\PhysX\physx\bin\win.x86_64.vc142.mt\release;C:\git\openal-soft-master\build\Release;C:\Q3D\ffmpeg\lib;C:\Q3D\Deps\Release;C:\Program Files %28x86%29\OCL_SDK_Light\lib\x86_64;C:\Users\antro\AppData\Local\Programs\Python\Python313\libs;C:\git\assimp\lib\Release;C:\Q3D\Q3D\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="Animation.h" />
+    <ClInclude Include="Animator.h" />
+    <ClInclude Include="Bone.h" />
+    <ClInclude Include="BoneInfo.h" />
+    <ClInclude Include="CameraComponent.h" />
+    <ClInclude Include="CLBase.h" />
+    <ClInclude Include="Component.h" />
+    <ClInclude Include="CubeRenderer.h" />
+    <ClInclude Include="DataType.h" />
+    <ClInclude Include="Draw2D.h" />
+    <ClInclude Include="framework.h" />
+    <ClInclude Include="GameAudio.h" />
+    <ClInclude Include="GameFont.h" />
+    <ClInclude Include="GameInput.h" />
+    <ClInclude Include="GameVideo.h" />
+    <ClInclude Include="GetSceneNode.h" />
+    <ClInclude Include="GetVariableNode.h" />
+    <ClInclude Include="GraphNode.h" />
+    <ClInclude Include="Importer.h" />
+    <ClInclude Include="Intersections.h" />
+    <ClInclude Include="JsonGlm.h" />
+    <ClInclude Include="LEventNode.h" />
+    <ClInclude Include="LGDataNode.h" />
+    <ClInclude Include="LGInput.h" />
+    <ClInclude Include="LGLogicNode.h" />
+    <ClInclude Include="LGOutput.h" />
+    <ClInclude Include="LGraph.h" />
+    <ClInclude Include="LGraphVariable.h" />
+    <ClInclude Include="LNode.h" />
+    <ClInclude Include="LGPrintDebug.h" />
+    <ClInclude Include="LightComponent.h" />
+    <ClInclude Include="LinesRendererComponent.h" />
+    <ClInclude Include="LogicDispatcher.h" />
+    <ClInclude Include="LogicGraphComponent.h" />
+    <ClInclude Include="MAsm.h" />
+    <ClInclude Include="Material2D.h" />
+    <ClInclude Include="MaterialBasic3D.h" />
+    <ClInclude Include="MaterialDepth.h" />
+    <ClInclude Include="MaterialLines.h" />
+    <ClInclude Include="MaterialOutline.h" />
+    <ClInclude Include="MaterialPBR.h" />
+    <ClInclude Include="MaterialSkeletal.h" />
+    <ClInclude Include="MaterialSkeletalDepth.h" />
+    <ClInclude Include="MaterialTerrain.h" />
+    <ClInclude Include="MaterialTerrainDepth.h" />
+    <ClInclude Include="MathsHelp.h" />
+    <ClInclude Include="MClass.h" />
+    <ClInclude Include="MonoHost.h" />
+    <ClInclude Include="MonoLib.h" />
+    <ClInclude Include="NodeAddBase.h" />
+    <ClInclude Include="NodeAddFloat.h" />
+    <ClInclude Include="NodeAddVec3.h" />
+    <ClInclude Include="NodeBoolConstant.h" />
+    <ClInclude Include="NodeCreateRotationMatrix.h" />
+    <ClInclude Include="NodeDebug.h" />
+    <ClInclude Include="NodeExposeGraphNode.h" />
+    <ClInclude Include="NodeIf.h" />
+    <ClInclude Include="NodeKeyDown.h" />
+    <ClInclude Include="NodeMultBase.h" />
+    <ClInclude Include="NodeMultMat4.h" />
+    <ClInclude Include="NodeRegistry.h" />
+    <ClInclude Include="NodeRenderVideo.h" />
+    <ClInclude Include="NodeSceneRayCast.h" />
+    <ClInclude Include="NodeSetPositionNode.h" />
+    <ClInclude Include="NodeSetRotationNode.h" />
+    <ClInclude Include="NodeStartVideo.h" />
+    <ClInclude Include="NodeTestLogic.h" />
+    <ClInclude Include="NodeTurnNode.h" />
+    <ClInclude Include="NodeVec3Constant.h" />
+    <ClInclude Include="Pars.h" />
+    <ClInclude Include="Physics.h" />
+    <ClInclude Include="PixelMap.h" />
+    <ClInclude Include="PlayEventNode.h" />
+    <ClInclude Include="PostProcess.h" />
+    <ClInclude Include="PostProcessing.h" />
+    <ClInclude Include="PPOutline.h" />
+    <ClInclude Include="RenderEventNode.h" />
+    <ClInclude Include="RenderMaterial.h" />
+    <ClInclude Include="RenderTarget2D.h" />
+    <ClInclude Include="RenderTargetCube.h" />
+    <ClInclude Include="ScriptComponent.h" />
+    <ClInclude Include="ScriptHost.h" />
+    <ClInclude Include="SetVariableNode.h" />
+    <ClInclude Include="SharpComponent.h" />
+    <ClInclude Include="SkeletalDepthRendererComponent.h" />
+    <ClInclude Include="SkeletalMeshComponent.h" />
+    <ClInclude Include="SkeletalRendererComponent.h" />
+    <ClInclude Include="soloud\src\audiosource\wav\dr_flac.h" />
+    <ClInclude Include="soloud\src\audiosource\wav\dr_mp3.h" />
+    <ClInclude Include="soloud\src\audiosource\wav\dr_wav.h" />
+    <ClInclude Include="soloud\src\audiosource\wav\stb_vorbis.h" />
+    <ClInclude Include="StaticDepthRendererComponent.h" />
+    <ClInclude Include="StaticMeshComponent.h" />
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="SceneGraph.h" />
+    <ClInclude Include="StaticRendererComponent.h" />
+    <ClInclude Include="stb_image.h" />
+    <ClInclude Include="TerrainDepthRenderer.h" />
+    <ClInclude Include="TerrainLayer.h" />
+    <ClInclude Include="TerrainMesh.h" />
+    <ClInclude Include="TerrainMeshBuffer.h" />
+    <ClInclude Include="TerrainMeshComponent.h" />
+    <ClInclude Include="TerrainRendererComponent.h" />
+    <ClInclude Include="Texture2D.h" />
+    <ClInclude Include="TextureCube.h" />
+    <ClInclude Include="TickEventNode.h" />
+    <ClInclude Include="VFile.h" />
+    <ClInclude Include="QEngine.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Animation.cpp" />
+    <ClCompile Include="Animator.cpp" />
+    <ClCompile Include="Bone.cpp" />
+    <ClCompile Include="BoneInfo.cpp" />
+    <ClCompile Include="CameraComponent.cpp" />
+    <ClCompile Include="CLBase.cpp" />
+    <ClCompile Include="Component.cpp" />
+    <ClCompile Include="CubeRenderer.cpp" />
+    <ClCompile Include="Draw2D.cpp" />
+    <ClCompile Include="GameAudio.cpp" />
+    <ClCompile Include="GameFont.cpp" />
+    <ClCompile Include="GameInput.cpp" />
+    <ClCompile Include="GameVideo.cpp" />
+    <ClCompile Include="GetSceneNode.cpp" />
+    <ClCompile Include="GetVariableNode.cpp" />
+    <ClCompile Include="GraphNode.cpp" />
+    <ClCompile Include="Importer.cpp" />
+    <ClCompile Include="Intersections.cpp" />
+    <ClCompile Include="JsonGlm.cpp" />
+    <ClCompile Include="LEventNode.cpp" />
+    <ClCompile Include="LGDataNode.cpp" />
+    <ClCompile Include="LGInput.cpp" />
+    <ClCompile Include="LGLogicNode.cpp" />
+    <ClCompile Include="LGOutput.cpp" />
+    <ClCompile Include="LGraph.cpp" />
+    <ClCompile Include="LGraphVariable.cpp" />
+    <ClCompile Include="LNode.cpp" />
+    <ClCompile Include="LGPrintDebug.cpp" />
+    <ClCompile Include="LightComponent.cpp" />
+    <ClCompile Include="LinesRendererComponent.cpp" />
+    <ClCompile Include="LogicDispatcher.cpp" />
+    <ClCompile Include="LogicGraphComponent.cpp" />
+    <ClCompile Include="MAsm.cpp" />
+    <ClCompile Include="Material2D.cpp" />
+    <ClCompile Include="MaterialBasic3D.cpp" />
+    <ClCompile Include="MaterialDepth.cpp" />
+    <ClCompile Include="MaterialLines.cpp" />
+    <ClCompile Include="MaterialOutline.cpp" />
+    <ClCompile Include="MaterialPBR.cpp" />
+    <ClCompile Include="MaterialSkeletal.cpp" />
+    <ClCompile Include="MaterialSkeletalDepth.cpp" />
+    <ClCompile Include="MaterialTerrain.cpp" />
+    <ClCompile Include="MaterialTerrainDepth.cpp" />
+    <ClCompile Include="MathsHelp.cpp" />
+    <ClCompile Include="MClass.cpp" />
+    <ClCompile Include="MonoHost.cpp" />
+    <ClCompile Include="MonoLib.cpp" />
+    <ClCompile Include="NodeAddBase.cpp" />
+    <ClCompile Include="NodeAddFloat.cpp" />
+    <ClCompile Include="NodeAddVec3.cpp" />
+    <ClCompile Include="NodeBoolConstant.cpp" />
+    <ClCompile Include="NodeCreateRotationMatrix.cpp" />
+    <ClCompile Include="NodeDebug.cpp" />
+    <ClCompile Include="NodeExposeGraphNode.cpp" />
+    <ClCompile Include="NodeIf.cpp" />
+    <ClCompile Include="NodeKeyDown.cpp" />
+    <ClCompile Include="NodeMultBase.cpp" />
+    <ClCompile Include="NodeMultMat4.cpp" />
+    <ClCompile Include="NodeRegistry.cpp" />
+    <ClCompile Include="NodeRenderVideo.cpp" />
+    <ClCompile Include="NodeSceneRayCast.cpp" />
+    <ClCompile Include="NodeSetPositionNode.cpp" />
+    <ClCompile Include="NodeSetRotationNode.cpp" />
+    <ClCompile Include="NodeStartVideo.cpp" />
+    <ClCompile Include="NodeTestLogic.cpp" />
+    <ClCompile Include="NodeTurnNode.cpp" />
+    <ClCompile Include="NodeVec3Constant.cpp" />
+    <ClCompile Include="Pars.cpp" />
+    <ClCompile Include="Physics.cpp" />
+    <ClCompile Include="PixelMap.cpp" />
+    <ClCompile Include="PlayEventNode.cpp" />
+    <ClCompile Include="PostProcess.cpp" />
+    <ClCompile Include="PostProcessing.cpp" />
+    <ClCompile Include="PPOutline.cpp" />
+    <ClCompile Include="RenderEventNode.cpp" />
+    <ClCompile Include="RenderMaterial.cpp" />
+    <ClCompile Include="RenderTarget2D.cpp" />
+    <ClCompile Include="RenderTargetCube.cpp" />
+    <ClCompile Include="ScriptComponent.cpp" />
+    <ClCompile Include="ScriptHost.cpp" />
+    <ClCompile Include="SetVariableNode.cpp" />
+    <ClCompile Include="SharpComponent.cpp" />
+    <ClCompile Include="SkeletalDepthRendererComponent.cpp" />
+    <ClCompile Include="SkeletalMeshComponent.cpp" />
+    <ClCompile Include="SkeletalRendererComponent.cpp" />
+    <ClCompile Include="soloud\src\audiosource\wav\dr_impl.cpp" />
+    <ClCompile Include="soloud\src\audiosource\wav\soloud_wav.cpp" />
+    <ClCompile Include="soloud\src\audiosource\wav\soloud_wavstream.cpp" />
+    <ClCompile Include="soloud\src\audiosource\wav\stb_vorbis.c" />
+    <ClCompile Include="soloud\src\backend\wasapi\soloud_wasapi.cpp" />
+    <ClCompile Include="soloud\src\core\soloud.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_audiosource.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_bus.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_core_3d.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_core_basicops.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_core_faderops.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_core_filterops.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_core_getters.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_core_setters.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_core_voicegroup.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_core_voiceops.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_fader.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_fft.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_fft_lut.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_file.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_filter.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_misc.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_queue.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_thread.cpp" />
+    <ClCompile Include="StaticDepthRendererComponent.cpp" />
+    <ClCompile Include="StaticMeshComponent.cpp" />
+    <ClCompile Include="pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="SceneGraph.cpp" />
+    <ClCompile Include="StaticRendererComponent.cpp" />
+    <ClCompile Include="TerrainDepthRenderer.cpp" />
+    <ClCompile Include="TerrainLayer.cpp" />
+    <ClCompile Include="TerrainMesh.cpp" />
+    <ClCompile Include="TerrainMeshBuffer.cpp" />
+    <ClCompile Include="TerrainMeshComponent.cpp" />
+    <ClCompile Include="TerrainRendererComponent.cpp" />
+    <ClCompile Include="Texture2D.cpp" />
+    <ClCompile Include="TextureCube.cpp" />
+    <ClCompile Include="TickEventNode.cpp" />
+    <ClCompile Include="VFile.cpp" />
+    <ClCompile Include="QEngine.cpp" />
+    <ClCompile Include="VividEngine.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\Q3D\packages\glm.1.0.1\build\native\glm.targets" Condition="Exists('..\Q3D\packages\glm.1.0.1\build\native\glm.targets')" />
+  </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\Q3D\packages\glm.1.0.1\build\native\glm.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\Q3D\packages\glm.1.0.1\build\native\glm.targets'))" />
+  </Target>
+</Project>

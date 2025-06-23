@@ -11,6 +11,7 @@ using Vivid.Draw;
 using Vivid.Texture;
 using VividEngine;
 using Vivid;
+using GlmNet;
 
 namespace Vivid
 {
@@ -38,7 +39,7 @@ namespace Vivid
             Console.WriteLine("Test Component Created!");
             draw = new Draw2D();
             tex1 = new Texture2D("test/tex1.png");
-            vid = new Video("test/video1.mp4");
+    //        vid = new Video("test/video1.mp4");
 
         }
 
@@ -63,22 +64,24 @@ namespace Vivid
             {
                 VividDebug.Log("HitNode:" + r.HitNode.Name);
             }
+            Node.Position = Node.Position + Node.TransformVector(new vec3(0, 0.03f, 0));
 
         }
 
         public override void OnPlay()
         {
-            vid.Play();   
+  //          vid.Play();   
         }
 
         public override void OnRender(GraphNode camera)
         {
 
-            var tex = vid.GetFrame();
+//            var tex = vid.GetFrame();
 
-            if (tex.obj != IntPtr.Zero)
+            //if (tex.obj != IntPtr.Zero)
             {
-                draw.Rect(tex, new GlmNet.vec2(0, 0), new GlmNet.vec2(Engine.FrameWidth, Engine.FrameHeight));
+
+                //draw.Rect(tex, new GlmNet.vec2(0, 0), new GlmNet.vec2(Engine.FrameWidth, Engine.FrameHeight));
               
             }
 

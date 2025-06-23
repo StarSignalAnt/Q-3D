@@ -15,7 +15,7 @@
 #include <qmessagebox.h>
 #include <QFrame>
 #include <QMap>
-#include "VProject.h"
+#include "QProject.h"
 #include "PixelMap.h"
 #include <QProcess>
 
@@ -50,7 +50,7 @@ private:
     bool copyDirectoryRecursively(const QString& sourcePath, const QString& destPath); // <-- ADD THIS
 
     // --- Data Model ---
-    QMap<QString, VProject*> m_projects; // Maps project name to VProject object
+    QMap<QString, QProject*> m_projects; // Maps project name to VProject object
     QString m_projectsListPath; // Path to "projects.list"
     QString m_currentIndexPath;
     QString m_newProjectTemplatePath;

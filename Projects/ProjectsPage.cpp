@@ -6,7 +6,7 @@ ProjectsPage::ProjectsPage(QWidget *parent)
 {
     // New top-level layout that arranges widgets vertically
     auto topLevelLayout = new QVBoxLayout(this);
-    m_headerLabel = new QLabel("Vivid3D - Projects", this);
+    m_headerLabel = new QLabel("Que3D - Projects", this);
     QFont headerFont = m_headerLabel->font();
     headerFont.setPointSize(18);
     headerFont.setBold(true);
@@ -66,8 +66,8 @@ ProjectsPage::ProjectsPage(QWidget *parent)
     // --- Initialization ---
     m_projectsListPath = QCoreApplication::applicationDirPath() + "/projects.list";
     m_currentIndexPath = QCoreApplication::applicationDirPath() + "/current.index"; // <-- ADD THIS LINE
-    m_newProjectTemplatePath = "C:/Vivid3D/FakeInstall/NewProject/"; // <-- ADD THIS LINE
-    m_ideExecutablePath = "C:\\Vivid3D\\Vivid3D\\x64\\Debug\\Vivid3D.exe";
+    m_newProjectTemplatePath = "C:/Q3D/FakeInstall/NewProject/"; // <-- ADD THIS LINE
+    m_ideExecutablePath = "C:\\Q3D\\x64\\Debug\\Vivid3D.exe";
     loadProjectsList();
 
     QFile indexFile(m_currentIndexPath);
@@ -106,7 +106,7 @@ void ProjectsPage::onDeleteAllProjects()
     }
 
     // Iterate through all managed projects
-    for (VProject* proj : m_projects.values()) {
+    for (QProject* proj : m_projects.values()) {
         if (!proj) continue;
 
         QString projPath = QString::fromStdString(proj->GetPath());
@@ -141,7 +141,7 @@ void ProjectsPage::loadProjectsList()
         QString projectFilePath = in.readLine();
         if (projectFilePath.isEmpty() || !QFile::exists(projectFilePath)) continue;
 
-        VProject* project = new VProject();
+        QProject* project = new QProject();
         project->Load(projectFilePath.toStdString());
 
         QString name = QString::fromStdString(project->GetName());
@@ -159,7 +159,7 @@ void ProjectsPage::saveProjectsList()
     }
 
     QTextStream out(&file);
-    for (VProject* proj : m_projects.values()) {
+    for (QProject* proj : m_projects.values()) {
         QString projPath = QString::fromStdString(proj->GetPath());
         QString projName = QString::fromStdString(proj->GetName());
         out << projPath + "/" + projName + ".project" << "\n";
@@ -206,7 +206,7 @@ void ProjectsPage::onNewProject()
     // --- END of new block ---
 
     // --- Create and Save Project (unchanged) ---
-    VProject* project = new VProject();
+    QProject* project = new QProject();
     project->SetName(name.toStdString());
     project->SetPath(path.toStdString());
 
@@ -256,7 +256,7 @@ void ProjectsPage::onDeleteProject()
     if (!item) return;
 
     QString name = item->text();
-    VProject* proj = m_projects.value(name, nullptr);
+    QProject* proj = m_projects.value(name, nullptr);
     if (!proj) return;
 
     auto reply = QMessageBox::question(this, "Confirm Delete",
@@ -285,7 +285,7 @@ void ProjectsPage::onSetImage()
     QListWidgetItem* item = projectList->currentItem();
     if (!item) return;
 
-    VProject* proj = m_projects.value(item->text(), nullptr);
+    QProject* proj = m_projects.value(item->text(), nullptr);
     if (!proj) return;
 
     QString fileName = QFileDialog::getOpenFileName(this, "Select Project Image", "", "Images (*.png *.jpg *.bmp)");
@@ -304,7 +304,7 @@ void ProjectsPage::onDescriptionChanged()
 {
     QListWidgetItem* item = projectList->currentItem();
     if (!item) return;
-    VProject* proj = m_projects.value(item->text(), nullptr);
+    QProject* proj = m_projects.value(item->text(), nullptr);
     if (!proj) return;
 
     // To prevent saving on every keystroke, you might add a "Save" button
@@ -337,7 +337,7 @@ void ProjectsPage::updateUIForSelectedProject(QListWidgetItem* item)
         return;
     }
 
-    VProject* proj = m_projects.value(item->text(), nullptr);
+    QProject* proj = m_projects.value(item->text(), nullptr);
     if (!proj) return;
 
     // Temporarily disconnect the signal to prevent feedback loops
@@ -359,7 +359,7 @@ QPixmap ProjectsPage::convertPixelMapToPixmap(PixelMap* map)
 
     int width = map->GetWidth();
     int height = map->GetHeight();
-    float* floatData = map->GetData();
+    float* floatData = (float*)map->GetData();
 
     QImage image(width, height, QImage::Format_RGBA8888);
     for (int y = 0; y < height; ++y) {
@@ -384,7 +384,7 @@ void ProjectsPage::onLoadProject()
         return;
     }
 
-    VProject* proj = m_projects.value(item->text(), nullptr);
+    QProject* proj = m_projects.value(item->text(), nullptr);
     if (!proj) return;
 
     // 1. Check if the IDE path has been set and if the executable exists

@@ -1,0 +1,7 @@
+C:\Vivid3D\FakeInstall\NewProject\Game\obj\Debug\Game.csproj.AssemblyReference.cache
+C:\Vivid3D\FakeInstall\NewProject\Game\obj\Debug\Game.csproj.CoreCompileInputs.cache
+C:\Vivid3D\FakeInstall\NewProject\Game\obj\Debug\VividGame.dll
+C:\Vivid3D\FakeInstall\NewProject\Game\obj\Debug\VividGame.pdb
+C:\Vivid3D\FakeInstall\CS\VividGame.dll
+C:\Vivid3D\FakeInstall\CS\VividGame.pdb
+C:\Vivid3D\FakeInstall\NewProject\Game\obj\Debug\Game.csproj.Up2Date
