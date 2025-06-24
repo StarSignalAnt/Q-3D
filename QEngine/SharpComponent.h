@@ -59,6 +59,7 @@ extern "C" __declspec(dllexport) void* CastResultNode(void* res);
 extern "C" __declspec(dllexport) void* SceneMousePick(Vec2 pos);
 extern "C" __declspec(dllexport) int GetMouseX();
 extern "C" __declspec(dllexport) int GetMouseY();
+extern "C" __declspec(dllexport) bool GetKeyDown(int key);
 extern "C" __declspec(dllexport) bool GetMouseDown(int id);
 extern "C" __declspec(dllexport) void* LoadFont(char* path,float size);
 extern "C" __declspec(dllexport) void SetFontDraw(void* font, void* draw);

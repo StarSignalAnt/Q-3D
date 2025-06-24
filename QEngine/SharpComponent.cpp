@@ -293,6 +293,12 @@ extern "C" __declspec(dllexport) int GetMouseY()
 	return (int)GameInput::MousePosition.y;
 }
 
+extern "C" __declspec(dllexport) bool GetKeyDown(int key) {
+
+	return GameInput::m_Key[key];
+
+}
+
 extern "C" __declspec(dllexport) bool GetMouseDown(int id) {
 
 	return (bool)GameInput::m_Button[id];
@@ -458,7 +464,7 @@ void SharpComponent::OnRender(GraphNode* cam) {
 
 	if (m_Playing) {
 
-		auto gnode = m_Vivid->GetClass("Vivid.Scene", "GraphNode");
+		auto gnode = m_Vivid->GetClass("QNet.Scene", "GraphNode");
 		auto gnode_inst = gnode->CreateInstance();
 
 		//m_GraphClass = gnode_inst;
@@ -502,7 +508,7 @@ void SharpComponent::OnUpdate(float deltaTime) {
 
 MClass* SharpComponent::CreateGraphNode() {
 
-	auto gnode = m_Vivid->GetClass("Vivid.Scene", "GraphNode");
+	auto gnode = m_Vivid->GetClass("QNet.Scene", "GraphNode");
 	auto gnode_inst = gnode->CreateInstance();
 
 	return gnode_inst;

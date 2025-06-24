@@ -1,0 +1,393 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Q3D\\QNet\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{273E6703-109E-4BC0-8EE7-BC7E22CA4F5A}|QNet.csproj|c:\\q3d\\qnet\\ui\\controls\\ienumselector.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{273E6703-109E-4BC0-8EE7-BC7E22CA4F5A}|QNet.csproj|solutionrelative:ui\\controls\\ienumselector.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{273E6703-109E-4BC0-8EE7-BC7E22CA4F5A}|QNet.csproj|c:\\q3d\\qnet\\ui\\gameui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{273E6703-109E-4BC0-8EE7-BC7E22CA4F5A}|QNet.csproj|solutionrelative:ui\\gameui.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{273E6703-109E-4BC0-8EE7-BC7E22CA4F5A}|QNet.csproj|c:\\q3d\\qnet\\ui\\controls\\ilistview.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{273E6703-109E-4BC0-8EE7-BC7E22CA4F5A}|QNet.csproj|solutionrelative:ui\\controls\\ilistview.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{273E6703-109E-4BC0-8EE7-BC7E22CA4F5A}|QNet.csproj|c:\\q3d\\qnet\\ui\\controls\\itreeview.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{273E6703-109E-4BC0-8EE7-BC7E22CA4F5A}|QNet.csproj|solutionrelative:ui\\controls\\itreeview.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{273E6703-109E-4BC0-8EE7-BC7E22CA4F5A}|QNet.csproj|c:\\q3d\\qnet\\ui\\irect.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{273E6703-109E-4BC0-8EE7-BC7E22CA4F5A}|QNet.csproj|solutionrelative:ui\\irect.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{273E6703-109E-4BC0-8EE7-BC7E22CA4F5A}|QNet.csproj|c:\\q3d\\qnet\\ui\\controls\\ilistitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{273E6703-109E-4BC0-8EE7-BC7E22CA4F5A}|QNet.csproj|solutionrelative:ui\\controls\\ilistitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{273E6703-109E-4BC0-8EE7-BC7E22CA4F5A}|QNet.csproj|c:\\q3d\\qnet\\ui\\controls\\iverticalscroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{273E6703-109E-4BC0-8EE7-BC7E22CA4F5A}|QNet.csproj|solutionrelative:ui\\controls\\iverticalscroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{273E6703-109E-4BC0-8EE7-BC7E22CA4F5A}|QNet.csproj|c:\\q3d\\qnet\\ui\\themes\\themegame.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{273E6703-109E-4BC0-8EE7-BC7E22CA4F5A}|QNet.csproj|solutionrelative:ui\\themes\\themegame.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{273E6703-109E-4BC0-8EE7-BC7E22CA4F5A}|QNet.csproj|c:\\q3d\\qnet\\ui\\controls\\iwindow.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{273E6703-109E-4BC0-8EE7-BC7E22CA4F5A}|QNet.csproj|solutionrelative:ui\\controls\\iwindow.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{273E6703-109E-4BC0-8EE7-BC7E22CA4F5A}|QNet.csproj|c:\\q3d\\qnet\\ui\\uitheme.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{273E6703-109E-4BC0-8EE7-BC7E22CA4F5A}|QNet.csproj|solutionrelative:ui\\uitheme.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{273E6703-109E-4BC0-8EE7-BC7E22CA4F5A}|QNet.csproj|c:\\q3d\\qnet\\ui\\icontrol.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{273E6703-109E-4BC0-8EE7-BC7E22CA4F5A}|QNet.csproj|solutionrelative:ui\\icontrol.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{273E6703-109E-4BC0-8EE7-BC7E22CA4F5A}|QNet.csproj|c:\\q3d\\qnet\\ui\\controls\\itreeitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{273E6703-109E-4BC0-8EE7-BC7E22CA4F5A}|QNet.csproj|solutionrelative:ui\\controls\\itreeitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{273E6703-109E-4BC0-8EE7-BC7E22CA4F5A}|QNet.csproj|c:\\q3d\\qnet\\ui\\controls\\itextedit.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{273E6703-109E-4BC0-8EE7-BC7E22CA4F5A}|QNet.csproj|solutionrelative:ui\\controls\\itextedit.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{273E6703-109E-4BC0-8EE7-BC7E22CA4F5A}|QNet.csproj|c:\\q3d\\qnet\\input\\gameinput.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{273E6703-109E-4BC0-8EE7-BC7E22CA4F5A}|QNet.csproj|solutionrelative:input\\gameinput.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{273E6703-109E-4BC0-8EE7-BC7E22CA4F5A}|QNet.csproj|c:\\q3d\\qnet\\ui\\controls\\iwindowbody.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{273E6703-109E-4BC0-8EE7-BC7E22CA4F5A}|QNet.csproj|solutionrelative:ui\\controls\\iwindowbody.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{273E6703-109E-4BC0-8EE7-BC7E22CA4F5A}|QNet.csproj|c:\\q3d\\qnet\\ui\\controls\\ibutton.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{273E6703-109E-4BC0-8EE7-BC7E22CA4F5A}|QNet.csproj|solutionrelative:ui\\controls\\ibutton.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{273E6703-109E-4BC0-8EE7-BC7E22CA4F5A}|QNet.csproj|c:\\q3d\\qnet\\ui\\icolor.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{273E6703-109E-4BC0-8EE7-BC7E22CA4F5A}|QNet.csproj|solutionrelative:ui\\icolor.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{273E6703-109E-4BC0-8EE7-BC7E22CA4F5A}|QNet.csproj|c:\\q3d\\qnet\\component\\sharpcomponent.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{273E6703-109E-4BC0-8EE7-BC7E22CA4F5A}|QNet.csproj|solutionrelative:component\\sharpcomponent.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{273E6703-109E-4BC0-8EE7-BC7E22CA4F5A}|QNet.csproj|c:\\q3d\\qnet\\media\\video.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{273E6703-109E-4BC0-8EE7-BC7E22CA4F5A}|QNet.csproj|solutionrelative:media\\video.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{273E6703-109E-4BC0-8EE7-BC7E22CA4F5A}|QNet.csproj|c:\\q3d\\qnet\\draw\\draw2d.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{273E6703-109E-4BC0-8EE7-BC7E22CA4F5A}|QNet.csproj|solutionrelative:draw\\draw2d.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Q3D\\QNet\\obj\\Debug\\netstandard2.0\\QNet.AssemblyInfo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:obj\\Debug\\netstandard2.0\\QNet.AssemblyInfo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{273E6703-109E-4BC0-8EE7-BC7E22CA4F5A}|QNet.csproj|c:\\q3d\\qnet\\class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{273E6703-109E-4BC0-8EE7-BC7E22CA4F5A}|QNet.csproj|solutionrelative:class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "IEnumSelector.cs",
+              "DocumentMoniker": "C:\\Q3D\\QNet\\UI\\Controls\\IEnumSelector.cs",
+              "RelativeDocumentMoniker": "UI\\Controls\\IEnumSelector.cs",
+              "ToolTip": "C:\\Q3D\\QNet\\UI\\Controls\\IEnumSelector.cs*",
+              "RelativeToolTip": "UI\\Controls\\IEnumSelector.cs*",
+              "ViewState": "AgIAAHAAAAAAAAAAAAAcwIcAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-24T13:59:52.636Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "IRect.cs",
+              "DocumentMoniker": "C:\\Q3D\\QNet\\UI\\IRect.cs",
+              "RelativeDocumentMoniker": "UI\\IRect.cs",
+              "ToolTip": "C:\\Q3D\\QNet\\UI\\IRect.cs",
+              "RelativeToolTip": "UI\\IRect.cs",
+              "ViewState": "AgIAABgAAAAAAAAAAAAYwDgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-24T13:52:02.379Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "IListView.cs",
+              "DocumentMoniker": "C:\\Q3D\\QNet\\UI\\Controls\\IListView.cs",
+              "RelativeDocumentMoniker": "UI\\Controls\\IListView.cs",
+              "ToolTip": "C:\\Q3D\\QNet\\UI\\Controls\\IListView.cs",
+              "RelativeToolTip": "UI\\Controls\\IListView.cs",
+              "ViewState": "AgIAAC0AAAAAAAAAAAA7wFkAAAA+AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-24T13:50:52.691Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "IListItem.cs",
+              "DocumentMoniker": "C:\\Q3D\\QNet\\UI\\Controls\\IListItem.cs",
+              "RelativeDocumentMoniker": "UI\\Controls\\IListItem.cs",
+              "ToolTip": "C:\\Q3D\\QNet\\UI\\Controls\\IListItem.cs",
+              "RelativeToolTip": "UI\\Controls\\IListItem.cs",
+              "ViewState": "AgIAAAQAAAAAAAAAAAAUwCcAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-24T13:50:34.022Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "IVerticalScroller.cs",
+              "DocumentMoniker": "C:\\Q3D\\QNet\\UI\\Controls\\IVerticalScroller.cs",
+              "RelativeDocumentMoniker": "UI\\Controls\\IVerticalScroller.cs",
+              "ToolTip": "C:\\Q3D\\QNet\\UI\\Controls\\IVerticalScroller.cs",
+              "RelativeToolTip": "UI\\Controls\\IVerticalScroller.cs",
+              "ViewState": "AgIAAGgAAAAAAAAAAAAuwIgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-24T13:10:02.872Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "UITheme.cs",
+              "DocumentMoniker": "C:\\Q3D\\QNet\\UI\\UITheme.cs",
+              "RelativeDocumentMoniker": "UI\\UITheme.cs",
+              "ToolTip": "C:\\Q3D\\QNet\\UI\\UITheme.cs",
+              "RelativeToolTip": "UI\\UITheme.cs",
+              "ViewState": "AgIAAAsAAAAAAAAAAAAQwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-24T13:07:39.777Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "ThemeGame.cs",
+              "DocumentMoniker": "C:\\Q3D\\QNet\\UI\\Themes\\ThemeGame.cs",
+              "RelativeDocumentMoniker": "UI\\Themes\\ThemeGame.cs",
+              "ToolTip": "C:\\Q3D\\QNet\\UI\\Themes\\ThemeGame.cs",
+              "RelativeToolTip": "UI\\Themes\\ThemeGame.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAA3AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-24T13:07:30.264Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "ITreeView.cs",
+              "DocumentMoniker": "C:\\Q3D\\QNet\\UI\\Controls\\ITreeView.cs",
+              "RelativeDocumentMoniker": "UI\\Controls\\ITreeView.cs",
+              "ToolTip": "C:\\Q3D\\QNet\\UI\\Controls\\ITreeView.cs",
+              "RelativeToolTip": "UI\\Controls\\ITreeView.cs",
+              "ViewState": "AgIAAIkAAAAAAAAAAAAswJYAAAA8AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-24T12:34:30.184Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "ITreeItem.cs",
+              "DocumentMoniker": "C:\\Q3D\\QNet\\UI\\Controls\\ITreeItem.cs",
+              "RelativeDocumentMoniker": "UI\\Controls\\ITreeItem.cs",
+              "ToolTip": "C:\\Q3D\\QNet\\UI\\Controls\\ITreeItem.cs",
+              "RelativeToolTip": "UI\\Controls\\ITreeItem.cs",
+              "ViewState": "AgIAAB8AAAAAAAAAAAAUwEIAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-24T12:34:22.168Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "IWindowBody.cs",
+              "DocumentMoniker": "C:\\Q3D\\QNet\\UI\\Controls\\IWindowBody.cs",
+              "RelativeDocumentMoniker": "UI\\Controls\\IWindowBody.cs",
+              "ToolTip": "C:\\Q3D\\QNet\\UI\\Controls\\IWindowBody.cs",
+              "RelativeToolTip": "UI\\Controls\\IWindowBody.cs",
+              "ViewState": "AgIAAAoAAAAAAAAAAAAvwCAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-24T11:19:11.768Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "IButton.cs",
+              "DocumentMoniker": "C:\\Q3D\\QNet\\UI\\Controls\\IButton.cs",
+              "RelativeDocumentMoniker": "UI\\Controls\\IButton.cs",
+              "ToolTip": "C:\\Q3D\\QNet\\UI\\Controls\\IButton.cs",
+              "RelativeToolTip": "UI\\Controls\\IButton.cs",
+              "ViewState": "AgIAACEAAAAAAAAAAAAwwD4AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-24T11:17:22.211Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "IColor.cs",
+              "DocumentMoniker": "C:\\Q3D\\QNet\\UI\\IColor.cs",
+              "RelativeDocumentMoniker": "UI\\IColor.cs",
+              "ToolTip": "C:\\Q3D\\QNet\\UI\\IColor.cs",
+              "RelativeToolTip": "UI\\IColor.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-24T11:10:47.88Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "IControl.cs",
+              "DocumentMoniker": "C:\\Q3D\\QNet\\UI\\IControl.cs",
+              "RelativeDocumentMoniker": "UI\\IControl.cs",
+              "ToolTip": "C:\\Q3D\\QNet\\UI\\IControl.cs",
+              "RelativeToolTip": "UI\\IControl.cs",
+              "ViewState": "AgIAAC8AAAAAAAAAAAAIwDwAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-24T11:10:38.075Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "GameUI.cs",
+              "DocumentMoniker": "C:\\Q3D\\QNet\\UI\\GameUI.cs",
+              "RelativeDocumentMoniker": "UI\\GameUI.cs",
+              "ToolTip": "C:\\Q3D\\QNet\\UI\\GameUI.cs",
+              "RelativeToolTip": "UI\\GameUI.cs",
+              "ViewState": "AgIAAAwAAAAAAAAAAAA5wCUAAAAvAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-24T11:10:24.713Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "GameInput.cs",
+              "DocumentMoniker": "C:\\Q3D\\QNet\\Input\\GameInput.cs",
+              "RelativeDocumentMoniker": "Input\\GameInput.cs",
+              "ToolTip": "C:\\Q3D\\QNet\\Input\\GameInput.cs",
+              "RelativeToolTip": "Input\\GameInput.cs",
+              "ViewState": "AgIAADgAAAAAAAAAAAAUwFsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-24T10:56:37.873Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "ITextEdit.cs",
+              "DocumentMoniker": "C:\\Q3D\\QNet\\UI\\Controls\\ITextEdit.cs",
+              "RelativeDocumentMoniker": "UI\\Controls\\ITextEdit.cs",
+              "ToolTip": "C:\\Q3D\\QNet\\UI\\Controls\\ITextEdit.cs",
+              "RelativeToolTip": "UI\\Controls\\ITextEdit.cs",
+              "ViewState": "AgIAAG8AAAAAAAAAAAAcwIAAAAB2AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-23T16:30:07.095Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "IWindow.cs",
+              "DocumentMoniker": "C:\\Q3D\\QNet\\UI\\Controls\\IWindow.cs",
+              "RelativeDocumentMoniker": "UI\\Controls\\IWindow.cs",
+              "ToolTip": "C:\\Q3D\\QNet\\UI\\Controls\\IWindow.cs",
+              "RelativeToolTip": "UI\\Controls\\IWindow.cs",
+              "ViewState": "AgIAADUAAAAAAAAAAAAIwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-23T16:30:05.232Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "SharpComponent.cs",
+              "DocumentMoniker": "C:\\Q3D\\QNet\\Component\\SharpComponent.cs",
+              "RelativeDocumentMoniker": "Component\\SharpComponent.cs",
+              "ToolTip": "C:\\Q3D\\QNet\\Component\\SharpComponent.cs",
+              "RelativeToolTip": "Component\\SharpComponent.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAKAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-23T16:12:53.866Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "Video.cs",
+              "DocumentMoniker": "C:\\Q3D\\QNet\\Media\\Video.cs",
+              "RelativeDocumentMoniker": "Media\\Video.cs",
+              "ToolTip": "C:\\Q3D\\QNet\\Media\\Video.cs",
+              "RelativeToolTip": "Media\\Video.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-23T16:11:54.422Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "Draw2D.cs",
+              "DocumentMoniker": "C:\\Q3D\\QNet\\Draw\\Draw2D.cs",
+              "RelativeDocumentMoniker": "Draw\\Draw2D.cs",
+              "ToolTip": "C:\\Q3D\\QNet\\Draw\\Draw2D.cs",
+              "RelativeToolTip": "Draw\\Draw2D.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAOAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-23T16:11:41.137Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
+              "Title": "QNet.AssemblyInfo.cs",
+              "DocumentMoniker": "C:\\Q3D\\QNet\\obj\\Debug\\netstandard2.0\\QNet.AssemblyInfo.cs",
+              "RelativeDocumentMoniker": "obj\\Debug\\netstandard2.0\\QNet.AssemblyInfo.cs",
+              "ToolTip": "C:\\Q3D\\QNet\\obj\\Debug\\netstandard2.0\\QNet.AssemblyInfo.cs",
+              "RelativeToolTip": "obj\\Debug\\netstandard2.0\\QNet.AssemblyInfo.cs",
+              "ViewState": "AgIAAAwAAAAAAAAAAAAAABcAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-23T16:07:22.086Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 21,
+              "Title": "Class1.cs",
+              "DocumentMoniker": "C:\\Q3D\\QNet\\Class1.cs",
+              "RelativeDocumentMoniker": "Class1.cs",
+              "ToolTip": "C:\\Q3D\\QNet\\Class1.cs",
+              "RelativeToolTip": "Class1.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-23T16:06:26.657Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

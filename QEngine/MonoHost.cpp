@@ -13,14 +13,21 @@ MonoHost* MonoHost::GetInstance() {
 
 MonoHost::MonoHost() : m_rootDomain(nullptr), m_gameDomain(nullptr) {
     // Set the path to the Mono lib and etc directories
-    mono_set_dirs("./mono/lib", "./mono/etc");
-    mono_config_parse(NULL);
+    mono_set_dirs("C:\\Program Files\\Mono\\lib", "C:\\Program Files\\Mono\\etc");
 
+    mono_config_parse(NULL);
+    mono_debug_init(MONO_DEBUG_FORMAT_MONO);
     // Initialize the Mono JIT runtime and create the root domain
     m_rootDomain = mono_jit_init("VividEngineRoot");
     if (!m_rootDomain) {
         std::cerr << "FATAL: Failed to initialize Mono JIT." << std::endl;
     }
+    const char* options[] = {
+       "--debug",
+       "--soft-breakpoints" // Optional: helps with non-crashing exceptions
+    };
+    // The first argument is the number of options.
+   // mono_jit_parse_options(2, (char**)options);
 }
 
 MonoHost::~MonoHost() {

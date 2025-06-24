@@ -164,9 +164,12 @@ std::filesystem::file_time_type QEngine::s_last_dll_write_time;
 
 void QEngine::CheckDLL() {
 
-	auto dll_path = m_ContentPath + "Game\\Game.dll";
+	DebugLog("Checking DLL");
+	auto dll_path = m_ContentPath + "Game\\bin\\Debug\\netstandard2.0\\Game.dll";
+
 
 	try {
+
 		// Get the current last write time of the DLL
 		auto current_dll_write_time = std::filesystem::last_write_time(dll_path);
 
@@ -193,7 +196,7 @@ MonoLib* QEngine::GetMonoLib() {
 
 void QEngine::InitMono() {
 
-	auto dll_path = m_ContentPath + "Game\\Game.dll";
+	auto dll_path = m_ContentPath + "Game\\bin\\Debug\\netstandard2.0\\Game.dll";
 
 	std::cout << "--- DLL Hot-Reload Initiated ---" << std::endl;
 
@@ -207,7 +210,7 @@ void QEngine::InitMono() {
 	if (m_MonoLib) {
 		delete m_MonoLib;
 	}
-	m_MonoLib = new MonoLib(m_ContentPath + "Game\\");
+	m_MonoLib = new MonoLib(m_ContentPath + "Game\\bin\\Debug\\netstandard2.0\\");
 
 	// --- HERE IS THE SOLUTION: Rebuild the Component Class Cache ---
 
@@ -222,7 +225,7 @@ void QEngine::InitMono() {
 	for (const auto& classInfo : all_classes_in_new_dll)
 	{
 		// Check if the class's base class is the one we use for scripts.
-		if (classInfo.baseClassName == "Vivid.Component.SharpComponent")
+		if (classInfo.baseClassName == "QNet.Component.SharpComponent")
 		{
 			// Add the valid class info to our cache.
 			m_ComponentClasses.push_back(classInfo);

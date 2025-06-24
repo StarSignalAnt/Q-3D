@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
     splash.show();
 
     // Optional message overlay
-    splash.showMessage("Loading Vivid3D resources...", Qt::AlignBottom | Qt::AlignLeft, Qt::white);
+    splash.showMessage("Loading Q3D resources...", Qt::AlignBottom | Qt::AlignLeft, Qt::white);
 
     // Simulate loading delay or do actual init work here
     QTimer::singleShot(50, &splash, &QSplashScreen::close); // Close splash after 2 sec

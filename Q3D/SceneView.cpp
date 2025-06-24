@@ -206,6 +206,7 @@ SceneView::SceneView(QWidget *parent)
     //    This is the core of the mechanism.
     connect(m_timer, &QTimer::timeout, this, &QEngine::CheckDLL);
 
+    QEngine::CheckDLL();
     // 3. Start the timer and set the interval to 0.5 seconds (500 milliseconds)
     m_timer->start(500);
 
@@ -769,49 +770,114 @@ void SceneView::mouseMoveEvent(QMouseEvent* event)  {
     }
 
 }
+
+
+int mapQtKeyToGameInput(int qtKey)
+{
+    switch (qtKey)
+    {
+        // Standard (unshifted) characters
+    case Qt::Key_Space:         return KEY_SPACE;
+    case Qt::Key_Apostrophe:    return KEY_APOSTROPHE;
+    case Qt::Key_Comma:         return KEY_COMMA;
+    case Qt::Key_Minus:         return KEY_MINUS;
+    case Qt::Key_Period:        return KEY_PERIOD;
+    case Qt::Key_Slash:         return KEY_SLASH;
+    case Qt::Key_0:             return KEY_0;
+    case Qt::Key_1:             return KEY_1;
+    case Qt::Key_2:             return KEY_2;
+    case Qt::Key_3:             return KEY_3;
+    case Qt::Key_4:             return KEY_4;
+    case Qt::Key_5:             return KEY_5;
+    case Qt::Key_6:             return KEY_6;
+    case Qt::Key_7:             return KEY_7;
+    case Qt::Key_8:             return KEY_8;
+    case Qt::Key_9:             return KEY_9;
+    case Qt::Key_Semicolon:     return KEY_SEMICOLON;
+    case Qt::Key_Equal:         return KEY_EQUAL;
+    case Qt::Key_A:             return KEY_A; case Qt::Key_B: return KEY_B;
+    case Qt::Key_C:             return KEY_C; case Qt::Key_D: return KEY_D;
+    case Qt::Key_E:             return KEY_E; case Qt::Key_F: return KEY_F;
+    case Qt::Key_G:             return KEY_G; case Qt::Key_H: return KEY_H;
+    case Qt::Key_I:             return KEY_I; case Qt::Key_J: return KEY_J;
+    case Qt::Key_K:             return KEY_K; case Qt::Key_L: return KEY_L;
+    case Qt::Key_M:             return KEY_M; case Qt::Key_N: return KEY_N;
+    case Qt::Key_O:             return KEY_O; case Qt::Key_P: return KEY_P;
+    case Qt::Key_Q:             return KEY_Q; case Qt::Key_R: return KEY_R;
+    case Qt::Key_S:             return KEY_S; case Qt::Key_T: return KEY_T;
+    case Qt::Key_U:             return KEY_U; case Qt::Key_V: return KEY_V;
+    case Qt::Key_W:             return KEY_W; case Qt::Key_X: return KEY_X;
+    case Qt::Key_Y:             return KEY_Y; case Qt::Key_Z: return KEY_Z;
+    case Qt::Key_BracketLeft:   return KEY_LBRACKET;
+    case Qt::Key_Backslash:     return KEY_BACKSLASH;
+    case Qt::Key_BracketRight:  return KEY_RBRACKET;
+    case Qt::Key_QuoteLeft:     return KEY_GRAVE;
+
+        // Qt's special keys for shifted symbols
+    case Qt::Key_Exclam:        return KEY_EXCLAM;
+    case Qt::Key_At:            return KEY_AT;
+    case Qt::Key_NumberSign:    return KEY_HASH;
+    case Qt::Key_Dollar:        return KEY_DOLLAR;
+    case Qt::Key_Percent:       return KEY_PERCENT;
+    case Qt::Key_AsciiCircum:   return KEY_CARET;
+    case Qt::Key_Ampersand:     return KEY_AMPERSAND;
+    case Qt::Key_Asterisk:      return KEY_ASTERISK;
+    case Qt::Key_ParenLeft:     return KEY_LPAREN;
+    case Qt::Key_ParenRight:    return KEY_RPAREN;
+    case Qt::Key_Underscore:    return KEY_UNDERSCORE;
+    case Qt::Key_Plus:          return KEY_PLUS;
+    case Qt::Key_BraceLeft:     return KEY_LCURLY;
+    case Qt::Key_BraceRight:    return KEY_RCURLY;
+    case Qt::Key_Bar:           return KEY_PIPE;
+    case Qt::Key_Colon:         return KEY_COLON;
+    case Qt::Key_QuoteDbl:      return KEY_DQUOTE;
+    case Qt::Key_Less:          return KEY_LANGLE;
+    case Qt::Key_Greater:       return KEY_RANGLE;
+    case Qt::Key_Question:      return KEY_QUESTION;
+    case Qt::Key_AsciiTilde:    return KEY_TILDE;
+
+        // Non-printable special keys
+    case Qt::Key_Shift:         return KEY_SHIFT;
+    case Qt::Key_Control:       return KEY_CTRL;
+    case Qt::Key_Alt:           return KEY_ALT;
+    case Qt::Key_Up:            return KEY_UP;
+    case Qt::Key_Down:          return KEY_DOWN;
+    case Qt::Key_Left:          return KEY_LEFT;
+    case Qt::Key_Right:         return KEY_RIGHT;
+    case Qt::Key_Escape:        return KEY_ESC;
+    case Qt::Key_Backspace:     return KEY_BACKSPACE;
+    case Qt::Key_Delete:        return KEY_DELETE;
+    case Qt::Key_Enter:         return KEY_ENTER;
+    case Qt::Key_Return:        return KEY_ENTER;
+    case Qt::Key_Tab:           return KEY_TAB;
+
+    default:
+        // For keys not explicitly mapped, return -1 to ignore them.
+        return -1;
+    }
+}
+
+
 void SceneView::keyPressEvent(QKeyEvent* event) {
     if (m_RunMode == RM_Stopped) {
         keysHeld.insert(event->key());
     }
-    switch (event->key()) {
-    case Qt::Key::Key_W:
-        GameInput::m_Key[Key::Key_W] = true;
-        break;
-    case Qt::Key::Key_A:
-        GameInput::m_Key[Key::Key_A] = true;
-        break;
-    case Qt::Key::Key_S:
-        GameInput::m_Key[Key::Key_S] = true;
-        break;
-    case Qt::Key::Key_D:
-        GameInput::m_Key[Key::Key_D] = true;
-        break;
-    case Qt::Key::Key_Space:
-        GameInput::m_Key[Key::Key_Space] = true;
-        break;
+    int gameKey = mapQtKeyToGameInput(event->key());
+
+    if (gameKey != -1) {
+        GameInput::m_Key[gameKey] = true;
     }
+
 }
 
 void SceneView::keyReleaseEvent(QKeyEvent* event) {
     if (m_RunMode == RM_Stopped) {
         keysHeld.remove(event->key());
     }
-    switch (event->key()) {
-    case Qt::Key::Key_W:
-        GameInput::m_Key[Key::Key_W] = false;
-        break;
-    case Qt::Key::Key_A:
-        GameInput::m_Key[Key::Key_A] = false;
-        break;
-    case Qt::Key::Key_S:
-        GameInput::m_Key[Key::Key_S] = false;
-        break;
-    case Qt::Key::Key_D:
-        GameInput::m_Key[Key::Key_D] = false;
-        break;
-    case Qt::Key::Key_Space:
-        GameInput::m_Key[Key::Key_Space] = false;
-        break;
+    int gameKey = mapQtKeyToGameInput(event->key());
+
+    if (gameKey != -1) {
+        GameInput::m_Key[gameKey] = false;
     }
 }
 

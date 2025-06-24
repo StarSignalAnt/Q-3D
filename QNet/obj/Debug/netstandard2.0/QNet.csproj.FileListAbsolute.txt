@@ -1,0 +1,14 @@
+C:\Q3D\QNet\obj\Debug\netstandard2.0\QNet.csproj.AssemblyReference.cache
+C:\Q3D\QNet\obj\Debug\netstandard2.0\QNet.GeneratedMSBuildEditorConfig.editorconfig
+C:\Q3D\QNet\obj\Debug\netstandard2.0\QNet.AssemblyInfoInputs.cache
+C:\Q3D\QNet\obj\Debug\netstandard2.0\QNet.AssemblyInfo.cs
+C:\Q3D\QNet\obj\Debug\netstandard2.0\QNet.csproj.CoreCompileInputs.cache
+C:\Q3D\QNet\bin\Debug\netstandard2.0\QNet.deps.json
+C:\Q3D\QNet\bin\Debug\netstandard2.0\QNet.dll
+C:\Q3D\QNet\bin\Debug\netstandard2.0\QNet.pdb
+C:\Q3D\QNet\bin\Debug\netstandard2.0\GlmNet.dll
+C:\Q3D\QNet\bin\Debug\netstandard2.0\GlmNet.xml
+C:\Q3D\QNet\obj\Debug\netstandard2.0\QNet.csproj.Up2Date
+C:\Q3D\QNet\obj\Debug\netstandard2.0\QNet.dll
+C:\Q3D\QNet\obj\Debug\netstandard2.0\QNet.pdb
+C:\Q3D\QNet\bin\Debug\netstandard2.0\Microsoft.CSharp.dll

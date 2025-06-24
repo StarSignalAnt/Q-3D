@@ -10,6 +10,9 @@ NodeKeyDown::NodeKeyDown() {
 
 }
 
+/// <summary>
+/// **********
+/// </summary>
 void NodeKeyDown::CalculateOutputs()
 {
     // 1. Get the string value from our "Key" input pin.
@@ -22,7 +25,7 @@ void NodeKeyDown::CalculateOutputs()
         // 2. Ask your engine's input system if the specified key is pressed.
         
         if (key == "W") {
-            isPressed = GameInput::m_Key[Key::Key_W];
+            //isPressed = GameInput::m_Key[Key::Key_W];
             //isPressed = true;
         }
         

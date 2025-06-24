@@ -6,7 +6,7 @@
 MonoLib::MonoLib(const std::string& dllDirectory) {
     // Construct the full paths to the DLLs
     std::string game_dll_path = dllDirectory + "game.dll";
-    std::string vivid_dll_path = dllDirectory + "vividengine.dll";
+    std::string vivid_dll_path = dllDirectory + "qnet.dll";
 
     // Get the singleton instance of our Mono host
     MonoHost* host = MonoHost::GetInstance();
