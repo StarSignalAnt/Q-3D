@@ -127,7 +127,7 @@ namespace QNet.UI
 
             GameUI.Draw.Rect(theme.Body, renderRect, new IColor(0.8f, 0.8f, 0.8f, 1.0f));
             IRect bgRect = new IRect(renderRect.X + 1, renderRect.Y + 1, renderRect.Width - 2, renderRect.Height - 2);
-            GameUI.Draw.Rect(theme.Body, bgRect, new IColor(0.01f,0.01f,0.01f,1.0f));
+            GameUI.Draw.Rect(theme.Body, bgRect, new IColor(0.08f,0.08f,0.08f,1.0f));
 
             if (HasSelection())
             {

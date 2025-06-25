@@ -16,6 +16,20 @@ namespace QNet.UI
         // --- Properties ---
         public IControl Root { get; set; }
         public IRect Rect { get; set; } = new IRect(0, 0, 0, 0);
+       
+        public IPosition Position
+        {
+            get
+            {
+                return new IPosition(Rect.X, Rect.Y);
+            }
+            set
+            {
+                Rect.X = value.X;
+                Rect.Y = value.Y;
+            }
+        }
+
         public string Text { get; set; }
         public IColor Color { get; set; } = new IColor(1, 1, 1, 1);
         public Texture2D Image { get; set; }
@@ -41,6 +55,14 @@ namespace QNet.UI
         {
             Rect = rect;
             Updated();
+        }
+
+        public void SetPosition(IPosition position)
+        {
+
+            Position = position;
+
+
         }
 
         public void AddControls(params IControl[] controls)

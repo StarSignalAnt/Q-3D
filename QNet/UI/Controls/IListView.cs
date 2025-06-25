@@ -1,6 +1,7 @@
 ﻿using QNet.Texture;
 using QNet.Input;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace QNet.UI.Controls
 {
@@ -82,7 +83,15 @@ namespace QNet.UI.Controls
         public override void OnRender()
         {
             // 1. Draw background
-            GameUI.Draw.Rect(GameUI.Theme.Body, RenderRect, GameUI.Theme.BackColor);
+
+            var ar = RenderRect;
+            GameUI.Draw.Rect(GameUI.Theme.Body, RenderRect, GameUI.Theme.ForeColor);
+            ar.X = ar.X + 1;
+            ar.Y = ar.Y + 1;
+            ar.Width = ar.Width - 2;
+            ar.Height = ar.Height - 2;
+            GameUI.Draw.Rect(GameUI.Theme.Body, ar, GameUI.Theme.BackColor);
+
 
             // 2. Calculate content height and update scroller
             _contentHeight = Items.Count * ItemHeight;

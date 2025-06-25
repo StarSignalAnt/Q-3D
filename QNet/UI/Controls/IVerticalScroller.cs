@@ -133,7 +133,7 @@ namespace QNet.UI.Controls
             _thumbRect.Height = thumbHeight;
 
             // 5. Draw the thumb using a contrasting color from the theme.
-            GameUI.Draw.Rect(GameUI.Theme.Body, _thumbRect, GameUI.Theme.ForeColor);
+            GameUI.Draw.Rect(GameUI.Theme.Button, _thumbRect, GameUI.Theme.ForeColor);
 
             // 6. Render any child controls (though a scroller usually won't have any).
             RenderChildren();

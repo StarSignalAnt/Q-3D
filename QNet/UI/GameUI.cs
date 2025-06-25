@@ -35,7 +35,7 @@ namespace QNet.UI
             Draw = new Draw2D();
             Root = new IControl();
             Root.SetRect(new IRect(0, 0, Engine.FrameWidth, Engine.FrameHeight));
-            Font = new GameFont("Engine/system4.ttf", 16);
+            Font = new GameFont("Engine/system4.ttf", 12);
             Font.SetDraw(Draw);
             _previousMousePosition = new IPosition(GameInput.MousePosition.X, GameInput.MousePosition.Y);
         }

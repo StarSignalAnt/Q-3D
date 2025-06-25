@@ -148,12 +148,18 @@ namespace QNet.UI.Controls
         public override void OnRender()
         {
             // 1. Draw background
-            GameUI.Draw.Rect(GameUI.Theme.Body, RenderRect, GameUI.Theme.BackColor);
+
+            var rr = RenderRect;
+            rr.Width = rr.Width + 1;
+            rr.Height = rr.Height + 1;
+            GameUI.Draw.Rect(GameUI.Theme.Body, rr, GameUI.Theme.ForeColor);
+            GameUI.Draw.Rect(GameUI.Theme.Body,new IRect(RenderRect.X+1,RenderRect.Y+1,Rect.Width-2,Rect.Height-2), GameUI.Theme.BackColor);
+
 
             // 2. Calculate content height and update scroller
             _contentHeight = CalculateContentHeight();
             _scroller.ContentHeight = _contentHeight;
-            _scroller.SetRect(new IRect(Rect.Width - 12, 0, 12, Rect.Height));
+            _scroller.SetRect(new IRect(Rect.Width - 12, 1, 12, Rect.Height-2));
 
             if (_contentHeight > RenderRect.Height)
             {

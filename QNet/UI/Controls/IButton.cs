@@ -49,7 +49,7 @@ namespace QNet.UI
             textPos.X = RenderRect.X + Rect.Width / 2;
             textPos.Y = RenderRect.Y + Rect.Height / 2;
             textPos.X -= GameUI.Font.TextWidth(Text, 1.0f) / 2;
-            textPos.Y += GameUI.Font.TextHeight(Text, 1.0f) / 2;
+            textPos.Y += GameUI.Font.TextHeight(Text, 1.0f) / 2 - 3;
             GameUI.Draw.Rect(GameUI.Theme.Button, RenderRect,Color);
             GameUI.Font.DrawText(Text, textPos, 1.0f);
 

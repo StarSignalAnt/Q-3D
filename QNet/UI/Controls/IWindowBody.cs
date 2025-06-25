@@ -36,7 +36,13 @@ namespace QNet.UI.Controls
         {
 
             IRect BodyRect = new IRect(RenderRect.X, RenderRect.Y, Rect.Width, Rect.Height);
+            GameUI.Draw.Rect(GameUI.Theme.Body, BodyRect, GameUI.Theme.ForeColor);
+            BodyRect.X = BodyRect.X + 1;
+            BodyRect.Y = BodyRect.Y + 1;
+            BodyRect.Width = BodyRect.Width - 2;
+            BodyRect.Height = BodyRect.Height - 2;
             GameUI.Draw.Rect(GameUI.Theme.Body, BodyRect, GameUI.Theme.WindowBody);
+
 
             //GameUI.Draw.SetScissor(BodyRect);
             GameUI.Draw.SetScissor(BodyRect);

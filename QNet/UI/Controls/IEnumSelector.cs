@@ -97,11 +97,11 @@ namespace QNet.UI.Controls
             if (listHeight > maxListHeight) listHeight = maxListHeight;
 
             // The popup list's rect is absolute, based on our final RenderRect
-            _listView.SetRect(new IRect(RenderRect.X, RenderRect.Y + Rect.Height, Rect.Width, listHeight));
+            _listView.SetRect(new IRect(0, Rect.Height, Rect.Width, listHeight));
 
             // Add the list directly to the root of the UI to ensure it's drawn on top of everything.
             // This is a robust way to handle popups.
-            GameUI.Instance.Root.AddControls(_listView);
+            AddControls(_listView);
 
             // Grab focus for this control so we can receive the OnLostFocus event.
             GameUI.Instance.SetFocus(this);
@@ -112,7 +112,7 @@ namespace QNet.UI.Controls
             if (!_isOpen) return;
             _isOpen = false;
             // Remove the list from the UI so it is no longer rendered or updated.
-            GameUI.Instance.Root.Controls.Remove(_listView);
+            this.Controls.Remove(_listView);
         }
 
         public override void OnRender()
@@ -132,6 +132,8 @@ namespace QNet.UI.Controls
             IPosition textPos = new IPosition(RenderRect.X + 5, RenderRect.Y + (RenderRect.Height + (int)fontHeight) / 2);
             GameUI.Font.DrawText(text, textPos, 1.0f);
 
+
+            RenderChildren();
             // Draw a dropdown arrow icon on the right
            // string arrow = _isOpen ? "▲" : "▼";
            // float arrowWidth = GameUI.Font.TextWidth(arrow, 1.0f);
