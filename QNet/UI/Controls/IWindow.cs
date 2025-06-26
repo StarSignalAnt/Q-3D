@@ -72,15 +72,16 @@ namespace QNet.UI.Controls
             IRect TitleRect = new IRect(RenderRect.X, RenderRect.Y, Rect.Width, 20);
 
             IRect outLine = new IRect(TitleRect.X, TitleRect.Y, Rect.Width, 20);
-            GameUI.Draw.Rect(GameUI.Theme.Body, TitleRect, GameUI.Theme.ForeColor);
+            GameUI.Draw.Rect(GameUI.Theme.White, outLine, new IColor(0.4f,0.4f,0.4f,0.85f));
 
-            TitleRect.X = TitleRect.X + 1;
-            TitleRect.Y = TitleRect.Y + 1;
-            TitleRect.Width = TitleRect.Width - 2;
+            TitleRect.X = TitleRect.X + 2;
+            TitleRect.Y = TitleRect.Y + 2;
+            TitleRect.Width = TitleRect.Width - 4;
 
-            TitleRect.Height = TitleRect.Height - 2;
+            TitleRect.Height = TitleRect.Height - 6;
             GameUI.Draw.Rect(GameUI.Theme.Body, TitleRect,GameUI.Theme.WindowTitle);
           
+
 
 
 
@@ -96,7 +97,7 @@ namespace QNet.UI.Controls
 
         public override void Updated()
         {
-            Body.Rect = new IRect(0,16, Rect.Width, Rect.Height - 16);
+            Body.Rect = new IRect(0,17, Rect.Width, Rect.Height - 17);
             //Rect.Height = 25;
 
             UpdatedChildren();

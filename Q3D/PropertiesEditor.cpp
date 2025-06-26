@@ -381,6 +381,39 @@ void PropertiesEditor::SetNode(GraphNode* node) {
                     });
                 break;
             case SHARP_TYPE_STRING:
+
+                AddText(AddSpaces(v.name).c_str(), sc->GetClass()->GetFieldValue<std::string>(v.name).c_str(), [sc, v](const QString& str)
+                {
+                        sc->GetClass()->SetFieldValue(v.name, str.toStdString());
+                });
+
+                break;
+            case SHARP_TYPE_VEC3:
+
+                auto val = sc->GetClass()->GetFieldValue<MClass*>(v.name);
+
+                auto vx = val->GetFieldValue<float>("x");
+                auto vy = val->GetFieldValue<float>("y");
+                auto vz = val->GetFieldValue<float>("z");
+
+                AddVec3(AddSpaces(v.name).c_str(), QVector3D(vx, vy, vz), 0.05f, [sc, v](const QVector3D& v3) {
+
+                    //auto v1 = sc->GetClass()->GetFieldValue<MClass*>(v.name);
+
+                    float* nv = new float[3];
+                    nv[0] = v3.x();
+                    nv[1] = v3.y();
+                    nv[2] = v3.z();
+
+                    sc->GetClass()->SetFieldStruct(v.name, nv);
+
+                    //v1->SetFieldValue<float>("x", v3.x());
+                    //v1->SetFieldValue<float>("y", v3.y());
+                    //v1->SetFieldValue<float>("z", v3.z());
+
+
+                    });
+
                 break;
             }
 
@@ -593,6 +626,7 @@ void PropertiesEditor::SetNode(GraphNode* node) {
                             auto cls = QEngine::m_MonoLib->GetClass(c.className);
                             comp->SetClass(cls, QEngine::m_MonoLib->GetAssembly(),QEngine::m_MonoLib->GetVivid());
                             comp->SetName(c.className);
+                            comp->SetTime(QEngine::s_last_dll_write_time);
                             // Refresh the properties editor - use the safe pointer
                             safeThis->SetNode(node);
                             break;

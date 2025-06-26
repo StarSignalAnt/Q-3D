@@ -1,4 +1,5 @@
-﻿using QNet.Input;
+﻿using QNet.Debug;
+using QNet.Input;
 using QNet.Texture;
 using System.Collections.Generic;
 
@@ -77,7 +78,8 @@ namespace QNet.UI
 
         public bool InBounds(IPosition position)
         {
-            var rr = RenderRect;
+
+            var rr = GetScissor();
             return position.X >= rr.X && position.X <= rr.X + rr.Width &&
                    position.Y >= rr.Y && position.Y <= rr.Y + rr.Height;
         }
@@ -90,7 +92,7 @@ namespace QNet.UI
 
         public virtual void OnRender()
         {
-            foreach (var control in Controls) control.OnRender();
+            RenderChildren();
         }
 
         public virtual void OnEnter() { }
@@ -104,6 +106,8 @@ namespace QNet.UI
         public virtual void OnKeyDown(GameKey key, bool shift, bool ctrl) { }
         public virtual void OnKeyUp(GameKey key, bool shift, bool ctrl) { }
 
+        public bool CullNodes = false;
+        public bool CullSelf = false;
 
         public virtual void UpdateChildren(float dt)
         {
@@ -115,11 +119,140 @@ namespace QNet.UI
             }
         }
 
+        public IRect CullRect(IRect r)
+        {
+            IRect root = new IRect(0, 0, Engine.FrameWidth, Engine.FrameHeight);
+
+            if (Root != null)
+            {
+                root = Root.GetScissor();
+            }
+
+            root = RenderRect;
+
+            float x1, x2;
+            float y1, y2;
+
+            x1 = r.X;
+            x2 = r.X + r.Width;
+            y1 = r.Y;
+            y2 = r.Y + r.Height;
+
+            if (y1 < root.Y)
+            {
+                y1 = root.Y;
+            }
+
+            if (y1 > root.Y + root.Height)
+            {
+
+                y1 = root.Y + root.Height;
+
+            }
+
+            if (y2 < root.Y)
+            {
+                y2 = root.Y;
+            }
+
+            if (y2 > root.Y + root.Height)
+            {
+
+                y2 = root.Y + root.Height;
+
+            }
+
+
+
+            //IRect cur = RenderRect;
+
+
+            return new IRect((int)x1, (int)y1, (int)x2 - (int)x1, (int)y2 - (int)y1);
+        }
+
+        public IRect GetScissor()
+        {
+
+            IRect root = new IRect(0,0,Engine.FrameWidth,Engine.FrameHeight);
+
+            if (Root != null)
+            {
+                root = Root.GetScissor();
+            }
+
+            float x1, x2;
+            float y1, y2;
+
+            x1 = RenderRect.X;
+            x2 = RenderRect.X+RenderRect.Width;
+            y1 = RenderRect.Y;
+            y2 = RenderRect.Y + RenderRect.Height;
+
+            if (y1 < root.Y)
+            {
+                y1 = root.Y;
+            }
+
+            if (y1 > root.Y + root.Height)
+            {
+
+                y1 = root.Y + root.Height;
+
+            }
+
+            if (y2 < root.Y)
+            {
+                y2 = root.Y;
+            }
+
+            if (y2 > root.Y + root.Height)
+            {
+
+                y2 = root.Y + root.Height;
+
+            }
+
+
+
+            //IRect cur = RenderRect;
+
+
+            return new IRect((int)x1, (int)y1, (int)x2 - (int)x1, (int)y2 - (int)y1);
+
+            
+        }
+
         public virtual void RenderChildren()
         {
 
-            foreach (var c in Controls) c.OnRender();
+            if (CullNodes)
+            {
+                IRect srect = GetScissor();
 
+                GameUI.Draw.SetScissor(srect);
+
+            }
+            foreach (var c in Controls)
+            { 
+                if (c.CullSelf)
+                {
+                    var cc = c.GetScissor();
+                    GameUI.Draw.SetScissor(c.RenderRect);
+                    VividDebug.Log("CullSelf:" + c.ToString());
+                }   
+                
+                c.OnRender();
+                if (CullNodes)
+                {
+                    IRect srect = GetScissor();
+
+                    GameUI.Draw.SetScissor(srect);
+
+                }
+
+                //  GameUI.Draw.SetScissor(new IRect(0, 0, Engine.FrameWidth, Engine.FrameHeight));
+            }
+            GameUI.Draw.SetScissor(new IRect(0, 0, Engine.FrameWidth, Engine.FrameHeight));
         }
 
         // --- Update Propagation ---

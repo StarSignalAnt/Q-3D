@@ -20,6 +20,7 @@ namespace QNet.UI.Controls
 
             Scroller = new IVerticalScroller();
             AddControls(Scroller);
+            CullNodes = true;
 
         }
         public override void OnUpdate(float dt)
@@ -45,11 +46,14 @@ namespace QNet.UI.Controls
 
 
             //GameUI.Draw.SetScissor(BodyRect);
-            GameUI.Draw.SetScissor(BodyRect);
-            RenderChildren();
-            GameUI.Draw.SetScissor(new IRect(0, 0, Engine.FrameWidth, Engine.FrameHeight));
+            // GameUI.Draw.SetScissor(BodyRect);
+         
 
-            //GameUI.Draw.SetScissor(new IRect(0, 0, Engine.FrameWidth, Engine.FrameHeight));
+            //VividDebug.Log("SRECT X:" + srect.X + " Y:" + srect.Y + " W:" + srect.Width + " H:" + srect.Height);
+            RenderChildren();
+           // GameUI.Draw.SetScissor(new IRect(0, 0, Engine.FrameWidth, Engine.FrameHeight));
+
+            GameUI.Draw.SetScissor(new IRect(0, 0, Engine.FrameWidth, Engine.FrameHeight));
 
         }
 
@@ -65,8 +69,9 @@ namespace QNet.UI.Controls
 
             Scroller.ContentHeight = max_y - Rect.Height;
             VividDebug.Log("CH:" + max_y);
-            Scroller.SetRect(new IRect(Rect.Width - 10,0, 10, Rect.Height));
+            Scroller.SetRect(new IRect(Rect.Width - 10,1, 10, Rect.Height-1));
             UpdatedChildren();
+
 
 
 

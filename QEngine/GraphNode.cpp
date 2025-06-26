@@ -10,7 +10,9 @@
 #include "QEngine.h"
 #include "Importer.h"
 #include "ScriptComponent.h"
+#include "SharpComponent.h"
 #include "SceneGraph.h"
+#include "LightComponent.h" 
 
 using namespace Diligent;
 physx::PxQuat glmMat4ToPxQuat(const glm::mat4& rotationMatrix)
@@ -686,6 +688,105 @@ void GraphNode::Read(VFile* f)
 
 void GraphNode::ReadScripts(VFile* f) {
 
+
+	int shc = f->ReadInt();
+
+	for (int i = 0; i < shc; i++) {
+
+		std::string name = f->ReadString();
+		SharpComponent* comp = new SharpComponent;
+
+
+		bool proxy = false;
+		auto cls = QEngine::m_MonoLib->GetClass(name);
+		if (cls == nullptr) {
+			proxy = true;
+
+
+		}
+
+		MClass* cls1 = nullptr;
+		if (!proxy) {
+			AddComponent(comp);
+			comp->SetClass(cls, QEngine::m_MonoLib->GetAssembly(), QEngine::m_MonoLib->GetVivid());
+			comp->SetName(name);
+			// Refresh the properties editor - use the safe pointer
+
+
+			cls1 = comp->GetClass();
+		}
+		else {
+			
+		}
+		int fc = f->ReadInt();
+
+		for (int j = 0; j < fc; j++) {
+
+			auto name = f->ReadString();
+			SharpType type = (SharpType)f->ReadInt();
+
+			switch (type) {
+			case SHARP_TYPE_INT:
+			{
+				int iv = f->ReadInt();
+
+				if (!proxy) {
+					cls1->SetFieldValue<int>(name, iv);
+				}
+			}
+				break;
+			case SHARP_TYPE_FLOAT:
+			{
+				float fv = f->ReadFloat();
+				if (!proxy) {
+				
+					cls1->SetFieldValue<float>(name, fv);
+				}
+			}
+				break;
+			case SHARP_TYPE_STRING:
+			{
+				std::string sv = f->ReadString();
+				if (!proxy) {
+				
+					cls1->SetFieldValue<std::string>(name, sv);
+				}
+			}
+				break;
+			case SHARP_TYPE_VEC3:
+			{
+				glm::vec3 v3v = f->ReadVec3();
+
+				//
+				float* nv = new float[3];
+				nv[0] = v3v.x;
+				nv[1] = v3v.y;
+				nv[2] = v3v.z;
+
+				if (!proxy) {
+					cls1->SetFieldStruct(name, nv);
+				}
+			}
+				break;
+			case SHARP_TYPE_VOID:
+
+				if (f->ReadBool()) {
+
+					auto name = f->ReadString();
+
+				}
+
+				break;
+			}
+
+		}
+
+
+		
+
+
+	}
+
 	int sc = f->ReadInt();
 
 	for (int i = 0; i < sc; i++) {
@@ -742,6 +843,98 @@ void GraphNode::ReadScripts(VFile* f) {
 }
 
 void GraphNode::WriteScripts(VFile* f) {
+
+	f->WriteInt(GetComponents<SharpComponent>().size());
+
+	for (auto sc : GetComponents<SharpComponent>()) {
+
+		f->WriteString(sc->GetName().c_str());
+
+		auto vars = sc->GetClass()->GetInstanceFields();
+		f->WriteInt(vars.size());
+
+		for (auto v : sc->GetClass()->GetInstanceFields())
+		{
+
+			f->WriteString(v.name.c_str());
+			f->WriteInt((int)v.ctype);
+
+			switch (v.ctype) {
+			case SHARP_TYPE_VOID:
+			{
+				{
+					auto cls = v.etype;
+
+
+					if (cls == "Vivid.Scene.GraphNode")
+					{
+						auto node = sc->GetClass()->GetFieldValue<MClass*>(v.name);
+
+						std::string name = "None";
+						if (node != nullptr) {
+							//name = no
+							auto r = node->CallFunctionValue_String("GetName");
+							name = r;
+							int b = 5;
+						}
+						else {
+
+							name = "None";
+
+
+
+						}
+						f->WriteBool(true);
+						f->WriteString(name.c_str());
+
+					}
+					else {
+						f->WriteBool(false);
+					}
+				}
+				break;
+			case SHARP_TYPE_INT:
+			{
+				auto ival = sc->GetClass()->GetFieldValue<int>(v.name);
+
+				f->WriteInt(ival);
+
+			}
+			break;
+			case SHARP_TYPE_FLOAT:
+			{
+				auto fval = sc->GetClass()->GetFieldValue<float>(v.name);
+				f->WriteFloat(fval);
+			}
+			break;
+			case SHARP_TYPE_STRING:
+			{
+				std::string sval = sc->GetClass()->GetFieldValue<std::string>(v.name).c_str();
+				f->WriteString(sval.c_str());
+
+			}
+
+			break;
+			case SHARP_TYPE_VEC3:
+			{
+				auto val = sc->GetClass()->GetFieldValue<MClass*>(v.name);
+
+				auto vx = val->GetFieldValue<float>("x");
+				auto vy = val->GetFieldValue<float>("y");
+				auto vz = val->GetFieldValue<float>("z");
+
+				f->WriteVec3(glm::vec3(vx, vy, vz));
+
+			}
+			}
+
+			}
+
+		}
+
+	}
+
+	
 
 	f->WriteInt(GetComponents<ScriptComponent>().size());
 
@@ -828,5 +1021,264 @@ void GraphNode::MarkBoundsAsDirty() {
 	m_bBoundsAreDirty = true;
 	for (auto child : m_Nodes) {
 		child->MarkBoundsAsDirty();
+	}
+}
+void to_json(json& j, const glm::vec3& v) {
+	j = { v.x, v.y, v.z };
+}
+void from_json(const json& j, glm::vec3& v) {
+	j.at(0).get_to(v.x);
+	j.at(1).get_to(v.y);
+	j.at(2).get_to(v.z);
+}
+
+namespace nlohmann {
+	
+
+	
+}
+// --- END HELPER FUNCTIONS ---
+
+void GraphNode::JWrite(json& j)  {
+	// Write basic properties
+	j["name"] = m_Name;
+	j["position"] = m_Position;
+	j["scale"] = m_Scale;
+	j["rotation"] = m_Rotation;
+	j["hide_from_editor"] = m_HideFromEditor;
+
+	// --- REVISED LOGIC ---
+	// Actively check for a light component. This is the definitive way to identify a light node.
+	auto* light_comp = const_cast<GraphNode*>(this)->GetComponent<LightComponent>();
+	if (light_comp) {
+		j["resource_type"] = ResourceType::Light; // Mark this node as a light for loading
+		json light_props;
+		light_props["color"] = light_comp->GetColor();
+		light_props["range"] = light_comp->GetRange();
+		light_props["intensity"] = light_comp->GetIntensity();
+		j["light_properties"] = light_props;
+	}
+	// Handle static meshes if no light is present
+	else if (m_ResourceType == ResourceType::Static) {
+		j["resource_type"] = ResourceType::Static;
+		j["resource_path"] = m_ResourcePath;
+	}
+	// Default case for other nodes (cameras, empty nodes, etc.)
+	else {
+		j["resource_type"] = m_ResourceType;
+	}
+
+	// Recursively write children
+	j["nodes"] = json::array();
+	for (const auto& node : m_Nodes) {
+		json child_json;
+		node->JWrite(child_json);
+		j["nodes"].push_back(child_json);
+	}
+}
+
+void GraphNode::JRead(const json& j) {
+	// Read basic properties
+	m_Name = j.value("name", "Node");
+
+	if (j.contains("position")) m_Position = j.at("position").get<glm::vec3>();
+	if (j.contains("scale")) m_Scale = j.at("scale").get<glm::vec3>();
+	if (j.contains("rotation")) m_Rotation = j.at("rotation").get<glm::mat4>();
+
+	m_HideFromEditor = j.value("hide_from_editor", false);
+
+	// Read resource info and create components accordingly
+	m_ResourceType = j.value("resource_type", ResourceType::SubData);
+
+	switch (m_ResourceType) {
+	case ResourceType::Static: {
+		m_ResourcePath = j.value("resource_path", "");
+		if (!m_ResourcePath.empty()) {
+			auto imp = new Importer();
+			auto r = imp->ImportEntity(m_ResourcePath.c_str());
+			if (r != nullptr) {
+				for (auto comp : r->GetAllComponents()) {
+					AddComponent(comp);
+				}
+				for (auto n : r->GetNodes()) {
+					AddNode(n);
+				}
+				delete r;
+			}
+			delete imp;
+		}
+		break;
+	}
+	case ResourceType::Light: {
+		auto* light_comp = new LightComponent();
+		if (j.contains("light_properties")) {
+			const auto& light_props = j["light_properties"];
+			light_comp->SetColor(light_props.value("color", glm::vec3(1.0f)));
+			light_comp->SetRange(light_props.value("range", 10.0f));
+			light_comp->SetIntensity(light_props.value("intensity", 1.0f));
+		}
+		AddComponent(light_comp);
+		break;
+	}
+							// Add cases for Camera, Skeletal, etc. here in the future
+	}
+
+
+	// Recursively read children
+	if (j.contains("nodes")) {
+		for (const auto& child_json : j["nodes"]) {
+			auto sub_node = new GraphNode();
+			sub_node->JRead(child_json);
+			AddNode(sub_node);
+		}
+	}
+}
+
+void GraphNode::JWriteScripts(json& j) {
+	std::string long_name = GetLongName();
+
+	// --- Write C# Components (SharpComponent) ---
+	auto sharp_components = GetComponents<SharpComponent>();
+	if (!sharp_components.empty()) {
+		json sharp_array = json::array();
+		for (const auto& sc : sharp_components) {
+			json sc_json;
+			sc_json["class_name"] = sc->GetName();
+
+			json fields_json = json::object();
+			auto* mclass = sc->GetClass();
+			if (mclass) {
+				for (const auto& var : mclass->GetInstanceFields()) {
+					switch (var.ctype) {
+					case SHARP_TYPE_INT:
+						fields_json[var.name] = mclass->GetFieldValue<int>(var.name);
+						break;
+					case SHARP_TYPE_FLOAT:
+						fields_json[var.name] = mclass->GetFieldValue<float>(var.name);
+						break;
+					case SHARP_TYPE_STRING:
+						fields_json[var.name] = mclass->GetFieldValue<std::string>(var.name);
+						break;
+					case SHARP_TYPE_VEC3: {
+						auto* val = mclass->GetFieldValue<MClass*>(var.name);
+						if (val) {
+							fields_json[var.name] = glm::vec3(val->GetFieldValue<float>("x"), val->GetFieldValue<float>("y"), val->GetFieldValue<float>("z"));
+						}
+						break;
+					}
+					}
+				}
+			}
+			sc_json["fields"] = fields_json;
+			sharp_array.push_back(sc_json);
+		}
+		j[long_name]["sharp_components"] = sharp_array;
+	}
+
+	// --- Write Python Components (ScriptComponent) ---
+	auto script_components = GetComponents<ScriptComponent>();
+	if (!script_components.empty()) {
+		json script_array = json::array();
+		for (const auto& s : script_components) {
+			json s_json;
+			s_json["path"] = s->GetPath();
+			s_json["name"] = s->GetName();
+
+			json vars_json = json::object();
+			for (const auto& v : s->GetPythonVars()) {
+				switch (v.type) {
+				case VT_Int:
+					vars_json[v.name] = s->GetInt(v.name);
+					break;
+				case VT_Float:
+					vars_json[v.name] = s->GetFloat(v.name);
+					break;
+				case VT_String:
+					vars_json[v.name] = s->GetString(v.name);
+					break;
+				case VT_Object:
+					if (v.cls == "GraphNode") {
+						auto* node = s->GetNode(v.name);
+						vars_json[v.name] = (node != nullptr) ? node->GetLongName() : "null";
+					}
+					break;
+				}
+			}
+			s_json["vars"] = vars_json;
+			script_array.push_back(s_json);
+		}
+		j[long_name]["script_components"] = script_array;
+	}
+
+	// Recurse for children
+	for (const auto& node : m_Nodes) {
+		node->JWriteScripts(j);
+	}
+}
+
+void GraphNode::JReadScripts(const json& j) {
+	std::string long_name = GetLongName();
+
+	if (j.contains(long_name)) {
+		const auto& node_scripts_json = j[long_name];
+
+		// --- Read C# Components ---
+		if (node_scripts_json.contains("sharp_components")) {
+			for (const auto& sc_json : node_scripts_json["sharp_components"]) {
+				std::string class_name = sc_json.value("class_name", "");
+				auto* cls_template = QEngine::m_MonoLib->GetClass(class_name);
+				if (cls_template) {
+					auto* comp = new SharpComponent();
+					AddComponent(comp);
+					comp->SetClass(cls_template, QEngine::m_MonoLib->GetAssembly(), QEngine::m_MonoLib->GetVivid());
+					comp->SetName(class_name);
+
+					auto* cls_instance = comp->GetClass();
+					if (cls_instance && sc_json.contains("fields")) {
+						for (auto const& [name, val] : sc_json["fields"].items()) {
+							if (val.is_number_integer()) cls_instance->SetFieldValue<int>(name, val);
+							else if (val.is_number_float()) cls_instance->SetFieldValue<float>(name, val);
+							else if (val.is_string()) cls_instance->SetFieldValue<std::string>(name, val);
+							else if (val.is_array() && val.size() == 3) {
+								glm::vec3 v3 = val.get<glm::vec3>();
+								float nv[] = { v3.x, v3.y, v3.z };
+								cls_instance->SetFieldStruct(name, nv);
+							}
+						}
+					}
+				}
+			}
+		}
+
+		// --- Read Python Components ---
+		if (node_scripts_json.contains("script_components")) {
+			for (const auto& s_json : node_scripts_json["script_components"]) {
+				auto* comp = new ScriptComponent();
+				AddComponent(comp);
+				comp->SetScript(s_json.value("path", ""), s_json.value("name", ""));
+
+				if (s_json.contains("vars")) {
+					for (auto const& [name, val] : s_json["vars"].items()) {
+						if (val.is_number_integer()) comp->SetInt(name, val);
+						else if (val.is_number_float()) comp->SetFloat(name, val);
+						else if (val.is_string()) {
+							std::string str_val = val;
+							GraphNode* node_val = SceneGraph::m_Instance->FindNode(str_val);
+							if (node_val) {
+								comp->SetNode(name, node_val);
+							}
+							else {
+								comp->SetString(name, str_val);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// Recurse for children
+	for (auto& node : m_Nodes) {
+		node->JReadScripts(j);
 	}
 }

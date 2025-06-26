@@ -101,10 +101,11 @@ public:
 	static int ScY;
 	static int ScW;
 	static int ScH;
+	static std::filesystem::file_time_type s_last_dll_write_time;
 private:
 
 
-	static std::filesystem::file_time_type s_last_dll_write_time;
+
 	static int m_FrameWidth;
 	static int m_FrameHeight;
 

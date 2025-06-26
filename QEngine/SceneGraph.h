@@ -2,6 +2,10 @@
 #include <vector>
 #include <glm/glm.hpp>
 #include <string>
+#include <map>
+#include "json.hpp" // Assumes nlohmann/json.hpp is in your project include paths
+using json = nlohmann::json;
+
 class Intersections;
 class GraphNode;
 class CubeRenderer;
@@ -10,6 +14,7 @@ class TerrainMeshComponent;
 class TerrainMesh;
 class VFile;
 class SharpComponent;
+
 
 struct HitResult {
 
@@ -68,7 +73,10 @@ public:
 
 	static SceneGraph* m_Instance;
 	std::vector<SharpComponent*> GetAllSharpComponents();
-
+	void JSaveScene(const std::string& path);
+	void JLoadScene(const std::string& path);
+	void JWriteTerrain(json& j, GraphNode* node) ;
+	void JReadTerrain(const json& j);
 	void Reset();
 	void SetOwners(GraphNode* node);
 	static int Ren_Count;

@@ -19,7 +19,7 @@ public:
 	PixelMap(std::string path, PixelMapDataType type = PixelMapDataType::UINT8);
 
 	// Constructors for creating blank maps
-	PixelMap(int w, int h, PixelMapDataType type = PixelMapDataType::UINT8);
+	PixelMap(int w, int h, PixelMapDataType type = PixelMapDataType::UINT8, float dv = 1.0f);
 	//PixelMap(int w, int h, float4 color); // This will always create a float map
 
 	

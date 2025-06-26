@@ -8,10 +8,56 @@
 #include <glm/glm.hpp>
 #include "PxPhysicsAPI.h"
 #include "VFile.h"
+// ADDED: Include for nlohmann/json
+#include "json.hpp" // Assumes nlohmann/json.hpp is in your project include paths
+using json = nlohmann::json;
 using namespace physx;
 using namespace Diligent;
 class Component;
 
+
+#include "json.hpp" // Assumes nlohmann/json.hpp is in your project include paths
+using json = nlohmann::json;
+// END ADDED
+
+// --- HELPER FUNCTIONS for glm serialization ---
+// By specializing the adl_serializer struct inside the nlohmann namespace,
+// we provide a robust way for the library to find these conversion functions.
+namespace nlohmann {
+	template <>
+	struct adl_serializer<glm::vec3> {
+		static void to_json(json& j, const glm::vec3& v) {
+			j = { v.x, v.y, v.z };
+		}
+
+		static void from_json(const json& j, glm::vec3& v) {
+			j.at(0).get_to(v.x);
+			j.at(1).get_to(v.y);
+			j.at(2).get_to(v.z);
+		}
+	};
+
+	template <>
+	struct adl_serializer<glm::mat4> {
+		static void to_json(json& j, const glm::mat4& m) {
+			// Flatten the matrix into a 1D array for serialization
+			j = {
+				m[0][0], m[0][1], m[0][2], m[0][3],
+				m[1][0], m[1][1], m[1][2], m[1][3],
+				m[2][0], m[2][1], m[2][2], m[2][3],
+				m[3][0], m[3][1], m[3][2], m[3][3]
+			};
+		}
+
+		static void from_json(const json& j, glm::mat4& m) {
+			for (int col = 0; col < 4; ++col) {
+				for (int row = 0; row < 4; ++row) {
+					j.at(col * 4 + row).get_to(m[col][row]);
+				}
+			}
+		}
+	};
+}
 
 enum ResourceType {
 	Static,Skeletal,Light,Camera,SubData
@@ -178,7 +224,13 @@ public:
 	void ReadScripts(VFile* f);
 	void RemoveParent();
 	GraphNode* FindNode(std::string name);
+	void JWrite(json& j) ;
+	void JRead(const json& j);
+	void JWriteScripts(json& j);
+	void JReadScripts(const json& j);
+
 private:
+
 
 	glm::vec3 m_Position;
 	glm::vec3 m_Scale;

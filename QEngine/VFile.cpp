@@ -2,6 +2,8 @@
 #include "VFile.h"
 #include <filesystem>
 #include <memory>
+#include <chrono> 
+
 VFile::VFile(const char* path, FileMode mode) {
 
 	//printf("Opening File:");
@@ -318,3 +320,51 @@ glm::mat4 VFile::ReadMatrix() {
 	return r;
 
 }
+
+void VFile::WriteLongLong(long long v) {
+	ostream.write(reinterpret_cast<char*>(&v), sizeof(long long));
+}
+
+/**
+ * @brief Reads a 64-bit integer from the file.
+ * @return The long long value read from the file.
+ */
+long long VFile::ReadLongLong() {
+	long long r = 0;
+	istream.read(reinterpret_cast<char*>(&r), sizeof(long long));
+	readPos += sizeof(long long);
+	return r;
+}
+
+/**
+ * @brief Converts a file_time_type to a 64-bit integer and writes it to the file.
+ * This is the standard way to serialize a C++ time point.
+ * @param ftime The file_time_type to write.
+ */
+void VFile::WriteFileTime(const std::filesystem::file_time_type& ftime) {
+	// Get the duration since the epoch for the file_time_type.
+	auto duration_since_epoch = ftime.time_since_epoch();
+
+	// Get the raw count of clock ticks (a 64-bit integer).
+	long long count = duration_since_epoch.count();
+
+	// Write this 64-bit integer to the file.
+	WriteLongLong(count);
+}
+
+/**
+ * @brief Reads a 64-bit integer from the file and converts it back to a file_time_type.
+ * @return The file_time_type read from the file.
+ */
+std::filesystem::file_time_type VFile::ReadFileTime() {
+	// Read the raw 64-bit integer count from the file.
+	long long count_from_file = ReadLongLong();
+
+	// Create a duration from the count.
+	std::filesystem::file_time_type::duration duration(count_from_file);
+
+	// Create a time_point (which is what file_time_type is) from the duration.
+	return std::filesystem::file_time_type(duration);
+}
+
+// ... (rest of your VFile.cpp file, like VFile::Close, etc.)

@@ -24,6 +24,19 @@ SceneGraph* SceneGraph::m_CurrentGraph = nullptr;
 #include "SharpComponent.h"
 bool addedGraphFuncs = false;
 
+void CollectLightsRecursive(GraphNode* node, std::vector<GraphNode*>& lights_list) {
+	if (!node) {
+		return;
+	}
+	// Check if the current node has a light component
+	if (node->GetComponent<LightComponent>()) {
+		lights_list.push_back(node);
+	}
+	// Recurse for all children
+	for (GraphNode* child : node->GetNodes()) {
+		CollectLightsRecursive(child, lights_list);
+	}
+}
 
 
 double floorIfCloseToZero(double number, double tolerance = 0.0001) {
@@ -800,4 +813,191 @@ std::vector<SharpComponent*> SceneGraph::GetAllSharpComponents()
 		CollectSharpComponentsRecursive(m_RootNode, result_list);
 	}
 	return result_list;
+}
+namespace nlohmann {
+	template <>
+	struct adl_serializer<glm::vec4> {
+		static void to_json(json& j, const glm::vec4& v) {
+			j = { v.x, v.y, v.z, v.w };
+		}
+
+		static void from_json(const json& j, glm::vec4& v) {
+			if (j.is_array() && j.size() == 4) {
+				j.at(0).get_to(v.x);
+				j.at(1).get_to(v.y);
+				j.at(2).get_to(v.z);
+				j.at(3).get_to(v.w);
+			}
+		}
+	};
+
+	template <>
+	struct adl_serializer<TerrainVertex> {
+		static void to_json(json& j, const TerrainVertex& v) {
+			j = {
+				{"pos", v.position}, {"tex", v.texture}, {"col", v.color},
+				{"norm", v.normal}, {"binorm", v.binormal}, {"tan", v.tangent},
+				{"layer", v.layercoord}
+			};
+		}
+
+		static void from_json(const json& j, TerrainVertex& v) {
+			j.at("pos").get_to(v.position);
+			j.at("tex").get_to(v.texture);
+			j.at("col").get_to(v.color);
+			j.at("norm").get_to(v.normal);
+			j.at("binorm").get_to(v.binormal);
+			j.at("tan").get_to(v.tangent);
+			j.at("layer").get_to(v.layercoord);
+		}
+	};
+
+	template <>
+	struct adl_serializer<Triangle> {
+		static void to_json(json& j, const Triangle& t) {
+			j = { t.v0, t.v1, t.v2 };
+		}
+
+		static void from_json(const json& j, Triangle& t) {
+			if (j.is_array() && j.size() == 3) {
+				j.at(0).get_to(t.v0);
+				j.at(1).get_to(t.v1);
+				j.at(2).get_to(t.v2);
+			}
+		}
+	};
+} // namespace nlohmann
+
+void SceneGraph::JSaveScene(const std::string& path) {
+	json scene_json;
+	scene_json["version"] = 1.0;
+
+	// Save camera
+	json camera_json;
+	m_Camera->JWrite(camera_json);
+	scene_json["camera"] = camera_json;
+
+	// Save root node hierarchy
+	json root_json;
+	m_RootNode->JWrite(root_json);
+	scene_json["root"] = root_json;
+
+	// Save scripts in a separate block for two-pass loading
+	json scripts_json = json::object();
+	m_RootNode->JWriteScripts(scripts_json);
+	scene_json["scripts"] = scripts_json;
+
+	// Save terrain if it exists
+	if (m_Terrain) {
+		json terrain_json;
+		JWriteTerrain(terrain_json, m_Terrain);
+		scene_json["terrain"] = terrain_json;
+	}
+
+	// Write to file
+	std::ofstream o(path);
+	o << std::setw(4) << scene_json << std::endl;
+	o.close();
+}
+
+void SceneGraph::JLoadScene(const std::string& path) {
+	std::ifstream i(path);
+	if (!i.is_open()) {
+		return;
+	}
+	json scene_json;
+	i >> scene_json;
+	i.close();
+
+	// --- Clear current scene elements ---
+	m_Lights.clear();
+	if (m_RootNode) delete m_RootNode;
+	m_RootNode = new GraphNode(); // Create a fresh root
+
+	// --- PASS 1: Load node hierarchy, camera, and terrain ---
+	if (scene_json.contains("camera")) {
+		m_Camera->JRead(scene_json["camera"]);
+	}
+
+	if (scene_json.contains("root")) {
+		m_RootNode->JRead(scene_json["root"]);
+	}
+
+	if (scene_json.contains("terrain")) {
+		JReadTerrain(scene_json["terrain"]);
+	}
+
+	// --- PASS 2: Load scripts ---
+	if (scene_json.contains("scripts")) {
+		m_RootNode->JReadScripts(scene_json["scripts"]);
+	}
+
+	// --- PASS 3: Post-load setup ---
+	SetOwners(m_RootNode);
+
+	// Find all the lights in the newly loaded scene and populate the list
+	CollectLightsRecursive(m_RootNode, m_Lights);
+}
+
+// ... rest of the SceneGraph.cpp file ...
+void SceneGraph::JWriteTerrain(json& j, GraphNode* node)  {
+	auto* mesh_comp = node->GetComponent<TerrainMeshComponent>();
+	if (!mesh_comp) return;
+
+	auto* mesh_buf = mesh_comp->GetMesh();
+	if (!mesh_buf) return;
+
+	j["vertices"] = mesh_buf->GetVertices();
+	j["triangles"] = mesh_buf->GetTriangles();
+
+	json layers_array = json::array();
+	for (const auto& layer : mesh_comp->GetLayers()) {
+		json layer_json;
+		layer_json["color_path"] = layer->GetColor()->GetPath();
+		layer_json["normal_path"] = layer->GetNormal()->GetPath();
+		layer_json["specular_path"] = layer->GetSpec()->GetPath();
+		layers_array.push_back(layer_json);
+	}
+	j["layers"] = layers_array;
+}
+
+void SceneGraph::JReadTerrain(const json& j) {
+	if (m_Terrain) {
+		if (m_RootNode) m_RootNode->RemoveNode(m_Terrain);
+		delete m_Terrain;
+		m_Terrain = nullptr;
+	}
+
+	m_Terrain = new GraphNode;
+	m_Terrain->SetName("Terrain");
+	m_Terrain->AddComponent(new TerrainMeshComponent);
+	m_Terrain->AddComponent(new TerrainRendererComponent);
+	m_Terrain->AddComponent(new TerrainDepthRenderer);
+	AddNode(m_Terrain);
+
+	auto* tcom = m_Terrain->GetComponent<TerrainMeshComponent>();
+	TerrainMesh* mesh = tcom->GetMesh();
+
+	if (j.contains("vertices")) {
+		auto vertices = j["vertices"].get<std::vector<TerrainVertex>>();
+		for (const auto& v : vertices) mesh->AddVertex(v);
+	}
+
+	if (j.contains("triangles")) {
+		auto triangles = j["triangles"].get<std::vector<Triangle>>();
+		for (const auto& t : triangles) mesh->AddTriangle(t);
+	}
+	mesh->Build();
+
+	if (j.contains("layers")) {
+		for (const auto& layer_json : j["layers"]) {
+			auto* layer = new TerrainLayer();
+			layer->SetColor(new Texture2D(layer_json.value("color_path", "")));
+			layer->SetNormal(new Texture2D(layer_json.value("normal_path", "")));
+			layer->SetSpecular(new Texture2D(layer_json.value("specular_path", "")));
+			layer->SetPixels(new PixelMap(256, 256));
+			layer->Create();
+			tcom->AddLayer(layer);
+		}
+	}
 }

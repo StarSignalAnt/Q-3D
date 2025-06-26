@@ -47,14 +47,25 @@ PixelMap::PixelMap(std::string path, PixelMapDataType type) {
 
 
 // Constructor for a blank map of a specific type
-PixelMap::PixelMap(int w, int h, PixelMapDataType type) {
+PixelMap::PixelMap(int w, int h, PixelMapDataType type,float dv) {
 	m_Width = w;
 	m_Height = h;
 	m_BPP = 4;
 	m_Type = type;
 	if (type == PixelMapDataType::FLOAT32) {
 		m_Data = new float[w * h * 4];
+		float* fd = (float*)m_Data;
 		memset(m_Data, 0, w * h * 4 * sizeof(float));
+		for (int y = 0; y < h; y++) {
+			for (int x = 0; x < w; x++) {
+				int loc = (y * w * 4) + x * 4;
+				fd[loc++] = dv;
+				fd[loc++] = dv;
+				fd[loc++] = dv;
+				fd[loc++] = dv;
+				
+			}
+		}
 	}
 	else {
 		m_Data = new unsigned char[w * h * 4];

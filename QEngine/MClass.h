@@ -24,8 +24,13 @@ enum SharpType
     SHARP_TYPE_STRING,
     SHARP_TYPE_CLASS,
     SHARP_TYPE_VOID,
-    SHARP_TYPE_INTPTR
-};
+    SHARP_TYPE_INTPTR,
+    SHARP_TYPE_VEC3,
+    SHARP_TYPE_VEC4,
+    SHARP_TYPE_VEC2,
+    SHARP_TYPE_MAT4
+}
+;
 
 struct SharpVar {
     std::string name;
@@ -74,6 +79,27 @@ public:
         T value{};
         mono_field_get_value(m_Instance, field, &value);
         return value;
+    }
+
+
+    void SetFieldStruct(const std::string& name, void* val) {
+
+        if (!m_Instance)
+        {
+            std::cerr << "Error: SetFieldValue called on a null instance for field: " << name << std::endl;
+            return;
+        }
+
+        MonoClassField* field = mono_class_get_field_from_name(m_Class, name.c_str());
+        if (!field)
+        {
+            std::cerr << "Error: Instance field not found: " << name << std::endl;
+            return;
+        }
+
+        // Mono expects a pointer to the value.
+        mono_field_set_value(m_Instance, field, (void*)val);
+
     }
 
     template<typename T>
@@ -339,16 +365,51 @@ template<>
 inline MClass* MClass::GetFieldValue<MClass*>(const std::string& fieldName)
 {
     if (!m_Instance) return nullptr;
+
     MonoClassField* field = mono_class_get_field_from_name(m_Class, fieldName.c_str());
-    if (!field) return nullptr;
+    if (!field)
+    {
+        std::cerr << "Error: Field not found: " << fieldName << std::endl;
+        return nullptr;
+    }
 
-    MonoObject* innerObject = nullptr;
-    mono_field_get_value(m_Instance, field, &innerObject);
-    if (!innerObject) return nullptr;
+    // --- FIX STARTS HERE ---
 
-    MonoClass* innerClass = mono_object_get_class(innerObject);
-    // Create the new MClass wrapper, passing along the correct domain
-    return new MClass(m_Domain, innerClass, innerObject);
+    // 1. Get the field's type definition (MonoClass) from its metadata, not its value.
+    MonoType* fieldType = mono_field_get_type(field);
+    MonoClass* fieldClass = mono_type_get_class(fieldType);
+
+    if (!fieldClass) {
+        std::cerr << "Error: Could not get MonoClass for field: " << fieldName << std::endl;
+        return nullptr;
+    }
+
+    MonoObject* fieldValueObject = nullptr;
+
+    // 2. Check if the field is a value type (struct).
+    if (mono_class_is_valuetype(fieldClass))
+    {
+        // For a value type, we must "box" it to treat it as an object.
+        // mono_field_get_value_object does exactly this. It gets the value
+        // from the field and returns a new MonoObject* that wraps it.
+        fieldValueObject = mono_field_get_value_object(m_Domain, field, m_Instance);
+    }
+    else
+    {
+        // For a reference type (class), the original logic is correct.
+        // Just copy the pointer to the object.
+        mono_field_get_value(m_Instance, field, &fieldValueObject);
+    }
+
+    // If the field was null (for a class) or boxing failed, return nullptr.
+    if (!fieldValueObject)
+    {
+        return nullptr;
+    }
+
+    // 3. Create the new MClass wrapper with the correct class definition and the (potentially boxed) object instance.
+    return new MClass(m_Domain, fieldClass, fieldValueObject);
+
 }
 
 template<>

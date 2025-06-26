@@ -4,7 +4,7 @@
 #include<fstream>
 #include "BasicMath.hpp"
 #include <glm/glm.hpp>
-
+#include <filesystem> 
 using namespace Diligent;
 
 //#include "Vec2.h"
@@ -33,14 +33,16 @@ public:
 //	void WriteMatrix3x3(float3x3 v);
 	glm::vec3 ReadVec3();
 	glm::vec4 ReadVec4();
-
+	void WriteLongLong(long long v);
+	void WriteFileTime(const std::filesystem::file_time_type& ftime);
 	//void WriteVec3(Vec3 v);
 	void WriteLong(long v);
 	void WriteLine(const char* str);
 
 
 //	Vec3 ReadVec3();
-
+	long long ReadLongLong();
+	std::filesystem::file_time_type ReadFileTime();
 	int ReadInt();
 	float ReadFloat();
 	char ReadByte();

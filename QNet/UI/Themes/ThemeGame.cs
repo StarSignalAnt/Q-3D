@@ -15,7 +15,7 @@ namespace QNet.UI.Themes
 
             this.Button = new Texture.Texture2D("Content/ThemeGame/button.png");
             this.Body = new Texture.Texture2D("Content/ThemeGame/White.png");
-
+            this.White = new Texture.Texture2D("Content/ThemeGame/pure.png");
             WindowTitle = new IColor(0.53f, 0.53f, 0.53f, 0.85f);
    
             ForeColor = new IColor(0.7f, 0.7f, 0.7f, 0.85f);

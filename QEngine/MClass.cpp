@@ -65,6 +65,7 @@ std::vector<SharpVar> MClass::GetInstanceFields() {
         else if (var.etype == "System.Single") var.ctype = SHARP_TYPE_FLOAT;
         else if (var.etype == "System.String") var.ctype = SHARP_TYPE_STRING;
         else if (var.etype == "System.Boolean") var.ctype = SHARP_TYPE_BOOL;
+        else if (var.etype == "GlmNet.vec3") var.ctype = SHARP_TYPE_VEC3;
         else if (mono_type_get_type(fieldType) == MONO_TYPE_CLASS) var.ctype = SHARP_TYPE_CLASS;
         // ... etc
 

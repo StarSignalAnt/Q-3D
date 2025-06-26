@@ -31,6 +31,7 @@ namespace QNet.UI.Controls
             Color = new IColor(0.25f, 0.25f, 0.25f, 1.0f); // Default background
 
             _scroller = new IVerticalScroller();
+            CullSelf = true;
             AddControls(_scroller); // Add scroller as a child control
         }
 
@@ -171,7 +172,7 @@ namespace QNet.UI.Controls
             }
 
             // 3. Set a scissor rectangle to clip drawing to the control's bounds
-            GameUI.Draw.SetScissor(RenderRect);
+     //       GameUI.Draw.SetScissor(RenderRect);
 
             // 4. Recursively render all visible items
             float scrollOffset = _scroller.Value * (_contentHeight - RenderRect.Height);
@@ -185,7 +186,7 @@ namespace QNet.UI.Controls
 
             // 5. Render children (the scroller), then reset scissor
             RenderChildren();
-            GameUI.Draw.SetScissor(new IRect(0, 0, Engine.FrameWidth, Engine.FrameHeight));
+       //     GameUI.Draw.SetScissor(new IRect(0, 0, Engine.FrameWidth, Engine.FrameHeight));
         }
 
         private void RenderItem(ITreeItem item, ref float currentY)
@@ -212,12 +213,15 @@ namespace QNet.UI.Controls
             // --- Draw Item ---
             IRect itemRect = new IRect(RenderRect.X, (int)currentY, RenderRect.Width-12, ItemHeight);
 
+            itemRect = CullRect(itemRect);
+
+
             // Draw highlight for selected or mouse-over item
             if (SelectedItem == item)
             {
                 GameUI.Draw.Rect(GameUI.Theme.Body, itemRect, new IColor(0.4f, 0.4f, 0.6f, 1.0f));
             }
-            else if (_mouseOverPos != null && _mouseOverPos.Y >= itemRect.Y && _mouseOverPos.Y < itemRect.Y + ItemHeight && _mouseOverPos.X >= itemRect.X && _mouseOverPos.X < itemRect.X + itemRect.Width)
+            else if (_mouseOverPos != null && _mouseOverPos.Y >= itemRect.Y && _mouseOverPos.Y < itemRect.Y + itemRect.Height && _mouseOverPos.X >= itemRect.X && _mouseOverPos.X < itemRect.X + itemRect.Width)
             {
                 GameUI.Draw.Rect(GameUI.Theme.Body, itemRect, new IColor(0.3f, 0.3f, 0.35f, 1.0f));
             }

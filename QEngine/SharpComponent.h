@@ -83,6 +83,12 @@ public:
     MClass* GetClass() { return m_Instance; };
     void ReInit();
     MClass* CreateGraphNode();
+    void SetTime(std::filesystem::file_time_type time) {
+        edit_time = time;
+    }
+    std::filesystem::file_time_type GetTime() {
+        return edit_time;
+    }
 private:
 
     MAsm* m_Assembly = nullptr;
@@ -91,5 +97,7 @@ private:
     MClass* m_GraphClass;
     MClass* m_Instance = nullptr;
     std::string m_Name;
-};
+    std::filesystem::file_time_type edit_time;
+}
+;
 

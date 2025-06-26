@@ -46,7 +46,11 @@ namespace QNet.UI
             set;
         }
 
-
+         public Texture2D White
+        {
+            get;
+            set;
+        }
 
     }
 }
