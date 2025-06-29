@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "RenderTarget2D.h"
 #include "QEngine.h"
+#include "Texture2D.h"
 
 RenderTarget2D::RenderTarget2D(int width, int height,bool isdepth) {
 
@@ -67,7 +68,8 @@ void RenderTarget2D::ClearZ() {
 void RenderTarget2D::Bind() {
 
 	//ITextureView* tv = m_DepthTexView;
-	float ClearColor[4] = { 1,1,1,1.0 };
+	float ClearColor[4] = { ClearCol.x,ClearCol.y,ClearCol.z,1.0f };
+
 	//if (!m_Depth) {
 	//	ClearColor[0] = 0;
 	//	ClearColor[1] = 0;
@@ -92,4 +94,8 @@ void RenderTarget2D::Release() {
 	QEngine::m_pImmediateContext->SetRenderTargets(1, &pRTV, QEngine::m_pSwapChain->GetDepthBufferDSV(), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 	QEngine::SetBoundRT2D(nullptr);
 
+}
+
+Texture2D* RenderTarget2D::GetTexture2D() {
+	return new Texture2D(GetTexture(), GetView());
 }

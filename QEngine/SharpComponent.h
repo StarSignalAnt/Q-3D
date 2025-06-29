@@ -39,6 +39,7 @@ extern "C" __declspec(dllexport) void* SceneGetRoot();
 extern "C" __declspec(dllexport) int NodeNodeCount(void* node);
 extern "C" __declspec(dllexport) void* NodeGetNode(void* node,int index);
 extern "C" __declspec(dllexport) void* NodeGetName(void* node);
+extern "C" __declspec(dllexport) void* NodeGetLongName(void* node);
 extern "C" __declspec(dllexport) void DebugLog(const char* str);
 extern "C" __declspec(dllexport) void* CreateVideo(const char* path);
 extern "C" __declspec(dllexport) void PlayVideo(void* video);
@@ -63,15 +64,32 @@ extern "C" __declspec(dllexport) bool GetKeyDown(int key);
 extern "C" __declspec(dllexport) bool GetMouseDown(int id);
 extern "C" __declspec(dllexport) void* LoadFont(char* path,float size);
 extern "C" __declspec(dllexport) void SetFontDraw(void* font, void* draw);
-extern "C" __declspec(dllexport) void FontDrawText(void* font,char* text,Vec2 pos, float size);
+extern "C" __declspec(dllexport) void FontDrawText(void* font, wchar_t* text,Vec2 pos, float size);
 extern "C" __declspec(dllexport) int FontTextWidth(void* font, char* text,float size);
 extern "C" __declspec(dllexport) int FontTextHeight(void* font, char* text, float size);
 extern "C" __declspec(dllexport) void SetScissor(int x,int y,int w,int h);
+extern "C" __declspec(dllexport) void* GetComponent(void* node,char* name);
 
 class SharpComponent :
     public Component
 {
 public:
+    SharpComponent();
+    ~SharpComponent()
+    {
+        if (m_gcHandle) {
+            mono_gchandle_free(m_gcHandle);
+        }
+        if (m_graphNode_gchandle) {
+            mono_gchandle_free(m_graphNode_gchandle);
+        }
+
+        // 2. Now, delete the C++ wrapper objects that were allocated with 'new'.
+        delete m_Instance;
+        delete m_GraphClass;
+        // The component takes ownership of the class template passed to it.
+        delete m_StaticClass;
+    }
     void SetScript(std::string file, std::string name);
     void OnPlay() override;
     void OnStop() override;
@@ -89,6 +107,17 @@ public:
     std::filesystem::file_time_type GetTime() {
         return edit_time;
     }
+  
+    MonoObject* GetInstance() {
+        // Get a fresh, guaranteed-valid pointer to the C# object.
+        return mono_gchandle_get_target(m_gcHandle);
+    }
+    uint32_t GetHandle() {
+        return m_gcHandle;
+    }
+
+    uint32_t m_gcHandle = 0;
+    uint32_t m_graphNode_gchandle = 0;
 private:
 
     MAsm* m_Assembly = nullptr;

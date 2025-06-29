@@ -12,7 +12,9 @@ public:
 
     void update(float deltaTime, const QSet<int>& keysHeld, const QPoint& mouseDelta, bool rmbDown);
     void updateMouse(float deltaTime,const QPoint& mouseDelta, bool rmbDown);
-
+    void SetCamera(GraphNode* cam) {
+        camera = cam;
+    }
 private:
     GraphNode* camera;
     float moveSpeed = 40.0f;

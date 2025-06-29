@@ -44,6 +44,10 @@ public:
 	Texture2D(std::string path, bool srgb = false);
 	Texture2D(int w, int h, float* data, int bpp);
 	Texture2D(int w, int h,char* data, int bpp);
+	Texture2D(RefCntAutoPtr<ITexture> tex, RefCntAutoPtr<ITextureView> view) {
+		m_pTextureView = view;
+		m_pTexture = tex;
+	}
 	void Update(float* data);
 
 	RefCntAutoPtr<ITextureView> GetView() {

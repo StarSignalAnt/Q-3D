@@ -10,6 +10,9 @@
 
 #include <TextureUtilities.h>
 using namespace Diligent;
+#include<glm/glm.hpp>
+
+class Texture2D;
 
 
 class RenderTarget2D
@@ -37,7 +40,11 @@ public:
 	RefCntAutoPtr<ITextureView> GetDepthView() {
 		return m_DepthShaderView;
 	}
+	Texture2D* GetTexture2D();
 	void ClearZ();
+	void SetClearCol(glm::vec4 col) {
+		ClearCol = col;
+	}
 private:
 	int m_Width = 0;
 	int m_Height = 0;
@@ -48,5 +55,6 @@ private:
 	RefCntAutoPtr<ITextureView> m_ShaderView;
 	RefCntAutoPtr<ITextureView> m_DepthView;
 	RefCntAutoPtr<ITextureView> m_DepthShaderView;
+	glm::vec4 ClearCol = glm::vec4(1, 1, 1, 1);
 };
 

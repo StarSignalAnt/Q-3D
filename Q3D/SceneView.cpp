@@ -20,6 +20,7 @@
 #include "ConsoleOutput.h"
 #include "GameVideo.h"
 #include "GameFont.h"
+#include "CameraComponent.h"
 
 #if D3D11_SUPPORTED
 #    include "Graphics/GraphicsEngineD3D11/interface/EngineFactoryD3D11.h"
@@ -116,7 +117,7 @@ SceneView::SceneView(QWidget *parent)
 
 
     //m_Test1 = Importer::ImportEntity("test/test1.gltf");
-    auto test2 = Importer::ImportEntity("test/test2.gltf");
+    auto test2 = Importer::ImportEntity("test/test3.fbx");
    // m_SceneGraph->AddNode(m_Test1);
     m_SceneGraph->AddNode(test2);
 
@@ -131,6 +132,10 @@ SceneView::SceneView(QWidget *parent)
     auto cam = m_SceneGraph->GetCamera();
    
     cam->SetPosition(glm::vec3(0, 4, 4));
+   
+    auto cc = cam->GetComponent<CameraComponent>();
+    cc->SetExtents(0.1f, 1000.0f);
+
     auto tex1 = new Texture2D("test/tex1.png");
     
 //    auto m1 = m_Test1->GetNodes()[0]->GetComponent<StaticMeshComponent>();
@@ -152,25 +157,44 @@ SceneView::SceneView(QWidget *parent)
 
 	l1->AddComponent(lc);
 
+    lc->SetRange(220);
+    lc->SetIntensity(1700);
+
     m_SceneGraph->AddLight(l1);
 
     auto l2 = new GraphNode;
     l2->AddComponent(new LightComponent);
 
     l2->GetComponent<LightComponent>()->SetColor(glm::vec3(0,3,3));
+    l2->GetComponent<LightComponent>()->SetRange(220);
+    l2->GetComponent<LightComponent>()->SetIntensity(1700);
+    m_SceneGraph->AddLight(l2);
 
-    //m_SceneGraph->AddLight(l2);
-    l2->SetPosition(glm::vec3(0, 5, 6));
 
+    l2->SetPosition(glm::vec3(80, 40, 6));
+   
 
-	l1->SetPosition(glm::vec3(0, 4, 4));
+	l1->SetPosition(glm::vec3(-80, 40, 4));
 
     movementTimer.setInterval(16); // ~60 FPS
     connect(&movementTimer, &QTimer::timeout, this, &SceneView::handleMovement);
     movementTimer.start();
+    m_SceneGraph->InitializeOctree();
+    
+
+    auto c2 = new GraphNode;
+    c2->AddComponent(new CameraComponent());
+    m_SceneGraph->GetOctree()->SetViewCam(c2);
+    c2->GetComponent<CameraComponent>()->SetExtents(0.1f, 1000.0f);
+    //m_SceneGraph->SetCamera(c2);
+    m_ViewCam = c2;
+
+    c2->SetPosition(cam->GetPosition());
+    c2->SetRotation(cam->GetRotation());
+    
 
     m_L1 = l2;
-    m_CameraController = new CameraController(cam);
+    m_CameraController = new CameraController(c2);
     m_SceneController = new SceneController;
     m_SceneController->setCamera(cam);
     m_SceneController->setScene(m_SceneGraph);
@@ -198,6 +222,11 @@ SceneView::SceneView(QWidget *parent)
     //m_Vid1 = new GameVideo("test/video1.mp4");
 
 
+
+   
+
+
+
     //m_Vid1->Play();
 
     m_timer = new QTimer(this);
@@ -210,8 +239,9 @@ SceneView::SceneView(QWidget *parent)
     // 3. Start the timer and set the interval to 0.5 seconds (500 milliseconds)
     m_timer->start(500);
 
-    m_Font = new GameFont("Engine/system2.ttf", 20, m_SceneGraph->GetCamera());
-
+    m_Font = new GameFont("Engine/system4.ttf", 20, m_SceneGraph->GetCamera());
+   
+    //exit(1);
 }
 
 SceneView::~SceneView()
@@ -329,7 +359,7 @@ void SceneView::paintEvent(QPaintEvent* event)
         m_SelectionOverlay->Render();
     }
 
-    QEngine::ClearZ();
+//    QEngine::ClearZ();
 
     if (m_BrushNode) {
 
@@ -344,7 +374,8 @@ void SceneView::paintEvent(QPaintEvent* event)
 
 
 
-    //m_Font->DrawTextAsTexture("This is a simple test", glm::vec2(20, 150), 1.0f, glm::vec4(1, 1, 1, 1));
+
+    m_Font->DrawTextAsTexture("This is a simple test", glm::vec2(20, 150), 1.0f, glm::vec4(1, 1, 1, 1));
 
 
 
@@ -867,7 +898,17 @@ void SceneView::keyPressEvent(QKeyEvent* event) {
     if (gameKey != -1) {
         GameInput::m_Key[gameKey] = true;
     }
+    if (event->key() == Qt::Key::Key_Space) {
 
+        auto c1 = m_SceneGraph->GetCamera();
+        m_SceneGraph->SetCamera(m_ViewCam);
+        m_ViewCam = c1;
+        m_SceneGraph->GetOctree()->SetViewCam(m_ViewCam);
+        m_CameraController->SetCamera(m_ViewCam);
+        m_ViewCam->SetPosition(m_SceneGraph->GetCamera()->GetPosition());
+        m_ViewCam->SetRotation(m_SceneGraph->GetCamera()->GetRotation());
+
+    }
 }
 
 void SceneView::keyReleaseEvent(QKeyEvent* event) {
@@ -963,6 +1004,7 @@ void SceneView::dropEvent(QDropEvent* event)
             {
                 // 2. Add the newly created node to the scene graph.
                 m_SceneGraph->AddNode(importedNode);
+                importedNode->SetScale(glm::vec3(1, 1, 1));
 
                 // 3. Update the NodeTree to show the new node.
                 // Calling SetRoot will rebuild the entire tree from the scene graph's root.

@@ -3,6 +3,8 @@
 #include <glm/glm.hpp>
 #include <string>
 #include <map>
+#include <memory> // For std::unique_ptr
+#include "OctreeScene.h"
 #include "json.hpp" // Assumes nlohmann/json.hpp is in your project include paths
 using json = nlohmann::json;
 
@@ -14,6 +16,7 @@ class TerrainMeshComponent;
 class TerrainMesh;
 class VFile;
 class SharpComponent;
+struct Bounds;
 
 
 struct HitResult {
@@ -80,7 +83,13 @@ public:
 	void Reset();
 	void SetOwners(GraphNode* node);
 	static int Ren_Count;
+	Bounds CalculateSceneBounds();
+	void InitializeOctree();
+	Octree* GetOctree() {
+		return m_Octree.get();
+	}
 private:
+
 
 
 	GraphNode* m_RootNode = nullptr;
@@ -91,5 +100,6 @@ private:
 	float m_TerrainX = 0;
 	float m_TerrainZ = 0;
 	GraphNode* m_Terrain = nullptr;
+	std::unique_ptr<Octree> m_Octree;
 };
 

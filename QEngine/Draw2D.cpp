@@ -164,9 +164,14 @@ void Draw2D::InternalFlush()
     m_ActiveMaterial->SetTexture(m_BatchTexture, 0);
 
     // Bind the material and render the entire batch.
-    m_ActiveMaterial->Bind(false);
+    m_ActiveMaterial->Bind(m_Add);
     m_ActiveMaterial->Render();
 
     // Clear the CPU-side vertex buffer to start the next batch.
     m_BatchVertices.clear();
+}
+
+void Draw2D::SetAdditive(bool add) {
+
+    m_Add = add;
 }

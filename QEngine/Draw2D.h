@@ -69,7 +69,7 @@ public:
     void Rect(Texture2D* image, glm::vec2 position, glm::vec2 size, glm::vec4 color);
     // Call once at the end of all 2D drawing for a frame to render the last batch.
     void Flush();
-
+    void SetAdditive(bool add);
     // --- STATE MANAGEMENT ---
     void SetMaterial(Material2D* material);
     void SetOverride(RenderMaterial* mat);
@@ -94,4 +94,5 @@ private:
     Material2D* m_Material;
     RenderMaterial* m_Override = nullptr;
     GraphNode* m_Camera;
+    bool m_Add = false;
 };

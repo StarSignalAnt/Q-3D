@@ -282,6 +282,7 @@ GraphNode* Importer::ImportEntity(std::string path) {
             auto depth_renderer = new StaticDepthRendererComponent;
 			node->AddComponent(depth_renderer);
             node->SetResource("", ResourceType::Static);
+            node->SetScale(glm::vec3(1, 1, 1));
         }
 
         // Recurse through children
@@ -289,6 +290,7 @@ GraphNode* Importer::ImportEntity(std::string path) {
             GraphNode* childNode = ProcessNode(ainode->mChildren[i]);
             //childNode->SetResource("", ResourceType::SubData);
             node->AddNode(childNode);
+            node->SetScale(glm::vec3(1, 1, 1));
 
         }
 

@@ -306,12 +306,12 @@ void PropertiesEditor::SetNode(GraphNode* node) {
         {
 
             switch (v.ctype) {
-            case SHARP_TYPE_VOID:
+            case SHARP_TYPE_CLASS:
             {
                 auto cls = v.etype;
 
 
-                if (cls == "Vivid.Scene.GraphNode")
+                if (cls == "QNet.Scene.GraphNode")
                 {
                     auto node = sc->GetClass()->GetFieldValue<MClass*>(v.name);
 
@@ -347,6 +347,7 @@ void PropertiesEditor::SetNode(GraphNode* node) {
 
                                 sc->GetClass()->SetFieldClass(v.name, new_cls);
 
+                                auto m_GgcHandle = mono_gchandle_new(new_cls->GetInstance(), false);
 
 
                                 //sc->SetClass(var.name,)

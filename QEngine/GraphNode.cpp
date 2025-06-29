@@ -150,7 +150,7 @@ void GraphNode::SetRotation(float4x4 rot) {
 
 void GraphNode::Update(float dt) {
 
-
+	 
 	for (auto& component : m_Components) {
 		component->OnUpdate(dt);
 	}
@@ -1038,7 +1038,6 @@ namespace nlohmann {
 	
 }
 // --- END HELPER FUNCTIONS ---
-
 void GraphNode::JWrite(json& j)  {
 	// Write basic properties
 	j["name"] = m_Name;
@@ -1134,7 +1133,7 @@ void GraphNode::JRead(const json& j) {
 	}
 }
 
-void GraphNode::JWriteScripts(json& j) {
+void GraphNode::JWriteScripts(json& j)  {
 	std::string long_name = GetLongName();
 
 	// --- Write C# Components (SharpComponent) ---
@@ -1163,6 +1162,21 @@ void GraphNode::JWriteScripts(json& j) {
 						auto* val = mclass->GetFieldValue<MClass*>(var.name);
 						if (val) {
 							fields_json[var.name] = glm::vec3(val->GetFieldValue<float>("x"), val->GetFieldValue<float>("y"), val->GetFieldValue<float>("z"));
+						}
+						break;
+					}
+										// *** ADDED: Handle GraphNode references ***
+					case SHARP_TYPE_CLASS: {
+						if (var.etype == "QNet.Scene.GraphNode") {
+							MClass* node_instance = mclass->GetFieldValue<MClass*>(var.name);
+							if (node_instance != nullptr) {
+								// Call the C# GetLongName() method to get the unique identifier
+								std::string node_long_name = node_instance->CallFunctionValue_String("GetLongName");
+								fields_json[var.name] = { {"node_ref", node_long_name} };
+							}
+							else {
+								fields_json[var.name] = nullptr;
+							}
 						}
 						break;
 					}
@@ -1236,13 +1250,42 @@ void GraphNode::JReadScripts(const json& j) {
 					auto* cls_instance = comp->GetClass();
 					if (cls_instance && sc_json.contains("fields")) {
 						for (auto const& [name, val] : sc_json["fields"].items()) {
-							if (val.is_number_integer()) cls_instance->SetFieldValue<int>(name, val);
-							else if (val.is_number_float()) cls_instance->SetFieldValue<float>(name, val);
-							else if (val.is_string()) cls_instance->SetFieldValue<std::string>(name, val);
+							if (val.is_number_integer()) {
+								cls_instance->SetFieldValue<int>(name, val);
+							}
+							else if (val.is_number_float()) {
+								cls_instance->SetFieldValue<float>(name, val);
+							}
+							else if (val.is_string()) {
+								cls_instance->SetFieldValue<std::string>(name, val);
+							}
 							else if (val.is_array() && val.size() == 3) {
 								glm::vec3 v3 = val.get<glm::vec3>();
 								float nv[] = { v3.x, v3.y, v3.z };
 								cls_instance->SetFieldStruct(name, nv);
+							}
+							// *** ADDED: Handle GraphNode references ***
+							else if (val.is_object() && val.contains("node_ref")) {
+								std::string node_long_name = val["node_ref"];
+								GraphNode* target_node = SceneGraph::m_Instance->FindNode(node_long_name);
+								if (target_node) {
+
+									auto new_cls = comp->CreateGraphNode();
+
+									new_cls->SetNativePtr("NodePtr",target_node);
+
+									// A referenced node must also have a SharpComponent to get its C# instance
+									//SharpComponent* target_sc = target_node->GetComponent<SharpComponent>();
+									//if (target_sc) {
+
+
+										cls_instance->SetFieldClass(name, new_cls);
+									//}
+								}
+							}
+							else if (val.is_null()) {
+								// Handle cases where the field was explicitly null
+								cls_instance->SetFieldClass(name, nullptr);
 							}
 						}
 					}

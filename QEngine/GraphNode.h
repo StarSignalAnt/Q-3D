@@ -90,6 +90,13 @@ struct Bounds {
 			center = glm::vec3(0);
 		}
 	}
+	void Debug() {
+
+		auto size = max - min;
+
+		std::cout << "W:" << size.x << " H:" << size.y << " D:" << size.z << std::endl;
+
+	}
 };
 
 class GraphNode

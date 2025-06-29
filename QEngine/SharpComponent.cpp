@@ -8,7 +8,7 @@
 #include "QEngine.h"
 #include "GameInput.h"
 #include "GameFont.h"
-
+#include <windows.h>
 extern "C" __declspec(dllexport) void NodeTurn(void* node,float x, float y, float z)
 {
 
@@ -122,6 +122,19 @@ extern "C" __declspec(dllexport) void* NodeGetName(void* node) {
 	strcpy(result, msg);
 	return result;
 }
+
+extern "C" __declspec(dllexport) void* NodeGetLongName(void* node) {
+
+	GraphNode* n = static_cast<GraphNode*>(node);
+
+	std::string lname = n->GetLongName();
+	const char* msg = lname.c_str();
+	char* result = new char[strlen(msg) + 1];
+	strcpy(result, msg);
+	return result;
+
+}
+
 extern "C" __declspec(dllexport) void ConsoleLog(const char* str)
 {
 	QEngine::DebugLog(str);
@@ -312,10 +325,47 @@ extern "C" __declspec(dllexport) void* LoadFont(char* path,float size)
 
 }
 
-extern "C" __declspec(dllexport) void FontDrawText(void* font, char* text,Vec2 pos, float size) {
+extern "C" __declspec(dllexport) void FontDrawText(void* font, wchar_t* text,Vec2 pos, float size) {
+
+	int utf8_size = WideCharToMultiByte(
+		CP_UTF8,          // Convert to UTF-8
+		0,                // Default flags
+		text,             // The wide-character string to convert
+		-1,               // -1 indicates the string is null-terminated
+		NULL,             // No buffer given, we are calculating size
+		0,
+		NULL,
+		NULL
+	);
+
+	if (utf8_size == 0) {
+		// Conversion failed
+		return;
+	}
+
+	// 2. Create a std::string and perform the conversion.
+	std::string utf8_text;
+	utf8_text.resize(utf8_size);
+
+	WideCharToMultiByte(
+		CP_UTF8,
+		0,
+		text,
+		-1,
+		&utf8_text[0],   // Pointer to the buffer of the std::string
+		utf8_size,
+		NULL,
+		NULL
+	);
+
+	// The string may have an extra null terminator from the conversion; pop it off.
+	if (!utf8_text.empty() && utf8_text.back() == '\0') {
+		utf8_text.pop_back();
+	}
+	std::cout << "C++ received and converted string: " << utf8_text << std::endl;
 
 	GameFont* f = (GameFont*)font;
-	f->DrawTextAsTexture(text, glm::vec2(pos.x, pos.y), size, glm::vec4(1, 1, 1, 1));
+	f->DrawTextAsTexture(utf8_text, glm::vec2(pos.x, pos.y), size, glm::vec4(1, 1, 1, 1));
 
 }
 
@@ -358,40 +408,81 @@ extern "C" __declspec(dllexport) void SetScissor( int x, int y, int w, int h) {
 
 }
 
+extern "C" __declspec(dllexport) void* GetComponent(void* node,char* name) {
+
+	GraphNode* n = static_cast<GraphNode*>(node);
+	if (!n) {
+		return nullptr;
+	}
+
+	for (auto comp : n->GetAllComponents())
+	{
+		// Find the correct C++ proxy component.
+		auto sc = dynamic_cast<SharpComponent*>(comp);
+
+		if (sc && sc->GetName() == std::string(name))
+		{
+			// 1. Get the MonoObject* from the proxy.
+			//    This is now a SAFE operation because sc->GetInstance()
+			//    is getting the object from its own internal, persistent GCHandle.
+			//    The returned pointer is guaranteed to be valid.eded
+			//MonoObject* instance = sc->GetInstance();
+
+
+			// 2. Create a NEW, TEMPORARY GCHandle for the return trip.
+			//    This acts as a "shipping container" to safely marshal
+			//    the object reference back to the C# world.
+			//uint32_t temporary_return_handle = mono_gchandle_new(instance, false);
+
+
+			// 3. Return the ID of the temporary handle.
+			//    The C# code will unpack this and free it.
+			return (void*)(uintptr_t)sc->GetHandle();
+		}
+	}
+
+	// Component was not found.
+	return nullptr;
+}
+
+
+SharpComponent::SharpComponent()
+	: m_Vivid(nullptr), m_StaticClass(nullptr), m_GraphClass(nullptr),
+	m_Instance(nullptr), m_gcHandle(0), m_graphNode_gchandle(0)
+{
+}
 
 void SharpComponent::SetClass(MClass* cls,MAsm* as,MAsm* vivid) {
 
 
-	m_StaticClass = cls; // This is a handle to the class type, not an instance.
-	m_Assembly = as;
+	m_StaticClass = cls;
 	m_Vivid = vivid;
 
-	// Create a C# wrapper for our GraphNode.
+	// Create the C# GraphNode wrapper
 	m_GraphClass = CreateGraphNode();
-	if (!m_GraphClass) {
-		std::cerr << "Error: Failed to create GraphNode wrapper in SetClass." << std::endl;
-		return;
-	}
+	if (!m_GraphClass) { /* ... error handling ... */ return; }
 
-	// Create an instance of the user's script (e.g., "PlayerScript").
+	// Anchor the C# GraphNode with its own persistent handle
+	m_graphNode_gchandle = mono_gchandle_new(m_GraphClass->GetInstance(), true);
+
+	// Create the C# component instance (e.g., Test5)
 	m_Instance = m_StaticClass->CreateInstance();
-	if (!m_Instance) {
-		std::cerr << "Error: Failed to create instance for script class." << std::endl;
-		delete m_GraphClass;
-		return;
-	}
+	if (!m_Instance) { /* ... error handling ... */ return; }
 
-	// Set the "Node" property on the C# script instance to our GraphNode wrapper.
+	// Anchor the main C# instance with its own persistent handle
+	m_gcHandle = mono_gchandle_new(m_Instance->GetInstance(), true);
+
+	// Link the C# objects together
 	m_Instance->SetFieldClass("Node", m_GraphClass);
 
-	// Set the internal pointer of the C# GraphNode wrapper to this component's owner.
-	// This creates the link from C# back to the C++ GraphNode.
+	// Link the C# GraphNode wrapper back to the C++ owner node
 	m_GraphClass->SetNativePtr("NodePtr", (void*)m_Owner);
+
 	/*
 	m_StaticClass = cls;
 	m_Assembly = as;
 	m_Vivid = vivid;
-
+		m_gcHandle = mono_gchandle_new(netInstance, false);
 	auto gnode = m_Vivid->GetClass("Vivid.Scene", "GraphNode");
 	auto gnode_inst = gnode->CreateInstance();
 
@@ -462,26 +553,16 @@ void SharpComponent::OnStop() {
 
 void SharpComponent::OnRender(GraphNode* cam) {
 
-	if (m_Playing) {
-
-		auto gnode = m_Vivid->GetClass("QNet.Scene", "GraphNode");
-		auto gnode_inst = gnode->CreateInstance();
-
-		//m_GraphClass = gnode_inst;
-
-		gnode_inst->SetFieldValue("NodePtr", (void*)cam);
-
-		//m_Instance = m_StaticClass->CreateInstance();
-		//m_Instance->SetFieldClass("Node", gnode_inst);
-
-		m_Instance->CallFunction("OnRender", gnode_inst);
-	} if (m_Playing && m_Instance)
+	
+	 if (m_Playing && m_Instance)
 	{
 		// To pass the camera to C#, we must wrap the C++ GraphNode*
 		// in a C# GraphNode object instance.
 		MClass* camNodeWrapper = CreateGraphNode();
 		if (camNodeWrapper)
 		{
+			m_graphNode_gchandle = mono_gchandle_new(camNodeWrapper->GetInstance(), false);
+
 			// Set the C# wrapper's internal pointer to our C++ camera object.
 			camNodeWrapper->SetNativePtr("NodePtr", (void*)cam);
 
@@ -490,6 +571,7 @@ void SharpComponent::OnRender(GraphNode* cam) {
 
 			// Clean up the temporary wrapper object.
 			delete camNodeWrapper;
+
 		}
 	}
 }
@@ -508,10 +590,21 @@ void SharpComponent::OnUpdate(float deltaTime) {
 
 MClass* SharpComponent::CreateGraphNode() {
 
-	auto gnode = m_Vivid->GetClass("QNet.Scene", "GraphNode");
-	auto gnode_inst = gnode->CreateInstance();
+	auto gnode_template = m_Vivid->GetClass("QNet.Scene", "GraphNode");
+	if (!gnode_template) {
+		return nullptr;
+	}
 
-	return gnode_inst;
+	// Use the template to create the INSTANCE and its wrapper.
+	auto gnode_instance_wrapper = gnode_template->CreateInstance();
+
+	// *** THE FIX ***
+	// The template wrapper has served its purpose and is no longer needed.
+	// We MUST delete it to prevent a memory leak and heap corruption.
+	delete gnode_template;
+
+	// Return the wrapper for the new INSTANCE.
+	return gnode_instance_wrapper;
 
 }
 

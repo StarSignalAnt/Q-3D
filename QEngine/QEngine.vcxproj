@@ -220,6 +220,8 @@
     <ClInclude Include="NodeTestLogic.h" />
     <ClInclude Include="NodeTurnNode.h" />
     <ClInclude Include="NodeVec3Constant.h" />
+    <ClInclude Include="OctreeNode.h" />
+    <ClInclude Include="OctreeScene.h" />
     <ClInclude Include="Pars.h" />
     <ClInclude Include="Physics.h" />
     <ClInclude Include="PixelMap.h" />
@@ -328,6 +330,8 @@
     <ClCompile Include="NodeTestLogic.cpp" />
     <ClCompile Include="NodeTurnNode.cpp" />
     <ClCompile Include="NodeVec3Constant.cpp" />
+    <ClCompile Include="OctreeNode.cpp" />
+    <ClCompile Include="OctreeScene.cpp" />
     <ClCompile Include="Pars.cpp" />
     <ClCompile Include="Physics.cpp" />
     <ClCompile Include="PixelMap.cpp" />

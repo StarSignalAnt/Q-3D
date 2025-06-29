@@ -233,6 +233,7 @@ private:
 	EditBrushMode m_BrushMode = EditBrushMode::BM_Add;
 	GameVideo* m_Vid1;
 	GameFont* m_Font;
+	GraphNode* m_ViewCam;
 };
 
 

@@ -22,6 +22,9 @@ SceneGraph* SceneGraph::m_CurrentGraph = nullptr;
 #include "TerrainRendererComponent.h"
 #include "TerrainDepthRenderer.h"
 #include "SharpComponent.h"
+#include "OctreeNode.h"
+#include "OctreeScene.h"
+
 bool addedGraphFuncs = false;
 
 void CollectLightsRecursive(GraphNode* node, std::vector<GraphNode*>& lights_list) {
@@ -100,6 +103,22 @@ void SceneGraph::RenderDepth() {
 void SceneGraph::Render() {
 
 	m_CurrentGraph = this;
+
+	m_CurrentGraph = this;
+
+	// If the octree exists, use it for rendering.
+	if (m_Octree)
+	{
+	m_Octree->RenderCulled(m_Camera);
+	}
+	else
+	{
+		// Fallback to old rendering method if octree isn't built.
+		Ren_Count = 0;
+		m_RootNode->Render(m_Camera);
+	}
+
+	return;
 	
 	if (m_Terrain) {
 		m_Terrain->Render(m_Camera);
@@ -1001,3 +1020,181 @@ void SceneGraph::JReadTerrain(const json& j) {
 		}
 	}
 }
+
+void CollectStaticMeshesRecursive(GraphNode* node, std::vector<StaticMeshComponent*>& component_list)
+{
+	if (!node)
+	{
+		return;
+	}
+
+	// Get all StaticMeshComponents from the current node.
+	// We use GetComponents (plural) in case a node could ever have more than one.
+	auto components_on_this_node = node->GetComponents<StaticMeshComponent>();
+
+	// Add them to our main list if any were found.
+	if (!components_on_this_node.empty())
+	{
+		component_list.insert(component_list.end(), components_on_this_node.begin(), components_on_this_node.end());
+	}
+
+	// Recursively call this function for all children of the current node.
+	for (GraphNode* child_node : node->GetNodes())
+	{
+		CollectStaticMeshesRecursive(child_node, component_list);
+	}
+}
+void CalculateBoundsRecursive(GraphNode* node, Bounds& totalBounds, bool& foundFirstVertex)
+{
+	if (!node)
+	{
+		return;
+	}
+
+	// Process the meshes on the current node
+	auto meshComponents = node->GetComponents<StaticMeshComponent>(); //
+	if (!meshComponents.empty())
+	{
+		// Get the world matrix for THIS specific node.
+		glm::mat4 worldMatrix = node->GetWorldMatrix(); //
+
+		for (auto* meshComp : meshComponents)
+		{
+			for (const auto* subMesh : meshComp->GetSubMeshes()) //
+			{
+				for (const auto& vertex : subMesh->m_Vertices) //
+				{
+					// Transform the local vertex position to world space.
+					glm::vec3 worldPos = glm::vec3(worldMatrix * glm::vec4(vertex.position, 1.0f));
+
+					if (!foundFirstVertex)
+					{
+						// Initialize the bounds with the very first vertex found.
+						totalBounds.min = worldPos;
+						totalBounds.max = worldPos;
+						foundFirstVertex = true;
+					}
+					else
+					{
+						// Expand the bounds to include the new vertex.
+						totalBounds.min = glm::min(totalBounds.min, worldPos);
+						totalBounds.max = glm::max(totalBounds.max, worldPos);
+					}
+				}
+			}
+		}
+	}
+
+	// Recursively process all child nodes
+	for (GraphNode* childNode : node->GetNodes()) //
+	{
+		CalculateBoundsRecursive(childNode, totalBounds, foundFirstVertex);
+	}
+}
+void CollectMeshComponentsRecursive(GraphNode* node, std::vector<StaticMeshComponent*>& components)
+{
+	if (!node) return;
+
+	auto meshComps = node->GetComponents<StaticMeshComponent>(); //
+	if (!meshComps.empty()) {
+		components.insert(components.end(), meshComps.begin(), meshComps.end());
+	}
+
+	for (auto* child : node->GetNodes()) { //
+		CollectMeshComponentsRecursive(child, components);
+	}
+}
+
+
+
+// --- PUBLIC FUNCTION IMPLEMENTATION (Add this to the end of SceneGraph.cpp) ---
+Bounds SceneGraph::CalculateSceneBounds()
+{
+	std::vector<StaticMeshComponent*> allMeshComponents;
+	if (m_RootNode) {
+		CollectMeshComponentsRecursive(m_RootNode, allMeshComponents);
+	}
+
+	if (allMeshComponents.empty()) {
+		return Bounds(); // Return an invalid bounds if no meshes exist
+	}
+
+	// 2. Create one large list of ALL vertices in WORLD SPACE.
+	std::vector<glm::vec3> allWorldVertices;
+	for (const auto meshComp : allMeshComponents)
+	{
+		GraphNode* owner = meshComp->GetOwner();
+		if (!owner) continue;
+
+		glm::mat4 worldMatrix = owner->GetWorldMatrix(); //
+
+		for (const auto* subMesh : meshComp->GetSubMeshes()) //
+		{
+			for (const auto& vertex : subMesh->m_Vertices) //
+			{
+				// Transform and add to our master list.
+				allWorldVertices.push_back(glm::vec3(worldMatrix * glm::vec4(vertex.position, 1.0f)));
+			}
+		}
+	}
+
+	if (allWorldVertices.empty()) {
+		return Bounds();
+	}
+
+	// 3. Find the min and max of the world-space points.
+	// This simple loop is unambiguous and guaranteed to be correct.
+	Bounds totalBounds;
+	totalBounds.min = allWorldVertices[0];
+	totalBounds.max = allWorldVertices[0];
+
+	for (size_t i = 1; i < allWorldVertices.size(); ++i)
+	{
+		totalBounds.min = glm::min(totalBounds.min, allWorldVertices[i]);
+		totalBounds.max = glm::max(totalBounds.max, allWorldVertices[i]);
+	}
+
+	// 4. Finalize the bounds calculation.
+	totalBounds.CalculateDerivedValues(); //
+
+	return totalBounds;
+}
+
+void SceneGraph::InitializeOctree()
+{
+	// Ensure we don't already have an octree.
+	// Ensure we don't already have an octree.
+	m_Octree.reset();
+
+	// STEP 1: Calculate the total bounds of all static meshes in the scene.
+	Bounds sceneBounds = CalculateSceneBounds(); //
+
+	// Proceed only if we found valid geometry.
+	if (!sceneBounds.IsValid()) //
+	{
+		// Optional: Log a warning that no geometry was found.
+		return;
+	}
+
+	// --- NEW: Expand the bounds slightly to avoid floating point issues at the edges. ---
+	constexpr float bounds_epsilon = 0.01f;
+	sceneBounds.min -= glm::vec3(bounds_epsilon);
+	sceneBounds.max += glm::vec3(bounds_epsilon);
+	sceneBounds.CalculateDerivedValues(); // Recalculate size and center after expanding
+
+
+	sceneBounds.Debug(); //
+	// STEP 2: Instantiate the Octree with the new, slightly larger bounds.
+	m_Octree = std::make_unique<Octree>(sceneBounds,m_Camera); //
+
+	// STEP 3: Build the octree.
+	std::cout << "Building octree" << std::endl;
+	m_Octree->Build(m_RootNode); //
+	std::cout << "Octree built" << std::endl;
+	m_Octree->Optimize(); //
+	m_Octree->BakeRenderCache(); //
+	int b = 5;
+	m_Octree->DebugLog(); //
+
+}
+

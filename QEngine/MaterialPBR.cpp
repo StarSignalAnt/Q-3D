@@ -320,7 +320,7 @@ MaterialPBR::MaterialPBR() {
 
   //  DepthStencilStateDesc ds_desc;
     ds_desc.DepthEnable = true;
-    ds_desc.DepthFunc = COMPARISON_FUNC_LESS_EQUAL;
+    ds_desc.DepthFunc = COMPARISON_FUNC_EQUAL;
     ds_desc.DepthWriteEnable = true;
 
 

@@ -8,28 +8,20 @@ MonoLib::MonoLib(const std::string& dllDirectory) {
     std::string game_dll_path = dllDirectory + "game.dll";
     std::string vivid_dll_path = dllDirectory + "qnet.dll";
 
-    // Get the singleton instance of our Mono host
     MonoHost* host = MonoHost::GetInstance();
+    MonoDomain* gameDomain = host->GetGameDomain(); // Get the one and only game domain
 
-    // --- Load Game Assembly ---
-    // Get the Game Domain, which is designed to be unloaded and reloaded.
-    MonoDomain* gameDomain = host->GetGameDomain();
     if (!gameDomain) {
         throw std::runtime_error("MonoLib Error: Game domain has not been created! Call MonoHost::CreateGameDomain first.");
     }
-    // Load the main game assembly into the *game domain* so it can be reloaded.
+
+    // --- FIX: Load the ENGINE assembly (qnet.dll) into the GAME DOMAIN ---
+    std::cout << "Loading " << vivid_dll_path << " into Game Domain." << std::endl;
+    m_Vivid = new MAsm(gameDomain, vivid_dll_path);
+
+    // --- FIX: Load the GAME assembly (game.dll) into the SAME GAME DOMAIN ---
     std::cout << "Loading " << game_dll_path << " into Game Domain." << std::endl;
     m_Assembly = new MAsm(gameDomain, game_dll_path);
-
-    // --- Load Engine Assembly ---
-    // Get the Root Domain, which is persistent for the lifetime of the application.
-    MonoDomain* rootDomain = host->GetRootDomain();
-    if (!rootDomain) {
-        throw std::runtime_error("MonoLib Error: Root domain is not initialized!");
-    }
-    // Load the engine assembly into the *root domain* so it remains stable.
-    std::cout << "Loading " << vivid_dll_path << " into Root Domain." << std::endl;
-    m_Vivid = new MAsm(rootDomain, vivid_dll_path);
 }
 
 MonoLib::~MonoLib() {
@@ -94,5 +86,5 @@ MClass* MonoLib::GetClass(const std::string& name) {
     }
     // Assuming your scripts are in a "Vivid" namespace.
     // Modify as needed if the namespace is different.
-    return m_Assembly->GetClass("Vivid", name);
+    return m_Assembly->GetClass("QNet", name);
 }

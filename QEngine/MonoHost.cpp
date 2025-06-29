@@ -16,7 +16,8 @@ MonoHost::MonoHost() : m_rootDomain(nullptr), m_gameDomain(nullptr) {
     mono_set_dirs("C:\\Program Files\\Mono\\lib", "C:\\Program Files\\Mono\\etc");
 
     mono_config_parse(NULL);
-    mono_debug_init(MONO_DEBUG_FORMAT_MONO);
+    //mono_debug_init(MONO_DEBUG_FORMAT_MONO);
+
     // Initialize the Mono JIT runtime and create the root domain
     m_rootDomain = mono_jit_init("VividEngineRoot");
     if (!m_rootDomain) {

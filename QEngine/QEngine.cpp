@@ -164,7 +164,7 @@ std::filesystem::file_time_type QEngine::s_last_dll_write_time;
 
 void QEngine::CheckDLL() {
 
-	DebugLog("Checking DLL");
+	//DebugLog("Checking DLL");
 	auto dll_path = m_ContentPath + "Game\\bin\\Debug\\netstandard2.0\\Game.dll";
 
 
@@ -178,11 +178,11 @@ void QEngine::CheckDLL() {
 			current_dll_write_time != s_last_dll_write_time) {
 			std::cout << "DLL has been updated. Re-initializing Mono." << std::endl;
 			InitMono();
-			DebugLog("Updated C# dll");
+	//		DebugLog("Updated C# dll");
 		}
 	}
 	catch (const std::filesystem::filesystem_error& e) {
-		std::cerr << "Error checking DLL: " << e.what() << std::endl;
+	//	std::cerr << "Error checking DLL: " << e.what() << std::endl;
 	}
 
 }

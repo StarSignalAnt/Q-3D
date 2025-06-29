@@ -196,6 +196,150 @@ Material2D::Material2D() {
     m_Pipeline->GetStaticVariableByName(SHADER_TYPE_VERTEX, "Constants")->Set(m_UniformBuffer);
     m_Pipeline->CreateShaderResourceBinding(&m_SRB, true);
 
+    //---------------------
+
+    //GraphicsPipelineDesc gp;
+
+
+    //RasterizerStateDesc r_desc;
+
+
+
+
+    r_desc.CullMode = CULL_MODE_NONE;
+
+
+
+    //DepthStencilStateDesc ds_desc;
+    ds_desc.DepthEnable = true;
+    ds_desc.DepthFunc = COMPARISON_FUNC_LESS_EQUAL;
+    ds_desc.DepthWriteEnable = true;
+
+
+    //BlendStateDesc b_desc;
+
+    b_desc.RenderTargets[0].BlendEnable = true;
+    b_desc.RenderTargets[0].SrcBlend = BLEND_FACTOR::BLEND_FACTOR_ONE;
+    b_desc.RenderTargets[0].DestBlend = BLEND_FACTOR::BLEND_FACTOR_ONE;
+
+
+
+
+    pos.InputIndex = 0;
+    pos.NumComponents = 3;
+    pos.ValueType = VALUE_TYPE::VT_FLOAT32;
+    pos.IsNormalized = false;
+
+    color.InputIndex = 1;
+    color.NumComponents = 4;
+    color.ValueType = VALUE_TYPE::VT_FLOAT32;
+    color.IsNormalized = false;
+
+    tex.InputIndex = 2;
+    tex.NumComponents = 3;
+    tex.ValueType = VALUE_TYPE::VT_FLOAT32;
+    tex.IsNormalized = false;
+
+    norm.InputIndex = 3;
+    norm.NumComponents = 3;
+    norm.ValueType = VALUE_TYPE::VT_FLOAT32;
+    norm.IsNormalized = false;
+
+    binorm.InputIndex = 4;
+    binorm.NumComponents = 3;
+    binorm.ValueType = VALUE_TYPE::VT_FLOAT32;
+    binorm.IsNormalized = false;
+
+    tangent.InputIndex = 5;
+    tangent.NumComponents = 3;
+    tangent.ValueType = VALUE_TYPE::VT_FLOAT32;
+    tangent.IsNormalized = false;
+
+
+
+    in_desc.LayoutElements = LayoutElems;
+    in_desc.NumElements = 4;
+
+
+
+    gp.PrimitiveTopology = PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    gp.RasterizerDesc = r_desc;
+    //  gp.RasterizerDesc.CullMode = CULL_MODE_NONE;
+    gp.DepthStencilDesc = ds_desc;
+    gp.SmplDesc.Count = 1;
+
+
+    //gp.SmplDesc.Quality = 1.0f;
+
+    //gp.NumRenderTargets = 0;
+
+    gp.BlendDesc = b_desc;
+    gp.RTVFormats[0] = QEngine::m_pSwapChain->GetDesc().ColorBufferFormat;
+    gp.DSVFormat = QEngine::m_pSwapChain->GetDesc().DepthBufferFormat;
+    gp.InputLayout = in_desc;
+    //gp.NumViewports = 1;
+
+
+    gp.NumRenderTargets = 1;
+
+
+
+    v_tex.ShaderStages = SHADER_TYPE_PIXEL;
+    v_tex.Name = "v_Texture";
+    v_tex.Type = SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC;
+    vars.push_back(v_tex);
+
+
+
+    // v_rsampler.MaxAnisotropy = 1.0f;
+
+
+
+    v_sampler.Desc = v_rsampler;
+    v_sampler.SamplerOrTextureName = "v_Texture";
+    v_sampler.ShaderStages = SHADER_TYPE_PIXEL;
+
+
+    samplers.push_back(v_sampler);
+
+
+
+    rl_desc.DefaultVariableType = SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
+    rl_desc.Variables = vars.data();
+    rl_desc.ImmutableSamplers = samplers.data();
+    rl_desc.NumVariables = 1;
+
+    rl_desc.NumImmutableSamplers = 1;
+
+
+   
+
+    pso_desc.Name = "Material Basic3D";
+    pso_desc.ResourceLayout = rl_desc;
+
+    //    pso_desc.PipelineType = PIPELINE_TYPE_GRAPHICS;
+
+
+
+    gp_desc.pVS = m_VS;
+    gp_desc.pPS = m_PS;
+    gp_desc.GraphicsPipeline = gp;
+    gp_desc.PSODesc = pso_desc;
+
+    // gp_desc.ResourceSignaturesCount = 0;
+
+
+
+     //CreateUniform()
+
+    RefCntAutoPtr<IPipelineState> ps2;
+
+    QEngine::m_pDevice->CreateGraphicsPipelineState(gp_desc, &ps2);
+
+    m_PipelineAdd = ps2;
+    m_PipelineAdd->GetStaticVariableByName(SHADER_TYPE_VERTEX, "Constants")->Set(m_UniformBuffer);
+    m_PipelineAdd->CreateShaderResourceBinding(&m_SRBAdd, true);
+
 
     int b = 5;
 
@@ -203,60 +347,116 @@ Material2D::Material2D() {
 
 void Material2D::Bind(bool add) {
 
-    m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_Texture")->Set(m_Textures[0]->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
-    //Engine::m_pImmediateContext->MapBuffer(BasicUniform, MAP_TYPE::MAP_WRITE, MAP_FLAGS::MAP_FLAG_DISCARD);
-    {
-        MapHelper<glm::mat4> map_data(QEngine::m_pImmediateContext, m_UniformBuffer, MAP_WRITE, MAP_FLAG_DISCARD);
-        float FOVRadians = 45.0f * (3.14159265358979323846f / 180.0f);
+    if (!add) {
+        m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_Texture")->Set(m_Textures[0]->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
+        //Engine::m_pImmediateContext->MapBuffer(BasicUniform, MAP_TYPE::MAP_WRITE, MAP_FLAGS::MAP_FLAG_DISCARD);
+        {
+            MapHelper<glm::mat4> map_data(QEngine::m_pImmediateContext, m_UniformBuffer, MAP_WRITE, MAP_FLAG_DISCARD);
+            float FOVRadians = 45.0f * (3.14159265358979323846f / 180.0f);
 
 
 
-        //float4x4 mvp = Engine::m_Camera->GetProjection(); //float4x4::Projection(FOVRadians, 1024.0f / 760.0f,0.01,1001,false);
+            //float4x4 mvp = Engine::m_Camera->GetProjection(); //float4x4::Projection(FOVRadians, 1024.0f / 760.0f,0.01,1001,false);
 
 
-        //float4x4 view = Engine::m_Camera->GetWorldMatrix();  //float4x4::Translation(float3(0,1.0f,-5)).Inverse();
+            //float4x4 view = Engine::m_Camera->GetWorldMatrix();  //float4x4::Translation(float3(0,1.0f,-5)).Inverse();
 
-       // float4x4 model = Engine::m_Node->GetWorldMatrix();
+           // float4x4 model = Engine::m_Node->GetWorldMatrix();
 
-        //float4x4 id = float4x4::Identity().Inverse();
+            //float4x4 id = float4x4::Identity().Inverse();
 
-        //mvp = mvp*id;
+            //mvp = mvp*id;
 
-        //mvp.Transpose();
+            //mvp.Transpose();
 
 
-        //mvp = model * view * mvp;
+            //mvp = model * view * mvp;
 
-        glm::mat4 proj = m_RenderMatrices[2];
-        glm::mat4 view = m_RenderMatrices[0];
-        glm::mat4 model = m_RenderMatrices[1];
+            glm::mat4 proj = m_RenderMatrices[2];
+            glm::mat4 view = m_RenderMatrices[0];
+            glm::mat4 model = m_RenderMatrices[1];
 
-        glm::mat4 mvp = proj * view * model;
+            glm::mat4 mvp = proj * view * model;
 
-        map_data[0] = glm::transpose(mvp);
+            map_data[0] = glm::transpose(mvp);
+        }
+        //map_data.Unmap();
+
+
+        Uint64 offsets = 0;
+
+        IBuffer* pBuffs[] = { m_Buffers[0] };
+
+        RESOURCE_STATE_TRANSITION_MODE flags = RESOURCE_STATE_TRANSITION_MODE::RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
+
+        //     return;
+        QEngine::m_pImmediateContext->SetVertexBuffers(0, 1, pBuffs, &offsets, flags);
+        QEngine::m_pImmediateContext->SetIndexBuffer(m_Buffers[1], 0, flags);
+
+
+        //   return;
+
+
+        QEngine::m_pImmediateContext->SetPipelineState(m_Pipeline);
+
+        QEngine::m_pImmediateContext->CommitShaderResources(m_SRB, flags);
+        //Vivid::m_pImmediateContext->SetPipelineState(m_Pipeline);
     }
-    //map_data.Unmap();
+    else {
+        m_SRBAdd->GetVariableByName(SHADER_TYPE_PIXEL, "v_Texture")->Set(m_Textures[0]->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
+        //Engine::m_pImmediateContext->MapBuffer(BasicUniform, MAP_TYPE::MAP_WRITE, MAP_FLAGS::MAP_FLAG_DISCARD);
+        {
+            MapHelper<glm::mat4> map_data(QEngine::m_pImmediateContext, m_UniformBuffer, MAP_WRITE, MAP_FLAG_DISCARD);
+            float FOVRadians = 45.0f * (3.14159265358979323846f / 180.0f);
 
 
-    Uint64 offsets = 0;
 
-    IBuffer* pBuffs[] = { m_Buffers[0] };
-
-    RESOURCE_STATE_TRANSITION_MODE flags = RESOURCE_STATE_TRANSITION_MODE::RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
-
-    //     return;
-    QEngine::m_pImmediateContext->SetVertexBuffers(0, 1, pBuffs, &offsets, flags);
-    QEngine::m_pImmediateContext->SetIndexBuffer(m_Buffers[1], 0, flags);
+            //float4x4 mvp = Engine::m_Camera->GetProjection(); //float4x4::Projection(FOVRadians, 1024.0f / 760.0f,0.01,1001,false);
 
 
-    //   return;
+            //float4x4 view = Engine::m_Camera->GetWorldMatrix();  //float4x4::Translation(float3(0,1.0f,-5)).Inverse();
+
+           // float4x4 model = Engine::m_Node->GetWorldMatrix();
+
+            //float4x4 id = float4x4::Identity().Inverse();
+
+            //mvp = mvp*id;
+
+            //mvp.Transpose();
 
 
-    QEngine::m_pImmediateContext->SetPipelineState(m_Pipeline);
+            //mvp = model * view * mvp;
 
-    QEngine::m_pImmediateContext->CommitShaderResources(m_SRB, flags);
-    //Vivid::m_pImmediateContext->SetPipelineState(m_Pipeline);
+            glm::mat4 proj = m_RenderMatrices[2];
+            glm::mat4 view = m_RenderMatrices[0];
+            glm::mat4 model = m_RenderMatrices[1];
 
+            glm::mat4 mvp = proj * view * model;
+
+            map_data[0] = glm::transpose(mvp);
+        }
+        //map_data.Unmap();
+
+
+        Uint64 offsets = 0;
+
+        IBuffer* pBuffs[] = { m_Buffers[0] };
+
+        RESOURCE_STATE_TRANSITION_MODE flags = RESOURCE_STATE_TRANSITION_MODE::RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
+
+        //     return;
+        QEngine::m_pImmediateContext->SetVertexBuffers(0, 1, pBuffs, &offsets, flags);
+        QEngine::m_pImmediateContext->SetIndexBuffer(m_Buffers[1], 0, flags);
+
+
+        //   return;
+
+
+        QEngine::m_pImmediateContext->SetPipelineState(m_PipelineAdd);
+
+        QEngine::m_pImmediateContext->CommitShaderResources(m_SRBAdd, flags);
+
+    }
 
 }
 
