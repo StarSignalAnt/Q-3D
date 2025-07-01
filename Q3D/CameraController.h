@@ -10,8 +10,8 @@ public:
         : camera(camera) {
     }
 
-    void update(float deltaTime, const QSet<int>& keysHeld, const QPoint& mouseDelta, bool rmbDown);
-    void updateMouse(float deltaTime,const QPoint& mouseDelta, bool rmbDown);
+    bool update(float deltaTime, const QSet<int>& keysHeld, const QPoint& mouseDelta, bool rmbDown);
+    bool updateMouse(float deltaTime,const QPoint& mouseDelta, bool rmbDown);
     void SetCamera(GraphNode* cam) {
         camera = cam;
     }

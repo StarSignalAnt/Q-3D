@@ -88,6 +88,8 @@ public:
 	Octree* GetOctree() {
 		return m_Octree.get();
 	}
+	void ExportOctree(std::string name);
+	void ImportOctree(std::string name);
 private:
 
 

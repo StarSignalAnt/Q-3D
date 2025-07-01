@@ -1,7 +1,7 @@
 #include "CameraController.h"
 #include <qvector3d.h>
 
-void CameraController::update(float dt, const QSet<int>& keysHeld, const QPoint& mouseDelta, bool rmbDown) {
+bool CameraController::update(float dt, const QSet<int>& keysHeld, const QPoint& mouseDelta, bool rmbDown) {
     QVector3D movement;
    // if (keysHeld.contains(Qt::Key_W)) movement += camera->forward();
    // if (keysHeld.contains(Qt::Key_S)) movement -= camera->forward();
@@ -32,6 +32,7 @@ void CameraController::update(float dt, const QSet<int>& keysHeld, const QPoint&
 
     camera->Move(move * speed * dt);
 
+  
 
     if (rmbDown) {
         float sensitivity = 0.1f;
@@ -49,11 +50,18 @@ void CameraController::update(float dt, const QSet<int>& keysHeld, const QPoint&
         //camera->yaw += mouseDelta.x() * rotationSpeed * dt;
         //camera->pitch += -mouseDelta.y() * rotationSpeed * dt;
         //camera->updateVectors();
-
+        glm::vec2 md = glm::vec2(mouseDelta.x(), mouseDelta.y());
+        if (md.length() > 0.0) {
+            return true;
+        }
     }
+    if (move.length() > 0.0f) {
+        return true;
+    }
+    return false;
 }
 
-void CameraController::updateMouse(float deltaTime, const QPoint& mouseDelta, bool rmbDown)
+bool CameraController::updateMouse(float deltaTime, const QPoint& mouseDelta, bool rmbDown)
 {
     if (rmbDown) {
         float sensitivity = 0.1f;
@@ -67,10 +75,16 @@ void CameraController::updateMouse(float deltaTime, const QPoint& mouseDelta, bo
         // Update your camera orientation here using yaw & pitch
         // E.g. camera->SetRotationFromYawPitch(yaw, pitch);
         camera->SetRotation(glm::vec3(pitch, yaw, 0));
+        glm::vec2 md = glm::vec2(mouseDelta.x(), mouseDelta.y());
+        if (md.length() > 0.0) {
+            return true;
+        }
 
+        return false;
         //camera->yaw += mouseDelta.x() * rotationSpeed * dt;
         //camera->pitch += -mouseDelta.y() * rotationSpeed * dt;
         //camera->updateVectors();
 
     }
+    return false;
 }

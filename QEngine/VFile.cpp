@@ -368,3 +368,19 @@ std::filesystem::file_time_type VFile::ReadFileTime() {
 }
 
 // ... (rest of your VFile.cpp file, like VFile::Close, etc.)
+
+// NEW: Returns the current position of the file stream pointer in bytes.
+long VFile::GetPosition() {
+	if (mod == FileMode::Read) {
+		if (istream.good()) {
+			return static_cast<long>(istream.tellg());
+		}
+	}
+	else if (mod == FileMode::Write) {
+		if (ostream.good()) {
+			return static_cast<long>(ostream.tellp());
+		}
+	}
+	// Return -1 to indicate an error or that the stream is not open/valid
+	return -1;
+}

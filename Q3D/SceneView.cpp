@@ -179,22 +179,31 @@ SceneView::SceneView(QWidget *parent)
     movementTimer.setInterval(16); // ~60 FPS
     connect(&movementTimer, &QTimer::timeout, this, &SceneView::handleMovement);
     movementTimer.start();
-    m_SceneGraph->InitializeOctree();
-    
+    //m_SceneGraph->InitializeOctree();
 
-    auto c2 = new GraphNode;
-    c2->AddComponent(new CameraComponent());
-    m_SceneGraph->GetOctree()->SetViewCam(c2);
-    c2->GetComponent<CameraComponent>()->SetExtents(0.1f, 1000.0f);
+
+    //m_SceneGraph->ExportOctree("oc/test1");
+    m_SceneGraph->ImportOctree("oc/test1");
+
+
+
+
+
+
+   // auto c2 = new GraphNode;
+   // c2->AddComponent(new CameraComponent());
+   // m_SceneGraph->GetOctree()->SetViewCam(c2);
+    //c2->GetComponent<CameraComponent>()->SetExtents(0.1f, 1000.0f);
     //m_SceneGraph->SetCamera(c2);
-    m_ViewCam = c2;
+    //m_ViewCam = c2;
 
-    c2->SetPosition(cam->GetPosition());
-    c2->SetRotation(cam->GetRotation());
+   // c2->SetPosition(cam->GetPosition());
+   // c2->SetRotation(cam->GetRotation());
+
     
 
     m_L1 = l2;
-    m_CameraController = new CameraController(c2);
+    m_CameraController = new CameraController(cam);
     m_SceneController = new SceneController;
     m_SceneController->setCamera(cam);
     m_SceneController->setScene(m_SceneGraph);
@@ -316,6 +325,16 @@ void SceneView::paintEvent(QPaintEvent* event)
 	//QPainter painter(this);
 	//painter.fillRect(rect(), QColor("#ADD8E6"));
 
+    int start = clock();
+
+    if (start > (m_LastUpdate+8)) {
+        m_LastUpdate = start;
+    }
+    else {
+        return;
+    }
+
+
     auto* pContext = GetContext();
     auto* pSwapchain = GetSwapChain();
 
@@ -342,9 +361,10 @@ void SceneView::paintEvent(QPaintEvent* event)
 
 
    // m_SceneGraph->Update(tt);
-
+    start = clock();
     m_SceneGraph->RenderShadows();
     m_SceneGraph->Render();
+    int end = clock() - start;
 
 
     if (m_RunMode == RM_Stopped) {
@@ -353,7 +373,7 @@ void SceneView::paintEvent(QPaintEvent* event)
 
     //Vivid::ClearZ();
  
-    QEngine::m_pImmediateContext->Flush();
+  //  QEngine::m_pImmediateContext->Flush();
  
     if (m_RunMode == RM_Stopped) {
         m_SelectionOverlay->Render();
@@ -375,7 +395,7 @@ void SceneView::paintEvent(QPaintEvent* event)
 
 
 
-    m_Font->DrawTextAsTexture("This is a simple test", glm::vec2(20, 150), 1.0f, glm::vec4(1, 1, 1, 1));
+    //m_Font->DrawTextAsTexture("This is a simple test", glm::vec2(20, 150), 1.0f, glm::vec4(1, 1, 1, 1));
 
 
 
@@ -388,6 +408,11 @@ void SceneView::paintEvent(QPaintEvent* event)
 
     pSwapchain->Present();
 
+
+
+    //std::cout <<
+
+   //     QEngine::DebugLog("RenderTime:" + std::to_string(end) + "ms\n");
 
     if (m_RunMode == RM_Stopped) {
         if (m_Mode == SceneMode::Mode_Translate || m_Mode == SceneMode::Mode_Rotate || m_Mode == SceneMode::Mode_Scale) {
@@ -418,7 +443,7 @@ void SceneView::paintEvent(QPaintEvent* event)
 
     //m_Test1->SetRotation(glm::vec3(45, yv, 0));
    // yv = yv + 1;
-    update();
+    //update();
 
 
 }
@@ -738,7 +763,10 @@ void SceneView::mouseMoveEvent(QMouseEvent* event)  {
     if (m_RunMode == RM_Running) return;
     if (rightMousePressed) {
         QPoint delta = event->pos() - lastMousePos;
-        m_CameraController->updateMouse(1.0f / 60.0f, delta, true);
+        bool up = m_CameraController->updateMouse(1.0f / 60.0f, delta, true);
+        if (up) {
+            update();
+        }
 
         lastMousePos = event->pos();
     }
@@ -900,14 +928,7 @@ void SceneView::keyPressEvent(QKeyEvent* event) {
     }
     if (event->key() == Qt::Key::Key_Space) {
 
-        auto c1 = m_SceneGraph->GetCamera();
-        m_SceneGraph->SetCamera(m_ViewCam);
-        m_ViewCam = c1;
-        m_SceneGraph->GetOctree()->SetViewCam(m_ViewCam);
-        m_CameraController->SetCamera(m_ViewCam);
-        m_ViewCam->SetPosition(m_SceneGraph->GetCamera()->GetPosition());
-        m_ViewCam->SetRotation(m_SceneGraph->GetCamera()->GetRotation());
-
+        
     }
 }
 
@@ -923,8 +944,9 @@ void SceneView::keyReleaseEvent(QKeyEvent* event) {
 }
 
 void SceneView::handleMovement() {
-    m_CameraController->update(1.0f / 60.0f, keysHeld, QPoint(),rightMousePressed);
+    bool up = m_CameraController->update(1.0f / 60.0f, keysHeld, QPoint(),rightMousePressed);
     auto gizNode = m_SceneController->GetGizNode();
+
 
     if (gizNode != nullptr) {
         float dist = glm::distance(gizNode->GetPosition(), m_SceneGraph->GetCamera()->GetPosition());
@@ -937,6 +959,10 @@ void SceneView::handleMovement() {
         auto scale = 1.0 + dist * 0.1;
      
         gizNode->SetScale(glm::vec3(scale, scale, scale));
+    }
+
+    if (up) {
+        update();
     }
 
 }

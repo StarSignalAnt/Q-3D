@@ -92,10 +92,24 @@ void SceneGraph::RenderDepth() {
 
 	
 	m_CurrentGraph = this;
+
+		// If the octree exists, use it for rendering.
+	if (m_Octree)
+	{
+	m_Octree->RenderDepthCulled(m_Camera);
+	}
+	else
+	{
+		// Fallback to old rendering method if octree isn't built.
+		Ren_Count = 0;
+		m_RootNode->RenderDepth(m_Camera);
+	}
+
+
 	if (m_Terrain) {
 		m_Terrain->RenderDepth(m_Camera);
 	}
-	m_RootNode->RenderDepth(m_Camera);
+	//m_RootNode->RenderDepth(m_Camera);
 
 
 }
@@ -105,6 +119,9 @@ void SceneGraph::Render() {
 	m_CurrentGraph = this;
 
 	m_CurrentGraph = this;
+
+	m_Octree->CheckNodes();
+
 
 	// If the octree exists, use it for rendering.
 	if (m_Octree)
@@ -1198,3 +1215,17 @@ void SceneGraph::InitializeOctree()
 
 }
 
+
+
+void SceneGraph::ExportOctree(std::string path) {
+
+	m_Octree->Export(path);
+
+}
+
+void SceneGraph::ImportOctree(std::string path) {
+
+	m_Octree.reset(new Octree(path,m_Camera));
+//	m_Octree->LoadAllNodes();
+
+}

@@ -54,6 +54,8 @@ public:
 	void Close();
 	static long Length(const char * path);
 	void Seek(long position);
+	long GetPosition();
+
 private:
 	std::ifstream istream;
 	std::ofstream ostream;

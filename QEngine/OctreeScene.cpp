@@ -9,10 +9,12 @@
 #include "CameraComponent.h"
 #include "RenderTarget2D.h"
 #include "Draw2D.h"
-
+#include "VFile.h"
+#include "MaterialDepth.h"
+#include "MaterialPBR.h"
 
 Octree::Octree(const Bounds& sceneBounds,GraphNode* camera) {
-    m_Root = std::make_unique<OctreeNode>(sceneBounds);
+    m_Root = std::make_unique<OctreeNode>(sceneBounds, m_NextNodeID++);
     m_Draw = new Draw2D(camera);
 
 
@@ -127,7 +129,7 @@ void Octree::ExtractTriangles(GraphNode* graphNode) {
         childBounds.max = childMin + childSize;
         childBounds.CalculateDerivedValues();
 
-        node->m_Children[i] = std::make_unique<OctreeNode>(childBounds);
+        node->m_Children[i] = std::make_unique<OctreeNode>(childBounds, m_NextNodeID++);
     }
 }
 
@@ -185,7 +187,7 @@ void Octree::DebugLogRecursive(const OctreeNode* node, int depth, const std::str
         const Bounds& bounds = node->GetBounds(); //
 
         // Print the details for the current non-empty node.
-        std::cout << indent << "- Node: " << path << " (Depth: " << depth << ")" << std::endl;
+        std::cout << indent << "- Node: " << path << " (ID: " << node->GetID() << ", Depth: " << depth << ")" << std::endl;
         std::cout << indent << "  Bounds Min: " << Vec3ToString(bounds.min) << std::endl;
         std::cout << indent << "  Bounds Max: " << Vec3ToString(bounds.max) << std::endl;
         std::cout << indent << "  Triangle Count: " << triCount << std::endl;
@@ -210,11 +212,11 @@ void Octree::Optimize()
     // 1. Collect all essential triangles from the non-empty leaves of the current tree.
     std::vector<OctreeTriangle> allGoodTriangles;
     CollectAllTriangles(m_Root.get(), allGoodTriangles);
-
+    m_NextNodeID = 0;
     // 2. Create a new root node for our new, optimized tree.
     // It will have the same initial bounds as the old one.
     Bounds rootBounds = m_Root->GetBounds();
-    auto newRoot = std::make_unique<OctreeNode>(rootBounds);
+    auto newRoot = std::make_unique<OctreeNode>(rootBounds, m_NextNodeID++);
 
     // 3. Re-insert every essential triangle into the new tree.
     // The Insert function will build the new tree structure correctly and efficiently.
@@ -367,17 +369,24 @@ void Octree::RenderCulled(GraphNode* camera)
                 const RenderBatchCache* batch = batch_ptr.get();
                 if (!batch) continue;
 
-                RenderMaterial* mat = batch->sourceSubMesh->m_Material;
+                RenderMaterial* mat = batch->m_Material;
                 if (!mat || batch->indexCount == 0 || !batch->vertexBuffer) continue;
 
                 mat->SetIndexCount(batch->indexCount);
                 mat->SetBuffer(batch->vertexBuffer, 0);
                 mat->SetBuffer(batch->indexBuffer, 1);
-                mat->SetMatrix(glm::inverse(m_ViewCam->GetWorldMatrix()), 0);
-                mat->SetMatrix(batch->sourceSubMesh->m_Owner->GetWorldMatrix(), 1);
+                mat->SetMatrix(glm::inverse(camera->GetWorldMatrix()), 0);
+
+                // MODIFIED: Use the batch's local world matrix
+                mat->SetMatrix(batch->m_WorldMatrix, 1);
+
                 mat->SetMatrix(cameraComponent->GetProjectionMatrix(), 2);
-                mat->SetCameraPosition(m_ViewCam->GetPosition());
+                mat->SetCameraPosition(camera->GetPosition());
                 mat->SetLight(light);
+                //mat->Bind(false);
+                //mat->Render();
+
+
 
                 auto lb = m_LightBuffers[li];
 
@@ -413,7 +422,7 @@ void Octree::RenderCulled(GraphNode* camera)
 }
 void Octree::GetVisibleNodesRecursive(const OctreeNode* node, CameraComponent* camera,
     std::vector<const OctreeNode*>& visibleNodes,
-    int& nodesTested, int& nodesVisible)  // This signature is now correct in the .cpp file
+    int& nodesTested, int& nodesVisible)
 {
     if (!node) return;
     nodesTested++;
@@ -423,22 +432,22 @@ void Octree::GetVisibleNodesRecursive(const OctreeNode* node, CameraComponent* c
     }
     nodesVisible++;
 
+    // If it's a leaf node, check if it's ready to be rendered.
     if (node->GetChildren()[0] == nullptr) {
-        // Only add leaf nodes that actually have renderable batches after baking
-        if (!node->GetRenderBatches().empty()) { //
+        // MODIFIED: Only add leaf nodes that are render-ready and have batches.
+        if (node->IsRenderReady() && !node->GetRenderBatches().empty()) {
             visibleNodes.push_back(node);
         }
         return;
     }
 
+    // If it's a branch, just recurse. The check happens at the leaf level.
     for (int i = 0; i < 8; ++i) {
         if (node->GetChildren()[i] != nullptr) {
             GetVisibleNodesRecursive(node->GetChildren()[i].get(), camera, visibleNodes, nodesTested, nodesVisible);
         }
     }
-}
-
-void Octree::BakeRenderCacheRecursive(OctreeNode* node) {
+}void Octree::BakeRenderCacheRecursive(OctreeNode* node) {
     if (!node) return;
 
     if (node->m_Children[0] != nullptr) {
@@ -448,44 +457,542 @@ void Octree::BakeRenderCacheRecursive(OctreeNode* node) {
         return;
     }
 
-    if (!node->m_Triangles.empty()) {
-        // 1. Group triangles within this node by their source SubMesh
-        std::map<SubMesh*, std::vector<OctreeTriangle>> subMeshGroups;
-        for (const auto& tri : node->m_Triangles) {
-            subMeshGroups[tri.sourceMesh].push_back(tri);
+    if (node->m_Triangles.empty()) return;
+
+    std::map<SubMesh*, std::vector<OctreeTriangle>> subMeshGroups;
+    for (const auto& tri : node->m_Triangles) {
+        subMeshGroups[tri.sourceMesh].push_back(tri);
+    }
+
+    for (const auto& pair : subMeshGroups) {
+        SubMesh* sourceSubMesh = pair.first;
+        const auto& trianglesInBatch = pair.second;
+        const auto& sourceVertices = sourceSubMesh->m_Vertices;
+
+        auto batch = std::make_unique<RenderBatchCache>();
+        batch->sourceSubMesh = sourceSubMesh;
+
+        // NEW: Copy material and matrix info directly into the batch
+        batch->m_Material = sourceSubMesh->m_Material;
+        batch->m_DepthMaterial = sourceSubMesh->m_DepthMaterial;
+        batch->m_WorldMatrix = sourceSubMesh->m_Owner->GetWorldMatrix();
+
+        std::map<uint32_t, uint32_t> oldIndexToNewIndex;
+        std::vector<Vertex3> uniqueVertices;
+        std::vector<uint32_t> remappedIndices;
+        remappedIndices.reserve(trianglesInBatch.size() * 3);
+
+        for (const auto& tri : trianglesInBatch) {
+            uint32_t originalIndices[] = { tri.v0, tri.v1, tri.v2 };
+            for (uint32_t oldIndex : originalIndices) {
+                if (oldIndexToNewIndex.find(oldIndex) == oldIndexToNewIndex.end()) {
+                    uint32_t newIndex = static_cast<uint32_t>(uniqueVertices.size());
+                    oldIndexToNewIndex[oldIndex] = newIndex;
+                    uniqueVertices.push_back(sourceVertices[oldIndex]);
+                }
+                remappedIndices.push_back(oldIndexToNewIndex[oldIndex]);
+            }
         }
 
-        // 2. Create a separate RenderBatchCache for each SubMesh group
-        for (const auto& pair : subMeshGroups) {
-            SubMesh* sourceSubMesh = pair.first;
-            const auto& trianglesInBatch = pair.second;
+        BufferDesc vbDesc;
+        vbDesc.Name = "Octree Node Optimized VB";
+        vbDesc.Usage = USAGE_IMMUTABLE;
+        vbDesc.BindFlags = BIND_VERTEX_BUFFER;
+        vbDesc.Size = sizeof(uniqueVertices[0]) * uniqueVertices.size();
+        BufferData vbInitData;
+        vbInitData.pData = uniqueVertices.data();
+        vbInitData.DataSize = vbDesc.Size;
+        QEngine::m_pDevice->CreateBuffer(vbDesc, &vbInitData, &batch->vertexBuffer);
 
-            auto batch = std::make_unique<RenderBatchCache>();
-            batch->sourceSubMesh = sourceSubMesh;
+        BufferDesc ibDesc;
+        ibDesc.Name = "Octree Node Optimized IB";
+        ibDesc.Usage = USAGE_IMMUTABLE;
+        ibDesc.BindFlags = BIND_INDEX_BUFFER;
+        ibDesc.Size = sizeof(uint32_t) * remappedIndices.size();
+        BufferData ibInitData_IB;
+        ibInitData_IB.pData = remappedIndices.data();
+        ibInitData_IB.DataSize = ibDesc.Size;
+        QEngine::m_pDevice->CreateBuffer(ibDesc, &ibInitData_IB, &batch->indexBuffer);
 
-            std::vector<Uint32> indexData;
-            indexData.reserve(trianglesInBatch.size() * 3);
-            for (const auto& tri : trianglesInBatch) {
-                indexData.push_back(tri.v0);
-                indexData.push_back(tri.v1);
-                indexData.push_back(tri.v2);
-            }
+        batch->indexCount = remappedIndices.size();
+        batch->cpuVertexData = std::move(uniqueVertices);
+        batch->cpuIndexData = std::move(remappedIndices);
+        node->m_RenderBatches.push_back(std::move(batch));
+    }
+    node->m_Triangles.clear();
+}
 
-            BufferDesc ibDesc;
-            ibDesc.Name = "Octree Node Baked IB";
-            ibDesc.Usage = USAGE_IMMUTABLE;
-            ibDesc.BindFlags = BIND_INDEX_BUFFER;
-            ibDesc.Size = sizeof(Uint32) * indexData.size();
-            BufferData ibInitData;
-            ibInitData.pData = indexData.data();
-            ibInitData.DataSize = ibDesc.Size;
-            QEngine::m_pDevice->CreateBuffer(ibDesc, &ibInitData, &batch->indexBuffer);
+void Octree::RenderDepthCulled(GraphNode* camera) {
 
-            batch->indexCount = indexData.size();
-            batch->vertexBuffer = sourceSubMesh->VertexBuffer;
 
-            // Add the new batch to this node's list of batches
-            node->m_RenderBatches.push_back(std::move(batch));
+    if (!m_Root || !camera) return;
+
+
+
+
+    auto cameraComponent = camera->GetComponent<CameraComponent>();
+    if (!cameraComponent) return;
+
+    std::vector<const OctreeNode*> visibleNodes;
+    int nodesTested = 0;
+    int nodesVisible = 0;
+    GetVisibleNodesRecursive(m_Root.get(), cameraComponent, visibleNodes, nodesTested, nodesVisible);
+
+    size_t trisRendered = 0;
+    size_t batchCount = 0;
+    for (const auto* node : visibleNodes) {
+        for (const auto& batch : node->GetRenderBatches()) {
+            trisRendered += batch->indexCount / 3;
+            batchCount++;
         }
     }
+
+    if (visibleNodes.empty()) return;
+
+    bool firstLightPass = true;
+    int li = 0;
+    //for (auto light : SceneGraph::m_CurrentGraph->GetLights()) { //
+
+
+       // auto lb = m_LightBuffers[li];
+      //  lb->SetClearCol(glm::vec4(0, 0, 0, 1));
+      //  lb->Bind();
+        for (const auto* node : visibleNodes)
+        {
+            for (const auto& batch_ptr : node->GetRenderBatches()) //
+            {
+                const RenderBatchCache* batch = batch_ptr.get();
+                if (!batch) continue;
+
+                RenderMaterial* mat = batch->m_DepthMaterial;
+                if (!mat || batch->indexCount == 0 || !batch->vertexBuffer) continue;
+
+
+                mat->SetIndexCount(batch->indexCount);
+                mat->SetBuffer(batch->vertexBuffer, 0);
+                mat->SetBuffer(batch->indexBuffer, 1);
+                mat->SetMatrix(glm::inverse(camera->GetWorldMatrix()), 0);
+                mat->SetMatrix(batch->m_WorldMatrix, 1);
+                mat->SetMatrix(cameraComponent->GetProjectionMatrix(), 2);
+                mat->SetCameraPosition(camera->GetPosition());
+                mat->SetCameraExt(glm::vec4(cameraComponent->GetExtents().x, cameraComponent->GetExtents().y, 0, 0));
+                //mat->SetLight(light);
+                mat->SetCameraExt(glm::vec4(cameraComponent->GetExtents().x, cameraComponent->GetExtents().y, 0, 0));
+                //auto lb = m_LightBuffers[li];
+
+
+
+
+                mat->Bind(false);
+                mat->Render();
+
+            }
+        }
+        // --- CRITICAL FIX: Move this line outside the inner loops ---
+        // This ensures that the NEXT light source triggers the additive blending state,
+        // not the next render batch.
+        firstLightPass = false;
+     //   lb->Release();
+        li++;
+    
+
+    //QEngine::ClearZ();
+   // QEngine::SetScissor(0, 0, QEngine::GetFrameWidth(), QEngine::GetFrameHeight());
+   // bool add = false;
+
+    //for (auto lb : m_LightBuffers) {
+
+      //  QEngine::ClearZ();
+       // m_Draw->SetAdditive(add);
+       // m_Draw->BeginFrame();
+       // m_Draw->Rect(lb->GetTexture2D(), glm::vec2(0, 0), glm::vec2(QEngine::GetFrameWidth(), QEngine::GetFrameHeight()), glm::vec4(1, 1, 1, 1));
+       // m_Draw->Flush();
+        //add = true;
+
+    //}
+
+}
+
+std::vector<OctreeNode*> Octree::GetNodeVector()
+{
+    std::vector<OctreeNode*> nodes;
+    if (m_Root) {
+        CollectAllNodesRecursive(m_Root.get(), nodes);
+    }
+    return nodes;
+}
+
+// NEW: Recursively traverses the tree and adds each node to the vector.
+void Octree::CollectAllNodesRecursive(OctreeNode* node, std::vector<OctreeNode*>& nodes)
+{
+    if (!node) return;
+
+    nodes.push_back(node);
+
+    for (int i = 0; i < 8; ++i)
+    {
+        if (node->GetChildren()[i] != nullptr)
+        {
+            CollectAllNodesRecursive(node->GetChildren()[i].get(), nodes);
+        }
+    }
+}
+
+
+void Octree::Export(const std::string& path) {
+    if (!m_Root) {
+        std::cout << "Cannot export an empty Octree." << std::endl;
+        return;
+    }
+
+    std::string index_path = path + ".nodeindex";
+    std::string data_path = path + ".nodedata";
+
+    VFile* idf = new VFile(index_path.c_str(), FileMode::Write);
+    VFile* df = new VFile(data_path.c_str(), FileMode::Write);
+
+    // Start the recursive export from the root node.
+    ExportRecursive(m_Root.get(), idf, df);
+
+    df->Close();
+    idf->Close();
+    delete df;
+    delete idf;
+
+    std::cout << "Export complete." << std::endl;
+}
+
+
+void Octree::ExportRecursive(OctreeNode* node, VFile* idf, VFile* df) {
+    if (!node) return;
+
+    // --- Write this node's index entry ---
+    idf->WriteInt(node->GetID());
+    const Bounds& bounds = node->GetBounds();
+    idf->WriteVec3(bounds.min);
+    idf->WriteVec3(bounds.max);
+
+    // Write the node's data and record its position and size.
+    long startPos = df->GetPosition();
+    node->WriteNode(df);
+    long endPos = df->GetPosition();
+
+    idf->WriteLong(startPos);
+    idf->WriteLong(endPos - startPos); // Write size, which is more robust.
+
+    // Write a bitmask to signify which children exist.
+    uint8_t childMask = 0;
+    for (int i = 0; i < 8; ++i) {
+        if (node->GetChildren()[i]) {
+            childMask |= (1 << i);
+        }
+    }
+    idf->WriteByte(childMask);
+
+    // --- Recurse for all existing children ---
+    for (int i = 0; i < 8; ++i) {
+        if (node->GetChildren()[i]) {
+            ExportRecursive(node->GetChildren()[i].get(), idf, df);
+        }
+    }
+}
+
+
+
+Octree::Octree(std::string path,GraphNode* camera) {
+
+    m_Camera = camera;
+    m_Draw = new Draw2D(camera);
+
+    std::string index_path = path + ".nodeindex";
+    m_DataFilePath = path + ".nodedata";
+
+    m_StreamingBoxExtents = glm::vec3(120,160,120);
+
+
+    if (!VFile::Exists(index_path.c_str())) {
+        std::cerr << "Error: Node index file not found: " << index_path << std::endl;
+        m_Root = nullptr;
+        return;
+    }
+
+    VFile* idf = new VFile(index_path.c_str(), FileMode::Read);
+
+    // Check if the file has any data
+    if (idf->Length(index_path.c_str()) > 0) {
+        // Recursively load the tree structure
+        m_Root = LoadRecursive(idf);
+    }
+    else {
+        m_Root = nullptr;
+    }
+
+    idf->Close();
+    delete idf;
+
+    std::cout << "Octree loaded from path: " << path << std::endl;
+
+}
+std::unique_ptr<OctreeNode> Octree::LoadRecursive(VFile* idf) {
+    int id = idf->ReadInt();
+    Bounds bounds;
+    bounds.min = idf->ReadVec3();
+    bounds.max = idf->ReadVec3();
+    bounds.CalculateDerivedValues();
+
+    long dataOffset = idf->ReadLong();
+    long dataSize = idf->ReadLong();
+
+    auto node = std::make_unique<OctreeNode>(bounds, id);
+    node->SetRenderReady(false);
+
+    // NEW: Store the data location for later streaming.
+    node->m_dataOffset = dataOffset;
+    node->m_dataSize = dataSize;
+
+    uint8_t childMask = idf->ReadByte();
+    for (int i = 0; i < 8; ++i) {
+        if ((childMask >> i) & 1) {
+            node->m_Children[i] = LoadRecursive(idf);
+        }
+    }
+    return node;
+}
+void Octree::LoadAllNodes()
+{
+    if (!m_Root || m_DataFilePath.empty()) {
+        std::cout << "Octree not loaded from file or data path is missing. Cannot load node data." << std::endl;
+        return;
+    }
+
+    std::cout << "Starting brute-force load of all node data..." << std::endl;
+    VFile* df = new VFile(m_DataFilePath.c_str(), FileMode::Read);
+
+    if (!df) { // Simplified check, assumes constructor handles file errors
+        std::cerr << "Error: Could not open node data file: " << m_DataFilePath << std::endl;
+        return;
+    }
+
+    LoadAllNodesRecursive(m_Root.get(), df);
+
+    df->Close();
+    delete df;
+    std::cout << "All node data loaded." << std::endl;
+}
+
+// --- NEW: Recursive helper to load data for a node and its children ---
+void Octree::LoadAllNodesRecursive(OctreeNode* node, VFile* dataFile)
+{
+    if (!node) return;
+
+    dataFile->Seek(node->m_dataOffset);
+    int32_t batchCount = dataFile->ReadInt();
+
+    for (int i = 0; i < batchCount; ++i)
+    {
+        auto batch = std::make_unique<RenderBatchCache>();
+
+        const char* materialPath_cstr = dataFile->ReadString();
+
+        // NEW: Load materials and matrix from file
+        // NOTE: This assumes a static MaterialManager singleton exists.
+        if (strlen(materialPath_cstr) > 0) {
+            batch->m_Material = new MaterialPBR;
+            batch->m_Material->Load(materialPath_cstr);
+
+            // Assuming depth material can be derived or is managed similarly
+            batch->m_DepthMaterial = new MaterialDepth;
+        }
+        delete[] materialPath_cstr;
+
+        batch->m_WorldMatrix = dataFile->ReadMatrix();
+
+        int32_t numVertices = dataFile->ReadInt();
+        if (numVertices > 0)
+        {
+            size_t verticesDataSize = numVertices * sizeof(Vertex3);
+            batch->cpuVertexData.resize(numVertices);
+            void* vertexData = dataFile->ReadBytes(verticesDataSize);
+            memcpy(batch->cpuVertexData.data(), vertexData, verticesDataSize);
+            free(vertexData);
+
+            BufferDesc vbDesc;
+            vbDesc.Name = "Streamed Node VB";
+            vbDesc.Usage = USAGE_IMMUTABLE;
+            vbDesc.BindFlags = BIND_VERTEX_BUFFER;
+            vbDesc.Size = verticesDataSize;
+            BufferData vbInitData;
+            vbInitData.pData = batch->cpuVertexData.data();
+            vbInitData.DataSize = vbDesc.Size;
+            QEngine::m_pDevice->CreateBuffer(vbDesc, &vbInitData, &batch->vertexBuffer);
+        }
+
+        int32_t indexCount = dataFile->ReadInt();
+        if (indexCount > 0)
+        {
+            size_t indicesDataSize = indexCount * sizeof(uint32_t);
+            batch->cpuIndexData.resize(indexCount);
+            void* indexData = dataFile->ReadBytes(indicesDataSize);
+            memcpy(batch->cpuIndexData.data(), indexData, indicesDataSize);
+            free(indexData);
+
+            BufferDesc ibDesc;
+            ibDesc.Name = "Streamed Node IB";
+            ibDesc.Usage = USAGE_IMMUTABLE;
+            ibDesc.BindFlags = BIND_INDEX_BUFFER;
+            ibDesc.Size = indicesDataSize;
+            BufferData ibInitData;
+            ibInitData.pData = batch->cpuIndexData.data();
+            ibInitData.DataSize = ibDesc.Size;
+            QEngine::m_pDevice->CreateBuffer(ibDesc, &ibInitData, &batch->indexBuffer);
+            batch->indexCount = batch->cpuIndexData.size();
+        }
+
+        node->m_RenderBatches.push_back(std::move(batch));
+    }
+
+    node->SetRenderReady(true);
+
+    for (int i = 0; i < 8; ++i)
+    {
+        if (node->GetChildren()[i])
+        {
+            LoadAllNodesRecursive(node->GetChildren()[i].get(), dataFile);
+        }
+    }
+}
+
+
+// MODIFIED: Now creates an AABB around the camera for streaming checks.
+void Octree::CheckNodes()
+{
+    if (!m_Root || !m_Camera || m_DataFilePath.empty()) {
+        return;
+    }
+
+    glm::vec3 camPos = m_Camera->GetPosition();
+    Bounds streamingBox;
+    streamingBox.min = camPos - m_StreamingBoxExtents;
+    streamingBox.max = camPos + m_StreamingBoxExtents;
+
+    CheckNodesRecursive(m_Root.get(), streamingBox);
+}
+
+
+void Octree::CheckNodesRecursive(OctreeNode* node, const Bounds& streamingBox)
+{
+    if (!node) return;
+
+    if (Intersects(node->GetBounds(), streamingBox))
+    {
+        if (!node->IsRenderReady() && !node->IsStreaming())
+        {
+            node->SetStreaming(true);
+            std::thread streamer(&Octree::StreamNode, this, node, m_DataFilePath);
+            streamer.detach();
+        }
+    }
+    else
+    {
+        if (node->IsRenderReady())
+        {
+            UnstreamNode(node);
+        }
+    }
+
+    for (int i = 0; i < 8; ++i)
+    {
+        if (node->GetChildren()[i])
+        {
+            CheckNodesRecursive(node->GetChildren()[i].get(), streamingBox);
+        }
+    }
+}
+void Octree::StreamNode(OctreeNode* node, std::string dataFilePath)
+{
+    if (!node) {
+        node->SetStreaming(false);
+        return;
+    }
+
+    VFile dataFile(dataFilePath.c_str(), FileMode::Read);
+
+    dataFile.Seek(node->m_dataOffset);
+    int32_t batchCount = dataFile.ReadInt();
+
+    std::vector<std::unique_ptr<RenderBatchCache>> loadedBatches;
+
+    for (int i = 0; i < batchCount; ++i)
+    {
+        auto batch = std::make_unique<RenderBatchCache>();
+
+        const char* materialPath_cstr = dataFile.ReadString();
+        if (strlen(materialPath_cstr) > 0) {
+            batch->m_Material = new MaterialPBR;
+            batch->m_Material->Load(materialPath_cstr);
+            batch->m_DepthMaterial = new MaterialDepth;// MaterialManager::GetDepth(materialPath_cstr);
+        }
+        delete[] materialPath_cstr;
+
+        batch->m_WorldMatrix = dataFile.ReadMatrix();
+
+        int32_t numVertices = dataFile.ReadInt();
+        if (numVertices > 0)
+        {
+            size_t verticesDataSize = numVertices * sizeof(Vertex3);
+            batch->cpuVertexData.resize(numVertices);
+            void* vertexData = dataFile.ReadBytes(verticesDataSize);
+            memcpy(batch->cpuVertexData.data(), vertexData, verticesDataSize);
+            free(vertexData);
+
+            // As noted, creating GPU resources here is not thread-safe for most graphics APIs.
+            // This should ideally be moved to a queue processed by the main render thread.
+            BufferDesc vbDesc;
+            vbDesc.Name = "Streamed Node VB";
+            vbDesc.Usage = USAGE_IMMUTABLE;
+            vbDesc.BindFlags = BIND_VERTEX_BUFFER;
+            vbDesc.Size = verticesDataSize;
+            BufferData vbInitData;
+            vbInitData.pData = batch->cpuVertexData.data();
+            vbInitData.DataSize = vbDesc.Size;
+            QEngine::m_pDevice->CreateBuffer(vbDesc, &vbInitData, &batch->vertexBuffer);
+        }
+
+        int32_t indexCount = dataFile.ReadInt();
+        if (indexCount > 0)
+        {
+            size_t indicesDataSize = indexCount * sizeof(uint32_t);
+            batch->cpuIndexData.resize(indexCount);
+            void* indexData = dataFile.ReadBytes(indicesDataSize);
+            memcpy(batch->cpuIndexData.data(), indexData, indicesDataSize);
+            free(indexData);
+
+            BufferDesc ibDesc;
+            ibDesc.Name = "Streamed Node IB";
+            ibDesc.Usage = USAGE_IMMUTABLE;
+            ibDesc.BindFlags = BIND_INDEX_BUFFER;
+            ibDesc.Size = indicesDataSize;
+            BufferData ibInitData;
+            ibInitData.pData = batch->cpuIndexData.data();
+            ibInitData.DataSize = ibDesc.Size;
+            QEngine::m_pDevice->CreateBuffer(ibDesc, &ibInitData, &batch->indexBuffer);
+            batch->indexCount = batch->cpuIndexData.size();
+        }
+
+        loadedBatches.push_back(std::move(batch));
+    }
+
+    dataFile.Close();
+
+    node->m_RenderBatches = std::move(loadedBatches);
+    node->SetRenderReady(true);
+    node->SetStreaming(false);
+}
+
+void Octree::UnstreamNode(OctreeNode* node)
+{
+    if (!node || node->IsStreaming()) return;
+
+    node->m_RenderBatches.clear();
+    node->SetRenderReady(false);
 }
