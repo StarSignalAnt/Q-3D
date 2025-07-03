@@ -1,6 +1,6 @@
 #pragma once
 #include "GraphNode.h"
- // Must be before the forward declaration of OctreeNode below
+// Must be before the forward declaration of OctreeNode below
 #include <vector>
 #include <glm/glm.hpp>
 #include <set> 
@@ -9,7 +9,7 @@
 #include <thread> 
 #include <mutex>   // Required for std::mutex
 #include <queue> 
-
+#include <optional> 
 class SceneGraph;
 
 
@@ -69,13 +69,27 @@ struct StreamedNodePayload
     RenderBatchPayload LoadedBatch;
 };
 
+// NEW: Struct to hold a pair of pooled GPU buffers.
+struct PooledBufferSet
+{
+    RefCntAutoPtr<IBuffer> vertexBuffer;
+    RefCntAutoPtr<IBuffer> indexBuffer;
+};
+
+// NEW: Struct for managing retired buffers to prevent race conditions.
+struct RetiredBufferSet
+{
+    PooledBufferSet buffers;
+    uint64_t frameNumber;
+};
+
 
 class Octree
 {
 public:
 
-	Octree(const Bounds& graph,GraphNode* cam);
-    Octree(std::string path,GraphNode* camera);
+    Octree(const Bounds& graph, GraphNode* cam);
+    Octree(std::string path, GraphNode* camera);
     void SetGraph(SceneGraph* graph) {
         m_Graph = graph;
     }
@@ -92,13 +106,13 @@ public:
     void Export(const std::string& path);
     std::vector<OctreeNode*> GetNodeVector();
     void LoadAllNodes();
-    // NEW: Checks nodes for streaming based on camera distance. Call this once per frame.
+
     void CheckNodes();
     void FinalizeStreamedNodes();
 private:
     void DebugLogRecursive(const OctreeNode* node, int depth, const std::string& path, size_t& nodeCount) const;
     void LoadAllNodesRecursive(OctreeNode* node, VFile* dataFile);
-	SceneGraph* m_Owner = nullptr;
+    SceneGraph* m_Owner = nullptr;
     void Insert(OctreeNode* node, const OctreeTriangle& triangle, int depth);
     void ExportRecursive(OctreeNode* node, VFile* idf, VFile* df);
     std::unique_ptr<OctreeNode> LoadRecursive(VFile* idf);
@@ -115,15 +129,22 @@ private:
     std::unique_ptr<OctreeNode> m_Root;
     void CollectAllNodesRecursive(OctreeNode* node, std::vector<OctreeNode*>& nodes);
     // --- MODIFIED: Configuration settings for triangle count ---
-    const int m_MaxTrianglesPerNode = 10000;
+    const int m_MaxTrianglesPerNode = 25000;
     const int m_MaxDepth = 64; // Polygon-level trees can be deeper
     void GetVisibleNodesRecursive(const OctreeNode* node, CameraComponent* camera,
         std::vector<const OctreeNode*>& visibleNodes,
         int& nodesTested, int& nodesVisible);
 
+    void InitializeBufferPool(size_t initialSize);
+    PooledBufferSet AcquireBufferSet();
+    void ReleaseBufferSet(PooledBufferSet& bufferSet);
+
     void CheckNodesRecursive(OctreeNode* node, const Bounds& streamingBox);
     void StreamNode(OctreeNode* node, std::string dataFilePath);
     void UnstreamNode(OctreeNode* node);
+    PooledBufferSet CreateBufferSet();
+    void ProcessRetiredBuffers(); // NEW: Manages delayed buffer reuse
+
     std::vector<RenderTarget2D*> m_LightBuffers;
     Draw2D* m_Draw;
     GraphNode* m_Camera;
@@ -136,5 +157,11 @@ private:
     float m_StreamMinDistance = 100.0f;
     glm::vec3 m_StreamingBoxExtents = glm::vec3(350.0f, 350.0f, 350.0f);
     SceneGraph* m_Graph = nullptr;
-};
 
+    // --- Buffer Pool Members ---
+    std::vector<PooledBufferSet> m_BufferPool;
+    std::vector<RetiredBufferSet> m_RetiredBuffers; // NEW: Queue for safe buffer recycling
+    mutable std::mutex m_BufferPoolMutex;
+    uint64_t m_CurrentFrame = 0; // NEW: Frame counter for buffer retirement
+    const uint32_t m_BufferRetireFrameCount = 3; // Retire buffers for 3 frames
+};

@@ -119,18 +119,19 @@ SceneView::SceneView(QWidget *parent)
 
 
     //m_Test1 = Importer::ImportEntity("test/test1.gltf");
- //   auto test2 = Importer::ImportEntity("test/test3.fbx",false);
-    auto sp1 = Importer::ImportEntity("test/sphere1.fbx",true);
+   // auto test2 = Importer::ImportEntity("test/test3.fbx",false);
+   // auto sp1 = Importer::ImportEntity("test/sphere1.fbx",true);
 
-  //  test2->SetRenderType(NodeRenderType::RenderType_Static);
+//  test2->SetRenderType(NodeRenderType::RenderType_Static);
 
 
  
    // m_SceneGraph->AddNode(m_Test1);
-   //m/_SceneGraph->AddNode(test2);
-    m_SceneGraph->AddNode(sp1);
+  // m_SceneGraph->AddNode(test2);
+//    m_SceneGraph->AddNode(sp1);
 
-    sp1->SetPosition(glm::vec3(0, 5, -10));
+
+    //sp1->SetPosition(glm::vec3(0, 5, -10));
 
 
     //auto sc = new ScriptComponent;
@@ -191,9 +192,10 @@ SceneView::SceneView(QWidget *parent)
     movementTimer.setInterval(16); // ~60 FPS
     connect(&movementTimer, &QTimer::timeout, this, &SceneView::handleMovement);
     movementTimer.start();
-   // m_SceneGraph->InitializeOctree();
+    //m_SceneGraph->InitializeOctree();
     //m_SceneGraph->ExportOctree("oc/test1");
     m_SceneGraph->ImportOctree("oc/test1");
+
 
 
 
@@ -342,7 +344,8 @@ void SceneView::paintEvent(QPaintEvent* event)
     m_SceneGraph->GetOctree()->FinalizeStreamedNodes();
     fs = clock() - fs;
     if (fs > 0) {
-        QEngine::DebugLog("Stream MS:" + std::to_string(fs));
+        //QEngine::DebugLog("Stream MS:" + std::to_string(fs));
+
     }
 
     int start = clock();
@@ -806,7 +809,7 @@ void SceneView::mouseMoveEvent(QMouseEvent* event)  {
         //int x = localPos.x();
         //int y = localPos.y();
 
-        std::cout << "MX:" << x << " MY:" << y << std::endl;
+      //  std::cout << "MX:" << x << " MY:" << y << std::endl;
         if (m_Terrain) {
             if (m_Mode == SceneMode::Mode_Paint || m_Mode == SceneMode::Mode_Sculpt) {
 

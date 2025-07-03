@@ -16,7 +16,14 @@
 #include "StaticDepthRendererComponent.h"
 #include "MaterialProducer.h"
 
-Octree::Octree(const Bounds& sceneBounds,GraphNode* camera) {
+// NOTE: Assuming QEngine provides access to Diligent Engine's device and context
+// For example:
+// namespace QEngine {
+//     Diligent::IRenderDevice* m_pDevice;
+//     Diligent::IDeviceContext* m_pImmediateContext;
+// }
+
+Octree::Octree(const Bounds& sceneBounds, GraphNode* camera) {
     m_Root = std::make_unique<OctreeNode>(sceneBounds, m_NextNodeID++);
     m_Draw = new Draw2D(camera);
 
@@ -115,7 +122,7 @@ void Octree::ExtractTriangles(GraphNode* graphNode) {
         node->m_Triangles.clear();
     }
 }
- void Octree::Subdivide(OctreeNode * node)
+void Octree::Subdivide(OctreeNode* node)
 {
     Bounds parentBounds = node->GetBounds();
     glm::vec3 center = parentBounds.center;
@@ -331,7 +338,7 @@ void Octree::RenderCulled(GraphNode* camera)
 
     if (m_LightBuffers.size() == 0) {
         for (auto light : SceneGraph::m_CurrentGraph->GetLights()) {
-            m_LightBuffers.push_back(new RenderTarget2D(QEngine::GetFrameWidth(), QEngine::GetFrameHeight(),false));
+            m_LightBuffers.push_back(new RenderTarget2D(QEngine::GetFrameWidth(), QEngine::GetFrameHeight(), false));
         }
     }
 
@@ -366,7 +373,7 @@ void Octree::RenderCulled(GraphNode* camera)
     bool firstLightPass = true;
     int li = 0;
     for (auto light : SceneGraph::m_CurrentGraph->GetLights()) { //
-        
+
         auto lb = m_LightBuffers[li];
         lb->SetClearCol(glm::vec4(0, 0, 0, 1));
         lb->Bind();
@@ -398,25 +405,25 @@ void Octree::RenderCulled(GraphNode* camera)
 
                 auto lb = m_LightBuffers[li];
 
-             
+
 
                 mat->Bind(false);
                 mat->Render();
-                
+
             }
         }
         // --- CRITICAL FIX: Move this line outside the inner loops ---
         // This ensures that the NEXT light source triggers the additive blending state,
         // not the next render batch.
-        
+
         for (auto node : dynamics)
         {
 
             if (node->GetComponent<StaticRendererComponent>()) {
 
                 auto smesh = node->GetComponent<StaticRendererComponent>();
-               
-                smesh->OnRenderDirect(light,camera);
+
+                smesh->OnRenderDirect(light, camera);
 
 
             }
@@ -433,7 +440,7 @@ void Octree::RenderCulled(GraphNode* camera)
     //QEngine::ClearZ();
     QEngine::SetScissor(0, 0, QEngine::GetFrameWidth(), QEngine::GetFrameHeight());
     bool add = false;
-    
+
     for (auto lb : m_LightBuffers) {
 
         QEngine::ClearZ();
@@ -444,10 +451,9 @@ void Octree::RenderCulled(GraphNode* camera)
         add = true;
 
     }
-}
-void Octree::GetVisibleNodesRecursive(const OctreeNode* node, CameraComponent* camera,
-    std::vector<const OctreeNode*>& visibleNodes,
-    int& nodesTested, int& nodesVisible)
+}void Octree::GetVisibleNodesRecursive(const OctreeNode* node, CameraComponent* camera,
+std::vector<const OctreeNode*>& visibleNodes,
+int& nodesTested, int& nodesVisible)
 {
     if (!node) return;
     nodesTested++;
@@ -457,22 +463,21 @@ void Octree::GetVisibleNodesRecursive(const OctreeNode* node, CameraComponent* c
     }
     nodesVisible++;
 
-    // If it's a leaf node, check if it's ready to be rendered.
     if (node->GetChildren()[0] == nullptr) {
-        // MODIFIED: Only add leaf nodes that are render-ready and have batches.
         if (node->IsRenderReady() && !node->GetRenderBatches().empty()) {
             visibleNodes.push_back(node);
         }
         return;
     }
 
-    // If it's a branch, just recurse. The check happens at the leaf level.
     for (int i = 0; i < 8; ++i) {
         if (node->GetChildren()[i] != nullptr) {
             GetVisibleNodesRecursive(node->GetChildren()[i].get(), camera, visibleNodes, nodesTested, nodesVisible);
         }
     }
-}void Octree::BakeRenderCacheRecursive(OctreeNode* node) {
+    }
+    
+   void Octree::BakeRenderCacheRecursive(OctreeNode* node) {
     if (!node) return;
 
     if (node->m_Children[0] != nullptr) {
@@ -579,62 +584,62 @@ void Octree::RenderDepthCulled(GraphNode* camera) {
     //for (auto light : SceneGraph::m_CurrentGraph->GetLights()) { //
     auto dynamics = m_Graph->GetDynamics();
 
-       // auto lb = m_LightBuffers[li];
-      //  lb->SetClearCol(glm::vec4(0, 0, 0, 1));
-      //  lb->Bind();
-        for (const auto* node : visibleNodes)
+    // auto lb = m_LightBuffers[li];
+   //  lb->SetClearCol(glm::vec4(0, 0, 0, 1));
+   //  lb->Bind();
+    for (const auto* node : visibleNodes)
+    {
+        for (const auto& batch_ptr : node->GetRenderBatches()) //
         {
-            for (const auto& batch_ptr : node->GetRenderBatches()) //
-            {
-                const RenderBatchCache* batch = batch_ptr.get();
-                if (!batch) continue;
+            const RenderBatchCache* batch = batch_ptr.get();
+            if (!batch) continue;
 
-                RenderMaterial* mat = batch->m_DepthMaterial;
-                if (!mat || batch->indexCount == 0 || !batch->vertexBuffer) continue;
+            RenderMaterial* mat = batch->m_DepthMaterial;
+            if (!mat || batch->indexCount == 0 || !batch->vertexBuffer) continue;
 
 
-                mat->SetIndexCount(batch->indexCount);
-                mat->SetBuffer(batch->vertexBuffer, 0);
-                mat->SetBuffer(batch->indexBuffer, 1);
-                mat->SetMatrix(glm::inverse(camera->GetWorldMatrix()), 0);
-                mat->SetMatrix(batch->m_WorldMatrix, 1);
-                mat->SetMatrix(cameraComponent->GetProjectionMatrix(), 2);
-                mat->SetCameraPosition(camera->GetPosition());
-                mat->SetCameraExt(glm::vec4(cameraComponent->GetExtents().x, cameraComponent->GetExtents().y, 0, 0));
-                //mat->SetLight(light);
-                mat->SetCameraExt(glm::vec4(cameraComponent->GetExtents().x, cameraComponent->GetExtents().y, 0, 0));
-                //auto lb = m_LightBuffers[li];
+            mat->SetIndexCount(batch->indexCount);
+            mat->SetBuffer(batch->vertexBuffer, 0);
+            mat->SetBuffer(batch->indexBuffer, 1);
+            mat->SetMatrix(glm::inverse(camera->GetWorldMatrix()), 0);
+            mat->SetMatrix(batch->m_WorldMatrix, 1);
+            mat->SetMatrix(cameraComponent->GetProjectionMatrix(), 2);
+            mat->SetCameraPosition(camera->GetPosition());
+            mat->SetCameraExt(glm::vec4(cameraComponent->GetExtents().x, cameraComponent->GetExtents().y, 0, 0));
+            //mat->SetLight(light);
+            mat->SetCameraExt(glm::vec4(cameraComponent->GetExtents().x, cameraComponent->GetExtents().y, 0, 0));
+            //auto lb = m_LightBuffers[li];
 
 
 
 
-                mat->Bind(false);
-                mat->Render();
-
-            }
-        }
-
-        for (auto node : dynamics)
-        {
-
-            if (node->GetComponent<StaticDepthRendererComponent>()) {
-
-                auto smesh = node->GetComponent<StaticDepthRendererComponent>();
-
-                smesh->OnRenderDepth(camera);
-
-
-            }
+            mat->Bind(false);
+            mat->Render();
 
         }
+    }
 
-        // --- CRITICAL FIX: Move this line outside the inner loops ---
-        // This ensures that the NEXT light source triggers the additive blending state,
-        // not the next render batch.
-        firstLightPass = false;
-     //   lb->Release();
-        li++;
-    
+    for (auto node : dynamics)
+    {
+
+        if (node->GetComponent<StaticDepthRendererComponent>()) {
+
+            auto smesh = node->GetComponent<StaticDepthRendererComponent>();
+
+            smesh->OnRenderDepth(camera);
+
+
+        }
+
+    }
+
+    // --- CRITICAL FIX: Move this line outside the inner loops ---
+    // This ensures that the NEXT light source triggers the additive blending state,
+    // not the next render batch.
+    firstLightPass = false;
+    //   lb->Release();
+    li++;
+
 
     //QEngine::ClearZ();
    // QEngine::SetScissor(0, 0, QEngine::GetFrameWidth(), QEngine::GetFrameHeight());
@@ -738,8 +743,7 @@ void Octree::ExportRecursive(OctreeNode* node, VFile* idf, VFile* df) {
 }
 
 
-
-Octree::Octree(std::string path,GraphNode* camera) {
+Octree::Octree(std::string path, GraphNode* camera) {
 
     m_Camera = camera;
     m_Draw = new Draw2D(camera);
@@ -747,8 +751,7 @@ Octree::Octree(std::string path,GraphNode* camera) {
     std::string index_path = path + ".nodeindex";
     m_DataFilePath = path + ".nodedata";
 
-    m_StreamingBoxExtents = glm::vec3(120,160,120);
-
+    m_StreamingBoxExtents = glm::vec3(120, 160, 120);
 
     if (!VFile::Exists(index_path.c_str())) {
         std::cerr << "Error: Node index file not found: " << index_path << std::endl;
@@ -758,9 +761,7 @@ Octree::Octree(std::string path,GraphNode* camera) {
 
     VFile* idf = new VFile(index_path.c_str(), FileMode::Read);
 
-    // Check if the file has any data
     if (idf->Length(index_path.c_str()) > 0) {
-        // Recursively load the tree structure
         m_Root = LoadRecursive(idf);
     }
     else {
@@ -770,8 +771,9 @@ Octree::Octree(std::string path,GraphNode* camera) {
     idf->Close();
     delete idf;
 
-    std::cout << "Octree loaded from path: " << path << std::endl;
+    InitializeBufferPool(256);
 
+    std::cout << "Octree loaded from path: " << path << std::endl;
 }
 std::unique_ptr<OctreeNode> Octree::LoadRecursive(VFile* idf) {
     int id = idf->ReadInt();
@@ -904,11 +906,15 @@ void Octree::LoadAllNodesRecursive(OctreeNode* node, VFile* dataFile)
 
 
 // MODIFIED: Now creates an AABB around the camera for streaming checks.
+
 void Octree::CheckNodes()
 {
     if (!m_Root || !m_Camera || m_DataFilePath.empty()) {
         return;
     }
+
+    // Process retired buffers at the start of the frame.
+    ProcessRetiredBuffers();
 
     glm::vec3 camPos = m_Camera->GetPosition();
     Bounds streamingBox;
@@ -918,13 +924,16 @@ void Octree::CheckNodes()
     CheckNodesRecursive(m_Root.get(), streamingBox);
 }
 
-
 void Octree::CheckNodesRecursive(OctreeNode* node, const Bounds& streamingBox)
 {
     if (!node) return;
 
     if (Intersects(node->GetBounds(), streamingBox))
     {
+        // This node should be visible.
+        node->m_PendingUnstream = false; // Cancel any pending unstream request.
+
+        // If it's not ready and not already being streamed, start streaming it.
         if (!node->IsRenderReady() && !node->IsStreaming())
         {
             node->SetStreaming(true);
@@ -934,9 +943,17 @@ void Octree::CheckNodesRecursive(OctreeNode* node, const Bounds& streamingBox)
     }
     else
     {
+        // This node should NOT be visible.
         if (node->IsRenderReady())
         {
+            // If it's ready, unstream it immediately.
             UnstreamNode(node);
+        }
+        else if (node->IsStreaming())
+        {
+            // If it's currently being loaded, mark it to be unstreamed
+            // as soon as the loading process is finished.
+            node->m_PendingUnstream = true;
         }
     }
 
@@ -947,22 +964,16 @@ void Octree::CheckNodesRecursive(OctreeNode* node, const Bounds& streamingBox)
             CheckNodesRecursive(node->GetChildren()[i].get(), streamingBox);
         }
     }
-}void Octree::StreamNode(OctreeNode* node, std::string dataFilePath)
+}
+
+void Octree::StreamNode(OctreeNode* node, std::string dataFilePath)
 {
-    if (!node) {
-        node->SetStreaming(false);
-        return;
-    }
+    if (!node) return;
 
     VFile dataFile(dataFilePath.c_str(), FileMode::Read);
     dataFile.Seek(node->m_dataOffset);
 
     int32_t batchCount = dataFile.ReadInt();
-
-    // Once we start processing, clear any old batches immediately.
-    // This assumes finalization will happen relatively soon.
-    node->m_RenderBatches.clear();
-    node->SetRenderReady(true); // Mark as ready so we can see batches appear one by one.
 
     for (int i = 0; i < batchCount; ++i)
     {
@@ -992,7 +1003,6 @@ void Octree::CheckNodesRecursive(OctreeNode* node, const Bounds& streamingBox)
             free(indexData);
         }
 
-        // Push a payload for each individual batch onto the queue.
         {
             std::lock_guard<std::mutex> lock(m_StreamerMutex);
             m_StreamerQueue.push({ node, std::move(batchPayload) });
@@ -1000,17 +1010,26 @@ void Octree::CheckNodesRecursive(OctreeNode* node, const Bounds& streamingBox)
     }
 
     dataFile.Close();
-
-    // The thread's main job is done, it has queued up all the work.
-    // The streaming flag is reset on the main thread after the LAST batch is processed.
 }
+
 
 void Octree::UnstreamNode(OctreeNode* node)
 {
+  //  return;
     if (!node || node->IsStreaming()) return;
 
-    node->m_RenderBatches.clear();
     node->SetRenderReady(false);
+
+    for (const auto& batch_ptr : node->m_RenderBatches)
+    {
+        if (batch_ptr->vertexBuffer && batch_ptr->indexBuffer)
+        {
+            PooledBufferSet bufferSet = { batch_ptr->vertexBuffer, batch_ptr->indexBuffer };
+            ReleaseBufferSet(bufferSet);
+        }
+    }
+
+    node->m_RenderBatches.clear();
 }
 void Octree::FinalizeStreamedNodes()
 {
@@ -1020,12 +1039,21 @@ void Octree::FinalizeStreamedNodes()
         return;
     }
 
-    // Process just ONE batch payload from the front of the queue.
     StreamedNodePayload payload = std::move(m_StreamerQueue.front());
     m_StreamerQueue.pop();
 
-    // If the target node is no longer valid (e.g., has been unstreamed), do nothing.
-    if (!payload.TargetNode->IsStreaming()) {
+    OctreeNode* targetNode = payload.TargetNode;
+
+    if (!targetNode->IsStreaming()) {
+        return;
+    }
+
+    bool isLastBatchForNode = m_StreamerQueue.empty() || m_StreamerQueue.front().TargetNode != targetNode;
+
+    if (targetNode->m_PendingUnstream && isLastBatchForNode) {
+        targetNode->SetStreaming(false);
+        UnstreamNode(targetNode);
+        targetNode->m_PendingUnstream = false;
         return;
     }
 
@@ -1034,48 +1062,156 @@ void Octree::FinalizeStreamedNodes()
 
     if (!payload.LoadedBatch.MaterialPath.empty()) {
         newBatch->m_Material = MaterialProducer::m_Instance->GetPBR();
-            newBatch->m_Material->Load(payload.LoadedBatch.MaterialPath.c_str());
-
-            newBatch->m_DepthMaterial = MaterialProducer::m_Instance->GetDepth();// MaterialManager::GetDepth(payload.LoadedBatch.MaterialPath.c_str());
+        newBatch->m_Material->Load(payload.LoadedBatch.MaterialPath.c_str());
+        newBatch->m_DepthMaterial = MaterialProducer::m_Instance->GetDepth();
     }
 
-    if (!payload.LoadedBatch.cpuVertexData.empty()) {
-        BufferDesc vbDesc;
-        vbDesc.Name = "Streamed Node VB";
-        vbDesc.Usage = USAGE_IMMUTABLE;
-        vbDesc.BindFlags = BIND_VERTEX_BUFFER;
-        vbDesc.Size = payload.LoadedBatch.cpuVertexData.size() * sizeof(Vertex3);
-        BufferData vbInitData;
-        vbInitData.pData = payload.LoadedBatch.cpuVertexData.data();
-        vbInitData.DataSize = vbDesc.Size;
-        QEngine::m_pDevice->CreateBuffer(vbDesc, &vbInitData, &newBatch->vertexBuffer);
-    }
+    // Acquire a persistent DEFAULT buffer set from the pool to be our destination.
+    PooledBufferSet destBufferSet = AcquireBufferSet();
 
-    if (!payload.LoadedBatch.cpuIndexData.empty()) {
-        BufferDesc ibDesc;
-        ibDesc.Name = "Streamed Node IB";
-        ibDesc.Usage = USAGE_IMMUTABLE;
-        ibDesc.BindFlags = BIND_INDEX_BUFFER;
-        ibDesc.Size = payload.LoadedBatch.cpuIndexData.size() * sizeof(uint32_t);
-        BufferData ibInitData;
-        ibInitData.pData = payload.LoadedBatch.cpuIndexData.data();
-        ibInitData.DataSize = ibDesc.Size;
-        QEngine::m_pDevice->CreateBuffer(ibDesc, &ibInitData, &newBatch->indexBuffer);
-        newBatch->indexCount = payload.LoadedBatch.cpuIndexData.size();
-    }
+    // --- Upload Vertex Data via a Staging Buffer ---
+    if (!payload.LoadedBatch.cpuVertexData.empty())
+    {
+        // 1. Create a temporary staging buffer sized exactly for our data.
+        RefCntAutoPtr<IBuffer> stagingVB;
+        BufferDesc StagingVBDesc;
+        StagingVBDesc.Name = "Staging VB";
+        StagingVBDesc.Usage = USAGE_STAGING;
+        StagingVBDesc.CPUAccessFlags = CPU_ACCESS_WRITE;
+        StagingVBDesc.Size = payload.LoadedBatch.cpuVertexData.size() * sizeof(Vertex3);
+        QEngine::m_pDevice->CreateBuffer(StagingVBDesc, nullptr, &stagingVB);
 
-    // Add the newly created batch to the node.
-    payload.TargetNode->m_RenderBatches.push_back(std::move(newBatch));
-
-    // If the queue is now empty, it means this was the last batch for the last node.
-    // We can now safely reset the streaming flag for the node.
-    if (m_StreamerQueue.empty()) {
-        payload.TargetNode->SetStreaming(false);
-    }
-    else {
-        // If the next item in the queue is for a DIFFERENT node, then the current node is finished.
-        if (m_StreamerQueue.front().TargetNode != payload.TargetNode) {
-            payload.TargetNode->SetStreaming(false);
+        // 2. Map the staging buffer and copy our CPU data into it.
+        void* pStagingData = nullptr;
+        QEngine::m_pImmediateContext->MapBuffer(stagingVB, MAP_WRITE, MAP_FLAG_DISCARD, pStagingData);
+        if (pStagingData) {
+            memcpy(pStagingData, payload.LoadedBatch.cpuVertexData.data(), StagingVBDesc.Size);
+            QEngine::m_pImmediateContext->UnmapBuffer(stagingVB, MAP_WRITE);
         }
+
+        // 3. Issue a GPU command to copy from Staging -> Default.
+        QEngine::m_pImmediateContext->CopyBuffer(stagingVB, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION,
+            destBufferSet.vertexBuffer, 0, StagingVBDesc.Size,
+            RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    }
+
+    // --- Upload Index Data via a Staging Buffer ---
+    if (!payload.LoadedBatch.cpuIndexData.empty())
+    {
+        newBatch->indexCount = payload.LoadedBatch.cpuIndexData.size();
+        RefCntAutoPtr<IBuffer> stagingIB;
+        BufferDesc StagingIBDesc;
+        StagingIBDesc.Name = "Staging IB";
+        StagingIBDesc.Usage = USAGE_STAGING;
+        StagingIBDesc.CPUAccessFlags = CPU_ACCESS_WRITE;
+        StagingIBDesc.Size = newBatch->indexCount * sizeof(uint32_t);
+        QEngine::m_pDevice->CreateBuffer(StagingIBDesc, nullptr, &stagingIB);
+
+        void* pStagingData = nullptr;
+        QEngine::m_pImmediateContext->MapBuffer(stagingIB, MAP_WRITE, MAP_FLAG_DISCARD, pStagingData);
+        if (pStagingData) {
+            memcpy(pStagingData, payload.LoadedBatch.cpuIndexData.data(), StagingIBDesc.Size);
+            QEngine::m_pImmediateContext->UnmapBuffer(stagingIB, MAP_WRITE);
+        }
+
+        QEngine::m_pImmediateContext->CopyBuffer(stagingIB, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION,
+            destBufferSet.indexBuffer, 0, StagingIBDesc.Size,
+            RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    }
+
+    // Assign the persistent DEFAULT buffers to the new batch.
+    newBatch->vertexBuffer = destBufferSet.vertexBuffer;
+    newBatch->indexBuffer = destBufferSet.indexBuffer;
+
+    targetNode->m_RenderBatches.push_back(std::move(newBatch));
+
+    if (isLastBatchForNode) {
+        targetNode->SetRenderReady(true);
+        targetNode->SetStreaming(false);
+    }
+}
+
+// --- NEW HELPER FUNCTION for creating a single buffer set ---
+PooledBufferSet Octree::CreateBufferSet()
+{
+    PooledBufferSet bufferSet;
+    // Using a more reasonable size. Change this to fit your largest expected node.
+    const size_t maxVertices = m_MaxTrianglesPerNode * 3;
+    const size_t maxIndices = m_MaxTrianglesPerNode * 3;
+    const size_t maxVertexDataSize = maxVertices * sizeof(Vertex3);
+    const size_t maxIndexDataSize = maxIndices * sizeof(uint32_t);
+
+    BufferDesc vbDesc;
+    vbDesc.Name = "Pooled Default VB";
+    vbDesc.Usage = USAGE_DEFAULT; // Use DEFAULT for persistent, updatable GPU resources
+    vbDesc.BindFlags = BIND_VERTEX_BUFFER;
+    vbDesc.Size = maxVertexDataSize;
+    QEngine::m_pDevice->CreateBuffer(vbDesc, nullptr, &bufferSet.vertexBuffer);
+
+    BufferDesc ibDesc;
+    ibDesc.Name = "Pooled Default IB";
+    ibDesc.Usage = USAGE_DEFAULT; // Use DEFAULT for persistent, updatable GPU resources
+    ibDesc.BindFlags = BIND_INDEX_BUFFER;
+    ibDesc.Size = maxIndexDataSize;
+    QEngine::m_pDevice->CreateBuffer(ibDesc, nullptr, &bufferSet.indexBuffer);
+
+    return bufferSet;
+}
+
+// --- MODIFIED: Buffer Pool Implementation ---
+void Octree::InitializeBufferPool(size_t initialSize)
+{
+    std::cout << "Initializing GPU Buffer Pool with " << initialSize << " sets..." << std::endl;
+    m_BufferPool.reserve(initialSize);
+    for (size_t i = 0; i < initialSize; ++i)
+    {
+        m_BufferPool.push_back(CreateBufferSet());
+    }
+    std::cout << "Buffer Pool Initialized." << std::endl;
+}
+
+PooledBufferSet Octree::AcquireBufferSet()
+{
+    std::lock_guard<std::mutex> lock(m_BufferPoolMutex);
+    if (m_BufferPool.empty())
+    {
+        std::cout << "Warning: Buffer Pool empty. Expanding pool size." << std::endl;
+        return CreateBufferSet();
+    }
+
+    PooledBufferSet bufferSet = m_BufferPool.back();
+    m_BufferPool.pop_back();
+    return bufferSet;
+}
+
+// --- REVISED: Use the retired buffers list ---
+void Octree::ReleaseBufferSet(PooledBufferSet& bufferSet)
+{
+    std::lock_guard<std::mutex> lock(m_BufferPoolMutex);
+    m_RetiredBuffers.push_back({ bufferSet, m_CurrentFrame });
+}
+
+// --- REVISED: Processes the retired buffer queue with correct locking ---
+void Octree::ProcessRetiredBuffers() {
+    m_CurrentFrame++;
+
+    std::vector<PooledBufferSet> readyToReclaim;
+
+    // --- FIX: Lock the mutex to protect both retired and active pools ---
+    std::lock_guard<std::mutex> lock(m_BufferPoolMutex);
+
+    m_RetiredBuffers.erase(
+        std::remove_if(m_RetiredBuffers.begin(), m_RetiredBuffers.end(),
+            [&](const RetiredBufferSet& retired) {
+                if (m_CurrentFrame > retired.frameNumber + m_BufferRetireFrameCount) {
+                    readyToReclaim.push_back(retired.buffers);
+                    return true; // Mark for removal
+                }
+                return false;
+            }),
+        m_RetiredBuffers.end());
+
+    if (!readyToReclaim.empty()) {
+        m_BufferPool.insert(m_BufferPool.end(), readyToReclaim.begin(), readyToReclaim.end());
     }
 }

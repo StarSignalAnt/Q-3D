@@ -75,7 +75,7 @@ public:
 	static void DebugLog(const std::string& message)
 	{
 		if (DebugLogCB) {
-			DebugLogCB(message);
+			//DebugLogCB(message);
 			std::cout << "MSG:" << message << std::endl;
 		}
 	}

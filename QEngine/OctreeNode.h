@@ -29,14 +29,14 @@ private:
     int m_ID;
     // MODIFIED: Stores the actual triangles, not GraphNode pointers.
     std::vector<OctreeTriangle> m_Triangles;
-    bool m_RenderReady;
+    std::atomic<bool> m_RenderReady; // Use atomic for thread-safe access
 
     // NEW: Members to store location in the data file for streaming.
     long m_dataOffset;
     long m_dataSize;
     std::atomic<bool> m_IsStreaming{ false };
+    std::atomic<bool> m_PendingUnstream{ false }; // NEW: Flag for robust unstreaming
     std::unique_ptr<OctreeNode> m_Children[8];
     std::vector<std::unique_ptr<RenderBatchCache>> m_RenderBatches;
 
 };
-
