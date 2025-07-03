@@ -4,7 +4,7 @@
 #include <string>
 #include <map>
 #include <memory> // For std::unique_ptr
-#include "OctreeScene.h"
+
 #include "json.hpp" // Assumes nlohmann/json.hpp is in your project include paths
 using json = nlohmann::json;
 
@@ -16,7 +16,9 @@ class TerrainMeshComponent;
 class TerrainMesh;
 class VFile;
 class SharpComponent;
+class Octree;
 struct Bounds;
+
 
 
 struct HitResult {
@@ -46,6 +48,7 @@ public:
 	void RenderShadows();
 	void Update(float dt);
 	void SetCamera(GraphNode* cameraNode);
+	std::vector<GraphNode*> GetDynamics();
 	GraphNode* GetCamera();
 	void AddLight(GraphNode* lightNode);
 

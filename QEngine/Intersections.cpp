@@ -80,7 +80,7 @@ CastResult Intersections::CastMesh(float3 pos, float3 dir, SubMesh* mesh) {
     // Initialize mesh-specific buffers
     InitializeMeshBuffers();
 
-    const size_t numTris = mesh->m_Triangles.size();
+    const size_t numTris = mesh->m_LODs[0]->m_Triangles.size();
 
     // Early exit for empty meshes
     if (numTris == 0) {

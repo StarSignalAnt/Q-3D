@@ -6,7 +6,7 @@ class StaticRendererComponent :
 public:
 
     void OnRender(GraphNode* camera) override;
-
+    void OnRenderDirect(GraphNode* light, GraphNode* cam);
 private:
 };
 

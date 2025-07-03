@@ -37,10 +37,22 @@ std::string GetAppCacheDirectory()
     return cachePath.string();
 }
 
+std::map<std::string,Texture2D*> m_Cache;
 
 Texture2D::Texture2D(std::string path, bool srgb)
 {
     m_Path = path;
+
+    if (m_Cache.find(path) != m_Cache.end()) {
+
+        auto tex = m_Cache[path];
+
+        m_pTexture = tex->GetTex();
+        m_pTextureView = tex->GetView();
+        m_Path = tex->GetPath();
+        return;
+
+    }
 
     // STEP 1: Load the image using PixelMap, forcing it into 8-bit (UINT8) mode.
     // This ensures we get the raw, unmodified pixel data from the file.
@@ -99,6 +111,10 @@ Texture2D::Texture2D(std::string path, bool srgb)
     // The PixelMap object is no longer needed after its data is sent to the GPU.
     delete pmap;
 
+
+
+   
+
     if (m_pTexture)
     {
         m_pTextureView = m_pTexture->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE);
@@ -107,6 +123,7 @@ Texture2D::Texture2D(std::string path, bool srgb)
     {
         std::cerr << "Failed to create Diligent texture for: " << path << std::endl;
     }
+    m_Cache[path] = this;
     return;
     /*
     // Lock for thread safety

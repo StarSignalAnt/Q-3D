@@ -6,6 +6,7 @@ class MaterialDepth :
 public:
 
     MaterialDepth();
+    MaterialDepth(bool clone);
     void Bind(bool add) override;
     void Render() override;
 

@@ -21,7 +21,8 @@
 #include "Vivid3D.h"
 #include <QStringList> // <-- Add for argument list
 #include <QDebug> 
-
+#define MESHOPTIMIZER_IMPLEMENTATION
+#include "meshoptimizer.h" 
 int main(int argc, char *argv[])
 {
 

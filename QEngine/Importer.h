@@ -7,7 +7,7 @@ class Importer
 {
 public:
 
-	static GraphNode* ImportEntity(std::string path);
+	static GraphNode* ImportEntity(std::string path,bool gen_lod = false);
 	static GraphNode* ImportSkeletal(std::string path);
 
 };

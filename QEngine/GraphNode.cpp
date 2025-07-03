@@ -316,61 +316,75 @@ Bounds GraphNode::GetStaticMeshBounds(bool includeChildren) {
 	Bounds totalBounds;
 	bool foundAnyVertices = false;
 
-	// Get all StaticMeshComponent instances from this node
-	auto staticMeshComponents = GetComponents<StaticMeshComponent>();
+	if (m_bBoundsAreDirty) {
+		m_Bounds = nullptr;
+	}
 
-	for (auto meshComp : staticMeshComponents) {
-		const auto& subMeshes = meshComp->GetSubMeshes();
+	if (m_Bounds == nullptr) {
+		// Get all StaticMeshComponent instances from this node
+		auto staticMeshComponents = GetComponents<StaticMeshComponent>();
+		QEngine::DebugLog("Getting bounds");
+		m_bBoundsAreDirty = false;
 
-		for (const auto& subMesh : subMeshes) {
-			if (subMesh->m_Vertices.empty()) continue;
 
-			// Get world matrix for this submesh's owner.
-			// This matrix includes the position, rotation, and scale of the GraphNode.
-			glm::mat4 worldMatrix = this->GetWorldMatrix();
+		for (auto meshComp : staticMeshComponents) {
+			const auto& subMeshes = meshComp->GetSubMeshes();
 
-			// Process each vertex
-			for (const auto& vertex : subMesh->m_Vertices) {
-				// *** FIX: Transform vertex from local space to world space ***
-				glm::vec3 worldPos3 = glm::vec3(worldMatrix * glm::vec4(vertex.position, 1.0f));
+			for (const auto& subMesh : subMeshes) {
+				if (subMesh->m_LODs[0]->m_Vertices.empty()) continue;
 
-				if (!foundAnyVertices) {
-					// First vertex - initialize bounds
-					totalBounds.min = worldPos3;
-					totalBounds.max = worldPos3;
-					foundAnyVertices = true;
-				}
-				else {
-					// Expand bounds using the world-space position
-					totalBounds.min = glm::min(totalBounds.min, worldPos3);
-					totalBounds.max = glm::max(totalBounds.max, worldPos3);
+				// Get world matrix for this submesh's owner.
+				// This matrix includes the position, rotation, and scale of the GraphNode.
+				glm::mat4 worldMatrix = this->GetWorldMatrix();
+
+				// Process each vertex
+				for (const auto& vertex : subMesh->m_LODs[0]->m_Vertices) {
+					// *** FIX: Transform vertex from local space to world space ***
+					glm::vec3 worldPos3 = glm::vec3(worldMatrix * glm::vec4(vertex.position, 1.0f));
+
+					if (!foundAnyVertices) {
+						// First vertex - initialize bounds
+						totalBounds.min = worldPos3;
+						totalBounds.max = worldPos3;
+						foundAnyVertices = true;
+					}
+					else {
+						// Expand bounds using the world-space position
+						totalBounds.min = glm::min(totalBounds.min, worldPos3);
+						totalBounds.max = glm::max(totalBounds.max, worldPos3);
+					}
 				}
 			}
 		}
-	}
 
-	// Recursively include children if requested
-	if (includeChildren) {
-		for (const auto& childNode : m_Nodes) {
-			Bounds childBounds = childNode->GetStaticMeshBounds(true);
+		// Recursively include children if requested
+		if (includeChildren) {
+			for (const auto& childNode : m_Nodes) {
+				Bounds childBounds = childNode->GetStaticMeshBounds(true);
 
-			if (childBounds.IsValid()) {
-				if (!foundAnyVertices) {
-					totalBounds = childBounds;
-					foundAnyVertices = true;
-				}
-				else {
-					totalBounds.min = glm::min(totalBounds.min, childBounds.min);
-					totalBounds.max = glm::max(totalBounds.max, childBounds.max);
+				if (childBounds.IsValid()) {
+					if (!foundAnyVertices) {
+						totalBounds = childBounds;
+						foundAnyVertices = true;
+					}
+					else {
+						totalBounds.min = glm::min(totalBounds.min, childBounds.min);
+						totalBounds.max = glm::max(totalBounds.max, childBounds.max);
+					}
 				}
 			}
 		}
+
+		// Calculate derived values (size and center)
+		totalBounds.CalculateDerivedValues();
+		m_Bounds = new Bounds;
+		m_Bounds->min = totalBounds.min;
+		m_Bounds->max = totalBounds.max;
+		m_Bounds->size = totalBounds.size;
+		m_Bounds->center = totalBounds.center;
 	}
 
-	// Calculate derived values (size and center)
-	totalBounds.CalculateDerivedValues();
-
-	return totalBounds;
+	return *m_Bounds;
 }
 void GraphNode::SetBody(BodyType type) {
 
@@ -421,7 +435,7 @@ void GraphNode::CreateBody() {
 
 			for (auto mesh : comp->GetSubMeshes()) {
 
-				for (auto v : mesh->m_Vertices) {
+				for (auto v : mesh->m_LODs[0]->m_Vertices) {
 
 					auto p = GetWorldMatrix() * glm::vec4(v.position, 1.0);
 
@@ -431,7 +445,7 @@ void GraphNode::CreateBody() {
 				}
 
 
-				for (auto t : mesh->m_Triangles) {
+				for (auto t : mesh->m_LODs[0]->m_Triangles) {
 
 					indices.push_back(base + (PxU32)t.v0);
 					indices.push_back(base + (PxU32)t.v1);
@@ -443,7 +457,7 @@ void GraphNode::CreateBody() {
 
 				}
 
-				base += mesh->m_Vertices.size();
+				base += mesh->m_LODs[0]->m_Vertices.size();
 
 
 
@@ -494,7 +508,7 @@ void GraphNode::CreateBody() {
 		{
 			for (auto mesh : comp->GetSubMeshes())
 			{
-				for (auto& v : mesh->m_Vertices)
+				for (auto& v : mesh->m_LODs[0]->m_Vertices)
 				{
 					glm::vec4 worldPos = glm::vec4(v.position, 1.0f);
 					vertices.emplace_back(worldPos.x, worldPos.y, worldPos.z);

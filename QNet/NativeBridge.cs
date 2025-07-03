@@ -1,4 +1,5 @@
 ﻿using GlmNet;
+using QNet.Component;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,6 +39,8 @@ internal class NativeBridge
     public static extern IntPtr NodeGetNode(IntPtr node, int index);
     [DllImport("__Internal", CharSet = CharSet.Ansi)]
     public static extern IntPtr NodeGetName(IntPtr node);
+    [DllImport("__Internal",CharSet = CharSet.Ansi)]
+    public static extern IntPtr NodeGetLongName(IntPtr node);
 
     [DllImport("__Internal", CharSet = CharSet.Ansi)]
     public static extern void ConsoleLog(string msg);
@@ -89,7 +92,7 @@ internal class NativeBridge
     public static extern bool GetMouseDown(int id);
     [DllImport("__Internal", CharSet = CharSet.Ansi)]
     public static extern IntPtr LoadFont(string id,float size);
-    [DllImport("__Internal", CharSet = CharSet.Ansi)]
+    [DllImport("__Internal", CharSet = CharSet.Unicode)]
     public static extern void FontDrawText(IntPtr font,string text,vec2 pos,float size);
     [DllImport("__Internal", CharSet = CharSet.Ansi)]
     public static extern int FontTextWidth(IntPtr font, string text, float size);
@@ -100,6 +103,8 @@ internal class NativeBridge
 
     [DllImport("__Internal", CharSet = CharSet.Ansi)]
     public static extern void SetScissor(int x,int y,int w,int h);
+    [DllImport("__Internal", CharSet = CharSet.Ansi)]
+    public static extern IntPtr GetComponent(IntPtr node,string name);
 
 
 }

@@ -7,6 +7,7 @@ public:
 
 
     void OnRenderDepth(GraphNode* camera) override;
+    //void OnRenderDirect(GraphNode* camera)
 
 private:
 

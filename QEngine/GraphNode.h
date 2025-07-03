@@ -99,6 +99,10 @@ struct Bounds {
 	}
 };
 
+enum NodeRenderType {
+	RenderType_Static,RenderType_Dynamic
+};
+
 class GraphNode
 {
 public:
@@ -235,10 +239,20 @@ public:
 	void JRead(const json& j);
 	void JWriteScripts(json& j);
 	void JReadScripts(const json& j);
-
+	void SetRenderType(NodeRenderType type,bool include_children=true) {
+		m_RenderType = type;
+		if (include_children) {
+			for (auto node : m_Nodes) {
+				node->SetRenderType(type, true);
+			}
+		}
+	}
+	NodeRenderType GetRenderType() {
+		return m_RenderType;
+	}
 private:
 
-
+	Bounds* m_Bounds = nullptr;
 	glm::vec3 m_Position;
 	glm::vec3 m_Scale;
 	glm::mat4 m_Rotation;
@@ -266,5 +280,6 @@ private:
 	bool m_HideFromEditor = false;
 	std::string m_ResourcePath = "";
 	ResourceType m_ResourceType = ResourceType::SubData;
+	NodeRenderType m_RenderType = NodeRenderType::RenderType_Dynamic;
 };
 

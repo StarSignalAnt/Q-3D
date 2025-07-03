@@ -1,0 +1,14 @@
+Vivid3D uses a number of open-source/free to use libraries.
+
+1 - Diligent Engine 
+2 - Mesh Optimizer
+3 - FFMPEG
+4 - QT(OpenSource)
+5 - FreeType2
+6 - SoLoud
+7 - Mono Embedded
+8 - Python Embedded RunTime
+9 - PyBind11
+10 - AssImp 
+
+

@@ -10,7 +10,8 @@ OctreeNode::OctreeNode(const Bounds& bounds,int id)
     // The m_Triangles vector is default-initialized to be empty.
 
     // The m_Children array of unique_ptr is default-initialized to all be nullptr.
-}void OctreeNode::WriteNode(VFile* file)
+}
+void OctreeNode::WriteNode(VFile* file)
 {
     int32_t batchCount = m_RenderBatches.size();
     file->WriteInt(batchCount);

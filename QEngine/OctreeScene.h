@@ -7,13 +7,18 @@
 #include <cstdint>
 #include "StaticMeshComponent.h"
 #include <thread> 
+#include <mutex>   // Required for std::mutex
+#include <queue> 
+
 class SceneGraph;
 
 
 struct SubMesh;
+class SceneGraph;
 class CameraComponent;
 class RenderTarget2D;
 class Draw2D;
+class OctreeNode;
 class RenderMaterial;
 
 struct OctreeTriangle
@@ -27,6 +32,8 @@ struct OctreeTriangle
     // A pointer back to the original SubMesh for rendering and material access.
     SubMesh* sourceMesh = nullptr;
 };
+
+
 
 struct RenderBatchCache
 {
@@ -47,7 +54,21 @@ struct RenderBatchCache
     ~RenderBatchCache() {}
 };
 
-class OctreeNode;
+
+struct RenderBatchPayload
+{
+    std::string MaterialPath;
+    glm::mat4 WorldMatrix;
+    std::vector<Vertex3> cpuVertexData;
+    std::vector<uint32_t> cpuIndexData;
+};
+
+struct StreamedNodePayload
+{
+    OctreeNode* TargetNode;
+    RenderBatchPayload LoadedBatch;
+};
+
 
 class Octree
 {
@@ -55,7 +76,9 @@ public:
 
 	Octree(const Bounds& graph,GraphNode* cam);
     Octree(std::string path,GraphNode* camera);
-
+    void SetGraph(SceneGraph* graph) {
+        m_Graph = graph;
+    }
     void Build(GraphNode* sceneRoot);
     void DebugLog() const;
     void Optimize();
@@ -71,6 +94,7 @@ public:
     void LoadAllNodes();
     // NEW: Checks nodes for streaming based on camera distance. Call this once per frame.
     void CheckNodes();
+    void FinalizeStreamedNodes();
 private:
     void DebugLogRecursive(const OctreeNode* node, int depth, const std::string& path, size_t& nodeCount) const;
     void LoadAllNodesRecursive(OctreeNode* node, VFile* dataFile);
@@ -91,8 +115,8 @@ private:
     std::unique_ptr<OctreeNode> m_Root;
     void CollectAllNodesRecursive(OctreeNode* node, std::vector<OctreeNode*>& nodes);
     // --- MODIFIED: Configuration settings for triangle count ---
-    const int m_MaxTrianglesPerNode = 50000;
-    const int m_MaxDepth = 32; // Polygon-level trees can be deeper
+    const int m_MaxTrianglesPerNode = 10000;
+    const int m_MaxDepth = 64; // Polygon-level trees can be deeper
     void GetVisibleNodesRecursive(const OctreeNode* node, CameraComponent* camera,
         std::vector<const OctreeNode*>& visibleNodes,
         int& nodesTested, int& nodesVisible);
@@ -106,8 +130,11 @@ private:
     GraphNode* m_ViewCam;
     int m_NextNodeID = 0;
     std::string m_DataFilePath;
+    std::queue<StreamedNodePayload> m_StreamerQueue;
+    mutable std::mutex m_StreamerMutex;
     // NEW: The distance at which nodes should be streamed in.
     float m_StreamMinDistance = 100.0f;
     glm::vec3 m_StreamingBoxExtents = glm::vec3(350.0f, 350.0f, 350.0f);
+    SceneGraph* m_Graph = nullptr;
 };
 

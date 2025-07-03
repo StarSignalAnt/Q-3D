@@ -37,6 +37,13 @@ struct PBRConstant {
     glm::vec4 g_SpotLightCone;  // x: inner cone angle (cos), y: outer cone angle (cos), z-w: unused
 };
 
+
+MaterialPBR::MaterialPBR(bool clone) {
+
+
+
+}
+
 MaterialPBR::MaterialPBR() {
 
     m_ColorTexture = new Texture2D("Engine/Maps/White.png");
@@ -60,6 +67,8 @@ MaterialPBR::MaterialPBR() {
 
 
     r_desc.CullMode = CULL_MODE_BACK;
+   // r_desc.FillMode = FILL_MODE_WIREFRAME;
+
 
 
 

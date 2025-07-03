@@ -12,6 +12,9 @@
 #include "VFile.h"
 #include "MaterialDepth.h"
 #include "MaterialPBR.h"
+#include "StaticRendererComponent.h"
+#include "StaticDepthRendererComponent.h"
+#include "MaterialProducer.h"
 
 Octree::Octree(const Bounds& sceneBounds,GraphNode* camera) {
     m_Root = std::make_unique<OctreeNode>(sceneBounds, m_NextNodeID++);
@@ -32,6 +35,7 @@ void Octree::Build(GraphNode* sceneRoot) {
 // --- PRIVATE SCENEGRAPH TRAVERSAL HELPER ---
 void Octree::ExtractTriangles(GraphNode* graphNode) {
     if (!graphNode) return;
+    if (graphNode->GetRenderType() != NodeRenderType::RenderType_Static) return;
 
     if (auto meshComp = graphNode->GetComponent<StaticMeshComponent>()) { //
         glm::mat4 worldMatrix = graphNode->GetWorldMatrix(); //
@@ -39,8 +43,8 @@ void Octree::ExtractTriangles(GraphNode* graphNode) {
         for (auto* subMesh : meshComp->GetSubMeshes()) { //
             if (!subMesh) continue;
 
-            const auto& vertices = subMesh->m_Vertices; //
-            const auto& triangles = subMesh->m_Triangles; //
+            const auto& vertices = subMesh->m_LODs[0]->m_Vertices; //
+            const auto& triangles = subMesh->m_LODs[0]->m_Triangles; //
 
             for (const auto& tri : triangles) {
                 OctreeTriangle oct_tri;
@@ -355,6 +359,10 @@ void Octree::RenderCulled(GraphNode* camera)
 
     if (visibleNodes.empty()) return;
 
+    auto dynamics = m_Graph->GetDynamics();
+
+
+
     bool firstLightPass = true;
     int li = 0;
     for (auto light : SceneGraph::m_CurrentGraph->GetLights()) { //
@@ -400,7 +408,24 @@ void Octree::RenderCulled(GraphNode* camera)
         // --- CRITICAL FIX: Move this line outside the inner loops ---
         // This ensures that the NEXT light source triggers the additive blending state,
         // not the next render batch.
+        
+        for (auto node : dynamics)
+        {
+
+            if (node->GetComponent<StaticRendererComponent>()) {
+
+                auto smesh = node->GetComponent<StaticRendererComponent>();
+               
+                smesh->OnRenderDirect(light,camera);
+
+
+            }
+
+        }
+
+
         firstLightPass = false;
+
         lb->Release();
         li++;
     }
@@ -467,7 +492,7 @@ void Octree::GetVisibleNodesRecursive(const OctreeNode* node, CameraComponent* c
     for (const auto& pair : subMeshGroups) {
         SubMesh* sourceSubMesh = pair.first;
         const auto& trianglesInBatch = pair.second;
-        const auto& sourceVertices = sourceSubMesh->m_Vertices;
+        const auto& sourceVertices = sourceSubMesh->m_LODs[0]->m_Vertices;
 
         auto batch = std::make_unique<RenderBatchCache>();
         batch->sourceSubMesh = sourceSubMesh;
@@ -552,7 +577,7 @@ void Octree::RenderDepthCulled(GraphNode* camera) {
     bool firstLightPass = true;
     int li = 0;
     //for (auto light : SceneGraph::m_CurrentGraph->GetLights()) { //
-
+    auto dynamics = m_Graph->GetDynamics();
 
        // auto lb = m_LightBuffers[li];
       //  lb->SetClearCol(glm::vec4(0, 0, 0, 1));
@@ -588,6 +613,21 @@ void Octree::RenderDepthCulled(GraphNode* camera) {
 
             }
         }
+
+        for (auto node : dynamics)
+        {
+
+            if (node->GetComponent<StaticDepthRendererComponent>()) {
+
+                auto smesh = node->GetComponent<StaticDepthRendererComponent>();
+
+                smesh->OnRenderDepth(camera);
+
+
+            }
+
+        }
+
         // --- CRITICAL FIX: Move this line outside the inner loops ---
         // This ensures that the NEXT light source triggers the additive blending state,
         // not the next render batch.
@@ -907,8 +947,7 @@ void Octree::CheckNodesRecursive(OctreeNode* node, const Bounds& streamingBox)
             CheckNodesRecursive(node->GetChildren()[i].get(), streamingBox);
         }
     }
-}
-void Octree::StreamNode(OctreeNode* node, std::string dataFilePath)
+}void Octree::StreamNode(OctreeNode* node, std::string dataFilePath)
 {
     if (!node) {
         node->SetStreaming(false);
@@ -916,77 +955,54 @@ void Octree::StreamNode(OctreeNode* node, std::string dataFilePath)
     }
 
     VFile dataFile(dataFilePath.c_str(), FileMode::Read);
-
     dataFile.Seek(node->m_dataOffset);
+
     int32_t batchCount = dataFile.ReadInt();
 
-    std::vector<std::unique_ptr<RenderBatchCache>> loadedBatches;
+    // Once we start processing, clear any old batches immediately.
+    // This assumes finalization will happen relatively soon.
+    node->m_RenderBatches.clear();
+    node->SetRenderReady(true); // Mark as ready so we can see batches appear one by one.
 
     for (int i = 0; i < batchCount; ++i)
     {
-        auto batch = std::make_unique<RenderBatchCache>();
+        RenderBatchPayload batchPayload;
 
         const char* materialPath_cstr = dataFile.ReadString();
-        if (strlen(materialPath_cstr) > 0) {
-            batch->m_Material = new MaterialPBR;
-            batch->m_Material->Load(materialPath_cstr);
-            batch->m_DepthMaterial = new MaterialDepth;// MaterialManager::GetDepth(materialPath_cstr);
-        }
+        batchPayload.MaterialPath = materialPath_cstr;
         delete[] materialPath_cstr;
 
-        batch->m_WorldMatrix = dataFile.ReadMatrix();
+        batchPayload.WorldMatrix = dataFile.ReadMatrix();
 
         int32_t numVertices = dataFile.ReadInt();
-        if (numVertices > 0)
-        {
+        if (numVertices > 0) {
             size_t verticesDataSize = numVertices * sizeof(Vertex3);
-            batch->cpuVertexData.resize(numVertices);
+            batchPayload.cpuVertexData.resize(numVertices);
             void* vertexData = dataFile.ReadBytes(verticesDataSize);
-            memcpy(batch->cpuVertexData.data(), vertexData, verticesDataSize);
+            memcpy(batchPayload.cpuVertexData.data(), vertexData, verticesDataSize);
             free(vertexData);
-
-            // As noted, creating GPU resources here is not thread-safe for most graphics APIs.
-            // This should ideally be moved to a queue processed by the main render thread.
-            BufferDesc vbDesc;
-            vbDesc.Name = "Streamed Node VB";
-            vbDesc.Usage = USAGE_IMMUTABLE;
-            vbDesc.BindFlags = BIND_VERTEX_BUFFER;
-            vbDesc.Size = verticesDataSize;
-            BufferData vbInitData;
-            vbInitData.pData = batch->cpuVertexData.data();
-            vbInitData.DataSize = vbDesc.Size;
-            QEngine::m_pDevice->CreateBuffer(vbDesc, &vbInitData, &batch->vertexBuffer);
         }
 
         int32_t indexCount = dataFile.ReadInt();
-        if (indexCount > 0)
-        {
+        if (indexCount > 0) {
             size_t indicesDataSize = indexCount * sizeof(uint32_t);
-            batch->cpuIndexData.resize(indexCount);
+            batchPayload.cpuIndexData.resize(indexCount);
             void* indexData = dataFile.ReadBytes(indicesDataSize);
-            memcpy(batch->cpuIndexData.data(), indexData, indicesDataSize);
+            memcpy(batchPayload.cpuIndexData.data(), indexData, indicesDataSize);
             free(indexData);
-
-            BufferDesc ibDesc;
-            ibDesc.Name = "Streamed Node IB";
-            ibDesc.Usage = USAGE_IMMUTABLE;
-            ibDesc.BindFlags = BIND_INDEX_BUFFER;
-            ibDesc.Size = indicesDataSize;
-            BufferData ibInitData;
-            ibInitData.pData = batch->cpuIndexData.data();
-            ibInitData.DataSize = ibDesc.Size;
-            QEngine::m_pDevice->CreateBuffer(ibDesc, &ibInitData, &batch->indexBuffer);
-            batch->indexCount = batch->cpuIndexData.size();
         }
 
-        loadedBatches.push_back(std::move(batch));
+        // Push a payload for each individual batch onto the queue.
+        {
+            std::lock_guard<std::mutex> lock(m_StreamerMutex);
+            m_StreamerQueue.push({ node, std::move(batchPayload) });
+        }
     }
 
     dataFile.Close();
 
-    node->m_RenderBatches = std::move(loadedBatches);
-    node->SetRenderReady(true);
-    node->SetStreaming(false);
+    // The thread's main job is done, it has queued up all the work.
+    // The streaming flag is reset on the main thread after the LAST batch is processed.
 }
 
 void Octree::UnstreamNode(OctreeNode* node)
@@ -995,4 +1011,71 @@ void Octree::UnstreamNode(OctreeNode* node)
 
     node->m_RenderBatches.clear();
     node->SetRenderReady(false);
+}
+void Octree::FinalizeStreamedNodes()
+{
+    std::lock_guard<std::mutex> lock(m_StreamerMutex);
+
+    if (m_StreamerQueue.empty()) {
+        return;
+    }
+
+    // Process just ONE batch payload from the front of the queue.
+    StreamedNodePayload payload = std::move(m_StreamerQueue.front());
+    m_StreamerQueue.pop();
+
+    // If the target node is no longer valid (e.g., has been unstreamed), do nothing.
+    if (!payload.TargetNode->IsStreaming()) {
+        return;
+    }
+
+    auto newBatch = std::make_unique<RenderBatchCache>();
+    newBatch->m_WorldMatrix = payload.LoadedBatch.WorldMatrix;
+
+    if (!payload.LoadedBatch.MaterialPath.empty()) {
+        newBatch->m_Material = MaterialProducer::m_Instance->GetPBR();
+            newBatch->m_Material->Load(payload.LoadedBatch.MaterialPath.c_str());
+
+            newBatch->m_DepthMaterial = MaterialProducer::m_Instance->GetDepth();// MaterialManager::GetDepth(payload.LoadedBatch.MaterialPath.c_str());
+    }
+
+    if (!payload.LoadedBatch.cpuVertexData.empty()) {
+        BufferDesc vbDesc;
+        vbDesc.Name = "Streamed Node VB";
+        vbDesc.Usage = USAGE_IMMUTABLE;
+        vbDesc.BindFlags = BIND_VERTEX_BUFFER;
+        vbDesc.Size = payload.LoadedBatch.cpuVertexData.size() * sizeof(Vertex3);
+        BufferData vbInitData;
+        vbInitData.pData = payload.LoadedBatch.cpuVertexData.data();
+        vbInitData.DataSize = vbDesc.Size;
+        QEngine::m_pDevice->CreateBuffer(vbDesc, &vbInitData, &newBatch->vertexBuffer);
+    }
+
+    if (!payload.LoadedBatch.cpuIndexData.empty()) {
+        BufferDesc ibDesc;
+        ibDesc.Name = "Streamed Node IB";
+        ibDesc.Usage = USAGE_IMMUTABLE;
+        ibDesc.BindFlags = BIND_INDEX_BUFFER;
+        ibDesc.Size = payload.LoadedBatch.cpuIndexData.size() * sizeof(uint32_t);
+        BufferData ibInitData;
+        ibInitData.pData = payload.LoadedBatch.cpuIndexData.data();
+        ibInitData.DataSize = ibDesc.Size;
+        QEngine::m_pDevice->CreateBuffer(ibDesc, &ibInitData, &newBatch->indexBuffer);
+        newBatch->indexCount = payload.LoadedBatch.cpuIndexData.size();
+    }
+
+    // Add the newly created batch to the node.
+    payload.TargetNode->m_RenderBatches.push_back(std::move(newBatch));
+
+    // If the queue is now empty, it means this was the last batch for the last node.
+    // We can now safely reset the streaming flag for the node.
+    if (m_StreamerQueue.empty()) {
+        payload.TargetNode->SetStreaming(false);
+    }
+    else {
+        // If the next item in the queue is for a DIFFERENT node, then the current node is finished.
+        if (m_StreamerQueue.front().TargetNode != payload.TargetNode) {
+            payload.TargetNode->SetStreaming(false);
+        }
+    }
 }

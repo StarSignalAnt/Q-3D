@@ -37,6 +37,12 @@ struct DepthConstant {
     glm::vec4 g_AmbientColor;
 };
 
+MaterialDepth::MaterialDepth(bool clone) {
+
+
+
+}
+
 MaterialDepth::MaterialDepth() {
 
    

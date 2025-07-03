@@ -21,6 +21,8 @@
 #include "GameVideo.h"
 #include "GameFont.h"
 #include "CameraComponent.h"
+#include "OctreeScene.h"
+#include "MaterialProducer.h"
 
 #if D3D11_SUPPORTED
 #    include "Graphics/GraphicsEngineD3D11/interface/EngineFactoryD3D11.h"
@@ -117,9 +119,18 @@ SceneView::SceneView(QWidget *parent)
 
 
     //m_Test1 = Importer::ImportEntity("test/test1.gltf");
-    auto test2 = Importer::ImportEntity("test/test3.fbx");
+ //   auto test2 = Importer::ImportEntity("test/test3.fbx",false);
+    auto sp1 = Importer::ImportEntity("test/sphere1.fbx",true);
+
+  //  test2->SetRenderType(NodeRenderType::RenderType_Static);
+
+
+ 
    // m_SceneGraph->AddNode(m_Test1);
-    m_SceneGraph->AddNode(test2);
+   //m/_SceneGraph->AddNode(test2);
+    m_SceneGraph->AddNode(sp1);
+
+    sp1->SetPosition(glm::vec3(0, 5, -10));
 
 
     //auto sc = new ScriptComponent;
@@ -136,7 +147,8 @@ SceneView::SceneView(QWidget *parent)
     auto cc = cam->GetComponent<CameraComponent>();
     cc->SetExtents(0.1f, 1000.0f);
 
-    auto tex1 = new Texture2D("test/tex1.png");
+
+    //auto tex1 = new Texture2D("test/tex1.png");
     
 //    auto m1 = m_Test1->GetNodes()[0]->GetComponent<StaticMeshComponent>();
 
@@ -179,11 +191,11 @@ SceneView::SceneView(QWidget *parent)
     movementTimer.setInterval(16); // ~60 FPS
     connect(&movementTimer, &QTimer::timeout, this, &SceneView::handleMovement);
     movementTimer.start();
-    //m_SceneGraph->InitializeOctree();
-
-
+   // m_SceneGraph->InitializeOctree();
     //m_SceneGraph->ExportOctree("oc/test1");
     m_SceneGraph->ImportOctree("oc/test1");
+
+
 
 
 
@@ -325,6 +337,14 @@ void SceneView::paintEvent(QPaintEvent* event)
 	//QPainter painter(this);
 	//painter.fillRect(rect(), QColor("#ADD8E6"));
 
+
+    int fs = clock();
+    m_SceneGraph->GetOctree()->FinalizeStreamedNodes();
+    fs = clock() - fs;
+    if (fs > 0) {
+        QEngine::DebugLog("Stream MS:" + std::to_string(fs));
+    }
+
     int start = clock();
 
     if (start > (m_LastUpdate+8)) {
@@ -363,8 +383,12 @@ void SceneView::paintEvent(QPaintEvent* event)
    // m_SceneGraph->Update(tt);
     start = clock();
     m_SceneGraph->RenderShadows();
-    m_SceneGraph->Render();
     int end = clock() - start;
+  //  QEngine::DebugLog("MS1:" + std::to_string(end));
+    start = clock();
+    m_SceneGraph->Render();
+    end = clock() - start;
+//    QEngine::DebugLog("MS2:" + std::to_string(end));
 
 
     if (m_RunMode == RM_Stopped) {
@@ -489,7 +513,7 @@ void SceneView::CreateGraphics() {
 	QEngine::m_pShaderFactory = m_pShaderFactory;
 	QEngine::m_pSwapChain = m_pSwapChain;
 
-   
+    MaterialProducer* pro = new MaterialProducer;
 
 }
 
@@ -597,6 +621,7 @@ static float Rad2Deg(float r)
 
 GraphNode* CreateTerrainBrush(float mx, float h, float my, float size, float strength) {
 
+    /*
     h = 0.0001;
 
 
@@ -753,7 +778,8 @@ GraphNode* CreateTerrainBrush(float mx, float h, float my, float size, float str
 
 
     return ent;
-
+    */
+return nullptr;
 }
 
 void SceneView::mouseMoveEvent(QMouseEvent* event)  {

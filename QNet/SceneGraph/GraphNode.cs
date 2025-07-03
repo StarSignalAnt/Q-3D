@@ -7,6 +7,8 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using QNet.Maths;
+using QNet.Debug;
+using QNet.Component;
 
 namespace QNet.Scene
 {
@@ -124,8 +126,56 @@ namespace QNet.Scene
             }
         }
 
+
+        public string LongName
+        {
+            get
+            {
+                if (NodePtr == IntPtr.Zero)
+                {
+                    return "NodePtr is null!";
+                }
+                var r = NativeBridge.NodeGetLongName(NodePtr);
+                string msg = Marshal.PtrToStringAnsi(r);
+                return msg;
+
+            }
+        }
+
         public GraphNode()
         {
+
+        }
+
+        public SharpComponent GetComponent(string name)
+        {
+
+            IntPtr handlePtr = NativeBridge.GetComponent(NodePtr, name);
+
+            // 2. Check if the handle is null
+            if (handlePtr == IntPtr.Zero)
+            {
+                return null;
+            }
+
+            GCHandle handle = default;
+            try
+            {
+                // 3. Convert the IntPtr back into a GCHandle
+                handle = GCHandle.FromIntPtr(handlePtr);
+
+                // 4. Get the actual managed object from the handle's Target property
+                return handle.Target as SharpComponent;
+            }
+            finally
+            {
+                // 5. IMPORTANT: You MUST free the handle, otherwise you will leak memory.
+                // This tells the GC that the native code is no longer holding a reference.
+                if (handle.IsAllocated)
+                {
+                  //  handle.Free();
+                }
+            }
 
         }
 
@@ -140,6 +190,10 @@ namespace QNet.Scene
 
         }
 
+        public string GetLongName()
+        {
+            return LongName;
+        }
         public GlmNet.vec3 TransformVector(GlmNet.vec3 vector)
         {
 

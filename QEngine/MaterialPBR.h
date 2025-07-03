@@ -6,6 +6,8 @@ class MaterialPBR :
 public:
 
     MaterialPBR();
+    MaterialPBR(bool clone);
+
     void Bind(bool add) override;
     void Render() override;
     void SetColorTexture(Texture2D* texture)
@@ -68,6 +70,9 @@ public:
     }
     void Save(std::string path) override;
     void Load(std::string path) override;
+
+
+
 private:
 
 

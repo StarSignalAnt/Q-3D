@@ -90,7 +90,7 @@ std::string GenerateRandomFileName(size_t length = 12) {
 
     return result;
 }
-GraphNode* Importer::ImportEntity(std::string path) {
+GraphNode* Importer::ImportEntity(std::string path,bool gen_lod) {
     std::string modelDir = fs::path(path).parent_path().string();
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile(path,
@@ -217,6 +217,9 @@ GraphNode* Importer::ImportEntity(std::string path) {
         SubMesh* subMesh = new SubMesh;
         subMeshes.push_back(subMesh);
 
+        LODLevel* lod = new LODLevel;
+
+
         for (int v = 0; v < mesh->mNumVertices; v++) {
             Vertex3 vertex;
             vertex.position = glm::vec3(mesh->mVertices[v].x, mesh->mVertices[v].y, mesh->mVertices[v].z);
@@ -227,17 +230,18 @@ GraphNode* Importer::ImportEntity(std::string path) {
             vertex.uv = glm::vec3(mesh->mTextureCoords[0] ? mesh->mTextureCoords[0][v].x : 0.0f,
                 mesh->mTextureCoords[0] ? mesh->mTextureCoords[0][v].y : 0.0f,
                 0.0f);
-            subMesh->m_Vertices.push_back(vertex);
+            lod->m_Vertices.push_back(vertex);
         }
 
         for (int f = 0; f < mesh->mNumFaces; f++) {
             const aiFace& face = mesh->mFaces[f];
             if (face.mNumIndices == 3) {
                 Tri3 tri{ face.mIndices[0], face.mIndices[2], face.mIndices[1] };
-                subMesh->m_Triangles.push_back(tri);
+                lod->m_Triangles.push_back(tri);
             }
         }
 
+        subMesh->m_LODs.push_back(lod);
         subMesh->m_Material = materials[mesh->mMaterialIndex];  // Use shared material
         subMesh->m_DepthMaterial = new MaterialDepth;
     }
@@ -272,6 +276,13 @@ GraphNode* Importer::ImportEntity(std::string path) {
             for (unsigned int i = 0; i < ainode->mNumMeshes; i++) {
                 unsigned int meshIndex = ainode->mMeshes[i];
                 meshComponent->AddSubMesh(subMeshes[meshIndex]);
+            }
+            
+            for (auto sub : meshComponent->GetSubMeshes()) {
+
+                if (gen_lod) {
+                    sub->GenerateLod(5);
+                }
             }
             meshComponent->Finalize();
          

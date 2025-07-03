@@ -81,6 +81,42 @@ public:
 	void SetIndex(int val, int idx) {
 		m_Indices[idx] = val;
 	}
+	void SetPSO(RefCntAutoPtr<IPipelineState> pso) {
+		m_Pipeline = pso;
+	}
+	void SetPSOAdd(RefCntAutoPtr<IPipelineState> pso)
+	{
+		m_PipelineAdd = pso;
+	}
+
+	void SetSRB(RefCntAutoPtr<IShaderResourceBinding> srb) {
+		m_SRB = srb;
+	}
+	void SetSRBAdd(RefCntAutoPtr<IShaderResourceBinding> srb) {
+		m_SRBAdd = srb;
+	}
+
+
+	RefCntAutoPtr<IPipelineState> GetPSO() {
+		return m_Pipeline;
+	}
+	RefCntAutoPtr<IPipelineState> GetPSOAdd() {
+		return m_PipelineAdd;
+	}
+	RefCntAutoPtr<IShaderResourceBinding> GetSRB() {
+		return m_SRB;
+	}
+	RefCntAutoPtr<IShaderResourceBinding> GetSRBAdd() {
+		return m_SRBAdd;
+	}
+	RefCntAutoPtr<IBuffer> GetUniformBuf() {
+		return m_UniformBuffer;
+	}
+
+	void SetUniformBuffer(RefCntAutoPtr<IBuffer> buf) {
+		m_UniformBuffer = buf;
+	}
+
 protected:
 
 	GraphNode* m_Light = nullptr;

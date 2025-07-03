@@ -65,6 +65,7 @@ SceneGraph::SceneGraph() {
 	m_RayTester = new Intersections();
 
 	m_ShadowRenderer = new CubeRenderer(this, nullptr);
+	m_RootNode->SetRenderType(NodeRenderType::RenderType_Static, false);
 }
 
 void SceneGraph::SetRootNode(GraphNode* node) {
@@ -120,13 +121,16 @@ void SceneGraph::Render() {
 
 	m_CurrentGraph = this;
 
-	m_Octree->CheckNodes();
+
+
 
 
 	// If the octree exists, use it for rendering.
 	if (m_Octree)
 	{
-	m_Octree->RenderCulled(m_Camera);
+		m_Octree->CheckNodes();
+		m_Octree->RenderCulled(m_Camera);
+	
 	}
 	else
 	{
@@ -1079,7 +1083,7 @@ void CalculateBoundsRecursive(GraphNode* node, Bounds& totalBounds, bool& foundF
 		{
 			for (const auto* subMesh : meshComp->GetSubMeshes()) //
 			{
-				for (const auto& vertex : subMesh->m_Vertices) //
+				for (const auto& vertex : subMesh->m_LODs[0]->m_Vertices) //
 				{
 					// Transform the local vertex position to world space.
 					glm::vec3 worldPos = glm::vec3(worldMatrix * glm::vec4(vertex.position, 1.0f));
@@ -1147,7 +1151,7 @@ Bounds SceneGraph::CalculateSceneBounds()
 
 		for (const auto* subMesh : meshComp->GetSubMeshes()) //
 		{
-			for (const auto& vertex : subMesh->m_Vertices) //
+			for (const auto& vertex : subMesh->m_LODs[0]->m_Vertices) //
 			{
 				// Transform and add to our master list.
 				allWorldVertices.push_back(glm::vec3(worldMatrix * glm::vec4(vertex.position, 1.0f)));
@@ -1203,7 +1207,7 @@ void SceneGraph::InitializeOctree()
 	sceneBounds.Debug(); //
 	// STEP 2: Instantiate the Octree with the new, slightly larger bounds.
 	m_Octree = std::make_unique<Octree>(sceneBounds,m_Camera); //
-
+	m_Octree->SetGraph(this);
 	// STEP 3: Build the octree.
 	std::cout << "Building octree" << std::endl;
 	m_Octree->Build(m_RootNode); //
@@ -1226,6 +1230,32 @@ void SceneGraph::ExportOctree(std::string path) {
 void SceneGraph::ImportOctree(std::string path) {
 
 	m_Octree.reset(new Octree(path,m_Camera));
+	m_Octree->SetGraph(this);
 //	m_Octree->LoadAllNodes();
+
+}
+
+std::vector<GraphNode*> GetDynamicNodes(GraphNode* node, std::vector<GraphNode*> list) {
+
+	if (node->GetRenderType() == NodeRenderType::RenderType_Dynamic) {
+		list.push_back(node);
+	}
+
+	for (auto sub : node->GetNodes()) {
+
+		list = GetDynamicNodes(sub, list);
+
+	}
+
+	return list;
+}
+
+std::vector<GraphNode*> SceneGraph::GetDynamics() {
+
+	std::vector<GraphNode*> list;
+
+	list = GetDynamicNodes(m_RootNode, list);
+
+	return list;
 
 }
