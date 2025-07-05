@@ -149,10 +149,19 @@ bool Octree::Intersects(const Bounds& a, const Bounds& b) {
     // --- NEW: Add a small epsilon for robust floating-point comparisons. ---
     constexpr float OCTREE_EPSILON = 1e-5f;
 
-    return (a.min.x <= b.max.x + OCTREE_EPSILON && a.max.x >= b.min.x - OCTREE_EPSILON) &&
-        (a.min.y <= b.max.y + OCTREE_EPSILON && a.max.y >= b.min.y - OCTREE_EPSILON) &&
-        (a.min.z <= b.max.z + OCTREE_EPSILON && a.max.z >= b.min.z - OCTREE_EPSILON);
-
+    if (m_FlatIntersects)
+    {
+        return (a.min.x <= b.max.x && a.max.x >= b.min.x) &&
+            (a.min.z <= b.max.z && a.max.z >= b.min.z);
+    }
+    else
+    {
+        // Otherwise, perform the standard 3D AABB intersection test.
+        constexpr float OCTREE_EPSILON = 1e-5f;
+        return (a.min.x <= b.max.x + OCTREE_EPSILON && a.max.x >= b.min.x - OCTREE_EPSILON) &&
+            (a.min.y <= b.max.y + OCTREE_EPSILON && a.max.y >= b.min.y - OCTREE_EPSILON) &&
+            (a.min.z <= b.max.z + OCTREE_EPSILON && a.max.z >= b.min.z - OCTREE_EPSILON);
+    }
 }
 
 static std::string Vec3ToString(const glm::vec3& v) {

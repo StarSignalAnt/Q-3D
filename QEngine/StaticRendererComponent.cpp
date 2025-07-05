@@ -18,7 +18,7 @@ void StaticRendererComponent::OnRender(GraphNode* camera) {
 
 	if (!camera->GetComponent<CameraComponent>()->InFrustum(m_Owner->GetStaticMeshBounds()))
 	{
-		return;
+		//return;
 	}
 	SceneGraph::Ren_Count++;
 

@@ -15,7 +15,8 @@ TextureCube v_TextureEnvironment;
 SamplerState v_TextureEnvironment_sampler;
 TextureCube v_TextureShadow;
 SamplerState v_TextureShadow_sampler;
-
+Texture2D v_TextureDirShadow;
+SamplerState v_TextureDirShadow_sampler;
 // Constant buffer for shader parameters
 cbuffer Constants
 {
@@ -36,6 +37,7 @@ cbuffer Constants
     float4 g_AmbientColor;    // Ambient light color (w component unused)
     float4 g_LightType;       // x: LightType (0=point, 1=directional, 2=spot), y-w: unused
     float4 g_SpotLightCone;   // x: inner cone angle (cos), y: outer cone angle (cos), z-w: unused
+        float4x4 g_LightSpaceMatrix; 
 };
 
 // Input structure for the Pixel Shader
@@ -47,6 +49,7 @@ struct PSInput {
     float3 Normal : TEXCOORD3;
     float3 Tangent : TEXCOORD4;
     float3 Binormal : TEXCOORD5;
+    float4 LightSpacePos : TEXCOORD6; 
     bool IsFrontFace : SV_IsFrontFace; // Use SV_IsFrontFace for modern HLSL
 };
 
@@ -90,7 +93,40 @@ static const float2 poissonDisk[64] = {
     float2(0.38385f, -0.7817748f),    float2(-0.1240084f, -0.8194467f),
     float2(0.8165304f, -0.6765896f),  float2(0.6210794f, -0.8524057f)
 };
+float CalculateDirectionalShadow(float4 lightSpacePos)
+{
+    // 1. Convert from clip space to NDC [-1, 1]
+    float3 projCoords = lightSpacePos.xyz / lightSpacePos.w;
 
+    // 2. Convert from NDC to texture coordinates [0, 1]
+    projCoords.x = projCoords.x * 0.5 + 0.5;
+    projCoords.y = 1.0 - (projCoords.y * 0.5 + 0.5); // Flip Y
+
+    // 3. If we are outside the [0,1] range, this pixel is not in the shadow map.
+    if (saturate(projCoords.x) != projCoords.x || saturate(projCoords.y) != projCoords.y)
+    {
+        return 1.0; // Return full light
+    }
+
+    // 4. Get the depth of the current pixel from the light's perspective
+    float currentDepth = projCoords.z;
+
+    // 5. Sample the depth stored in the shadow map
+    float shadowMapDepth = v_TextureDirShadow.Sample(v_TextureDirShadow_sampler, projCoords.xy).r;
+
+    // 6. Use a simple, constant bias
+    float bias = 0.005;
+
+    // 7. Perform the comparison
+    if (currentDepth > shadowMapDepth + bias)
+    {
+        return 0.0; // The pixel is in shadow
+    }
+    else
+    {
+        return 1.0; // The pixel is lit
+    }
+}
 // Calculates shadow contribution for a point light.
 float light_GetShadow(float3 fragPos, float3 lightPos, float lightRange)
 {
@@ -201,40 +237,33 @@ float calculateSpotAttenuation(float3 lightDir, float3 fragmentToLight, float in
     float intensity = saturate((cosTheta - outerCone) / epsilon);
     return intensity * intensity;
 }
-
-void calculateLightProperties(float3 worldPos, out float3 lightDir, out float attenuation, out float shadowValue)
+void calculateLightProperties(float3 worldPos, out float3 lightDir, out float attenuation)
 {
     int lightType = (int)g_LightType.x;
+    attenuation = 1.0;
 
     if (lightType == 0) // Point light
     {
         lightDir = normalize(g_LightPosition.xyz - worldPos);
         attenuation = calculateAttenuation(g_LightPosition.xyz, worldPos, g_LightRange.x);
-        shadowValue = light_GetShadow(worldPos, g_LightPosition.xyz, g_LightRange.x);
     }
     else if (lightType == 1) // Directional light
     {
         lightDir = normalize(-g_LightDirection.xyz);
-        attenuation = 1.0;
-        shadowValue = 1.0;
+        attenuation = 0.5; // Fixed attenuation for directional light
     }
     else if (lightType == 2) // Spot light
     {
         float3 fragmentToLight = g_LightPosition.xyz - worldPos;
         lightDir = normalize(fragmentToLight);
-        
         float distanceAttenuation = calculateAttenuation(g_LightPosition.xyz, worldPos, g_LightRange.x);
-        float spotAttenuation = calculateSpotAttenuation(g_LightDirection.xyz, fragmentToLight, 
-                                                       g_SpotLightCone.x, g_SpotLightCone.y);
-        
+        float spotAttenuation = calculateSpotAttenuation(g_LightDirection.xyz, fragmentToLight, g_SpotLightCone.x, g_SpotLightCone.y);
         attenuation = distanceAttenuation * spotAttenuation;
-        shadowValue = light_GetShadow(worldPos, g_LightPosition.xyz, g_LightRange.x);
     }
     else // Default case
     {
         lightDir = normalize(g_LightPosition.xyz - worldPos);
         attenuation = calculateAttenuation(g_LightPosition.xyz, worldPos, g_LightRange.x);
-        shadowValue = light_GetShadow(worldPos, g_LightPosition.xyz, g_LightRange.x);
     }
 }
 
@@ -255,31 +284,36 @@ void main(in PSInput I, out PSOutput O)
     roughness = clamp(roughness, 0.04, 1.0);
 
     // Get light properties first, as the light vector L is needed for the geometry check.
-    float3 L;
+     float3 L;
     float attenuation;
-    float shadowValue;
-    calculateLightProperties(I.WorldPos, L, attenuation, shadowValue);
+
+      calculateLightProperties(I.WorldPos, L, attenuation);
 
     // Perform a check against the geometry normal first to prevent light bleed on back-faces.
-    float3 geometryNormal = normalize(I.Normal);
-    geometryNormal = I.IsFrontFace ? geometryNormal : -geometryNormal; // Correct for two-sided rendering
 
-    // If the geometry face is pointing away from the light, it's completely unlit.
-    if (dot(geometryNormal, L) <= 0.0)
-    {
-        O.Color = float4(0.0, 0.0, 0.0, albedo.a);
-        return;
-    }
     
     // --- If the geometry check passed, proceed with full per-pixel lighting ---
 
     // Get world-space normal from the normal map.
     float3 N = getNormalFromMap(normalSample, I.Normal, I.Tangent, I.Binormal);
     float3 V = normalize(g_CameraPosition.xyz - I.WorldPos);
-
-    // Correctly orient the mapped normal for two-sided materials.
     N = I.IsFrontFace ? N : -N;
+    float shadowValue = 1.0;
+    int lightType = (int)g_LightType.x;
 
+    if (lightType == 0) // Point Light
+    {
+        shadowValue = light_GetShadow(I.WorldPos, g_LightPosition.xyz, g_LightRange.x);
+    }
+    else if (lightType == 1) // Directional Light
+    {
+        // Call the updated function with the necessary parameters
+        shadowValue = CalculateDirectionalShadow(I.LightSpacePos);
+    }
+    else if (lightType == 2) // Spot Light
+    {
+        shadowValue = light_GetShadow(I.WorldPos, g_LightPosition.xyz, g_LightRange.x);
+    }
     // Initialize outgoing radiance
     float3 Lo = float3(0.0, 0.0, 0.0);
     
@@ -328,6 +362,8 @@ void main(in PSInput I, out PSOutput O)
     Lo = ACESFilmicToneMapping(Lo);
     float gamma = max(g_ToneMapParams.y, 1.0);
     Lo = pow(max(Lo, 0.0), 1.0 / gamma);
+
+    
 
     // Final color
     O.Color = float4(Lo, albedo.a);

@@ -22,6 +22,7 @@
 #include "GameFont.h"
 #include "CameraComponent.h"
 #include "OctreeScene.h"
+#include "RenderTarget2D.h"
 #include "MaterialProducer.h"
 
 #if D3D11_SUPPORTED
@@ -119,19 +120,19 @@ SceneView::SceneView(QWidget *parent)
 
 
     //m_Test1 = Importer::ImportEntity("test/test1.gltf");
-   // auto test2 = Importer::ImportEntity("test/test3.fbx",false);
-   // auto sp1 = Importer::ImportEntity("test/sphere1.fbx",true);
+    auto test2 = Importer::ImportEntity("test/test3.fbx",false);
+    auto sp1 = Importer::ImportEntity("test/sphere1.fbx",true);
 
-//  test2->SetRenderType(NodeRenderType::RenderType_Static);
+  test2->SetRenderType(NodeRenderType::RenderType_Static);
 
 
  
    // m_SceneGraph->AddNode(m_Test1);
-  // m_SceneGraph->AddNode(test2);
-//    m_SceneGraph->AddNode(sp1);
+   m_SceneGraph->AddNode(test2);
+    m_SceneGraph->AddNode(sp1);
 
 
-    //sp1->SetPosition(glm::vec3(0, 5, -10));
+    sp1->SetPosition(glm::vec3(0, 5,0));
 
 
     //auto sc = new ScriptComponent;
@@ -170,9 +171,10 @@ SceneView::SceneView(QWidget *parent)
 
 	l1->AddComponent(lc);
 
-    lc->SetRange(220);
-    lc->SetIntensity(1700);
-
+    lc->SetRange(450);
+    lc->SetIntensity(255);
+    lc->SetLightType(LightType::Directional);
+    
     m_SceneGraph->AddLight(l1);
 
     auto l2 = new GraphNode;
@@ -181,20 +183,21 @@ SceneView::SceneView(QWidget *parent)
     l2->GetComponent<LightComponent>()->SetColor(glm::vec3(0,3,3));
     l2->GetComponent<LightComponent>()->SetRange(220);
     l2->GetComponent<LightComponent>()->SetIntensity(1700);
-    m_SceneGraph->AddLight(l2);
+    //m_SceneGraph->AddLight(l2);
+
 
 
     l2->SetPosition(glm::vec3(80, 40, 6));
    
 
-	l1->SetPosition(glm::vec3(-80, 40, 4));
+	l1->SetPosition(glm::vec3(15, 25, 0));
 
     movementTimer.setInterval(16); // ~60 FPS
     connect(&movementTimer, &QTimer::timeout, this, &SceneView::handleMovement);
     movementTimer.start();
     //m_SceneGraph->InitializeOctree();
     //m_SceneGraph->ExportOctree("oc/test1");
-    m_SceneGraph->ImportOctree("oc/test1");
+//    m_SceneGraph->ImportOctree("oc/test1");
 
 
 
@@ -341,7 +344,8 @@ void SceneView::paintEvent(QPaintEvent* event)
 
 
     int fs = clock();
-    m_SceneGraph->GetOctree()->FinalizeStreamedNodes();
+
+    //m_SceneGraph->GetOctree()->FinalizeStreamedNodes();
     fs = clock() - fs;
     if (fs > 0) {
         //QEngine::DebugLog("Stream MS:" + std::to_string(fs));
@@ -377,10 +381,10 @@ void SceneView::paintEvent(QPaintEvent* event)
 
     if (m_RunMode == RM_Running) {
         QEngine::m_Physics->Update(0.01);
-        m_SceneGraph->Update(tt);
+
     }
     
-    
+    m_SceneGraph->Update(tt);
 
 
    // m_SceneGraph->Update(tt);
@@ -424,8 +428,11 @@ void SceneView::paintEvent(QPaintEvent* event)
 
     //m_Font->DrawTextAsTexture("This is a simple test", glm::vec2(20, 150), 1.0f, glm::vec4(1, 1, 1, 1));
 
-
-
+    QEngine::ClearZ();
+    QEngine::SetScissor(0, 0, QEngine::GetFrameWidth(), QEngine::GetFrameHeight());
+    m_Draw->BeginFrame();
+    m_Draw->Rect(m_SceneGraph->GetLights()[0]->GetComponent<LightComponent>()->GetDirectionalShadowMap()->GetDepthTexture2D(), glm::vec2(20, 20), glm::vec2(320, 320), glm::vec4(1, 1, 1, 1));
+    m_Draw->Flush();
 
 //    auto tex = m_Vid1->GetFrame();
 

@@ -26,35 +26,13 @@
         out PSOutput PSOut)
     {
 
-        float2 pixelPos = PSIn.Pos.xy;
+        float depthValue = v_Texture.Sample(v_Texture_sampler, PSIn.Uv.xy).r;
 
-        if(pixelPos.x>=PSIn.v_View.x && pixelPos.x<=PSIn.v_View.x + PSIn.v_View.z)
-        {
-            if(pixelPos.y>=PSIn.v_View.y && pixelPos.y<=PSIn.v_View.y + PSIn.v_View.w)
-            {
-
-            }else{
-                clip(-1);
-                return;
-            }
-
-        }else{
-            clip(-1);
-            return;
-        }
-        
-
-        float4 col = float4(0, 1, 1, 1);
+    // 2. Create a grayscale color by using the depth value for all three (R, G, B) color channels.
+    float4 textureColor = float4(depthValue, depthValue, depthValue, 1.0);
     
-    
-        float4 ffcol = v_Texture.Sample(v_Texture_sampler, PSIn.Uv) * PSIn.v_Color;
-
-        //ffcol.a 
-
-        
-
-
-        PSOut.Color = ffcol;
+    // 3. Multiply by the vertex color to allow tinting (like you do already).
+    PSOut.Color = textureColor * PSIn.v_Color;
 
 
     }

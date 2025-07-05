@@ -24,7 +24,8 @@ SceneGraph* SceneGraph::m_CurrentGraph = nullptr;
 #include "SharpComponent.h"
 #include "OctreeNode.h"
 #include "OctreeScene.h"
-
+#include "SkySystem.h"
+#include "RenderTarget2D.h"
 bool addedGraphFuncs = false;
 
 void CollectLightsRecursive(GraphNode* node, std::vector<GraphNode*>& lights_list) {
@@ -66,6 +67,12 @@ SceneGraph::SceneGraph() {
 
 	m_ShadowRenderer = new CubeRenderer(this, nullptr);
 	m_RootNode->SetRenderType(NodeRenderType::RenderType_Static, false);
+	m_Sky = new SkySystem;
+	m_ShadowCam = new GraphNode;
+	m_ShadowCam->AddComponent(new CameraComponent());
+	//AddNode(m_Sky->GetDome());
+
+
 }
 
 void SceneGraph::SetRootNode(GraphNode* node) {
@@ -114,6 +121,61 @@ void SceneGraph::RenderDepth() {
 
 
 }
+float tod = 0;
+void CalculateLightSpaceMatrices(
+	GraphNode* mainCameraNode,
+	LightComponent* light,
+	glm::mat4& outLightView,
+	glm::mat4& outLightProjection)
+{
+	const float shadowAreaHalfSize = 25.0f;
+
+	// Center the shadow area on the ground below the main camera.
+	glm::vec3 cameraPos = mainCameraNode->GetPosition();
+	glm::vec3 areaCenter = glm::vec3(cameraPos.x, 0.0f, cameraPos.z);
+
+	// Use the world's Y-axis as the "up" direction.
+	glm::vec3 upVector = glm::vec3(0.0f, 1.0f, 0.0f);
+
+	// --- FIX #1: Correctly use the light's direction without negation. ---
+	glm::vec3 lightDir = -light->GetDirection();
+
+	// Create the light's view matrix.
+	glm::vec3 lightPos = areaCenter - lightDir * 20.0f; // Position light far back
+	outLightView = glm::lookAt(lightPos, areaCenter, upVector);
+
+	// To calculate a stable depth range (minZ, maxZ), we still need the corners.
+	std::vector<glm::vec4> worldSpaceCorners;
+	worldSpaceCorners.reserve(8);
+	// ... (corner generation is the same)
+	worldSpaceCorners.push_back(glm::vec4(areaCenter.x - shadowAreaHalfSize, areaCenter.y - shadowAreaHalfSize, areaCenter.z - shadowAreaHalfSize, 1.0f));
+	worldSpaceCorners.push_back(glm::vec4(areaCenter.x + shadowAreaHalfSize, areaCenter.y - shadowAreaHalfSize, areaCenter.z - shadowAreaHalfSize, 1.0f));
+	worldSpaceCorners.push_back(glm::vec4(areaCenter.x + shadowAreaHalfSize, areaCenter.y + shadowAreaHalfSize, areaCenter.z - shadowAreaHalfSize, 1.0f));
+	worldSpaceCorners.push_back(glm::vec4(areaCenter.x - shadowAreaHalfSize, areaCenter.y + shadowAreaHalfSize, areaCenter.z - shadowAreaHalfSize, 1.0f));
+	worldSpaceCorners.push_back(glm::vec4(areaCenter.x - shadowAreaHalfSize, areaCenter.y - shadowAreaHalfSize, areaCenter.z + shadowAreaHalfSize, 1.0f));
+	worldSpaceCorners.push_back(glm::vec4(areaCenter.x + shadowAreaHalfSize, areaCenter.y - shadowAreaHalfSize, areaCenter.z + shadowAreaHalfSize, 1.0f));
+	worldSpaceCorners.push_back(glm::vec4(areaCenter.x + shadowAreaHalfSize, areaCenter.y + shadowAreaHalfSize, areaCenter.z + shadowAreaHalfSize, 1.0f));
+	worldSpaceCorners.push_back(glm::vec4(areaCenter.x - shadowAreaHalfSize, areaCenter.y + shadowAreaHalfSize, areaCenter.z + shadowAreaHalfSize, 1.0f));
+
+	float minZ = std::numeric_limits<float>::max();
+	float maxZ = std::numeric_limits<float>::lowest();
+
+	for (const auto& corner : worldSpaceCorners) {
+		glm::vec4 trf = outLightView * corner;
+		minZ = std::min(minZ, trf.z);
+		maxZ = std::max(maxZ, trf.z);
+	}
+
+	// --- FIX #2: Stabilize the projection's width and height. ---
+	// The Left, Right, Bottom, and Top planes are now constant, which stops the swimming.
+	// The Near and Far planes (minZ, maxZ) are still calculated dynamically for a tight fit.
+	outLightProjection = glm::ortho(
+		-shadowAreaHalfSize, shadowAreaHalfSize,
+		-shadowAreaHalfSize, shadowAreaHalfSize,
+		minZ-50, maxZ+50
+	);
+}
+
 
 void SceneGraph::Render() {
 
@@ -121,7 +183,89 @@ void SceneGraph::Render() {
 
 	m_CurrentGraph = this;
 
+	//tod += 0.001;
 
+	//tod = 0.75f;
+	m_Sky->timeOfDay = 0.05f;
+	m_Sky->m_SunLight = m_Lights[0];
+	m_Sky->RenderSky(m_Camera);
+	m_RootNode->Render(m_Camera);
+	return;
+	
+	GraphNode* lightNode = m_Lights[0];
+	LightComponent* lightComp = lightNode->GetComponent<LightComponent>();
+
+
+	if (lightComp && lightComp->GetLightType() == LightType::Directional)
+	{
+		// 1. Automatically calculate the perfect matrices
+		glm::mat4 lightView, lightProjection;
+		CalculateLightSpaceMatrices(m_Camera, lightComp, lightView, lightProjection);
+
+		// 2. Decompose the matrices to set the camera transform
+		glm::mat4 cameraWorldMatrix = glm::inverse(lightView);
+		glm::vec3 cameraPos = glm::vec3(cameraWorldMatrix[3]);
+		glm::mat4 cameraRot = glm::mat4(glm::mat3(cameraWorldMatrix));
+
+		// 3. Configure the shadow camera with the calculated transforms
+		auto shadowCamComp = m_ShadowCam->GetComponent<CameraComponent>();
+		shadowCamComp->SetProjection(lightProjection); // Use correct function name
+		m_ShadowCam->SetPosition(cameraPos);
+		m_ShadowCam->SetRotation(cameraRot);
+
+		// 4. Render the scene to the main screen using the light's view
+		m_RootNode->Render(m_ShadowCam);
+	}
+
+	// The return prevents the normal scene from rendering
+	return;
+
+	return;
+
+	m_Sky->timeOfDay = tod;
+	m_Sky->m_SunLight = m_Lights[0];
+	m_RootNode->Render(m_Camera);
+	return;
+
+	if (!m_Lights.empty())
+	{
+		GraphNode* lightNode = m_Lights[0];
+		LightComponent* lightComp = lightNode->GetComponent<LightComponent>();
+
+		if (lightComp && lightComp->GetLightType() == LightType::Directional)
+		{
+			// These parameters are for tuning if the view is still not right
+			float shadow_area_size = 150.0f;
+			float near_plane = 1.0f;
+			float far_plane = 5000.0f;
+			glm::vec3 up_vector = glm::vec3(0.0f, 1.0f, 0.0f);
+			glm::vec3 lookAtTarget = m_Camera->GetPosition();
+			glm::vec3 lightPos = lookAtTarget - (lightComp->GetDirection() * 1000.0f);
+
+			glm::mat4 lightProjection = glm::ortho(-shadow_area_size, shadow_area_size,
+				-shadow_area_size, shadow_area_size,
+				near_plane, far_plane);
+
+			glm::mat4 lightView = glm::lookAt(lightPos, lookAtTarget, up_vector);
+
+			// --- FIX #1: Removed the negative sign from -lightView ---
+			glm::mat4 cameraWorldMatrix = glm::inverse(lightView);
+
+			auto shadowCamComp = m_ShadowCam->GetComponent<CameraComponent>();
+
+			// --- FIX #2: Changed SetProjection to SetProjectionMatrix ---
+			shadowCamComp->SetProjection(lightProjection);
+
+			// Set the transform on the GraphNode
+			m_ShadowCam->SetPosition(lightPos);
+			m_ShadowCam->SetRotation(cameraWorldMatrix);
+
+			// Render the scene to the main screen using the shadow camera
+			m_RootNode->Render(m_ShadowCam);
+		}
+	}
+//	return;
+	//m_Sky->RenderSky(m_Camera);
 
 
 
@@ -176,26 +320,87 @@ void SceneGraph::SetCamera(GraphNode* camera) {
 
 void SceneGraph::RenderShadows() {
 
-	for (auto light : m_Lights) {
-		auto mat = light->GetWorldMatrix();
-		glm::vec3 position = glm::vec3(mat[3]);
 
+	for (auto lightNode : m_Lights) {
+		auto lightComp = lightNode->GetComponent<LightComponent>();
+		if (!lightComp) continue;
 
-		//map_data[0].g_LightPosition = glm::vec4(position, 1.0f); // Li
-		m_ShadowRenderer->RenderDepth(position, light->GetComponent<LightComponent>()->GetRange(),light->GetComponent<LightComponent>()->GetShadowMap());
+		switch (lightComp->GetLightType()) {
 
+		case LightType::Directional:
+		{
+			// --- NEW: Directional Light Path ---
+			// First, ensure the light's orthographic matrix is up-to-date
+			     RenderDirectionalShadowMap(lightComp);
+			break;
+		}
+
+		case LightType::Point:
+		{
+			// --- EXISTING: Point Light Path ---
+			auto shadowMap = lightComp->GetShadowMap();
+			if (shadowMap) {
+				auto mat = lightNode->GetWorldMatrix();
+				glm::vec3 position = glm::vec3(mat[3]);
+				m_ShadowRenderer->RenderDepth(position, lightComp->GetRange(), shadowMap);
+			}
+			break;
+		}
+
+		// case LightType::Spot:
+		//    // Spotlights would also use the directional path as they use a 2D map
+		//    break;
+		}
 	}
 
 }
 
-void SceneGraph::Reset() {
+void SceneGraph::RenderDirectionalShadowMap(LightComponent* light)
+{
+	auto shadowMap = light->GetDirectionalShadowMap();
+	if (!shadowMap) return;
+
+	// 1. Bind the render target for the shadow map
+	shadowMap->Bind();
+
+	// 2. Automatically calculate the ideal view and projection matrices
+	glm::mat4 lightView, lightProjection;
+	CalculateLightSpaceMatrices(m_Camera, light, lightView, lightProjection);
+
+	// 3. Store the combined matrix for the main rendering pass to use later
+	light->SetLightSpaceMatrix(lightProjection * lightView);
+
+	// 4. Get the camera component
+	auto shadowCamComp = m_ShadowCam->GetComponent<CameraComponent>();
+
+	// 5. Decompose the final view matrix to set the GraphNode's properties
+	glm::mat4 cameraWorldMatrix = glm::inverse(lightView); // FIX #1: Removed the "-" sign
+	glm::vec3 cameraPos = glm::vec3(cameraWorldMatrix[3]);
+	glm::mat4 cameraRot = glm::mat4(glm::mat3(cameraWorldMatrix));
+
+	// 6. Configure the shadow camera with the calculated transforms
+	shadowCamComp->SetProjection(lightProjection); // FIX #2: Corrected function name
+	m_ShadowCam->SetPosition(cameraPos);
+	m_ShadowCam->SetRotation(cameraRot);
+
+	// 7. Render the scene's depth using the correctly configured shadow camera
+	if (m_RootNode) {
+		m_RootNode->RenderDepth(m_ShadowCam);
+	}
+
+	// 8. Unbind the render target to return to the main framebuffer
+	shadowMap->Release();
+}
+
+void SceneGraph::Reset() { 
 
 	m_RayTester = new Intersections();
 }
 
 void SceneGraph::Update(float dt) {
 
-
+	m_Sky->Update();
+	m_Sky->m_TotalTime += dt;
 	m_CurrentGraph = this;
 	m_RootNode->UpdatePhysics();
 	m_RootNode->Update(dt);

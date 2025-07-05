@@ -13,7 +13,7 @@
 #include "SharpComponent.h"
 #include "SceneGraph.h"
 #include "LightComponent.h" 
-
+#include <glm/gtc/quaternion.hpp>
 using namespace Diligent;
 physx::PxQuat glmMat4ToPxQuat(const glm::mat4& rotationMatrix)
 {
@@ -1338,4 +1338,25 @@ void GraphNode::JReadScripts(const json& j) {
 	for (auto& node : m_Nodes) {
 		node->JReadScripts(j);
 	}
+}
+
+void GraphNode::LookAt(glm::vec3 pos)
+{
+
+	glm::vec3 direction = glm::normalize(pos);
+
+	// Define the 'up' direction for the world. Based on our previous work,
+	// your engine uses Z as the vertical axis.
+	glm::vec3 up = glm::vec3(0.0f,0,1.0f);
+
+	// Use glm::quatLookAt to create a quaternion representing the desired orientation.
+	// This is a safe and robust way to handle look-at rotations.
+	glm::quat targetOrientation = glm::quatLookAt(direction, up);
+
+	// Convert the quaternion to a 4x4 rotation matrix and assign it.
+	m_Rotation = glm::mat4_cast(targetOrientation);
+
+	// Mark the bounds as dirty since the node's orientation has changed.
+	MarkBoundsAsDirty();
+
 }

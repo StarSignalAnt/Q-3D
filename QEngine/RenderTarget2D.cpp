@@ -59,6 +59,10 @@ RenderTarget2D::RenderTarget2D(int width, int height,bool isdepth) {
 
 }
 
+Texture2D* RenderTarget2D::GetDepthTexture2D() {
+	return new Texture2D(GetDepthTexture(), GetDepthShaderView());
+}
+
 void RenderTarget2D::ClearZ() {
 
 	QEngine::m_pImmediateContext->ClearDepthStencil(m_DepthView, CLEAR_DEPTH_FLAG, 1.0f, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);

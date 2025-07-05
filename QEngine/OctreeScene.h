@@ -109,6 +109,9 @@ public:
 
     void CheckNodes();
     void FinalizeStreamedNodes();
+    void SetFlatIntersects(bool flat) {
+        m_FlatIntersects = flat;
+    }
 private:
     void DebugLogRecursive(const OctreeNode* node, int depth, const std::string& path, size_t& nodeCount) const;
     void LoadAllNodesRecursive(OctreeNode* node, VFile* dataFile);
@@ -164,4 +167,5 @@ private:
     mutable std::mutex m_BufferPoolMutex;
     uint64_t m_CurrentFrame = 0; // NEW: Frame counter for buffer retirement
     const uint32_t m_BufferRetireFrameCount = 3; // Retire buffers for 3 frames
+    bool m_FlatIntersects = true;
 };

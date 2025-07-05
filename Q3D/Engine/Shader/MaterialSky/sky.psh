@@ -1,5 +1,22 @@
 #define dx 1.0
-
+#define PI 3.14159265359
+cbuffer Constants
+{
+    float4x4 g_MVP;
+  float4x4 g_ModelMatrix;
+    float4x4 g_ViewMatrix;
+    float4x4 g_ProjectionMatrix;
+    float4 g_SunDir;
+    float4 g_CameraPos;
+    float4 g_AtmosRadius;
+    float4 g_LightDir;
+    float4 g_PlanetRadius;
+    float4 g_RayLeigh;
+    float4 g_Mie;
+    float4 g_SunIntense;
+float4 g_DaylightFactor;
+float4 g_Time;
+};
 
 
 
@@ -8,6 +25,7 @@ struct PSInput
     float4 Pos : SV_POSITION;
     float3 Uv : TEX_COORD;
     float4 v_Color : COLOR2;
+    float3 WorldPos : TEXCOORD1;
  
  // float3 Norm : NORMAL0;x
 };
@@ -17,23 +35,132 @@ struct PSOutput
     float4 Color : SV_TARGET;
 };
 
+
+float2 raySphereIntersect(float3 rayOrigin, float3 rayDir, float sphereRadius)
+{
+    float a = dot(rayDir, rayDir);
+    float b = 2.0 * dot(rayOrigin, rayDir);
+    float c = dot(rayOrigin, rayOrigin) - (sphereRadius * sphereRadius);
+    float d = b * b - 4.0 * a * c;
+    if (d < 0.0)
+    {
+        return float2(-1.0, -1.0);
+    }
+    d = sqrt(d);
+    return float2(-b - d, -b + d) / (2.0 * a);
+}
+float simple_hash(float3 p)
+{
+    p = frac(p * 0.1031);
+    p += dot(p, p.yzx + 19.19);
+    return frac((p.x + p.y) * p.z);
+}
+float N21(float2 p)
+{
+    p = frac(p * float2(123.34, 345.45));
+    p += dot(p, p + 34.345);
+    return frac(p.x * p.y);
+}
+
 // Note that if separate shader objects are not supported (this is only the case for old GLES3.0 devices), vertex
 // shader output variable name must match exactly the name of the pixel shader input variable.
 // If the variable has structure type (like in this example), the structure declarations must also be identical.
 void main(in PSInput PSIn,
     out PSOutput PSOut)
 {
+ //float3 worldDir = normalize(PSIn.WorldPos);
 
-    float4 col = float4(0, 1, 1, 1);
-  
-   
-
-    //ffcol.a 
-
+  float3 origin = g_CameraPos.xyz;
+    float3 viewDir = normalize(PSIn.WorldPos - origin);
+    float2 atmosphereIntersect = raySphereIntersect(origin, viewDir, g_AtmosRadius.x);
     
+    if (atmosphereIntersect.y < 0.0)
+    {
+        PSOut.Color = float4(0, 0, 0, 1);
+        return;
+    }
+    float distToAtmosphere = atmosphereIntersect.y;
+
+    float mu = dot(viewDir, g_LightDir.xyz);
+    float rayleighPhase = (3.0 / (16.0 * PI)) * (1.0 + mu * mu);
+    float g = 0.85;
+    float mieDenominator = pow(1.0 + g * g - 2.0 * g * mu, 1.5);
+    float miePhase = 0.0;
+    if (mieDenominator > 0.00001)
+    {
+        miePhase = (3.0 / (8.0 * PI)) * ((1.0 - g * g) * (1.0 + mu * mu)) / ((2.0 + g * g) * mieDenominator);
+    }
+
+    int numSamples = 16;
+    float segmentLength = distToAtmosphere / float(numSamples);
+    float3 rayleighSum = float3(0, 0, 0);
+    float3 mieSum = float3(0, 0, 0);
+
+    for (int i = 0; i < numSamples; ++i)
+    {
+        float3 samplePos = origin + viewDir * (float(i) + 0.5) * segmentLength;
+        float sampleHeight = length(samplePos) - g_PlanetRadius.x;
+        float h = max(0.0, sampleHeight);
+        float lightOpticalDepth = exp(-h / 2.0);
+        float viewOpticalDepth = exp(-h / 8.0);
+        rayleighSum += lightOpticalDepth * viewOpticalDepth;
+        mieSum += lightOpticalDepth * viewOpticalDepth;
+    }
+
+    float3 finalColor = g_SunIntense.x * (rayleighPhase * g_RayLeigh.xyz * rayleighSum + miePhase * g_Mie.x * mieSum);
+
+    float sunDot = dot(viewDir, g_LightDir.xyz);
+    if (sunDot > 0.998)
+    {
+        finalColor += g_SunIntense.x * 2.0;
+    }
+
+     // --- ADD HIGH-QUALITY TWINKLING STARS ---
+    float3 worldDir = normalize(PSIn.WorldPos);
+
+    // 1. Quantize the input vector to get a stable input for our hash function.
+    float3 stable_input = floor(worldDir * 420.0);
+
+    // 2. Determine if a primary star exists at this pixel.
+    float star_noise = simple_hash(stable_input);
+    float base_star = smoothstep(0.999, 1.0, star_noise);
+    
+    float final_star_brightness = 0.0;
+
+    if (base_star > 0.0)
+    {
+        // 3. If a star exists, calculate its twinkle effects.
+        // Use the unique 'star_noise' value as a seed for each effect.
+
+        // Effect A: A slow, gentle pulse.
+        float slow_pulse = sin(g_Time.x * 0.5 + star_noise * 6.283) * 0.5 + 0.5; // Varies between 0.0 and 1.0
+        slow_pulse = lerp(0.6, 1.0, slow_pulse); // Remap so stars dim to 60% instead of disappearing.
+
+        // Effect B: Fast, sharp glints.
+        float glint_noise = simple_hash(float3(star_noise, g_Time.x * 10.0, 0.0));
+        float glint = pow(glint_noise, 60.0); // High power creates very sharp, rare flashes.
+
+        final_star_brightness = base_star * (slow_pulse + glint);
+    }
+
+    // 4. Add a second, sparser layer of dimmer background stars.
+    float background_star_noise = simple_hash(stable_input * 0.5 + 50.0);
+    float background_star = smoothstep(0.9995, 1.0, background_star_noise);
+    if (background_star > 0.0)
+    {
+        // These stars have a very slow, subtle pulse and no sharp glints.
+        float slow_pulse = sin(g_Time.x * 0.2 + background_star_noise * 6.283) * 0.5 + 0.5;
+        final_star_brightness += background_star * lerp(0.3, 0.7, slow_pulse);
+    }
+    
+    // --- Final Composition ---
+    // Fade all stars in at night and add to the final image.
+    finalColor += final_star_brightness * (1.0 - g_DaylightFactor.x);
 
 
-    PSOut.Color = col;
+    PSOut.Color = float4(finalColor, 1.0);
 
 
+
+ 
 }

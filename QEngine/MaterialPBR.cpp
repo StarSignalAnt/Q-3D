@@ -13,6 +13,7 @@
 #include "GraphNode.h"
 #include "RenderTargetCube.h"
 #include "VFile.h"
+#include "RenderTarget2D.h"
 
 using namespace Diligent;
 
@@ -35,6 +36,7 @@ struct PBRConstant {
     glm::vec4 g_AmbientColor;   // Ambient light color (w component unused)
     glm::vec4 g_LightType;      // x: LightType (0=point, 1=directional, 2=spot), y-w: unused
     glm::vec4 g_SpotLightCone;  // x: inner cone angle (cos), y: outer cone angle (cos), z-w: unused
+    glm::mat4 g_LightSpaceMatrix;
 };
 
 
@@ -208,6 +210,11 @@ MaterialPBR::MaterialPBR() {
     vars.push_back(v_tex);
 
     v_tex.ShaderStages = SHADER_TYPE_PIXEL;
+    v_tex.Name = "v_TextureDirShadow";
+    v_tex.Type = SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC;
+    vars.push_back(v_tex);
+
+    v_tex.ShaderStages = SHADER_TYPE_PIXEL;
     v_tex.Name = "v_TextureHeight";
     v_tex.Type = SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC;
     vars.push_back(v_tex);
@@ -269,6 +276,14 @@ MaterialPBR::MaterialPBR() {
     samplers.push_back(v_sampler);
 
     v_sampler.Desc = v_rsampler;
+    v_sampler.SamplerOrTextureName = "v_TextureDirShadow";
+    v_sampler.ShaderStages = SHADER_TYPE_PIXEL;
+
+
+
+    samplers.push_back(v_sampler);
+
+    v_sampler.Desc = v_rsampler;
     v_sampler.SamplerOrTextureName = "v_TextureHeight";
     v_sampler.ShaderStages = SHADER_TYPE_PIXEL;
 
@@ -281,9 +296,9 @@ MaterialPBR::MaterialPBR() {
     rl_desc.DefaultVariableType = SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
     rl_desc.Variables = vars.data();
     rl_desc.ImmutableSamplers = samplers.data();
-    rl_desc.NumVariables = 7;
+    rl_desc.NumVariables = 8;
 
-    rl_desc.NumImmutableSamplers = 7;
+    rl_desc.NumImmutableSamplers = 8;
 
 
     PipelineStateDesc pso_desc;
@@ -449,6 +464,11 @@ MaterialPBR::MaterialPBR() {
     vars.push_back(v_tex);
 
     v_tex.ShaderStages = SHADER_TYPE_PIXEL;
+    v_tex.Name = "v_TextureDirShadow";
+    v_tex.Type = SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC;
+    vars.push_back(v_tex);
+
+    v_tex.ShaderStages = SHADER_TYPE_PIXEL;
     v_tex.Name = "v_TextureHeight";
     v_tex.Type = SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC;
     vars.push_back(v_tex);
@@ -511,6 +531,14 @@ MaterialPBR::MaterialPBR() {
     samplers.push_back(v_sampler);
 
     v_sampler.Desc = v_rsampler;
+    v_sampler.SamplerOrTextureName = "v_TextureDirShadow";
+    v_sampler.ShaderStages = SHADER_TYPE_PIXEL;
+
+
+
+    samplers.push_back(v_sampler);
+
+    v_sampler.Desc = v_rsampler;
     v_sampler.SamplerOrTextureName = "v_TextureHeight";
     v_sampler.ShaderStages = SHADER_TYPE_PIXEL;
 
@@ -523,9 +551,10 @@ MaterialPBR::MaterialPBR() {
     rl_desc.DefaultVariableType = SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
     rl_desc.Variables = vars.data();
     rl_desc.ImmutableSamplers = samplers.data();
-    rl_desc.NumVariables = 7;
+    rl_desc.NumVariables = 8;
 
-    rl_desc.NumImmutableSamplers = 7;
+    rl_desc.NumImmutableSamplers = 8;
+
 
 
     //PipelineStateDesc pso_desc;
@@ -676,9 +705,14 @@ void MaterialPBR::Bind(bool add) {
         m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureMetal")->Set(m_MetallicTexture->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
         m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureRough")->Set(m_RoughnessTexture->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
         m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureEnvironment")->Set(m_EnvironmentMap->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
-        m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureShadow")->Set(m_Light->GetComponent<LightComponent>()->GetShadowMap()->GetTexView(), SET_SHADER_RESOURCE_FLAG_NONE);
-        //m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureHeight")->Set(m_HeightTexture->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
+        if (lc->GetLightType() == LightType::Directional) {
+            m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureDirShadow")->Set(m_Light->GetComponent<LightComponent>()->GetDirectionalShadowMap()->GetDepthView(), SET_SHADER_RESOURCE_FLAG_NONE);
 
+        }
+        else {
+            m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureShadow")->Set(m_Light->GetComponent<LightComponent>()->GetShadowMap()->GetTexView(), SET_SHADER_RESOURCE_FLAG_NONE);
+            //m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_TextureHeight")->Set(m_HeightTexture->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
+        }
 
 
         //Engine::m_pImmediateContext->MapBuffer(BasicUniform, MAP_TYPE::MAP_WRITE, MAP_FLAGS::MAP_FLAG_DISCARD);
@@ -737,8 +771,10 @@ void MaterialPBR::Bind(bool add) {
             map_data[0].g_AmbientColor = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f); // Ambient color
             //map_data[0].g_ParallaxParams = glm::vec4(m_ParalaxScale, 0.05f, 0.05f, 0.05f); // Parallax parameters (example values)
             map_data[0].g_LightType = glm::vec4((int)lc->GetLightType(), 0.0f, 0.0f, 0.0f); // Light type (0=point, 1=directional, 2=spot)
-            map_data[0].g_LightDirection = glm::vec4(m_Light->TransformVector(glm::vec3(0, 0, 1)), 1.0f);
+            map_data[0].g_LightDirection = glm::vec4(-lc->GetDirection(), 1.0f);
             map_data[0].g_SpotLightCone = glm::vec4(0.94f, 0.707, 0, 0);
+            map_data[0].g_LightSpaceMatrix = glm::transpose(lc->GetLightSpaceMatrix());
+
         }
 
 

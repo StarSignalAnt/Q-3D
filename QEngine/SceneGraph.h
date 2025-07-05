@@ -8,6 +8,7 @@
 #include "json.hpp" // Assumes nlohmann/json.hpp is in your project include paths
 using json = nlohmann::json;
 
+class SkySystem;
 class Intersections;
 class GraphNode;
 class CubeRenderer;
@@ -18,7 +19,7 @@ class VFile;
 class SharpComponent;
 class Octree;
 struct Bounds;
-
+class LightComponent;
 
 
 struct HitResult {
@@ -95,12 +96,13 @@ public:
 	void ImportOctree(std::string name);
 private:
 
-
-
+	void RenderDirectionalShadowMap(LightComponent* light);
+	SkySystem* m_Sky;
 	GraphNode* m_RootNode = nullptr;
 	GraphNode* m_Camera;
 	std::vector<GraphNode*> m_Lights;
 	CubeRenderer* m_ShadowRenderer = nullptr;
+	GraphNode* m_ShadowCam;
 	Intersections* m_RayTester;
 	float m_TerrainX = 0;
 	float m_TerrainZ = 0;

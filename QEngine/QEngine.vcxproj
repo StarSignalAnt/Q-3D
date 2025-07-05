@@ -195,6 +195,7 @@
     <ClInclude Include="MaterialProducer.h" />
     <ClInclude Include="MaterialSkeletal.h" />
     <ClInclude Include="MaterialSkeletalDepth.h" />
+    <ClInclude Include="MaterialSky.h" />
     <ClInclude Include="MaterialTerrain.h" />
     <ClInclude Include="MaterialTerrainDepth.h" />
     <ClInclude Include="MathsHelp.h" />
@@ -242,6 +243,7 @@
     <ClInclude Include="SkeletalDepthRendererComponent.h" />
     <ClInclude Include="SkeletalMeshComponent.h" />
     <ClInclude Include="SkeletalRendererComponent.h" />
+    <ClInclude Include="SkySystem.h" />
     <ClInclude Include="soloud\src\audiosource\wav\dr_flac.h" />
     <ClInclude Include="soloud\src\audiosource\wav\dr_mp3.h" />
     <ClInclude Include="soloud\src\audiosource\wav\dr_wav.h" />
@@ -312,6 +314,7 @@
     <ClCompile Include="MaterialProducer.cpp" />
     <ClCompile Include="MaterialSkeletal.cpp" />
     <ClCompile Include="MaterialSkeletalDepth.cpp" />
+    <ClCompile Include="MaterialSky.cpp" />
     <ClCompile Include="MaterialTerrain.cpp" />
     <ClCompile Include="MaterialTerrainDepth.cpp" />
     <ClCompile Include="MathsHelp.cpp" />
@@ -363,6 +366,7 @@
     <ClCompile Include="SkeletalDepthRendererComponent.cpp" />
     <ClCompile Include="SkeletalMeshComponent.cpp" />
     <ClCompile Include="SkeletalRendererComponent.cpp" />
+    <ClCompile Include="SkySystem.cpp" />
     <ClCompile Include="soloud\src\audiosource\wav\dr_impl.cpp" />
     <ClCompile Include="soloud\src\audiosource\wav\soloud_wav.cpp" />
     <ClCompile Include="soloud\src\audiosource\wav\soloud_wavstream.cpp" />

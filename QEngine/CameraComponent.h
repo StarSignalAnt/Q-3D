@@ -30,7 +30,11 @@ public:
         m_NearPlane = nearPlane;
         m_FarPlane = farPlane;
     }
+    void SetProjection(glm::mat4 proj) {
+        m_ProjOver = proj;
+        useOver = true;
 
+    }
 private:
     struct FrustumPlane
     {
@@ -46,4 +50,6 @@ private:
     float m_FOV = 60.0f;
     float m_NearPlane = 0.1f;
     float m_FarPlane = 100.0f;
+    glm::mat4 m_ProjOver = glm::mat4(1.0);
+    bool useOver = false;
 };

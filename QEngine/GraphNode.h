@@ -250,6 +250,7 @@ public:
 	NodeRenderType GetRenderType() {
 		return m_RenderType;
 	}
+	void LookAt(glm::vec3 pos);
 private:
 
 	Bounds* m_Bounds = nullptr;

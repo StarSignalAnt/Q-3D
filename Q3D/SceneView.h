@@ -235,6 +235,7 @@ private:
 	GameFont* m_Font;
 	GraphNode* m_ViewCam;
 	int m_LastUpdate = 0;
+
 };
 
 

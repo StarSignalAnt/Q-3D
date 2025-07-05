@@ -1,7 +1,19 @@
 cbuffer Constants
 {
     float4x4 g_MVP;
-
+    float4x4 g_ModelMatrix;
+    float4x4 g_ViewMatrix;
+    float4x4 g_ProjectionMatrix;
+    float4 g_SunDir;
+    float4 g_CameraPos;
+    float4 g_AtmosRadius;
+    float4 g_LightDir;
+    float4 g_PlanetRadius;
+    float4 g_RayLeigh;
+    float4 g_Mie;
+    float4 g_SunIntense;
+float4 g_DaylightFactor;
+float4 g_Time;
 };
 
 // Vertex shader takes two inputs: vertex position and uv coordinates.
@@ -24,6 +36,8 @@ struct PSInput
     float4 Pos : SV_POSITION;
     float3 Uv : TEX_COORD;
     float4 v_Color : COLOR2;
+    float3 WorldPos : TEXCOORD1;
+
 
 };
 
@@ -33,9 +47,24 @@ struct PSInput
 void main(in VSInput VSIn,
           out PSInput PSIn)
 {
+    PSIn.WorldPos = VSIn.Pos;
 
-    PSIn.Pos = mul(float4(VSIn.Pos, 1.0), g_MVP);
+    // Create a view matrix with only rotation
+    float4x4 viewRotationOnly = g_ViewMatrix;
+    viewRotationOnly[3] = float4(0, 0, 0, 1);
+
+    // Correct the handedness of the projection matrix from right-handed (GLM) to left-handed (HLSL)
+    float4x4 leftHandedProj = g_ProjectionMatrix;
+    leftHandedProj[2].z *= -1.0;
+
+    // --- NEW MATH ORDER ---
+    // Calculate final position using column-major order: P * V * M * v
+    float4 clipPos = mul(leftHandedProj, mul(viewRotationOnly, mul(g_ModelMatrix, float4(VSIn.Pos, 1.0))));
+
+    // Use the .xyww swizzle trick to force depth to the far plane
+    PSIn.Pos = clipPos.xyww;
+
+    // Pass through other data
     PSIn.Uv = VSIn.Uv;
     PSIn.v_Color = VSIn.Color;
- 
 }

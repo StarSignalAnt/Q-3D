@@ -15,6 +15,7 @@ cbuffer Constants
     float4 g_AmbientColor;
     float4 g_LightType;      // x: LightType (0=point, 1=directional, 2=spot), y-w: unused
     float4 g_SpotLightCone;  // x: inner cone angle (cos), y: outer cone angle (cos), z-w: unused
+     float4x4 g_LightSpaceMatrix; 
 };
 
 struct VSInput
@@ -36,6 +37,8 @@ struct PSInput
     float3 Normal : TEXCOORD3;
     float3 Tangent : TEXCOORD4;
     float3 Binormal : TEXCOORD5;
+    float4 LightSpacePos : TEXCOORD6; 
+
 };
 
 void main(in VSInput VSIn, out PSInput PSIn)
@@ -52,4 +55,5 @@ float3 binormal = normalize(mul(VSIn.BiNorm, (float3x3)g_NormalMatrix));
     PSIn.Normal = normal;
     PSIn.Tangent = tangent;
     PSIn.Binormal = binormal;
+     PSIn.LightSpacePos = mul(float4(PSIn.WorldPos, 1.0), g_LightSpaceMatrix);
 }

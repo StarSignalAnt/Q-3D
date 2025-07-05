@@ -144,7 +144,7 @@ GraphNode* Importer::ImportEntity(std::string path,bool gen_lod) {
 
                 MaterialPBR* pbr = new MaterialPBR;
                 
-                pbr->Load(m_path);
+               // pbr->Load(m_path);
                 pbr->SetName(m_name.C_Str());
                 QEngine::m_ActiveMaterials.push_back(pbr);
                 materials.push_back(pbr);
@@ -159,8 +159,8 @@ GraphNode* Importer::ImportEntity(std::string path,bool gen_lod) {
             if (Texture2D* tex = FindTexture(aiMat, aiTextureType_DIFFUSE, modelDir))
             {
 
-                material->SetColorTexture(tex);
-                material->SetTexture(tex, 0);
+           //     material->SetColorTexture(tex);
+            //    material->SetTexture(tex, 0);
             }
             if (Texture2D* tex = FindTexture(aiMat, aiTextureType_SPECULAR, modelDir))
             {
@@ -170,20 +170,20 @@ GraphNode* Importer::ImportEntity(std::string path,bool gen_lod) {
             }
             if (Texture2D* tex = FindTexture(aiMat, aiTextureType_NORMALS, modelDir))
             {
-                material->SetNormalTexture(tex);
+              //  material->SetNormalTexture(tex);
             }
             //aterial->SetNormal(tex);
 
             if (Texture2D* tex = FindTexture(aiMat, aiTextureType_METALNESS, modelDir))
             {
-                material->SetMetallicTexture(tex);
+              //  material->SetMetallicTexture(tex);
             }
             //material->SetMetallic(tex);
 
 
             if (Texture2D* tex = FindTexture(aiMat, aiTextureType_DIFFUSE_ROUGHNESS, modelDir))
             {
-                material->SetRoughnessTexture(tex);
+            //    material->SetRoughnessTexture(tex);
             }
             else {
                 aiString path;
@@ -281,7 +281,7 @@ GraphNode* Importer::ImportEntity(std::string path,bool gen_lod) {
             for (auto sub : meshComponent->GetSubMeshes()) {
 
                 if (gen_lod) {
-                    sub->GenerateLod(5);
+//                    sub->GenerateLod(5);
                 }
             }
             meshComponent->Finalize();

@@ -12,9 +12,9 @@ void StaticDepthRendererComponent::OnRenderDepth(GraphNode* camera) {
 	int b = 5;
 	if (!camera->GetComponent<CameraComponent>()->InFrustum(m_Owner->GetStaticMeshBounds()))
 	{
-		return;
+	//	return;
 	}
-	if (m_Owner->GetRenderType() != NodeRenderType::RenderType_Dynamic) return;
+	//if (m_Owner->GetRenderType() != NodeRenderType::RenderType_Dynamic) return;
 
 
 		for (auto sub : mesh->GetSubMeshes()) {

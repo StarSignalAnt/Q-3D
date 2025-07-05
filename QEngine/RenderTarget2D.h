@@ -40,6 +40,10 @@ public:
 	RefCntAutoPtr<ITextureView> GetDepthView() {
 		return m_DepthShaderView;
 	}
+	RefCntAutoPtr<ITextureView> GetDepthShaderView() {
+		return m_DepthShaderView;
+	}
+	Texture2D* GetDepthTexture2D();
 	Texture2D* GetTexture2D();
 	void ClearZ();
 	void SetClearCol(glm::vec4 col) {

@@ -4,7 +4,9 @@
 #include "GraphNode.h"
 
 glm::mat4 CameraComponent::GetProjectionMatrix() {
-
+    if (useOver) {
+        return m_ProjOver;
+    }
     float aspectRatio = ((float)QEngine::GetFrameWidth()) / ((float)QEngine::GetFrameHeight());
     glm::mat4 projection = glm::perspective(
         glm::radians(m_FOV), // glm expects radians

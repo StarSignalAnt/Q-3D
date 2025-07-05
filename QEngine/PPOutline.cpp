@@ -32,7 +32,7 @@ Texture2D* PPOutline::Process(Texture2D* frame) {
 
 
 	if (m_Node) {
-		m_Node->RenderDepth(m_Camera);
+		//m_Node->RenderDepth(m_Camera);
 	}
 	//m_Draw->SetMaterial((Material2D*)m_ColorLimit);
 	//m_Draw->Rect(frame, float2(0, 0), float2(Engine::GetFrameWidth(), Engine::GetFrameHeight()), float4(1, 1, 1, 1));
