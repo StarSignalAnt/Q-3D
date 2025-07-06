@@ -128,7 +128,7 @@ void CalculateLightSpaceMatrices(
 	glm::mat4& outLightView,
 	glm::mat4& outLightProjection)
 {
-	const float shadowAreaHalfSize = 25.0f;
+	const float shadowAreaHalfSize = 240.0f;
 
 	// Center the shadow area on the ground below the main camera.
 	glm::vec3 cameraPos = mainCameraNode->GetPosition();
@@ -141,7 +141,7 @@ void CalculateLightSpaceMatrices(
 	glm::vec3 lightDir = -light->GetDirection();
 
 	// Create the light's view matrix.
-	glm::vec3 lightPos = areaCenter - lightDir * 20.0f; // Position light far back
+	glm::vec3 lightPos = areaCenter - lightDir * 90.0f; // Position light far back
 	outLightView = glm::lookAt(lightPos, areaCenter, upVector);
 
 	// To calculate a stable depth range (minZ, maxZ), we still need the corners.
@@ -172,7 +172,7 @@ void CalculateLightSpaceMatrices(
 	outLightProjection = glm::ortho(
 		-shadowAreaHalfSize, shadowAreaHalfSize,
 		-shadowAreaHalfSize, shadowAreaHalfSize,
-		minZ-50, maxZ+50
+		minZ, maxZ
 	);
 }
 
@@ -188,8 +188,21 @@ void SceneGraph::Render() {
 	//tod = 0.75f;
 	m_Sky->timeOfDay = 0.05f;
 	m_Sky->m_SunLight = m_Lights[0];
-	m_Sky->RenderSky(m_Camera);
-	m_RootNode->Render(m_Camera);
+	
+
+	if (m_Octree)
+	{
+		m_Octree->CheckNodes();
+		m_Octree->RenderCulled(m_Camera);
+
+	}
+	else
+	{
+		// Fallback to old rendering method if octree isn't built.
+		m_Sky->RenderSky(m_Camera);
+		m_RootNode->Render(m_Camera);
+	}
+
 	return;
 	
 	GraphNode* lightNode = m_Lights[0];
@@ -270,18 +283,7 @@ void SceneGraph::Render() {
 
 
 	// If the octree exists, use it for rendering.
-	if (m_Octree)
-	{
-		m_Octree->CheckNodes();
-		m_Octree->RenderCulled(m_Camera);
-	
-	}
-	else
-	{
-		// Fallback to old rendering method if octree isn't built.
-		Ren_Count = 0;
-		m_RootNode->Render(m_Camera);
-	}
+
 
 	return;
 	
@@ -384,6 +386,9 @@ void SceneGraph::RenderDirectionalShadowMap(LightComponent* light)
 	m_ShadowCam->SetRotation(cameraRot);
 
 	// 7. Render the scene's depth using the correctly configured shadow camera
+	if (m_Octree) {
+		m_Octree->RenderDepthCulled(m_ShadowCam);
+	}else 
 	if (m_RootNode) {
 		m_RootNode->RenderDepth(m_ShadowCam);
 	}
@@ -1462,5 +1467,11 @@ std::vector<GraphNode*> SceneGraph::GetDynamics() {
 	list = GetDynamicNodes(m_RootNode, list);
 
 	return list;
+
+}
+
+void SceneGraph::RenderSky() {
+
+	m_Sky->RenderSky(m_Camera);
 
 }

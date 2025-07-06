@@ -386,6 +386,11 @@ void Octree::RenderCulled(GraphNode* camera)
         auto lb = m_LightBuffers[li];
         lb->SetClearCol(glm::vec4(0, 0, 0, 1));
         lb->Bind();
+        if (firstLightPass) {
+
+            SceneGraph::m_CurrentGraph->RenderSky();
+
+        }
         for (const auto* node : visibleNodes)
         {
             for (const auto& batch_ptr : node->GetRenderBatches()) //
@@ -419,7 +424,9 @@ void Octree::RenderCulled(GraphNode* camera)
                 mat->Bind(false);
                 mat->Render();
 
+
             }
+          
         }
         // --- CRITICAL FIX: Move this line outside the inner loops ---
         // This ensures that the NEXT light source triggers the additive blending state,

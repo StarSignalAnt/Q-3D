@@ -144,6 +144,8 @@ float light_GetShadow(float3 fragPos, float3 lightPos, float lightRange)
         // Note: Poisson disk samples are not used here, could be an improvement.
         float closestDepth = v_TextureShadow.Sample(v_TextureShadow_sampler, normalize(fragToLight)).r;
 
+        if(closestDepth>0.99) return 1.0;
+
         if (closestDepth > currentDepth - 0.001 && closestDepth < currentDepth + 0.0011)
         {
             shadowVal += 0;

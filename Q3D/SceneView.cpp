@@ -128,8 +128,9 @@ SceneView::SceneView(QWidget *parent)
 
  
    // m_SceneGraph->AddNode(m_Test1);
-   m_SceneGraph->AddNode(test2);
-    m_SceneGraph->AddNode(sp1);
+   //m_SceneGraph->AddNode(test2);
+   // m_SceneGraph->AddNode(sp1);
+
 
 
     sp1->SetPosition(glm::vec3(0, 5,0));
@@ -183,11 +184,13 @@ SceneView::SceneView(QWidget *parent)
     l2->GetComponent<LightComponent>()->SetColor(glm::vec3(0,3,3));
     l2->GetComponent<LightComponent>()->SetRange(220);
     l2->GetComponent<LightComponent>()->SetIntensity(1700);
-    //m_SceneGraph->AddLight(l2);
+    l2->GetComponent<LightComponent>()->SetLightType(LightType::Point);
+    m_SceneGraph->AddLight(l2);
 
 
 
-    l2->SetPosition(glm::vec3(80, 40, 6));
+
+    l2->SetPosition(glm::vec3(0, 15, 0));
    
 
 	l1->SetPosition(glm::vec3(15, 25, 0));
@@ -197,7 +200,7 @@ SceneView::SceneView(QWidget *parent)
     movementTimer.start();
     //m_SceneGraph->InitializeOctree();
     //m_SceneGraph->ExportOctree("oc/test1");
-//    m_SceneGraph->ImportOctree("oc/test1");
+    m_SceneGraph->ImportOctree("oc/test1");
 
 
 
@@ -345,7 +348,7 @@ void SceneView::paintEvent(QPaintEvent* event)
 
     int fs = clock();
 
-    //m_SceneGraph->GetOctree()->FinalizeStreamedNodes();
+    m_SceneGraph->GetOctree()->FinalizeStreamedNodes();
     fs = clock() - fs;
     if (fs > 0) {
         //QEngine::DebugLog("Stream MS:" + std::to_string(fs));

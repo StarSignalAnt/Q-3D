@@ -94,6 +94,7 @@ public:
 	}
 	void ExportOctree(std::string name);
 	void ImportOctree(std::string name);
+	void RenderSky();
 private:
 
 	void RenderDirectionalShadowMap(LightComponent* light);

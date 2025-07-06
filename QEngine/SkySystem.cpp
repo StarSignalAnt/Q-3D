@@ -52,7 +52,8 @@ void SkySystem::RenderSky(GraphNode* camera) {
 	m_SkyDome->Render(camera);
    
     auto pos = camera->GetPosition();
-    pos.y = 0;
+    //pos.y = 0;
+
     m_SkyDome->SetPosition(pos);
      
 }
