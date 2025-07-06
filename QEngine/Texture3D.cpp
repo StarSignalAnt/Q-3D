@@ -20,7 +20,7 @@ Texture3D::Texture3D(int width, int height, int depth) :
     TexDesc.Format = TEX_FORMAT_R8_UNORM;
 
     // The texture needs to be bindable as a shader resource to be read in the shader.
-    TexDesc.BindFlags = BIND_SHADER_RESOURCE;
+    TexDesc.BindFlags = BIND_SHADER_RESOURCE | BIND_UNORDERED_ACCESS;
 
     // USAGE_DEFAULT allows the GPU to update the texture, which is what we need.
     TexDesc.Usage = USAGE_DEFAULT;
@@ -81,4 +81,14 @@ void Texture3D::UploadLayer(const void* pData, int depthSlice)
         RESOURCE_STATE_TRANSITION_MODE_NONE,    // Assume texture is already in a good state
         RESOURCE_STATE_TRANSITION_MODE_TRANSITION // Transition texture to be readable by shader
     );
+}
+
+RefCntAutoPtr<ITextureView> Texture3D::GetUAV() {
+    if (m_pUAV == nullptr) {
+        TextureViewDesc ViewDesc;
+        ViewDesc.ViewType = TEXTURE_VIEW_UNORDERED_ACCESS;
+        ViewDesc.Format = m_pTexture->GetDesc().Format;
+        m_pTexture->CreateView(ViewDesc, &m_pUAV);
+    }
+    return m_pUAV;
 }

@@ -22,15 +22,20 @@ public:
     // Uploads a 2D slice of data to a specific depth layer of the 3D texture.
     void UploadLayer(const void* pData, int depthSlice);
 
+    int GetWidth() { return m_Width; }
+    int GetHeight() { return m_Height; }
+    int GetDepth() { return m_Depth; }
+
     // Getters for using the texture in shaders
     RefCntAutoPtr<ITextureView> GetView() { return m_pTextureView; }
     RefCntAutoPtr<ITexture> GetTex() { return m_pTexture; }
-
+    RefCntAutoPtr<ITextureView> GetUAV();
+     
 private:
     int m_Width;
     int m_Height;
     int m_Depth;
-
+    RefCntAutoPtr<ITextureView> m_pUAV;
     RefCntAutoPtr<ITexture> m_pTexture;
     RefCntAutoPtr<ITextureView> m_pTextureView;
 };

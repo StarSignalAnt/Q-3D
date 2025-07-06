@@ -189,10 +189,11 @@ void SceneGraph::Render() {
 
 	m_CurrentGraph = this;
 
-	//tod += 0.001;
+	tod += 0.001;
+
 
 	//tod = 0.75f;
-	m_Sky->timeOfDay = 0.05f;
+	m_Sky->timeOfDay = tod;
 	m_Sky->m_SunLight = m_Lights[0];
 	
 
@@ -208,7 +209,7 @@ void SceneGraph::Render() {
 		m_Sky->RenderSky(m_Camera);
 
 		m_Clouds->Render(m_Camera);
-		m_Clouds->SetSunDir(m_Sky->m_SunDir);
+	//	m_Clouds->SetSunDir(m_Sky->m_SunDir);
 		m_RootNode->Render(m_Camera);
 	}
 
@@ -415,6 +416,15 @@ void SceneGraph::Update(float dt) {
 
 	m_Sky->Update();
 	m_Clouds->Update(dt);
+
+	auto sdir = m_Sky->m_SunDir;
+	float y = sdir.y;
+	sdir.y = sdir.z;
+	sdir.z = y;
+
+	std::cout << "SDir:" + std::to_string(sdir.x) + " Y:" + std::to_string(sdir.y) + " Z:" + std::to_string(sdir.z) << std::endl;
+
+	m_Clouds->SetSunDir(-sdir);
 	m_Sky->m_TotalTime += dt;
 	m_CurrentGraph = this;
 	m_RootNode->UpdatePhysics();

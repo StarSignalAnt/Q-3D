@@ -5,6 +5,7 @@
 class Texture3D;
 class GraphNode;
 class MaterialClouds;
+class MaterialCloudGen;
 
 enum CloudsQuality {
 
@@ -23,7 +24,9 @@ public:
 	void SetMesh(GraphNode* m_Sky);
 	void SetSunDir(glm::vec3 dir);
 	void CreateClouds(float time);
-	float m_Coverage = 0.6f;
+	void GenerateCloudsGPU();
+
+	float m_Coverage = 0.72f;
 	float m_AnimationSpeed = 0.5f;
 	float m_TotalTime;
 private:
@@ -36,6 +39,6 @@ private:
 	glm::vec3 m_SunDir;
 	glm::vec3 m_CloudVolumeStart;
 	glm::vec3 m_CloudVolumeSize;
-
+	MaterialCloudGen* m_CloudGenMaterial = nullptr; // 
 };
 

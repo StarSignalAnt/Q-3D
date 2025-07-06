@@ -190,6 +190,7 @@
     <ClInclude Include="MAsm.h" />
     <ClInclude Include="Material2D.h" />
     <ClInclude Include="MaterialBasic3D.h" />
+    <ClInclude Include="MaterialCloudGen.h" />
     <ClInclude Include="MaterialClouds.h" />
     <ClInclude Include="MaterialDepth.h" />
     <ClInclude Include="MaterialLines.h" />
@@ -312,6 +313,7 @@
     <ClCompile Include="MAsm.cpp" />
     <ClCompile Include="Material2D.cpp" />
     <ClCompile Include="MaterialBasic3D.cpp" />
+    <ClCompile Include="MaterialCloudGen.cpp" />
     <ClCompile Include="MaterialClouds.cpp" />
     <ClCompile Include="MaterialDepth.cpp" />
     <ClCompile Include="MaterialLines.cpp" />

@@ -35,6 +35,14 @@ struct PSOutput
     float4 Color : SV_TARGET;
 };
 
+float HenyeyGreenstein(float cos_angle, float g)
+{
+    float g2 = g * g;
+    return (1.0 - g2) / (4.0 * 3.14159265 * pow(1.0 + g2 - 2.0 * g * cos_angle, 1.5));
+}
+
+
+
 bool RayBoxIntersect(float3 rayOrigin, float3 rayDir, float3 boxMin, float3 boxMax, out float t0, out float t1)
 {
     float3 invRayDir = 1.0 / rayDir;
@@ -75,34 +83,53 @@ void main(in PSInput PSIn,
         clip(-1);
     }
     t_min = max(t_min, 0.0);
+     float daylight_factor = saturate(-m_SunDir.y);
 
- float accumulatedDensity = 0.0;
+    // 3. Raymarch for Lighting
     int numSteps = 64;
     float stepSize = (t_max - t_min) / (float)numSteps;
-    
-    // Start marching from the volume entry point
     float3 currentPos = rayOrigin + rayDir * t_min;
+
+    float3 sun_color = float3(1.0, 0.95, 0.85);
+    float3 ambient_color = float3(0.4, 0.5, 0.65);
+    float eccentricity = 0.6;
+    float density_factor = 0.1;
+
+    // --- NEW: Define a very dim light color for nighttime ---
+    float3 night_light = float3(0.02, 0.03, 0.05);
+
+    float4 final_color = float4(0, 0, 0, 1);
 
     for (int i = 0; i < numSteps; i++)
     {
-        // Convert world position to UVW coordinates (0-1 range) for texture sampling
         float3 uvw = (currentPos - boxMin) / m_VolSize.xyz;
-        
-        // Sample the 3D noise texture to get the density at this point
-        float density = v_Texture.Sample(v_Texture_sampler, uvw).r; // .r because we used an R8 format
-        
-        accumulatedDensity += density;
-        
-        // Move to the next sample point
+        float density = v_Texture.Sample(v_Texture_sampler, uvw).r;
+
+
+        if (density > 0.01)
+        {
+            float cos_angle = dot(rayDir, -m_SunDir.xyz);
+            float phase = HenyeyGreenstein(cos_angle, eccentricity);
+
+            // --- MODIFIED: Interpolate between day and night lighting ---
+
+            // Define the full daytime light (ambient + sun)
+            float3 daytime_light = ambient_color + phase * sun_color;
+            
+            // Linearly interpolate between the dim night light and the bright day light
+            // based on the sun's position.
+            float3 light_at_step = lerp(night_light, daytime_light, daylight_factor);
+
+            float transmittance = exp(-density * stepSize * density_factor);
+            
+            final_color.rgb += density * light_at_step * final_color.a * stepSize * density_factor;
+            final_color.a *= transmittance;
+        }
+
         currentPos += rayDir * stepSize;
     }
 
-    float densityFactor = 0.1; // A tweakable value to control overall opacity
-    float alpha = 1.0 - exp(-accumulatedDensity * stepSize * densityFactor);
-
-    // Output a simple white color with the calculated alpha for our test sphere
-    PSOut.Color = float4(1.0, 1.0, 1.0, alpha);
-
+    PSOut.Color = float4(final_color.rgb, 1.0 - final_color.a);
 
  
 }

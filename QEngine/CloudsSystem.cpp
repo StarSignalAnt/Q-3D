@@ -10,6 +10,7 @@
 #include "StaticMeshComponent.h"
 #define FNL_IMPL
 #include "FastNoiseLite.h"
+#include "MaterialCloudGen.h"
 
 float map(float value, float min1, float max1, float min2, float max2) {
     return min2 + (value - min1) * (max2 - min2) / (max1 - min1);
@@ -60,8 +61,15 @@ CloudsSystem::CloudsSystem(CloudsQuality quality) {
         -m_CloudVolumeSize.z / 2.0f   // -20000
     );
     m_CloudMaterial->m_Map = m_CloudMap;
-    CreateClouds(0);
+    //CreateClouds(0);
+    m_CloudGenMaterial = new MaterialCloudGen;
+    GenerateCloudsGPU();
 }
+
+void CloudsSystem::GenerateCloudsGPU() {
+    m_CloudGenMaterial->Dispatch(m_CloudMap, m_TotalTime, m_Coverage);
+}
+
 
 void CloudsSystem::CreateClouds(float time)
 {
@@ -178,11 +186,14 @@ void CloudsSystem::CreateTestCloudMap()
 
 void CloudsSystem::Update(float dt) {
 
+   
+
     m_CloudMaterial->m_SunDir = m_SunDir;
     m_CloudMaterial->m_VolStart = m_CloudVolumeStart;
     m_CloudMaterial->m_VolSize = m_CloudVolumeSize;
-    m_TotalTime += dt * m_AnimationSpeed;
-   // CreateClouds(m_TotalTime);
+    m_TotalTime += dt * m_AnimationSpeed * 0.1;
+    GenerateCloudsGPU();
+
 }
 
 void CloudsSystem::Render(GraphNode* camera) {
