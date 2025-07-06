@@ -49,7 +49,7 @@ private:
     glm::mat4 m_LastViewProjMatrix = glm::mat4(0.0f); // 
     float m_FOV = 60.0f;
     float m_NearPlane = 0.1f;
-    float m_FarPlane = 100.0f;
+    float m_FarPlane = 1000.0f;
     glm::mat4 m_ProjOver = glm::mat4(1.0);
     bool useOver = false;
 };

@@ -18,6 +18,7 @@ class TerrainMesh;
 class VFile;
 class SharpComponent;
 class Octree;
+class CloudsSystem;
 struct Bounds;
 class LightComponent;
 
@@ -109,5 +110,6 @@ private:
 	float m_TerrainZ = 0;
 	GraphNode* m_Terrain = nullptr;
 	std::unique_ptr<Octree> m_Octree;
+	std::unique_ptr<CloudsSystem> m_Clouds;
 };
 

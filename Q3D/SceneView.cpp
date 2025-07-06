@@ -128,8 +128,8 @@ SceneView::SceneView(QWidget *parent)
 
  
    // m_SceneGraph->AddNode(m_Test1);
-   //m_SceneGraph->AddNode(test2);
-   // m_SceneGraph->AddNode(sp1);
+   m_SceneGraph->AddNode(test2);
+    m_SceneGraph->AddNode(sp1);
 
 
 
@@ -148,7 +148,7 @@ SceneView::SceneView(QWidget *parent)
     cam->SetPosition(glm::vec3(0, 4, 4));
    
     auto cc = cam->GetComponent<CameraComponent>();
-    cc->SetExtents(0.1f, 1000.0f);
+    cc->SetExtents(0.1f, 2000.0f);
 
 
     //auto tex1 = new Texture2D("test/tex1.png");
@@ -200,7 +200,7 @@ SceneView::SceneView(QWidget *parent)
     movementTimer.start();
     //m_SceneGraph->InitializeOctree();
     //m_SceneGraph->ExportOctree("oc/test1");
-    m_SceneGraph->ImportOctree("oc/test1");
+   // m_SceneGraph->ImportOctree("oc/test1");
 
 
 
@@ -348,7 +348,7 @@ void SceneView::paintEvent(QPaintEvent* event)
 
     int fs = clock();
 
-    m_SceneGraph->GetOctree()->FinalizeStreamedNodes();
+   // m_SceneGraph->GetOctree()->FinalizeStreamedNodes();
     fs = clock() - fs;
     if (fs > 0) {
         //QEngine::DebugLog("Stream MS:" + std::to_string(fs));
@@ -434,7 +434,7 @@ void SceneView::paintEvent(QPaintEvent* event)
     QEngine::ClearZ();
     QEngine::SetScissor(0, 0, QEngine::GetFrameWidth(), QEngine::GetFrameHeight());
     m_Draw->BeginFrame();
-    m_Draw->Rect(m_SceneGraph->GetLights()[0]->GetComponent<LightComponent>()->GetDirectionalShadowMap()->GetDepthTexture2D(), glm::vec2(20, 20), glm::vec2(320, 320), glm::vec4(1, 1, 1, 1));
+  //  m_Draw->Rect(m_SceneGraph->GetLights()[0]->GetComponent<LightComponent>()->GetDirectionalShadowMap()->GetDepthTexture2D(), glm::vec2(20, 20), glm::vec2(320, 320), glm::vec4(1, 1, 1, 1));
     m_Draw->Flush();
 
 //    auto tex = m_Vid1->GetFrame();

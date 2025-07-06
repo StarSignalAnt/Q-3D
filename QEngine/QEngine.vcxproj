@@ -157,10 +157,12 @@
     <ClInclude Include="BoneInfo.h" />
     <ClInclude Include="CameraComponent.h" />
     <ClInclude Include="CLBase.h" />
+    <ClInclude Include="CloudsSystem.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="CubeRenderer.h" />
     <ClInclude Include="DataType.h" />
     <ClInclude Include="Draw2D.h" />
+    <ClInclude Include="FastNoiseLite.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GameAudio.h" />
     <ClInclude Include="GameFont.h" />
@@ -188,6 +190,7 @@
     <ClInclude Include="MAsm.h" />
     <ClInclude Include="Material2D.h" />
     <ClInclude Include="MaterialBasic3D.h" />
+    <ClInclude Include="MaterialClouds.h" />
     <ClInclude Include="MaterialDepth.h" />
     <ClInclude Include="MaterialLines.h" />
     <ClInclude Include="MaterialOutline.h" />
@@ -261,6 +264,7 @@
     <ClInclude Include="TerrainMeshComponent.h" />
     <ClInclude Include="TerrainRendererComponent.h" />
     <ClInclude Include="Texture2D.h" />
+    <ClInclude Include="Texture3D.h" />
     <ClInclude Include="TextureCube.h" />
     <ClInclude Include="TickEventNode.h" />
     <ClInclude Include="VFile.h" />
@@ -274,6 +278,7 @@
     <ClCompile Include="BoneInfo.cpp" />
     <ClCompile Include="CameraComponent.cpp" />
     <ClCompile Include="CLBase.cpp" />
+    <ClCompile Include="CloudsSystem.cpp" />
     <ClCompile Include="clusterizer.cpp" />
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="CubeRenderer.cpp" />
@@ -307,6 +312,7 @@
     <ClCompile Include="MAsm.cpp" />
     <ClCompile Include="Material2D.cpp" />
     <ClCompile Include="MaterialBasic3D.cpp" />
+    <ClCompile Include="MaterialClouds.cpp" />
     <ClCompile Include="MaterialDepth.cpp" />
     <ClCompile Include="MaterialLines.cpp" />
     <ClCompile Include="MaterialOutline.cpp" />
@@ -410,6 +416,7 @@
     <ClCompile Include="TerrainMeshComponent.cpp" />
     <ClCompile Include="TerrainRendererComponent.cpp" />
     <ClCompile Include="Texture2D.cpp" />
+    <ClCompile Include="Texture3D.cpp" />
     <ClCompile Include="TextureCube.cpp" />
     <ClCompile Include="TickEventNode.cpp" />
     <ClCompile Include="vcacheoptimizer.cpp" />

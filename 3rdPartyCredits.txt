@@ -10,5 +10,5 @@ Vivid3D uses a number of open-source/free to use libraries.
 8 - Python Embedded RunTime
 9 - PyBind11
 10 - AssImp 
-
+11 - FastNoiseLite C .header
 

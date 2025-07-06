@@ -26,6 +26,7 @@ SceneGraph* SceneGraph::m_CurrentGraph = nullptr;
 #include "OctreeScene.h"
 #include "SkySystem.h"
 #include "RenderTarget2D.h"
+#include "CloudsSystem.h"
 bool addedGraphFuncs = false;
 
 void CollectLightsRecursive(GraphNode* node, std::vector<GraphNode*>& lights_list) {
@@ -70,6 +71,11 @@ SceneGraph::SceneGraph() {
 	m_Sky = new SkySystem;
 	m_ShadowCam = new GraphNode;
 	m_ShadowCam->AddComponent(new CameraComponent());
+	m_Clouds.reset(new CloudsSystem(CloudsQuality::CQ_High));
+	m_Clouds->CreateTestCloudMap();
+
+//	m_Clouds->SetMesh(m_Sky->GetDome());
+
 	//AddNode(m_Sky->GetDome());
 
 
@@ -200,6 +206,9 @@ void SceneGraph::Render() {
 	{
 		// Fallback to old rendering method if octree isn't built.
 		m_Sky->RenderSky(m_Camera);
+
+		m_Clouds->Render(m_Camera);
+		m_Clouds->SetSunDir(m_Sky->m_SunDir);
 		m_RootNode->Render(m_Camera);
 	}
 
@@ -405,6 +414,7 @@ void SceneGraph::Reset() {
 void SceneGraph::Update(float dt) {
 
 	m_Sky->Update();
+	m_Clouds->Update(dt);
 	m_Sky->m_TotalTime += dt;
 	m_CurrentGraph = this;
 	m_RootNode->UpdatePhysics();
