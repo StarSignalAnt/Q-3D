@@ -281,7 +281,7 @@ GraphNode* Importer::ImportEntity(std::string path,bool gen_lod) {
             for (auto sub : meshComponent->GetSubMeshes()) {
 
                 if (gen_lod) {
-//                    sub->GenerateLod(5);
+                    sub->GenerateLod(4);
                 }
             }
             meshComponent->Finalize();

@@ -1,4 +1,4 @@
-#include "PropertiesEditor.h"
+﻿#include "PropertiesEditor.h"
 #include <QScrollArea>
 #include <QFrame>
 #include <qvector3d.h>
@@ -40,6 +40,8 @@ PropertiesEditor::PropertiesEditor(QWidget* parent)
     setPalette(pal);
     setAcceptDrops(true);
     m_Instance = this;
+
+
 }
 
 PropertiesEditor::~PropertiesEditor()
@@ -141,7 +143,265 @@ void PropertiesEditor::SetNode(GraphNode* node) {
 
     if (node == nullptr) return;
 
+    m_Node = node;
+
     AddHeader("Node");
+
+    auto& props = node->GetProperties();
+
+    for (auto& pair : props) {
+
+        const std::string& propName = pair;
+        PropertyType propType = props.GetType(propName);
+
+        switch (propType) {
+        case PropertyType::VEC3:
+            // Use braces to create a scope for new variables
+            if (glm::vec3* p_ptr = props.get<glm::vec3>(propName))
+            {
+
+                float iv = 0.5f;
+                bool is_rot = false;
+                if (propName == "Rotation")
+                {
+                    is_rot = true;
+                    iv = 5;
+                }
+                glm::vec3 initial_p = *p_ptr; // Get the initial value for the UI
+
+                if (is_rot) {
+                    initial_p = m_Node->GetEularRotation();
+                }
+
+                // Pass the initial value to the UI widget
+
+                AddVec3(propName.c_str(), QVector3D(initial_p.x, initial_p.y, initial_p.z), iv,
+
+                    // ✅ SOLUTION: Capture 'props' by reference [&props]
+                    [propName, node, &props, is_rot](const QVector3D& val) {
+
+                        glm::vec3 new_pos(val.x(), val.y(), val.z());
+
+                        if (is_rot) {
+
+                            node->SetRotation(new_pos);
+                            return;
+                        }
+                        // ✅ SOLUTION: Create the new vector from the lambda's 'val' parameter
+
+
+                                                  // Now set() will work on the original props object
+                        props.set(propName, new_pos);
+                    });
+            }
+            break;
+        case PropertyType::STRING:
+            if (std::string* p_ptr = props.get<std::string>(propName))
+            {
+                std::string initial_p = *p_ptr; // Get the initial value for the UI
+
+
+                // Pass the initial value to the UI widget
+                AddText(propName.c_str(), initial_p.c_str(),
+
+                    // ✅ SOLUTION: Capture 'props' by reference [&props]
+                    [propName, &props](const QString& val) {
+
+                        // ✅ SOLUTION: Create the new vector from the lambda's 'val' parameter
+                        //glm::vec3 new_pos(val.x(), val.y(), val.z());
+
+
+                        // Now set() will work on the original props object
+                        props.set(propName, val.toStdString());
+                    });
+            }
+
+
+            break;
+        case PropertyType::ENUM: // It's now a generic Enum type
+        {
+            // 1. Get the base class wrapper for the property
+            if (PropertyEnumBase* enum_prop = props.get_enum(propName)) {
+
+                std::vector<std::string> std_options = enum_prop->getAvailableOptions();
+                QStringList options;
+                for (const std::string& s : std_options) {
+                    options.append(QString::fromStdString(s));
+                }
+                //auto options = QStringList::fromVector(enum_prop->getAvailableOptions());
+                auto current_value = QString::fromStdString(enum_prop->getValueAsString());
+
+                AddStringList(propName.c_str(), options, current_value,
+                    [enum_prop](const QString& text) {
+                        // 3. The callback is also generic
+                        enum_prop->setValueFromString(text.toStdString());
+                    });
+            }
+        }
+        break;
+        }
+
+    }
+
+
+    auto comps = node->GetAllComponents();
+
+    for (auto& com : comps) {
+
+        auto& props = com->GetProperties();
+
+        AddHeader(props.get<std::string>("ComponentName")->c_str());
+
+        for (auto& pair : props) {
+
+            const std::string& propName = pair;
+            PropertyType propType = props.GetType(propName);
+
+            switch (propType) {
+            case PropertyType::INT:
+
+                if (int* p_ptr = props.get<int>(propName))
+                {
+                    int initial_p = *p_ptr; // Get the initial value for the UI
+
+
+
+                    // Pass the initial value to the UI widget
+                    AddInt(propName.c_str(), -10000, 10000, 1, initial_p,
+
+                        // ✅ SOLUTION: Capture 'props' by reference [&props]
+                        [propName, &props](int val) {
+
+                            // ✅ SOLUTION: Create the new vector from the lambda's 'val' parameter
+                            //glm::vec3 new_pos(val.x(), val.y(), val.z());
+
+
+                            // Now set() will work on the original props object
+                            props.set(propName, val);
+                        });
+                }
+
+
+                break;
+            case PropertyType::ENUM: // It's now a generic Enum type
+            {
+                // 1. Get the base class wrapper for the property
+                if (PropertyEnumBase* enum_prop = props.get_enum(propName)) {
+
+                    std::vector<std::string> std_options = enum_prop->getAvailableOptions();
+                    QStringList options;
+                    for (const std::string& s : std_options) {
+                        options.append(QString::fromStdString(s));
+                    }
+                    //auto options = QStringList::fromVector(enum_prop->getAvailableOptions());
+                    auto current_value = QString::fromStdString(enum_prop->getValueAsString());
+
+                    AddStringList(propName.c_str(), options, current_value,
+                        [enum_prop](const QString& text) {
+                            // 3. The callback is also generic
+                            enum_prop->setValueFromString(text.toStdString());
+                        });
+                }
+            }
+                break;
+            case PropertyType::FLOAT:
+                if (float* p_ptr = props.get<float>(propName))
+                {
+                    float initial_p = *p_ptr; // Get the initial value for the UI
+
+
+
+                    // Pass the initial value to the UI widget
+                    AddFloat(propName.c_str(), -10000,10000,1,initial_p,
+
+                        // ✅ SOLUTION: Capture 'props' by reference [&props]
+                        [propName, &props](float val) {
+
+                            // ✅ SOLUTION: Create the new vector from the lambda's 'val' parameter
+                            //glm::vec3 new_pos(val.x(), val.y(), val.z());
+
+
+                            // Now set() will work on the original props object
+                            props.set(propName, val);
+                        });
+                }
+
+
+
+                break;
+            case PropertyType::VEC3:
+                // Use braces to create a scope for new variables
+                if (glm::vec3* p_ptr = props.get<glm::vec3>(propName))
+                {
+
+                    float iv = 0.5f;
+                    bool is_rot = false;
+                    if (propName == "Rotation")
+                    {
+                        is_rot = true;
+                        iv = 5;
+                    }
+                    glm::vec3 initial_p = *p_ptr; // Get the initial value for the UI
+
+                    if (is_rot) {
+                        initial_p = m_Node->GetEularRotation();
+                    }
+
+                    // Pass the initial value to the UI widget
+
+                    AddVec3(propName.c_str(), QVector3D(initial_p.x, initial_p.y, initial_p.z), iv,
+
+                        // ✅ SOLUTION: Capture 'props' by reference [&props]
+                        [propName, node, &props, is_rot](const QVector3D& val) {
+
+                            glm::vec3 new_pos(val.x(), val.y(), val.z());
+
+                            if (is_rot) {
+
+                                node->SetRotation(new_pos);
+                                return;
+                            }
+                            // ✅ SOLUTION: Create the new vector from the lambda's 'val' parameter
+
+
+                                                      // Now set() will work on the original props object
+                            props.set(propName, new_pos);
+                        });
+                }
+                break;
+            case PropertyType::STRING:
+                if (std::string* p_ptr = props.get<std::string>(propName))
+                {
+                    std::string initial_p = *p_ptr; // Get the initial value for the UI
+
+
+                    // Pass the initial value to the UI widget
+                    AddText(propName.c_str(), initial_p.c_str(),
+
+                        // ✅ SOLUTION: Capture 'props' by reference [&props]
+                        [propName, &props](const QString& val) {
+
+                            // ✅ SOLUTION: Create the new vector from the lambda's 'val' parameter
+                            //glm::vec3 new_pos(val.x(), val.y(), val.z());
+
+
+                            // Now set() will work on the original props object
+                            props.set(propName, val.toStdString());
+                        });
+                }
+
+
+                break;
+            }
+
+        }
+
+    }
+
+    EndUI();
+    m_Node = node;
+
+    return;
 
 
     m_currentNameProp = AddText("Name", node->GetName().c_str(), [node](const QString& text) {
@@ -664,8 +924,8 @@ void PropertiesEditor::SetNode(GraphNode* node) {
             });
         });
 
-    EndUI();
-    m_Node = node;
+        EndUI();
+        m_Node = node;
 }
 
 QSize PropertiesEditor::sizeHint() const

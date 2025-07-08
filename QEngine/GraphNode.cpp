@@ -20,11 +20,28 @@ physx::PxQuat glmMat4ToPxQuat(const glm::mat4& rotationMatrix)
 	glm::quat q = glm::quat_cast(rotationMatrix);  // Convert mat4 to glm::quat
 	return physx::PxQuat(q.x, q.y, q.z, q.w);      // Convert to PxQuat
 }
+
+
+const std::vector<std::pair<BodyType, std::string>> BodyTypeOptions = {
+{ BodyType::T_None, "None" },
+{ BodyType::T_Box, "Box" },
+{ BodyType::T_ConvexHull,"Convex Hull"},
+{ BodyType::T_TriMesh,"Tri Mesh"},
+{ BodyType::T_Sphere,"Sphere" }
+};
+
 GraphNode::GraphNode() {
 
 	Reset();
 	m_Components = std::vector<Component*>();
 	m_Name = "Node";
+
+	m_Properties.bind("Name", &m_Name);
+	m_Properties.bind("Position", &m_Position);
+	glm::vec3 tmp = glm::vec3(0, 0, 0);
+	m_Properties.bind("Rotation", &tmp);
+	m_Properties.bind("Scale", &m_Scale);
+	m_Properties.bind_enum("Body Type", &m_BodyType, BodyTypeOptions);
 
 }
 

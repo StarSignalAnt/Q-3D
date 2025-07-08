@@ -40,6 +40,8 @@ float perlin_noise(float3 p)
         w.z);
 }
 
+
+
 // Define how many threads will run in a single group. 8x8x8 is a good default.
 [numthreads(8, 8, 8)]
 void main(uint3 DTid : SV_DispatchThreadID)

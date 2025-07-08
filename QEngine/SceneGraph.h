@@ -99,7 +99,8 @@ public:
 private:
 
 	void RenderDirectionalShadowMap(LightComponent* light);
-	SkySystem* m_Sky;
+	
+	GraphNode* m_SunLight;
 	GraphNode* m_RootNode = nullptr;
 	GraphNode* m_Camera;
 	std::vector<GraphNode*> m_Lights;
@@ -110,6 +111,6 @@ private:
 	float m_TerrainZ = 0;
 	GraphNode* m_Terrain = nullptr;
 	std::unique_ptr<Octree> m_Octree;
-	std::unique_ptr<CloudsSystem> m_Clouds;
+
 };
 

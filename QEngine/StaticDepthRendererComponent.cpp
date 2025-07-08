@@ -21,6 +21,10 @@ void StaticDepthRendererComponent::OnRenderDepth(GraphNode* camera) {
 
 			auto& lod = sub->m_LODs[0];
 
+			if (m_UseLod < sub->m_LODs.size()) {
+				lod = sub->m_LODs[m_UseLod];
+			}
+
 			auto mat = sub->m_DepthMaterial;
 			mat->SetIndexCount(lod->m_Triangles.size() * 3);
 			mat->SetBuffer(lod->VertexBuffer, 0);

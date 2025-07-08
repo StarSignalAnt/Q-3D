@@ -1,4 +1,4 @@
-#include "MaterialPBR.h"
+﻿#include "MaterialPBR.h"
 #include "QEngine.h"
 #include <Graphics/GraphicsEngine/interface/RenderDevice.h>
 #include <Graphics/GraphicsEngine/interface/DeviceContext.h>
@@ -14,6 +14,7 @@
 #include "RenderTargetCube.h"
 #include "VFile.h"
 #include "RenderTarget2D.h"
+#include "PSOBuilder.h"
 
 using namespace Diligent;
 
@@ -57,538 +58,63 @@ MaterialPBR::MaterialPBR() {
 	//m_BRDF = new Texture2D("Engine/Maps/BRDF.png");
 
 
-    SetVertexShader("Engine/Shader/PBR/pbr.vsh");
-    SetPixelShader("Engine/Shader/PBR/pbr.psh");
 
     m_UniformBuffer = CreateUniform(sizeof(PBRConstant), "Basic Uniform Buffer - MVP");
 
-    GraphicsPipelineDesc gp;
-
-
-    RasterizerStateDesc r_desc;
-
-
-    r_desc.CullMode = CULL_MODE_BACK;
-   // r_desc.FillMode = FILL_MODE_WIREFRAME;
-
-
-
-
-    DepthStencilStateDesc ds_desc;
-    ds_desc.DepthEnable = true;
-    ds_desc.DepthFunc = COMPARISON_FUNC_LESS_EQUAL;
-    ds_desc.DepthWriteEnable = true;
-
-
-    BlendStateDesc b_desc;
-
-    b_desc.RenderTargets[0].BlendEnable = true;
-    b_desc.RenderTargets[0].SrcBlend = BLEND_FACTOR::BLEND_FACTOR_SRC_ALPHA;
-    b_desc.RenderTargets[0].DestBlend = BLEND_FACTOR::BLEND_FACTOR_INV_SRC_ALPHA;
-
-
-    LayoutElement pos;
-    LayoutElement color;
-    LayoutElement tex;
-    LayoutElement norm;
-    LayoutElement binorm;
-    LayoutElement tangent;
-
-    std::vector<LayoutElement> elements;
-
-    pos.InputIndex = 0;
-    pos.NumComponents = 3;
-    pos.ValueType = VALUE_TYPE::VT_FLOAT32;
-    pos.IsNormalized = false;
-
-    color.InputIndex = 1;
-    color.NumComponents = 4;
-    color.ValueType = VALUE_TYPE::VT_FLOAT32;
-    color.IsNormalized = false;
-
-    tex.InputIndex = 2;
-    tex.NumComponents = 3;
-    tex.ValueType = VALUE_TYPE::VT_FLOAT32;
-    tex.IsNormalized = false;
-
-    norm.InputIndex = 3;
-    norm.NumComponents = 3;
-    norm.ValueType = VALUE_TYPE::VT_FLOAT32;
-    norm.IsNormalized = false;
-
-    binorm.InputIndex = 4;
-    binorm.NumComponents = 3;
-    binorm.ValueType = VALUE_TYPE::VT_FLOAT32;
-    binorm.IsNormalized = false;
-
-    tangent.InputIndex = 5;
-    tangent.NumComponents = 3;
-    tangent.ValueType = VALUE_TYPE::VT_FLOAT32;
-    tangent.IsNormalized = false;
-
-
-    elements.push_back(pos);
-    elements.push_back(color);
-    elements.push_back(tex);
-    elements.push_back(norm);
-    elements.push_back(binorm);
-    elements.push_back(tangent);
-
-    InputLayoutDesc in_desc;
-
-    LayoutElement LayoutElems[] =
     {
-        // Attribute 0 - vertex position
-        LayoutElement{0, 0, 3, VT_FLOAT32, False},
-        // Attribute 1 - vertex color
-        LayoutElement{1, 0, 4, VT_FLOAT32, False},
-                LayoutElement{2, 0, 3, VT_FLOAT32, False},
-                        LayoutElement{3, 0, 3, VT_FLOAT32, False},
-                                LayoutElement{4, 0, 3, VT_FLOAT32, False},
-                                        LayoutElement{5, 0, 3, VT_FLOAT32, False},
-
-    };
-
-    in_desc.LayoutElements = LayoutElems;
-    in_desc.NumElements = 6;
-
-
-
-    gp.PrimitiveTopology = PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-    gp.RasterizerDesc = r_desc;
-    //  gp.RasterizerDesc.CullMode = CULL_MODE_NONE;
-    gp.DepthStencilDesc = ds_desc;
-    gp.SmplDesc.Count = 1;
-
-    //gp.SmplDesc.Quality = 1.0f;
-
-    //gp.NumRenderTargets = 0;
-
-    gp.BlendDesc = b_desc;
-    gp.RTVFormats[0] = QEngine::m_pSwapChain->GetDesc().ColorBufferFormat;
-    gp.DSVFormat = QEngine::m_pSwapChain->GetDesc().DepthBufferFormat;
-    gp.InputLayout = in_desc;
-    //gp.NumViewports = 1;
-
-
-    gp.NumRenderTargets = 1;
-
-
-    std::vector<ShaderResourceVariableDesc> vars;
-    std::vector<ImmutableSamplerDesc> samplers;
-
-    ShaderResourceVariableDesc v_tex;
-
-    v_tex.ShaderStages = SHADER_TYPE_PIXEL;
-    v_tex.Name = "v_Texture";
-    v_tex.Type = SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC;
-    vars.push_back(v_tex);
-
-    v_tex.ShaderStages = SHADER_TYPE_PIXEL;
-    v_tex.Name = "v_TextureNormal";
-    v_tex.Type = SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC;
-    vars.push_back(v_tex);
-
-    v_tex.ShaderStages = SHADER_TYPE_PIXEL;
-    v_tex.Name = "v_TextureMetal";
-    v_tex.Type = SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC;
-    vars.push_back(v_tex);
-
-    v_tex.ShaderStages = SHADER_TYPE_PIXEL;
-    v_tex.Name = "v_TextureRough";
-    v_tex.Type = SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC;
-    vars.push_back(v_tex);
-
-    v_tex.ShaderStages = SHADER_TYPE_PIXEL;
-    v_tex.Name = "v_TextureEnvironment";
-    v_tex.Type = SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC;
-    vars.push_back(v_tex);
-
-    v_tex.ShaderStages = SHADER_TYPE_PIXEL;
-    v_tex.Name = "v_TextureShadow";
-    v_tex.Type = SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC;
-    vars.push_back(v_tex);
-
-    v_tex.ShaderStages = SHADER_TYPE_PIXEL;
-    v_tex.Name = "v_TextureDirShadow";
-    v_tex.Type = SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC;
-    vars.push_back(v_tex);
-
-    v_tex.ShaderStages = SHADER_TYPE_PIXEL;
-    v_tex.Name = "v_TextureHeight";
-    v_tex.Type = SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC;
-    vars.push_back(v_tex);
-
-    ImmutableSamplerDesc v_sampler;
-
-    SamplerDesc v_rsampler;
-    v_rsampler.MinFilter = FILTER_TYPE::FILTER_TYPE_LINEAR;
-    v_rsampler.MagFilter = FILTER_TYPE::FILTER_TYPE_LINEAR;
-    v_rsampler.MipFilter = FILTER_TYPE::FILTER_TYPE_LINEAR;
-    v_rsampler.AddressU = TEXTURE_ADDRESS_MODE::TEXTURE_ADDRESS_WRAP;
-    v_rsampler.AddressV = TEXTURE_ADDRESS_MODE::TEXTURE_ADDRESS_WRAP;
-    v_rsampler.AddressW = TEXTURE_ADDRESS_MODE::TEXTURE_ADDRESS_CLAMP;
-    // v_rsampler.MaxAnisotropy = 1.0f;
-
-
-
-    v_sampler.Desc = v_rsampler;
-    v_sampler.SamplerOrTextureName = "v_Texture";
-    v_sampler.ShaderStages = SHADER_TYPE_PIXEL;
-
-
-    samplers.push_back(v_sampler);
-
-    v_sampler.Desc = v_rsampler;
-    v_sampler.SamplerOrTextureName = "v_TextureNormal";
-    v_sampler.ShaderStages = SHADER_TYPE_PIXEL;
-
-
-    samplers.push_back(v_sampler);
-
-    v_sampler.Desc = v_rsampler;
-    v_sampler.SamplerOrTextureName = "v_TextureMetal";
-    v_sampler.ShaderStages = SHADER_TYPE_PIXEL;
-
-
-    samplers.push_back(v_sampler);
-
-    v_sampler.Desc = v_rsampler;
-    v_sampler.SamplerOrTextureName = "v_TextureRough";
-    v_sampler.ShaderStages = SHADER_TYPE_PIXEL;
-
-
-    samplers.push_back(v_sampler);
-
-    v_sampler.Desc = v_rsampler;
-    v_sampler.SamplerOrTextureName = "v_TextureEnvironment";
-    v_sampler.ShaderStages = SHADER_TYPE_PIXEL;
-
-
-    samplers.push_back(v_sampler);
-
-    v_sampler.Desc = v_rsampler;
-    v_sampler.SamplerOrTextureName = "v_TextureShadow";
-    v_sampler.ShaderStages = SHADER_TYPE_PIXEL;
-
-
-
-    samplers.push_back(v_sampler);
-
-    v_sampler.Desc = v_rsampler;
-    v_sampler.SamplerOrTextureName = "v_TextureDirShadow";
-    v_sampler.ShaderStages = SHADER_TYPE_PIXEL;
-
-
-
-    samplers.push_back(v_sampler);
-
-    v_sampler.Desc = v_rsampler;
-    v_sampler.SamplerOrTextureName = "v_TextureHeight";
-    v_sampler.ShaderStages = SHADER_TYPE_PIXEL;
-
-
-
-    samplers.push_back(v_sampler);
-
-    PipelineResourceLayoutDesc rl_desc;
-
-    rl_desc.DefaultVariableType = SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
-    rl_desc.Variables = vars.data();
-    rl_desc.ImmutableSamplers = samplers.data();
-    rl_desc.NumVariables = 8;
-
-    rl_desc.NumImmutableSamplers = 8;
-
-
-    PipelineStateDesc pso_desc;
-
-    pso_desc.Name = "Material PBR";
-    pso_desc.ResourceLayout = rl_desc;
-
-    //    pso_desc.PipelineType = PIPELINE_TYPE_GRAPHICS;
-
-
-    GraphicsPipelineStateCreateInfo gp_desc;
-    gp_desc.pVS = m_VS;
-    gp_desc.pPS = m_PS;
-    gp_desc.GraphicsPipeline = gp;
-    gp_desc.PSODesc = pso_desc;
-    // gp_desc.ResourceSignaturesCount = 0;
-
-
-
-     //CreateUniform()
-
-    RefCntAutoPtr<IPipelineState> ps;
-
-    QEngine::m_pDevice->CreateGraphicsPipelineState(gp_desc, &ps);
-
-    m_Pipeline = ps;
-    m_Pipeline->GetStaticVariableByName(SHADER_TYPE_VERTEX, "Constants")->Set(m_UniformBuffer);
-	m_Pipeline->GetStaticVariableByName(SHADER_TYPE_PIXEL, "Constants")->Set(m_UniformBuffer);  
-    m_Pipeline->CreateShaderResourceBinding(&m_SRB, true);
-
-
-    //Additive
-
-//    GraphicsPipelineDesc gp;
-
-
-//    RasterizerStateDesc r_desc;
-
-
-    r_desc.CullMode = CULL_MODE_BACK;
-
-
-
-  //  DepthStencilStateDesc ds_desc;
-    ds_desc.DepthEnable = true;
-    ds_desc.DepthFunc = COMPARISON_FUNC_EQUAL;
-    ds_desc.DepthWriteEnable = true;
-
-
-    //BlendStateDesc b_desc;
-
-
-    b_desc.RenderTargets[0].BlendEnable = true;
-    b_desc.RenderTargets[0].SrcBlend = BLEND_FACTOR::BLEND_FACTOR_ONE;
-    b_desc.RenderTargets[0].DestBlend = BLEND_FACTOR::BLEND_FACTOR_ONE;
-
-
- 
-
-    elements.clear();
-    pos.InputIndex = 0;
-    pos.NumComponents = 3;
-    pos.ValueType = VALUE_TYPE::VT_FLOAT32;
-    pos.IsNormalized = false;
-
-    color.InputIndex = 1;
-    color.NumComponents = 4;
-    color.ValueType = VALUE_TYPE::VT_FLOAT32;
-    color.IsNormalized = false;
-
-    tex.InputIndex = 2;
-    tex.NumComponents = 3;
-    tex.ValueType = VALUE_TYPE::VT_FLOAT32;
-    tex.IsNormalized = false;
-
-    norm.InputIndex = 3;
-    norm.NumComponents = 3;
-    norm.ValueType = VALUE_TYPE::VT_FLOAT32;
-    norm.IsNormalized = false;
-
-    binorm.InputIndex = 4;
-    binorm.NumComponents = 3;
-    binorm.ValueType = VALUE_TYPE::VT_FLOAT32;
-    binorm.IsNormalized = false;
-
-    tangent.InputIndex = 5;
-    tangent.NumComponents = 3;
-    tangent.ValueType = VALUE_TYPE::VT_FLOAT32;
-    tangent.IsNormalized = false;
-
-
-    elements.push_back(pos);
-    elements.push_back(color);
-    elements.push_back(tex);
-    elements.push_back(norm);
-    elements.push_back(binorm);
-    elements.push_back(tangent);
-
-    
-
-   
-    in_desc.LayoutElements = LayoutElems;
-    in_desc.NumElements = 6;
-
-
-
-    gp.PrimitiveTopology = PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-    gp.RasterizerDesc = r_desc;
-    //  gp.RasterizerDesc.CullMode = CULL_MODE_NONE;
-    gp.DepthStencilDesc = ds_desc;
-    gp.SmplDesc.Count = 1;
-
-    //gp.SmplDesc.Quality = 1.0f;
-
-    //gp.NumRenderTargets = 0;
-
-    gp.BlendDesc = b_desc;
-    gp.RTVFormats[0] = QEngine::m_pSwapChain->GetDesc().ColorBufferFormat;
-    gp.DSVFormat = QEngine::m_pSwapChain->GetDesc().DepthBufferFormat;
-    gp.InputLayout = in_desc;
-    //gp.NumViewports = 1;
-
-
-    gp.NumRenderTargets = 1;
-
-
-    vars.clear();
-    samplers.clear();
-
-    //std::vector<ShaderResourceVariableDesc> vars;
-    //std::vector<ImmutableSamplerDesc> samplers;
-
-    //ShaderResourceVariableDesc v_tex;
-
-    v_tex.ShaderStages = SHADER_TYPE_PIXEL;
-    v_tex.Name = "v_Texture";
-    v_tex.Type = SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC;
-    vars.push_back(v_tex);
-
-    v_tex.ShaderStages = SHADER_TYPE_PIXEL;
-    v_tex.Name = "v_TextureNormal";
-    v_tex.Type = SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC;
-    vars.push_back(v_tex);
-
-    v_tex.ShaderStages = SHADER_TYPE_PIXEL;
-    v_tex.Name = "v_TextureMetal";
-    v_tex.Type = SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC;
-    vars.push_back(v_tex);
-
-    v_tex.ShaderStages = SHADER_TYPE_PIXEL;
-    v_tex.Name = "v_TextureRough";
-    v_tex.Type = SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC;
-    vars.push_back(v_tex);
-
-    v_tex.ShaderStages = SHADER_TYPE_PIXEL;
-    v_tex.Name = "v_TextureEnvironment";
-    v_tex.Type = SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC;
-    vars.push_back(v_tex);
-
-    v_tex.ShaderStages = SHADER_TYPE_PIXEL;
-    v_tex.Name = "v_TextureShadow";
-    v_tex.Type = SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC;
-    vars.push_back(v_tex);
-
-    v_tex.ShaderStages = SHADER_TYPE_PIXEL;
-    v_tex.Name = "v_TextureDirShadow";
-    v_tex.Type = SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC;
-    vars.push_back(v_tex);
-
-    v_tex.ShaderStages = SHADER_TYPE_PIXEL;
-    v_tex.Name = "v_TextureHeight";
-    v_tex.Type = SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC;
-    vars.push_back(v_tex);
-
- //   ImmutableSamplerDesc v_sampler;
-
-  //  SamplerDesc v_rsampler;
-    v_rsampler.MinFilter = FILTER_TYPE::FILTER_TYPE_LINEAR;
-    v_rsampler.MagFilter = FILTER_TYPE::FILTER_TYPE_LINEAR;
-    v_rsampler.MipFilter = FILTER_TYPE::FILTER_TYPE_LINEAR;
-    v_rsampler.AddressU = TEXTURE_ADDRESS_MODE::TEXTURE_ADDRESS_WRAP;
-    v_rsampler.AddressV = TEXTURE_ADDRESS_MODE::TEXTURE_ADDRESS_WRAP;
-    v_rsampler.AddressW = TEXTURE_ADDRESS_MODE::TEXTURE_ADDRESS_CLAMP;
-    // v_rsampler.MaxAnisotropy = 1.0f;
-
-
-
-    v_sampler.Desc = v_rsampler;
-    v_sampler.SamplerOrTextureName = "v_Texture";
-    v_sampler.ShaderStages = SHADER_TYPE_PIXEL;
-
-
-    samplers.push_back(v_sampler);
-
-    v_sampler.Desc = v_rsampler;
-    v_sampler.SamplerOrTextureName = "v_TextureNormal";
-    v_sampler.ShaderStages = SHADER_TYPE_PIXEL;
-
-
-    samplers.push_back(v_sampler);
-
-    v_sampler.Desc = v_rsampler;
-    v_sampler.SamplerOrTextureName = "v_TextureMetal";
-    v_sampler.ShaderStages = SHADER_TYPE_PIXEL;
-
-
-    samplers.push_back(v_sampler);
-
-    v_sampler.Desc = v_rsampler;
-    v_sampler.SamplerOrTextureName = "v_TextureRough";
-    v_sampler.ShaderStages = SHADER_TYPE_PIXEL;
-
-
-    samplers.push_back(v_sampler);
-
-    v_sampler.Desc = v_rsampler;
-    v_sampler.SamplerOrTextureName = "v_TextureEnvironment";
-    v_sampler.ShaderStages = SHADER_TYPE_PIXEL;
-
-
-    samplers.push_back(v_sampler);
-
-
-    v_sampler.Desc = v_rsampler;
-    v_sampler.SamplerOrTextureName = "v_TextureShadow";
-    v_sampler.ShaderStages = SHADER_TYPE_PIXEL;
-
-
-
-    samplers.push_back(v_sampler);
-
-    v_sampler.Desc = v_rsampler;
-    v_sampler.SamplerOrTextureName = "v_TextureDirShadow";
-    v_sampler.ShaderStages = SHADER_TYPE_PIXEL;
-
-
-
-    samplers.push_back(v_sampler);
-
-    v_sampler.Desc = v_rsampler;
-    v_sampler.SamplerOrTextureName = "v_TextureHeight";
-    v_sampler.ShaderStages = SHADER_TYPE_PIXEL;
-
-
-
-    samplers.push_back(v_sampler);
-
-//    PipelineResourceLayoutDesc rl_desc;
-
-    rl_desc.DefaultVariableType = SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
-    rl_desc.Variables = vars.data();
-    rl_desc.ImmutableSamplers = samplers.data();
-    rl_desc.NumVariables = 8;
-
-    rl_desc.NumImmutableSamplers = 8;
-
-
-
-    //PipelineStateDesc pso_desc;
-
-    pso_desc.Name = "Material PBR";
-    pso_desc.ResourceLayout = rl_desc;
-
-    //    pso_desc.PipelineType = PIPELINE_TYPE_GRAPHICS;
-
-
- //   GraphicsPipelineStateCreateInfo gp_desc;
-    gp_desc.pVS = m_VS;
-    gp_desc.pPS = m_PS;
-    gp_desc.GraphicsPipeline = gp;
-    gp_desc.PSODesc = pso_desc;
-    // gp_desc.ResourceSignaturesCount = 0;
-
-
-
-     //CreateUniform()
-
-    RefCntAutoPtr<IPipelineState> ps2;
-
-
-    QEngine::m_pDevice->CreateGraphicsPipelineState(gp_desc, &ps2);
-
-    m_PipelineAdd = ps2;
-    m_PipelineAdd->GetStaticVariableByName(SHADER_TYPE_VERTEX, "Constants")->Set(m_UniformBuffer);
-    m_PipelineAdd->GetStaticVariableByName(SHADER_TYPE_PIXEL, "Constants")->Set(m_UniformBuffer);
-    m_PipelineAdd->CreateShaderResourceBinding(&m_SRBAdd, true);
-
-
-
-    int b = 5;
+      
+        DepthStencilStateDesc DSDesc;
+        DSDesc.DepthEnable = true;
+        DSDesc.DepthFunc = COMPARISON_FUNC_LESS_EQUAL;
+        DSDesc.DepthWriteEnable = true; 
+
+        PSOBuilder builder;
+        m_Pipeline = builder
+            .SetName("Material PBR")
+            .WithShaders(QEngine::m_pDevice, QEngine::m_pShaderFactory, "Engine/Shader/PBR/pbr.vsh", "Engine/Shader/PBR/pbr.psh")
+            .WithLayout(VertexLayoutType::Normal3D)
+            .WithResourceLayout(LayoutResourceType::PBRMaterial)
+            .DefaultsForTransparent() 
+            .WithDepthStencilState(DSDesc)
+            .WithNumRenderTargets(1)
+            .WithRTVFormat(0, QEngine::m_pSwapChain->GetDesc().ColorBufferFormat)
+            .WithDSVFormat(QEngine::m_pSwapChain->GetDesc().DepthBufferFormat)
+            .Build(QEngine::m_pDevice);
+
+        m_Pipeline->GetStaticVariableByName(SHADER_TYPE_VERTEX, "Constants")->Set(m_UniformBuffer);
+        m_Pipeline->GetStaticVariableByName(SHADER_TYPE_PIXEL, "Constants")->Set(m_UniformBuffer);
+        m_Pipeline->CreateShaderResourceBinding(&m_SRB, true);
+    }
+
+
+    {
+        DepthStencilStateDesc DSDesc_Add;
+        DSDesc_Add.DepthEnable = true;
+        DSDesc_Add.DepthFunc = COMPARISON_FUNC_EQUAL;
+        DSDesc_Add.DepthWriteEnable = true;
+
+        BlendStateDesc BSDesc_Add;
+        BSDesc_Add.RenderTargets[0].BlendEnable = true;
+        BSDesc_Add.RenderTargets[0].SrcBlend = BLEND_FACTOR_ONE;
+        BSDesc_Add.RenderTargets[0].DestBlend = BLEND_FACTOR_ONE;
+
+        PSOBuilder builder;
+        m_PipelineAdd = builder
+            .SetName("Material PBR (Additive)")
+            .WithShaders(QEngine::m_pDevice, QEngine::m_pShaderFactory, "Engine/Shader/PBR/pbr.vsh", "Engine/Shader/PBR/pbr.psh")
+            .WithLayout(VertexLayoutType::Normal3D)
+            .WithResourceLayout(LayoutResourceType::PBRMaterial)
+            .WithDepthStencilState(DSDesc_Add)
+            .WithBlendState(BSDesc_Add)
+            .WithNumRenderTargets(1) 
+            .WithRTVFormat(0, QEngine::m_pSwapChain->GetDesc().ColorBufferFormat)
+            .WithDSVFormat(QEngine::m_pSwapChain->GetDesc().DepthBufferFormat)
+            .Build(QEngine::m_pDevice);
+
+        m_PipelineAdd->GetStaticVariableByName(SHADER_TYPE_VERTEX, "Constants")->Set(m_UniformBuffer);
+        m_PipelineAdd->GetStaticVariableByName(SHADER_TYPE_PIXEL, "Constants")->Set(m_UniformBuffer);
+        m_PipelineAdd->CreateShaderResourceBinding(&m_SRBAdd, true);
+    }
 
 }
 

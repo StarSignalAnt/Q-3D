@@ -22,6 +22,12 @@ CloudsSystem::CloudsSystem(CloudsQuality quality) {
 	m_Quality = quality;
 
 	switch (m_Quality) {
+    case CloudsQuality::CQ_Ultra:
+        m_CloudMap = new Texture3D(512, 512, 512);
+        m_Width = 512;
+        m_Height = 512;
+        m_Depth = 512;
+        break;
     case CloudsQuality::CQ_High:
         m_CloudMap = new Texture3D(256, 256, 256);
         m_Width = 256;
@@ -52,7 +58,7 @@ CloudsSystem::CloudsSystem(CloudsQuality quality) {
 
     }
 
-    m_CloudVolumeSize = glm::vec3(1500.0f, 300.0f,1500.0f);
+    m_CloudVolumeSize = glm::vec3(3500.0f, 300.0f,3500.0f);
 
     // Center it on the X/Z axes and start it 2,000 units up in the sky
     m_CloudVolumeStart = glm::vec3(

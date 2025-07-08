@@ -44,6 +44,9 @@ void StaticRendererComponent::OnRender(GraphNode* camera) {
 				lod = sub->m_LODs[0];
 			}
 
+			if (m_UseLod < sub->m_LODs.size()) {
+				lod = sub->m_LODs[m_UseLod];
+			}
 
 			//auto& lod = sub->m_LODs[0];
 

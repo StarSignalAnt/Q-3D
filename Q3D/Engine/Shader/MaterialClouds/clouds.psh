@@ -42,7 +42,32 @@ float HenyeyGreenstein(float cos_angle, float g)
 }
 
 
+float SampleShadows(float3 start_pos, float3 dir_to_sun)
+{
+    int shadow_steps = 8; // Fewer steps are needed for shadows
+    float shadow_step_size = 45.0; // The distance of each step towards the sun
+    float shadow_density_factor = 0.4; // Controls how dark the shadows are
+    float accumulated_shadow_density = 0.0;
 
+    // March from the sample point towards the sun
+    for (int j = 1; j <= shadow_steps; j++) // Start at j=1 to step away from the current point
+    {
+        float3 shadow_sample_pos = start_pos + dir_to_sun * shadow_step_size * (float)j;
+        
+        // Convert to UVW and sample the main cloud map again
+        float3 uvw = (shadow_sample_pos - m_VolStart.xyz) / m_VolSize.xyz;
+
+        // If the shadow ray is still inside the volume, accumulate density
+        if (saturate(uvw.x) == uvw.x && saturate(uvw.y) == uvw.y && saturate(uvw.z) == uvw.z)
+        {
+            accumulated_shadow_density += v_Texture.Sample(v_Texture_sampler, uvw).r;
+        }
+    }
+
+    // Use Beer's law to find the transmittance (how much light gets through)
+    float shadow_transmittance = exp(-accumulated_shadow_density * shadow_density_factor);
+    return shadow_transmittance;
+}
 bool RayBoxIntersect(float3 rayOrigin, float3 rayDir, float3 boxMin, float3 boxMax, out float t0, out float t1)
 {
     float3 invRayDir = 1.0 / rayDir;
@@ -83,7 +108,8 @@ void main(in PSInput PSIn,
         clip(-1);
     }
     t_min = max(t_min, 0.0);
-     float daylight_factor = saturate(-m_SunDir.y);
+     // 2. Calculate Daylight Factor (remains the same)
+  float daylight_factor = saturate(-m_SunDir.y);
 
     // 3. Raymarch for Lighting
     int numSteps = 64;
@@ -92,11 +118,11 @@ void main(in PSInput PSIn,
 
     float3 sun_color = float3(1.0, 0.95, 0.85);
     float3 ambient_color = float3(0.4, 0.5, 0.65);
-    float eccentricity = 0.6;
-    float density_factor = 0.1;
-
-    // --- NEW: Define a very dim light color for nighttime ---
     float3 night_light = float3(0.02, 0.03, 0.05);
+    float eccentricity_1 = 0.6;
+    float eccentricity_2 = -0.3;
+    float multi_scatter_factor = 0.5;
+    float density_factor = 0.1;
 
     float4 final_color = float4(0, 0, 0, 1);
 
@@ -105,23 +131,25 @@ void main(in PSInput PSIn,
         float3 uvw = (currentPos - boxMin) / m_VolSize.xyz;
         float density = v_Texture.Sample(v_Texture_sampler, uvw).r;
 
-
         if (density > 0.01)
         {
+            // --- NEW: Calculate shadow factor for this point ---
+            float shadow_factor = SampleShadows(currentPos, -m_SunDir.xyz);
+
+            // --- MODIFIED: Apply shadow to sun contribution ---
             float cos_angle = dot(rayDir, -m_SunDir.xyz);
-            float phase = HenyeyGreenstein(cos_angle, eccentricity);
-
-            // --- MODIFIED: Interpolate between day and night lighting ---
-
-            // Define the full daytime light (ambient + sun)
-            float3 daytime_light = ambient_color + phase * sun_color;
+            float phase_1 = HenyeyGreenstein(cos_angle, eccentricity_1);
+            float phase_2 = HenyeyGreenstein(cos_angle, eccentricity_2);
+            float total_phase = phase_1 + phase_2 * multi_scatter_factor;
             
-            // Linearly interpolate between the dim night light and the bright day light
-            // based on the sun's position.
+            // Attenuate the sun's contribution by the shadow factor
+            float3 sun_contribution = total_phase * sun_color * shadow_factor;
+
+            float3 daytime_light = ambient_color + sun_contribution;
             float3 light_at_step = lerp(night_light, daytime_light, daylight_factor);
 
+            // Compositing logic remains the same
             float transmittance = exp(-density * stepSize * density_factor);
-            
             final_color.rgb += density * light_at_step * final_color.a * stepSize * density_factor;
             final_color.a *= transmittance;
         }
@@ -130,6 +158,4 @@ void main(in PSInput PSIn,
     }
 
     PSOut.Color = float4(final_color.rgb, 1.0 - final_color.a);
-
- 
 }

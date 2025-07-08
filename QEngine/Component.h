@@ -1,13 +1,22 @@
 #pragma once
 #include "VFile.h"
+#include "Properties.h"
 class GraphNode;
 
 class Component
 {
 public:
-    Component() = default;
-    virtual ~Component() = default;
+    Component() {
 
+        GraphNode* n = nullptr;
+        m_Properties.bind("Owner",n);
+        m_Properties.bind("ComponentName", &m_Name);
+
+    }
+    virtual ~Component() = default;
+    Properties& GetProperties() {
+        return m_Properties;
+    }
 
 
     // Called when the component is attached to a node
@@ -32,4 +41,7 @@ protected:
     // Pointer to the owner node
     GraphNode* m_Owner = nullptr;
     bool m_Playing = false;
+    std::string m_Name = "Component";
+
+    Properties m_Properties;
 };

@@ -50,6 +50,7 @@ void PropertyFloat::setupSpinBox()
     else {
         decimals = 4;
     }
+    decimals = 5;
     m_spinBox->setDecimals(decimals);
 
     m_spinBox->setMinimumWidth(80);

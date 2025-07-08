@@ -77,7 +77,7 @@ struct SubMesh {
             // MODIFIED: Increased target_error significantly to make simplification much more aggressive.
             // A higher value allows the algorithm to make larger changes to the mesh shape
             // in order to reach the target polygon count.
-            float target_error = 1.0f;
+            float target_error = 0.35;
 
             // --- Use meshoptimizer to simplify the mesh ---
             std::vector<unsigned int> lod_indices(source_indices.size());
@@ -159,7 +159,11 @@ class StaticMeshComponent :
     public Component
 {
 public:
+    StaticMeshComponent() {
 
+        m_Name = "Static Mesh Component";
+
+    }
     void OnAttach(GraphNode* n) override
     {
         m_Owner = n;

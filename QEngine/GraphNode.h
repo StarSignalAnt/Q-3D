@@ -8,8 +8,11 @@
 #include <glm/glm.hpp>
 #include "PxPhysicsAPI.h"
 #include "VFile.h"
+#include "Properties.h"
 // ADDED: Include for nlohmann/json
 #include "json.hpp" // Assumes nlohmann/json.hpp is in your project include paths
+
+
 using json = nlohmann::json;
 using namespace physx;
 using namespace Diligent;
@@ -107,6 +110,9 @@ class GraphNode
 {
 public:
 
+	Properties& GetProperties() {
+		return m_Properties;
+	}
 	GraphNode();
 	void Reset();
 	void AddNode(GraphNode* node);	
@@ -282,5 +288,8 @@ private:
 	std::string m_ResourcePath = "";
 	ResourceType m_ResourceType = ResourceType::SubData;
 	NodeRenderType m_RenderType = NodeRenderType::RenderType_Dynamic;
+
+	Properties m_Properties;
+	
 };
 

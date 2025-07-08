@@ -3,9 +3,23 @@
 #include "RenderTarget2D.h" // You will need to include your 2D render target header
 #include <glm/gtc/matrix_transform.hpp>
 
+const std::vector<std::pair<LightType, std::string>> LightTypeOptions = {
+{ LightType::Point, "Point" },
+{ LightType::Directional, "Directional" },
+{ LightType::Spot,"Spot"}
+};
+
 LightComponent::LightComponent() {
     // Constructor no longer allocates a default shadow map.
     // Call SetLightType after creation to initialize resources.
+    m_Properties.bind("Color", &m_Color);
+    m_Properties.bind("Range", &m_Range);
+    m_Properties.bind("Intensity", &m_Intensity);
+    m_Name = "LightComponent";
+
+    m_Properties.set("ComponentName", &m_Name);
+    m_Properties.bind_enum("LightType", &m_Type, LightTypeOptions);
+
 }
 
 LightComponent::~LightComponent() {

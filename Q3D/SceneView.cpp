@@ -71,7 +71,7 @@
 #include "TerrainDepthRenderer.h"
 #include "SharpComponent.h"
 #include "LogicGraphComponent.h"
-
+#include "SkyComponent.h"
 using namespace Diligent;
 
 
@@ -94,6 +94,12 @@ SceneView::SceneView(QWidget *parent)
     setAcceptDrops(true);
     m_SceneGraph = new SceneGraph;
     QEngine::InitEngine();
+
+    auto sky = new GraphNode;
+    sky->SetName("Atmosphere");
+    sky->AddComponent(new SkyComponent());
+
+    m_SceneGraph->AddNode(sky);
 
     ScriptHost *h = new ScriptHost;
 /*
@@ -166,17 +172,7 @@ SceneView::SceneView(QWidget *parent)
 
     //m_Test1->SetRotation(glm::vec3(45, 45, 0));
 
-    auto l1 = new GraphNode;
-
-    auto lc = new LightComponent;
-
-	l1->AddComponent(lc);
-
-    lc->SetRange(450);
-    lc->SetIntensity(255);
-    lc->SetLightType(LightType::Directional);
-    
-    m_SceneGraph->AddLight(l1);
+  
 
     auto l2 = new GraphNode;
     l2->AddComponent(new LightComponent);
@@ -193,7 +189,7 @@ SceneView::SceneView(QWidget *parent)
     l2->SetPosition(glm::vec3(0, 15, 0));
    
 
-	l1->SetPosition(glm::vec3(15, 25, 0));
+//	l1->SetPosition(glm::vec3(15, 25, 0));
 
     movementTimer.setInterval(16); // ~60 FPS
     connect(&movementTimer, &QTimer::timeout, this, &SceneView::handleMovement);

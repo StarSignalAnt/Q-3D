@@ -68,11 +68,26 @@ SceneGraph::SceneGraph() {
 
 	m_ShadowRenderer = new CubeRenderer(this, nullptr);
 	m_RootNode->SetRenderType(NodeRenderType::RenderType_Static, false);
-	m_Sky = new SkySystem;
+
 	m_ShadowCam = new GraphNode;
 	m_ShadowCam->AddComponent(new CameraComponent());
-	m_Clouds.reset(new CloudsSystem(CloudsQuality::CQ_High));
-	m_Clouds->CreateTestCloudMap();
+
+	auto l1 = new GraphNode;
+
+	auto lc = new LightComponent;
+
+	l1->AddComponent(lc);
+
+	lc->SetRange(450);
+	lc->SetIntensity(255);
+	lc->SetLightType(LightType::Directional);
+
+	AddLight(l1);
+
+	m_SunLight = l1;
+
+
+//	m_Clouds->CreateTestCloudMap();
 
 //	m_Clouds->SetMesh(m_Sky->GetDome());
 
@@ -189,12 +204,8 @@ void SceneGraph::Render() {
 
 	m_CurrentGraph = this;
 
-	tod += 0.001;
 
-
-	//tod = 0.75f;
-	m_Sky->timeOfDay = tod;
-	m_Sky->m_SunLight = m_Lights[0];
+//	m_Sky->m_SunLight = m_Lights[0];
 	
 
 	if (m_Octree)
@@ -205,10 +216,7 @@ void SceneGraph::Render() {
 	}
 	else
 	{
-		// Fallback to old rendering method if octree isn't built.
-		m_Sky->RenderSky(m_Camera);
 
-		m_Clouds->Render(m_Camera);
 	//	m_Clouds->SetSunDir(m_Sky->m_SunDir);
 		m_RootNode->Render(m_Camera);
 	}
@@ -245,8 +253,9 @@ void SceneGraph::Render() {
 
 	return;
 
-	m_Sky->timeOfDay = tod;
-	m_Sky->m_SunLight = m_Lights[0];
+//	m_Sky->timeOfDay = tod;
+//	m_Sky->m_SunLight = m_Lights[0];
+
 	m_RootNode->Render(m_Camera);
 	return;
 
@@ -414,18 +423,7 @@ void SceneGraph::Reset() {
 
 void SceneGraph::Update(float dt) {
 
-	m_Sky->Update();
-	m_Clouds->Update(dt);
-
-	auto sdir = m_Sky->m_SunDir;
-	float y = sdir.y;
-	sdir.y = sdir.z;
-	sdir.z = y;
-
-	std::cout << "SDir:" + std::to_string(sdir.x) + " Y:" + std::to_string(sdir.y) + " Z:" + std::to_string(sdir.z) << std::endl;
-
-	m_Clouds->SetSunDir(-sdir);
-	m_Sky->m_TotalTime += dt;
+	
 	m_CurrentGraph = this;
 	m_RootNode->UpdatePhysics();
 	m_RootNode->Update(dt);
@@ -1492,6 +1490,6 @@ std::vector<GraphNode*> SceneGraph::GetDynamics() {
 
 void SceneGraph::RenderSky() {
 
-	m_Sky->RenderSky(m_Camera);
+	//m_Sky->RenderSky(m_Camera);
 
 }

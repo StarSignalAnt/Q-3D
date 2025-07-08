@@ -26,7 +26,7 @@ public:
 	void CreateClouds(float time);
 	void GenerateCloudsGPU();
 
-	float m_Coverage = 0.72f;
+	float m_Coverage = 0.76f;
 	float m_AnimationSpeed = 0.5f;
 	float m_TotalTime;
 private:
