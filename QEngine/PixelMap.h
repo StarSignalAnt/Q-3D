@@ -17,6 +17,7 @@ public:
 
 	// Main constructor for loading from a file, with a flag to specify data type
 	PixelMap(std::string path, PixelMapDataType type = PixelMapDataType::UINT8);
+	PixelMap(void* data,int size, PixelMapDataType type = PixelMapDataType::UINT8);
 
 	// Constructors for creating blank maps
 	PixelMap(int w, int h, PixelMapDataType type = PixelMapDataType::UINT8, float dv = 1.0f);

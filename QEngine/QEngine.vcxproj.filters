@@ -1,0 +1,440 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="allocator.cpp" />
+    <ClCompile Include="CLBase.cpp" />
+    <ClCompile Include="clusterizer.cpp" />
+    <ClCompile Include="CubeRenderer.cpp" />
+    <ClCompile Include="Draw2D.cpp" />
+    <ClCompile Include="GameAudio.cpp" />
+    <ClCompile Include="GameFont.cpp" />
+    <ClCompile Include="GameInput.cpp" />
+    <ClCompile Include="GameVideo.cpp" />
+    <ClCompile Include="GetSceneNode.cpp" />
+    <ClCompile Include="GetVariableNode.cpp" />
+    <ClCompile Include="Importer.cpp" />
+    <ClCompile Include="indexanalyzer.cpp" />
+    <ClCompile Include="indexcodec.cpp" />
+    <ClCompile Include="indexgenerator.cpp" />
+    <ClCompile Include="Intersections.cpp" />
+    <ClCompile Include="JsonGlm.cpp" />
+    <ClCompile Include="LEventNode.cpp" />
+    <ClCompile Include="LGDataNode.cpp" />
+    <ClCompile Include="LGInput.cpp" />
+    <ClCompile Include="LGLogicNode.cpp" />
+    <ClCompile Include="LGOutput.cpp" />
+    <ClCompile Include="LGraph.cpp" />
+    <ClCompile Include="LGraphVariable.cpp" />
+    <ClCompile Include="LNode.cpp" />
+    <ClCompile Include="LGPrintDebug.cpp" />
+    <ClCompile Include="LogicDispatcher.cpp" />
+    <ClCompile Include="MAsm.cpp" />
+    <ClCompile Include="Material2D.cpp" />
+    <ClCompile Include="MaterialBasic3D.cpp" />
+    <ClCompile Include="MaterialCloudGen.cpp" />
+    <ClCompile Include="MaterialClouds.cpp" />
+    <ClCompile Include="MaterialDepth.cpp" />
+    <ClCompile Include="MaterialLines.cpp" />
+    <ClCompile Include="MaterialOutline.cpp" />
+    <ClCompile Include="MaterialPBR.cpp" />
+    <ClCompile Include="MaterialProducer.cpp" />
+    <ClCompile Include="MaterialSkeletal.cpp" />
+    <ClCompile Include="MaterialSkeletalDepth.cpp" />
+    <ClCompile Include="MaterialSky.cpp" />
+    <ClCompile Include="MaterialTerrain.cpp" />
+    <ClCompile Include="MaterialTerrainDepth.cpp" />
+    <ClCompile Include="MathsHelp.cpp" />
+    <ClCompile Include="MClass.cpp" />
+    <ClCompile Include="MonoHost.cpp" />
+    <ClCompile Include="MonoLib.cpp" />
+    <ClCompile Include="NodeAddBase.cpp" />
+    <ClCompile Include="NodeAddFloat.cpp" />
+    <ClCompile Include="NodeAddVec3.cpp" />
+    <ClCompile Include="NodeBoolConstant.cpp" />
+    <ClCompile Include="NodeCreateRotationMatrix.cpp" />
+    <ClCompile Include="NodeDebug.cpp" />
+    <ClCompile Include="NodeExposeGraphNode.cpp" />
+    <ClCompile Include="NodeIf.cpp" />
+    <ClCompile Include="NodeKeyDown.cpp" />
+    <ClCompile Include="NodeMultBase.cpp" />
+    <ClCompile Include="NodeMultMat4.cpp" />
+    <ClCompile Include="NodeRegistry.cpp" />
+    <ClCompile Include="NodeRenderVideo.cpp" />
+    <ClCompile Include="NodeSceneRayCast.cpp" />
+    <ClCompile Include="NodeSetPositionNode.cpp" />
+    <ClCompile Include="NodeSetRotationNode.cpp" />
+    <ClCompile Include="NodeStartVideo.cpp" />
+    <ClCompile Include="NodeTestLogic.cpp" />
+    <ClCompile Include="NodeTurnNode.cpp" />
+    <ClCompile Include="NodeVec3Constant.cpp" />
+    <ClCompile Include="OctreeNode.cpp" />
+    <ClCompile Include="OctreeScene.cpp" />
+    <ClCompile Include="overdrawoptimizer.cpp" />
+    <ClCompile Include="Pars.cpp" />
+    <ClCompile Include="partition.cpp" />
+    <ClCompile Include="Physics.cpp" />
+    <ClCompile Include="PixelMap.cpp" />
+    <ClCompile Include="PlayEventNode.cpp" />
+    <ClCompile Include="PostProcess.cpp" />
+    <ClCompile Include="PostProcessing.cpp" />
+    <ClCompile Include="PPOutline.cpp" />
+    <ClCompile Include="Properties.cpp" />
+    <ClCompile Include="quantization.cpp" />
+    <ClCompile Include="rasterizer.cpp" />
+    <ClCompile Include="RenderEventNode.cpp" />
+    <ClCompile Include="RenderMaterial.cpp" />
+    <ClCompile Include="RenderTarget2D.cpp" />
+    <ClCompile Include="RenderTargetCube.cpp" />
+    <ClCompile Include="ScriptHost.cpp" />
+    <ClCompile Include="SetVariableNode.cpp" />
+    <ClCompile Include="simplifier.cpp" />
+    <ClCompile Include="soloud\src\audiosource\wav\dr_impl.cpp" />
+    <ClCompile Include="soloud\src\audiosource\wav\soloud_wav.cpp" />
+    <ClCompile Include="soloud\src\audiosource\wav\soloud_wavstream.cpp" />
+    <ClCompile Include="soloud\src\audiosource\wav\stb_vorbis.c" />
+    <ClCompile Include="soloud\src\backend\wasapi\soloud_wasapi.cpp" />
+    <ClCompile Include="soloud\src\core\soloud.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_audiosource.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_bus.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_core_3d.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_core_basicops.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_core_faderops.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_core_filterops.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_core_getters.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_core_setters.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_core_voicegroup.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_core_voiceops.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_fader.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_fft.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_fft_lut.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_file.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_filter.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_misc.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_queue.cpp" />
+    <ClCompile Include="soloud\src\core\soloud_thread.cpp" />
+    <ClCompile Include="spatialorder.cpp" />
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="stripifier.cpp" />
+    <ClCompile Include="TerrainDepthRenderer.cpp" />
+    <ClCompile Include="TerrainLayer.cpp" />
+    <ClCompile Include="TerrainMesh.cpp" />
+    <ClCompile Include="TerrainMeshBuffer.cpp" />
+    <ClCompile Include="TerrainMeshComponent.cpp" />
+    <ClCompile Include="TerrainRendererComponent.cpp" />
+    <ClCompile Include="Texture2D.cpp" />
+    <ClCompile Include="Texture3D.cpp" />
+    <ClCompile Include="TextureCube.cpp" />
+    <ClCompile Include="TickEventNode.cpp" />
+    <ClCompile Include="vcacheoptimizer.cpp" />
+    <ClCompile Include="vertexcodec.cpp" />
+    <ClCompile Include="vertexfilter.cpp" />
+    <ClCompile Include="vfetchoptimizer.cpp" />
+    <ClCompile Include="VFile.cpp" />
+    <ClCompile Include="VividEngine.cpp" />
+    <ClCompile Include="QEngine.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphNode.cpp">
+      <Filter>Graph</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneGraph.cpp">
+      <Filter>Graph</Filter>
+    </ClCompile>
+    <ClCompile Include="Component.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraComponent.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="LinesRendererComponent.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="LightComponent.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="LogicGraphComponent.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="ScriptComponent.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SkeletalDepthRendererComponent.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SkeletalMeshComponent.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SkeletalRendererComponent.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SkyComponent.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="StaticDepthRendererComponent.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="StaticMeshComponent.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="StaticRendererComponent.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Animation.cpp">
+      <Filter>Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="Animator.cpp">
+      <Filter>Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="Bone.cpp">
+      <Filter>Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="BoneInfo.cpp">
+      <Filter>Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="CloudsSystem.cpp">
+      <Filter>Atmosphere</Filter>
+    </ClCompile>
+    <ClCompile Include="SkySystem.cpp">
+      <Filter>Atmosphere</Filter>
+    </ClCompile>
+    <ClCompile Include="SharpComponent.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="GameContent.cpp">
+      <Filter>Content</Filter>
+    </ClCompile>
+    <ClCompile Include="ContentFile.cpp">
+      <Filter>Content</Filter>
+    </ClCompile>
+    <ClCompile Include="PSOBuilder.cpp" />
+    <ClCompile Include="LogicNodes1.cpp">
+      <Filter>LogicGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="LogicNodes2.cpp">
+      <Filter>LogicGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="LogicNodes3.cpp">
+      <Filter>LogicGraph</Filter>
+    </ClCompile>
+    <ClCompile Include="DllImporter.cpp">
+      <Filter>DLL</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CLBase.h" />
+    <ClInclude Include="CubeRenderer.h" />
+    <ClInclude Include="DataType.h" />
+    <ClInclude Include="Draw2D.h" />
+    <ClInclude Include="FastNoiseLite.h" />
+    <ClInclude Include="framework.h" />
+    <ClInclude Include="GameAudio.h" />
+    <ClInclude Include="GameFont.h" />
+    <ClInclude Include="GameInput.h" />
+    <ClInclude Include="GameVideo.h" />
+    <ClInclude Include="GetSceneNode.h" />
+    <ClInclude Include="GetVariableNode.h" />
+    <ClInclude Include="Importer.h" />
+    <ClInclude Include="Intersections.h" />
+    <ClInclude Include="JsonGlm.h" />
+    <ClInclude Include="LEventNode.h" />
+    <ClInclude Include="LGDataNode.h" />
+    <ClInclude Include="LGInput.h" />
+    <ClInclude Include="LGLogicNode.h" />
+    <ClInclude Include="LGOutput.h" />
+    <ClInclude Include="LGraph.h" />
+    <ClInclude Include="LGraphVariable.h" />
+    <ClInclude Include="LNode.h" />
+    <ClInclude Include="LGPrintDebug.h" />
+    <ClInclude Include="LogicDispatcher.h" />
+    <ClInclude Include="MAsm.h" />
+    <ClInclude Include="Material2D.h" />
+    <ClInclude Include="MaterialBasic3D.h" />
+    <ClInclude Include="MaterialCloudGen.h" />
+    <ClInclude Include="MaterialClouds.h" />
+    <ClInclude Include="MaterialDepth.h" />
+    <ClInclude Include="MaterialLines.h" />
+    <ClInclude Include="MaterialOutline.h" />
+    <ClInclude Include="MaterialPBR.h" />
+    <ClInclude Include="MaterialProducer.h" />
+    <ClInclude Include="MaterialSkeletal.h" />
+    <ClInclude Include="MaterialSkeletalDepth.h" />
+    <ClInclude Include="MaterialSky.h" />
+    <ClInclude Include="MaterialTerrain.h" />
+    <ClInclude Include="MaterialTerrainDepth.h" />
+    <ClInclude Include="MathsHelp.h" />
+    <ClInclude Include="MClass.h" />
+    <ClInclude Include="meshoptimizer.h" />
+    <ClInclude Include="MonoHost.h" />
+    <ClInclude Include="MonoLib.h" />
+    <ClInclude Include="NodeAddBase.h" />
+    <ClInclude Include="NodeAddFloat.h" />
+    <ClInclude Include="NodeAddVec3.h" />
+    <ClInclude Include="NodeBoolConstant.h" />
+    <ClInclude Include="NodeCreateRotationMatrix.h" />
+    <ClInclude Include="NodeDebug.h" />
+    <ClInclude Include="NodeExposeGraphNode.h" />
+    <ClInclude Include="NodeIf.h" />
+    <ClInclude Include="NodeKeyDown.h" />
+    <ClInclude Include="NodeMultBase.h" />
+    <ClInclude Include="NodeMultMat4.h" />
+    <ClInclude Include="NodeRegistry.h" />
+    <ClInclude Include="NodeRenderVideo.h" />
+    <ClInclude Include="NodeSceneRayCast.h" />
+    <ClInclude Include="NodeSetPositionNode.h" />
+    <ClInclude Include="NodeSetRotationNode.h" />
+    <ClInclude Include="NodeStartVideo.h" />
+    <ClInclude Include="NodeTestLogic.h" />
+    <ClInclude Include="NodeTurnNode.h" />
+    <ClInclude Include="NodeVec3Constant.h" />
+    <ClInclude Include="OctreeNode.h" />
+    <ClInclude Include="OctreeScene.h" />
+    <ClInclude Include="Pars.h" />
+    <ClInclude Include="Physics.h" />
+    <ClInclude Include="PixelMap.h" />
+    <ClInclude Include="PlayEventNode.h" />
+    <ClInclude Include="PostProcess.h" />
+    <ClInclude Include="PostProcessing.h" />
+    <ClInclude Include="PPOutline.h" />
+    <ClInclude Include="Properties.h" />
+    <ClInclude Include="RenderEventNode.h" />
+    <ClInclude Include="RenderMaterial.h" />
+    <ClInclude Include="RenderTarget2D.h" />
+    <ClInclude Include="RenderTargetCube.h" />
+    <ClInclude Include="ScriptHost.h" />
+    <ClInclude Include="SetVariableNode.h" />
+    <ClInclude Include="soloud\src\audiosource\wav\dr_flac.h" />
+    <ClInclude Include="soloud\src\audiosource\wav\dr_mp3.h" />
+    <ClInclude Include="soloud\src\audiosource\wav\dr_wav.h" />
+    <ClInclude Include="soloud\src\audiosource\wav\stb_vorbis.h" />
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="stb_image.h" />
+    <ClInclude Include="TerrainDepthRenderer.h" />
+    <ClInclude Include="TerrainLayer.h" />
+    <ClInclude Include="TerrainMesh.h" />
+    <ClInclude Include="TerrainMeshBuffer.h" />
+    <ClInclude Include="TerrainMeshComponent.h" />
+    <ClInclude Include="TerrainRendererComponent.h" />
+    <ClInclude Include="Texture2D.h" />
+    <ClInclude Include="Texture3D.h" />
+    <ClInclude Include="TextureCube.h" />
+    <ClInclude Include="TickEventNode.h" />
+    <ClInclude Include="VFile.h" />
+    <ClInclude Include="QEngine.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphNode.h">
+      <Filter>Graph</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneGraph.h">
+      <Filter>Graph</Filter>
+    </ClInclude>
+    <ClInclude Include="Component.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraComponent.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="LinesRendererComponent.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="LightComponent.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="LogicGraphComponent.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="ScriptComponent.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SkeletalDepthRendererComponent.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SkeletalMeshComponent.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SkeletalRendererComponent.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SkyComponent.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="StaticDepthRendererComponent.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="StaticMeshComponent.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="StaticRendererComponent.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Animation.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="Animator.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="Bone.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="BoneInfo.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="CloudsSystem.h">
+      <Filter>Atmosphere</Filter>
+    </ClInclude>
+    <ClInclude Include="SkySystem.h">
+      <Filter>Atmosphere</Filter>
+    </ClInclude>
+    <ClInclude Include="SharpComponent.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="GameContent.h">
+      <Filter>Content</Filter>
+    </ClInclude>
+    <ClInclude Include="ContentFile.h">
+      <Filter>Content</Filter>
+    </ClInclude>
+    <ClInclude Include="PSOBuilder.h" />
+    <ClInclude Include="LogicNodes1.h">
+      <Filter>LogicGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="LogicNodes2.h">
+      <Filter>LogicGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="LogicNodes3.h">
+      <Filter>LogicGraph</Filter>
+    </ClInclude>
+    <ClInclude Include="DllImporter.h">
+      <Filter>DLL</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Engine">
+      <UniqueIdentifier>{37021b01-da12-4edf-955f-a00c507c52b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Graph">
+      <UniqueIdentifier>{4c20b619-bc66-4604-a739-ce139684136f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Components">
+      <UniqueIdentifier>{3b344e2d-7d96-49c0-87f5-d286a953af8e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Animation">
+      <UniqueIdentifier>{fb03eed5-0f23-4516-a183-0b92c494388c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Atmosphere">
+      <UniqueIdentifier>{192ad243-100c-43e3-9a11-7a0b8b71ddf3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Content">
+      <UniqueIdentifier>{76a4e456-5c1b-44eb-a02d-06c2db88e5b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LogicGraph">
+      <UniqueIdentifier>{06aaa407-7a8d-4b06-8bb6-8c336d7adc03}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DLL">
+      <UniqueIdentifier>{8f527908-478e-4ccf-9c06-d217081c00f8}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

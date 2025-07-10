@@ -19,7 +19,7 @@ Draw2D::Draw2D(GraphNode* node)
     VertBuffDesc.BindFlags = BIND_VERTEX_BUFFER;
     VertBuffDesc.CPUAccessFlags = CPU_ACCESS_WRITE;
     VertBuffDesc.Size = MAX_QUADS_PER_BATCH * 4 * sizeof(Draw2D_Vertex);
-    QEngine::m_pDevice->CreateBuffer(VertBuffDesc, nullptr, &m_VertexBuffer);
+    QEngine::GetDevice()->CreateBuffer(VertBuffDesc, nullptr, &m_VertexBuffer);
 
     // Create a single immutable Index Buffer, as the pattern for drawing quads is constant.
     std::vector<uint32_t> indices(MAX_QUADS_PER_BATCH * 6);
@@ -43,7 +43,7 @@ Draw2D::Draw2D(GraphNode* node)
     BufferData IBData;
     IBData.pData = indices.data();
     IBData.DataSize = IdxBuffDesc.Size;
-    QEngine::m_pDevice->CreateBuffer(IdxBuffDesc, &IBData, &m_IndexBuffer);
+    QEngine::GetDevice()->CreateBuffer(IdxBuffDesc, &IBData, &m_IndexBuffer);
 }
 
 // Destructor: Cleans up allocated memory. RefCntAutoPtr handles GPU resources.
@@ -113,7 +113,7 @@ void Draw2D::Rect(Texture2D* image, glm::vec2 pos, glm::vec2 size, glm::vec4 col
     v3.uv = glm::vec3(1, 1, 0);
     v4.uv = glm::vec3(0, 1, 0);
 
-    v1.view = glm::vec4(QEngine::ScX, QEngine::ScY, QEngine::ScW, QEngine::ScH);
+    v1.view = glm::vec4(QEngine::GetScX(), QEngine::GetScY(), QEngine::GetScW(), QEngine::GetScH());
     v2.view = v1.view;
     v3.view = v1.view;
     v4.view = v1.view;
@@ -146,9 +146,9 @@ void Draw2D::InternalFlush()
 
     // Map the dynamic vertex buffer, copy our CPU-side vertex data to it, and unmap.
     void* pMappedData;
-    QEngine::m_pImmediateContext->MapBuffer(m_VertexBuffer, MAP_WRITE, MAP_FLAG_DISCARD, pMappedData);
+    QEngine::GetContext()->MapBuffer(m_VertexBuffer, MAP_WRITE, MAP_FLAG_DISCARD, pMappedData);
     memcpy(pMappedData, m_BatchVertices.data(), m_BatchVertices.size() * sizeof(Draw2D_Vertex));
-    QEngine::m_pImmediateContext->UnmapBuffer(m_VertexBuffer, MAP_WRITE);
+    QEngine::GetContext()->UnmapBuffer(m_VertexBuffer, MAP_WRITE);
 
     // Set up material properties for the entire batch.
     uint32_t indexCount = (uint32_t)(m_BatchVertices.size() / 4) * 6;

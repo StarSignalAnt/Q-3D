@@ -154,8 +154,8 @@ void TerrainEditor::Sculpt() {
     // ter->GetMesh()->SetVertices(verts);
     ter->GetComponent<TerrainMeshComponent>()->GetMesh()->CalculateNormals();
     ter->GetComponent<TerrainMeshComponent>()->GetMesh()->Build();
-    QEngine::m_pImmediateContext->Flush();
-    QEngine::m_pImmediateContext->WaitForIdle();
+    QEngine::GetContext()->Flush();
+    QEngine::GetContext()->WaitForIdle();
 
     m_s = false;
 }

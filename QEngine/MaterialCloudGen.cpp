@@ -14,7 +14,7 @@ struct CloudGenConstants {
 MaterialCloudGen::MaterialCloudGen() {
     ShaderCreateInfo ShaderCI;
     ShaderCI.SourceLanguage = SHADER_SOURCE_LANGUAGE_HLSL;
-    ShaderCI.pShaderSourceStreamFactory = QEngine::m_pShaderFactory;
+    ShaderCI.pShaderSourceStreamFactory = QEngine::GetShaderFactory();
     ShaderVersion ShaderModel;
     ShaderModel.Major = 5;
     ShaderModel.Minor = 0;
@@ -24,7 +24,7 @@ MaterialCloudGen::MaterialCloudGen() {
     ShaderCI.EntryPoint = "main";
     ShaderCI.Desc.Name = "Cloud Gen CS";
     ShaderCI.FilePath = "Engine/Compute/CloudGen/cloud_gen.csh";
-    QEngine::m_pDevice->CreateShader(ShaderCI, &pCS);
+    QEngine::GetDevice()->CreateShader(ShaderCI, &pCS);
 
     m_UniformBuffer = CreateUniform(sizeof(CloudGenConstants), "Cloud Gen Constants");
 
@@ -41,7 +41,7 @@ MaterialCloudGen::MaterialCloudGen() {
     PSOCreateInfo.PSODesc.Name = "Cloud Gen PSO";
     PSOCreateInfo.PSODesc.ResourceLayout = ResourceLayout; // Assign the new layout here
     PSOCreateInfo.pCS = pCS;
-    QEngine::m_pDevice->CreateComputePipelineState(PSOCreateInfo, &m_Pipeline);
+    QEngine::GetDevice()->CreateComputePipelineState(PSOCreateInfo, &m_Pipeline);
 
     // This part remains the same
     m_Pipeline->GetStaticVariableByName(SHADER_TYPE_COMPUTE, "Constants")->Set(m_UniformBuffer);
@@ -52,7 +52,7 @@ void MaterialCloudGen::Dispatch(Texture3D* target, float time, float coverage) {
     m_SRB->GetVariableByName(SHADER_TYPE_COMPUTE, "g_OutputTexture")->Set(target->GetUAV());
 
     {
-        MapHelper<CloudGenConstants> CBConstants(QEngine::m_pImmediateContext, m_UniformBuffer, MAP_WRITE, MAP_FLAG_DISCARD);
+        MapHelper<CloudGenConstants> CBConstants(QEngine::GetContext(), m_UniformBuffer, MAP_WRITE, MAP_FLAG_DISCARD);
         CBConstants->g_Time = time;
         CBConstants->g_Coverage = coverage;
         CBConstants->g_TexDimensions[0] = target->GetWidth();
@@ -60,15 +60,15 @@ void MaterialCloudGen::Dispatch(Texture3D* target, float time, float coverage) {
         CBConstants->g_TexDimensions[2] = target->GetDepth();
     }
 
-    QEngine::m_pImmediateContext->SetPipelineState(m_Pipeline);
-    QEngine::m_pImmediateContext->CommitShaderResources(m_SRB, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    QEngine::GetContext()->SetPipelineState(m_Pipeline);
+    QEngine::GetContext()->CommitShaderResources(m_SRB, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
     // Tell the GPU how many thread groups to launch
     DispatchComputeAttribs DspAttribs;
     DspAttribs.ThreadGroupCountX = (target->GetWidth() + 7) / 8;
     DspAttribs.ThreadGroupCountY = (target->GetHeight() + 7) / 8;
     DspAttribs.ThreadGroupCountZ = (target->GetDepth() + 7) / 8;
-    QEngine::m_pImmediateContext->DispatchCompute(DspAttribs);
+    QEngine::GetContext()->DispatchCompute(DspAttribs);
 }
 
 void MaterialCloudGen::Bind(bool add) {

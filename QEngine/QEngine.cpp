@@ -1,4 +1,3 @@
-
 #include "QEngine.h"
 #include "RenderTargetCube.h"
 #include "RenderTarget2D.h"
@@ -9,6 +8,11 @@
 #include "MAsm.h"
 #include "MClass.h"
 #include "NodeRegistry.h"
+#include "GameVideo.h"
+#include "Draw2D.h"
+#include "SharpComponent.h"
+
+// --- Event & Core Nodes ---
 #include "NodeTurnNode.h"
 #include "TickEventNode.h"
 #include "NodeTestLogic.h"
@@ -18,7 +22,6 @@
 #include "NodeIf.h"
 #include "NodeKeyDown.h"
 #include "NodeAddFloat.h"
-#include "NodeAddVec3.h"
 #include "NodeExposeGraphNode.h"
 #include "NodeSetPositionNode.h"
 #include "NodeCreateRotationMatrix.h"
@@ -31,10 +34,11 @@
 #include "NodeStartVideo.h"
 #include "RenderEventNode.h"
 #include "NodeRenderVideo.h"
-#include "GameVideo.h"
-#include "Draw2D.h"
-#include "SharpComponent.h"
 
+// --- Consolidated Logic Nodes Header ---
+#include "LogicNodes1.h" // *** CHANGED: Include the new single header ***
+#include "LogicNodes2.h"
+#include "DllImporter.h"
 
 namespace py = pybind11;
 RefCntAutoPtr<IRenderDevice>  QEngine::m_pDevice;
@@ -188,11 +192,6 @@ void QEngine::CheckDLL() {
 }
 
 
-MonoLib* QEngine::GetMonoLib() {
-
-
-	return m_MonoLib;
-}
 
 void QEngine::InitMono() {
 
@@ -390,7 +389,6 @@ void QEngine::RegisterNodeTypes() {
 	registry.RegisterNode<NodeIf>("If");
 	registry.RegisterNode<NodeKeyDown>("Input.KeyDown");
 	registry.RegisterNode<NodeAddFloat>("Add(Float)");
-	registry.RegisterNode<NodeAddVec3>("Add(Vec3)");
 	registry.RegisterNode<NodeExposeGraphNode>("Expose Node");
 	registry.RegisterNode<NodeSetPositionNode>("Set Position GraphNode");
 	registry.RegisterNode<NodeCreateRotationMatrix>("Create Rotation Matrix");
@@ -403,4 +401,95 @@ void QEngine::RegisterNodeTypes() {
 	registry.RegisterNode<NodeStartVideo>("Start Video");
 	registry.RegisterNode<RenderEventNode>("Render Node");
 	registry.RegisterNode<NodeRenderVideo>("Render Video");
+
+	// --- Math & Vector Nodes ---
+	registry.RegisterNode<NodeAddVec3>("Add(Vec3)");
+	registry.RegisterNode<NodeSubtractFloat>("Subtract (Float)");
+	registry.RegisterNode<NodeSubtractVec3>("Subtract (Vec3)");
+	registry.RegisterNode<NodeDivideFloat>("Divide (Float)");
+	registry.RegisterNode<NodeDivideVec3>("Divide (Vec3)");
+	registry.RegisterNode<NodeMultFloat>("Multiply (Float)");
+	registry.RegisterNode<NodeMultVec3>("Multiply (Vec3)");
+	registry.RegisterNode<NodeDotProduct>("Dot Product (Vec3)");
+	registry.RegisterNode<NodeCrossProduct>("Cross Product (Vec3)");
+	registry.RegisterNode<NodeNormalizeVec3>("Normalize (Vec3)");
+	registry.RegisterNode<NodeVectorLength>("Length (Vec3)");
+	registry.RegisterNode<NodeComposeVec3>("Compose Vec3");
+	registry.RegisterNode<NodeDecomposeVec3>("Decompose Vec3");
+	registry.RegisterNode<NodeLerpFloat>("Lerp (Float)");
+	registry.RegisterNode<NodeLerpVec3>("Lerp (Vec3)");
+	registry.RegisterNode<NodeSine>("Sine");
+	registry.RegisterNode<NodeRandomFloatInRange>("Random Float In Range");
+
+	// --- GraphNode & Scene Interaction ---
+	registry.RegisterNode<LNodeGetPosition>("Get Position");
+	registry.RegisterNode<LNodeGetRotation>("Get Rotation");
+	registry.RegisterNode<NodeRotateNode>("Rotate Node");
+	registry.RegisterNode<NodeMoveNode>("Move Node");
+	registry.RegisterNode<NodeFindNodeByName>("Find Node By Name");
+	registry.RegisterNode<LNodeGetScale>("Get Scale");
+	registry.RegisterNode<NodeGetEulerRotation>("Get Euler Rotation");
+	registry.RegisterNode<NodeGetParent>("Get Parent");
+	registry.RegisterNode<LNodeSetScale>("Set Scale");
+	registry.RegisterNode<NodeSetEulerRotation>("Set Euler Rotation");
+	registry.RegisterNode<NodeLookAt>("Look At");
+	registry.RegisterNode<NodeAttachTo>("Attach To");
+	registry.RegisterNode<NodeDetach>("Detach");
+	registry.RegisterNode<NodeGetBounds>("Get Bounds");
+	registry.RegisterNode<NodeGetMainCamera>("Get Main Camera");
+	registry.RegisterNode<NodeMousePick>("Mouse Pick");
+//	registry.RegisterNode<NodeDecomposeHitResult>("Decompose Hit Result");
+
+	// --- Component & Physics Interaction ---
+	registry.RegisterNode<NodeGetLightProperties>("Get Light Properties");
+	registry.RegisterNode<NodeSetLightProperties>("Set Light Properties");
+	registry.RegisterNode<NodeSetPhysicsBody>("Set Physics Body");
+
+	// --- Constants & Conversion ---
+	registry.RegisterNode<NodeConstantFloat>("Constant (Float)");
+	registry.RegisterNode<NodeConstantString>("Constant (String)");
+	registry.RegisterNode<NodeVec3ToString>("Vec3 To String");
+	registry.RegisterNode<NodeFloatToString>("Float To String");
+
+	// --- Logic, Time & Flow Control ---
+	registry.RegisterNode<NodeBranch>("Branch"); // Note: Using NodeBranch for "If" functionality
+	registry.RegisterNode<NodePrintString>("Print String"); // Note: Using NodePrintString for "Debug"
+	registry.RegisterNode<NodeCompareFloat>("Compare (Float)");
+	registry.RegisterNode<NodeBooleanAND>("AND (Boolean)");
+	registry.RegisterNode<NodeBooleanOR>("OR (Boolean)");
+	registry.RegisterNode<NodeBooleanNOT>("NOT (Boolean)");
+	registry.RegisterNode<NodeGetDeltaTime>("Get Delta Time");
+	registry.RegisterNode<NodeAppendString>("Append String");
+	registry.RegisterNode<NodeSequence>("Sequence");
+	registry.RegisterNode<NodeForLoop>("For Loop");
+	registry.RegisterNode<NodeDoOnce>("Do Once");
 }
+
+DllImporter* QEngine::m_CDLL = nullptr;
+std::vector<Component*> QEngine::m_CComponents;
+
+
+void QEngine::DebugLog(const std::string& message)
+{
+	if (DebugLogCB) {
+		//DebugLogCB(message);
+		std::cout << "MSG:" << message << std::endl;
+	}
+}
+
+void QEngine::InitCDLL() {
+
+	auto path = m_ContentPath + "CGame\\x64\\Debug\\CGame.dll";
+
+	m_CDLL = new DllImporter(path);
+	m_CDLL->LoadAndInit();
+
+
+	int b = 5;
+
+}
+
+
+
+float QEngine::m_DeltaTime = 0.1;
+GameContent* QEngine::m_Content = nullptr;

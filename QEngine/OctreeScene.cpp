@@ -548,7 +548,7 @@ int& nodesTested, int& nodesVisible)
         BufferData vbInitData;
         vbInitData.pData = uniqueVertices.data();
         vbInitData.DataSize = vbDesc.Size;
-        QEngine::m_pDevice->CreateBuffer(vbDesc, &vbInitData, &batch->vertexBuffer);
+        QEngine::GetDevice()->CreateBuffer(vbDesc, &vbInitData, &batch->vertexBuffer);
 
         BufferDesc ibDesc;
         ibDesc.Name = "Octree Node Optimized IB";
@@ -558,7 +558,7 @@ int& nodesTested, int& nodesVisible)
         BufferData ibInitData_IB;
         ibInitData_IB.pData = remappedIndices.data();
         ibInitData_IB.DataSize = ibDesc.Size;
-        QEngine::m_pDevice->CreateBuffer(ibDesc, &ibInitData_IB, &batch->indexBuffer);
+        QEngine::GetDevice()->CreateBuffer(ibDesc, &ibInitData_IB, &batch->indexBuffer);
 
         batch->indexCount = remappedIndices.size();
         batch->cpuVertexData = std::move(uniqueVertices);
@@ -882,7 +882,7 @@ void Octree::LoadAllNodesRecursive(OctreeNode* node, VFile* dataFile)
             BufferData vbInitData;
             vbInitData.pData = batch->cpuVertexData.data();
             vbInitData.DataSize = vbDesc.Size;
-            QEngine::m_pDevice->CreateBuffer(vbDesc, &vbInitData, &batch->vertexBuffer);
+            QEngine::GetDevice()->CreateBuffer(vbDesc, &vbInitData, &batch->vertexBuffer);
         }
 
         int32_t indexCount = dataFile->ReadInt();
@@ -902,7 +902,7 @@ void Octree::LoadAllNodesRecursive(OctreeNode* node, VFile* dataFile)
             BufferData ibInitData;
             ibInitData.pData = batch->cpuIndexData.data();
             ibInitData.DataSize = ibDesc.Size;
-            QEngine::m_pDevice->CreateBuffer(ibDesc, &ibInitData, &batch->indexBuffer);
+            QEngine::GetDevice()->CreateBuffer(ibDesc, &ibInitData, &batch->indexBuffer);
             batch->indexCount = batch->cpuIndexData.size();
         }
 
@@ -1095,18 +1095,18 @@ void Octree::FinalizeStreamedNodes()
         StagingVBDesc.Usage = USAGE_STAGING;
         StagingVBDesc.CPUAccessFlags = CPU_ACCESS_WRITE;
         StagingVBDesc.Size = payload.LoadedBatch.cpuVertexData.size() * sizeof(Vertex3);
-        QEngine::m_pDevice->CreateBuffer(StagingVBDesc, nullptr, &stagingVB);
+        QEngine::GetDevice()->CreateBuffer(StagingVBDesc, nullptr, &stagingVB);
 
         // 2. Map the staging buffer and copy our CPU data into it.
         void* pStagingData = nullptr;
-        QEngine::m_pImmediateContext->MapBuffer(stagingVB, MAP_WRITE, MAP_FLAG_DISCARD, pStagingData);
+        QEngine::GetContext()->MapBuffer(stagingVB, MAP_WRITE, MAP_FLAG_DISCARD, pStagingData);
         if (pStagingData) {
             memcpy(pStagingData, payload.LoadedBatch.cpuVertexData.data(), StagingVBDesc.Size);
-            QEngine::m_pImmediateContext->UnmapBuffer(stagingVB, MAP_WRITE);
+            QEngine::GetContext()->UnmapBuffer(stagingVB, MAP_WRITE);
         }
 
         // 3. Issue a GPU command to copy from Staging -> Default.
-        QEngine::m_pImmediateContext->CopyBuffer(stagingVB, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION,
+        QEngine::GetContext()->CopyBuffer(stagingVB, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION,
             destBufferSet.vertexBuffer, 0, StagingVBDesc.Size,
             RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
     }
@@ -1121,16 +1121,16 @@ void Octree::FinalizeStreamedNodes()
         StagingIBDesc.Usage = USAGE_STAGING;
         StagingIBDesc.CPUAccessFlags = CPU_ACCESS_WRITE;
         StagingIBDesc.Size = newBatch->indexCount * sizeof(uint32_t);
-        QEngine::m_pDevice->CreateBuffer(StagingIBDesc, nullptr, &stagingIB);
+        QEngine::GetDevice()->CreateBuffer(StagingIBDesc, nullptr, &stagingIB);
 
         void* pStagingData = nullptr;
-        QEngine::m_pImmediateContext->MapBuffer(stagingIB, MAP_WRITE, MAP_FLAG_DISCARD, pStagingData);
+        QEngine::GetContext()->MapBuffer(stagingIB, MAP_WRITE, MAP_FLAG_DISCARD, pStagingData);
         if (pStagingData) {
             memcpy(pStagingData, payload.LoadedBatch.cpuIndexData.data(), StagingIBDesc.Size);
-            QEngine::m_pImmediateContext->UnmapBuffer(stagingIB, MAP_WRITE);
+            QEngine::GetContext()->UnmapBuffer(stagingIB, MAP_WRITE);
         }
 
-        QEngine::m_pImmediateContext->CopyBuffer(stagingIB, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION,
+        QEngine::GetContext()->CopyBuffer(stagingIB, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION,
             destBufferSet.indexBuffer, 0, StagingIBDesc.Size,
             RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
     }
@@ -1162,14 +1162,14 @@ PooledBufferSet Octree::CreateBufferSet()
     vbDesc.Usage = USAGE_DEFAULT; // Use DEFAULT for persistent, updatable GPU resources
     vbDesc.BindFlags = BIND_VERTEX_BUFFER;
     vbDesc.Size = maxVertexDataSize;
-    QEngine::m_pDevice->CreateBuffer(vbDesc, nullptr, &bufferSet.vertexBuffer);
+    QEngine::GetDevice()->CreateBuffer(vbDesc, nullptr, &bufferSet.vertexBuffer);
 
     BufferDesc ibDesc;
     ibDesc.Name = "Pooled Default IB";
     ibDesc.Usage = USAGE_DEFAULT; // Use DEFAULT for persistent, updatable GPU resources
     ibDesc.BindFlags = BIND_INDEX_BUFFER;
     ibDesc.Size = maxIndexDataSize;
-    QEngine::m_pDevice->CreateBuffer(ibDesc, nullptr, &bufferSet.indexBuffer);
+    QEngine::GetDevice()->CreateBuffer(ibDesc, nullptr, &bufferSet.indexBuffer);
 
     return bufferSet;
 }

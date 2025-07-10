@@ -22,7 +22,7 @@ TerrainMeshBuffer::TerrainMeshBuffer(TerrainMesh* mesh) {
 	vdata.DataSize = vbuf.Size;
 	vdata.pData = mesh->GetVertices().data();
 
-	QEngine::m_pDevice->CreateBuffer(vbuf, &vdata, &VertexBuffer);
+	QEngine::GetDevice()->CreateBuffer(vbuf, &vdata, &VertexBuffer);
 
 
 	BufferDesc ibuf;
@@ -48,7 +48,7 @@ TerrainMeshBuffer::TerrainMeshBuffer(TerrainMesh* mesh) {
 	idata.DataSize = ibuf.Size;
 	idata.pData = indices;
 
-	QEngine::m_pDevice->CreateBuffer(ibuf, &idata, &IndexBuffer);
+	QEngine::GetDevice()->CreateBuffer(ibuf, &idata, &IndexBuffer);
 	m_Mesh = mesh;
 }
 
@@ -62,7 +62,7 @@ void TerrainMeshBuffer::Update() {
 	//Diligent::BufferUpdateDesc updateDesc(pVertexBuffer, 0); // Offset 0 to start at the beginning of the buffer
 	//updateDesc.pData = pData;
 	//updateDesc.DataSize = DataSize;
-	QEngine::m_pImmediateContext->UpdateBuffer(VertexBuffer, 0, VertexBuffer->GetDesc().Size, m_Mesh->GetVertices().data(), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+	QEngine::GetContext()->UpdateBuffer(VertexBuffer, 0, VertexBuffer->GetDesc().Size, m_Mesh->GetVertices().data(), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
 
 

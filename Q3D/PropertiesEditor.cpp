@@ -303,7 +303,7 @@ void PropertiesEditor::SetNode(GraphNode* node) {
                         });
                 }
             }
-                break;
+            break;
             case PropertyType::FLOAT:
                 if (float* p_ptr = props.get<float>(propName))
                 {
@@ -312,7 +312,7 @@ void PropertiesEditor::SetNode(GraphNode* node) {
 
 
                     // Pass the initial value to the UI widget
-                    AddFloat(propName.c_str(), -10000,10000,1,initial_p,
+                    AddFloat(propName.c_str(), -10000, 10000, 1, initial_p,
 
                         // ✅ SOLUTION: Capture 'props' by reference [&props]
                         [propName, &props](float val) {
@@ -398,6 +398,183 @@ void PropertiesEditor::SetNode(GraphNode* node) {
 
     }
 
+    auto mesh = node->GetComponent<StaticMeshComponent>();
+
+    if (mesh != nullptr) {
+
+        int i = 0;
+        for (auto m : mesh->GetSubMeshes()) {
+
+            AddHeader((std::string("Mesh ") + std::to_string(i)).c_str());
+
+            auto mat = m->m_Material;
+            if (dynamic_cast<MaterialPBR*>(mat)) {
+
+                auto pbr = (MaterialPBR*)mat;
+                AddTexture("Color", pbr->GetColorTexture()->GetPath(), [node, pbr](std::string val)
+                    {
+                        pbr->SetColorTexture(new Texture2D(val));
+                        pbr->Save(pbr->GetPath());
+                    });
+                AddTexture("Normal", pbr->GetNormalTexture()->GetPath(), [node, pbr](std::string val)
+                    {
+                        pbr->SetNormalTexture(new Texture2D(val));
+                        pbr->Save(pbr->GetPath());
+                    });
+                AddTexture("Metallic", pbr->GetMetallicTexture()->GetPath(), [node, pbr](std::string val) {
+                    pbr->SetMetallicTexture(new Texture2D(val));
+                    pbr->Save(pbr->GetPath());
+                    });
+                AddTexture("Roughness", pbr->GetRoughTexture()->GetPath(), [node, pbr](std::string val) {
+                    pbr->SetRoughnessTexture(new Texture2D(val));
+                    pbr->Save(pbr->GetPath());
+                    });
+                int b = 5;
+            }
+
+            i++;
+        }
+
+    }
+
+    AddButton("Add Component", [node, this]() {
+        qDebug() << "Add Component button clicked";
+
+        // Get or create the component selector
+        ComponentSelector* selector = ComponentSelector::getInstance(this);
+
+        if (!selector) {
+            qDebug() << "Failed to create ComponentSelector";
+            return;
+        }
+
+        // Clear any existing categories first
+        selector->clearCategories();
+        qDebug() << "Cleared existing categories";
+
+        // Add categories and their component types
+        QStringList sharpComponents;
+        QStringList cppComponents;
+        auto classes = QEngine::GetSharpComponentClasses();
+
+        qDebug() << "Available component classes:" << classes.size();
+
+        for (auto c : classes) {
+            QString componentName = QString::fromStdString(c.className);
+            sharpComponents.append(componentName);
+            qDebug() << "Added component:" << componentName;
+        }
+
+        for (auto c : QEngine::GetCComponents()) {
+
+            std::string name = c->GetName();
+            cppComponents.append(name.c_str());
+
+        }
+
+        // DEBUGGING: Ensure we have components to add
+        if (sharpComponents.isEmpty()) {
+            qDebug() << "Warning: No Sharp Components found!";
+            // Add some test components for debugging
+            sharpComponents << "Test Component 1" << "Test Component 2" << "Test Component 3";
+        }
+
+        selector->addCategory("Sharp Components", sharpComponents);
+        selector->addCategory("CPP Components", cppComponents);
+        selector->addCategory("Rendering", { "Static Mesh Component", "Terrain Mesh Component", "Particle System" });
+        selector->addCategory("Lighting", { "Light Component", "Environment Light", "Spot Light" });
+        selector->addCategory("Physics", { "Rigid Body", "Collider", "Kinematic Body" });
+
+        qDebug() << "Added all categories";
+
+        // CRITICAL FIX: Use QPointer to safely check if PropertiesEditor still exists
+        // Also use Qt::QueuedConnection to ensure the call is made safely
+        QPointer<PropertiesEditor> safeThis(this);
+
+        connect(selector, &ComponentSelector::itemSelected, selector,
+            [safeThis, node](const QString& category, const QString& componentType) {
+                qDebug() << "Selected component:" << componentType << "from category:" << category;
+
+                // SAFETY CHECK: Ensure PropertiesEditor still exists
+                if (!safeThis) {
+                    qDebug() << "PropertiesEditor was destroyed, ignoring signal";
+                    return;
+                }
+
+                // SAFETY CHECK: Ensure node still exists (you might want to use QPointer for node too)
+                if (!node) {
+                    qDebug() << "Node is null, ignoring signal";
+                    return;
+                }
+                if (category == "CPP Components")
+                {
+                    qDebug() << "Creating XPP Component:" << componentType;
+                    auto classes = QEngine::GetCComponents();
+                    for (auto c : classes) {
+                        if (c->GetName() == componentType.toStdString()) {
+                            //SharpComponent* comp = new SharpComponent;
+                            //node->AddComponent(comp);
+                            auto ncom = c->CreateInstance();
+                            node->AddComponent(ncom);
+                           // auto cls = QEngine::m_MonoLib->GetClass(c.className);
+                           // comp->SetClass(cls, QEngine::m_MonoLib->GetAssembly(), QEngine::m_MonoLib->GetVivid());
+                           // comp->SetName(c.className);
+                           // comp->SetTime(QEngine::s_last_dll_write_time);
+                            // Refresh the properties editor - use the safe pointer
+                            safeThis->SetNode(node);
+                            break;
+                        }
+                    }
+                }
+                if (category == "Sharp Components") {
+                    // Handle Sharp Components
+                    qDebug() << "Creating Sharp Component:" << componentType;
+                    auto classes = QEngine::GetSharpComponentClasses();
+                    for (auto c : classes) {
+                        if (c.className == componentType.toStdString()) {
+                            SharpComponent* comp = new SharpComponent;
+                            node->AddComponent(comp);
+                            auto cls = QEngine::GetMonoLib()->GetClass(c.className);
+                            comp->SetClass(cls, QEngine::GetMonoLib()->GetAssembly(), QEngine::GetMonoLib()->GetVivid());
+                            comp->SetName(c.className);
+                           //******************
+                            // comp->SetTime(QEngine::s_last_dll_write_time);
+                            // Refresh the properties editor - use the safe pointer
+                            safeThis->SetNode(node);
+                            break;
+                        }
+                    }
+                }
+                else {
+                    qDebug() << "Creating component from category:" << category;
+                    // Handle other component types here
+                    if (componentType == "Script Component") {
+                        // Create script component
+                    }
+                    else if (componentType == "Light Component") {
+                        // Create light component
+                    }
+                }
+            }, Qt::QueuedConnection); // Use queued connection for safety
+
+        qDebug() << "Connected itemSelected signal";
+
+        // Show the selector near the mouse
+        QPoint mousePos = QCursor::pos();
+        qDebug() << "Showing selector at mouse position:" << mousePos;
+
+        selector->showAt(mousePos);
+
+        // DEBUGGING: Check if selector is actually visible
+        QTimer::singleShot(100, [selector]() {
+            if (selector) {
+                qDebug() << "Selector visibility after 100ms:" << selector->isVisible();
+                qDebug() << "Selector position:" << selector->pos();
+                qDebug() << "Selector size:" << selector->size();
+            }
+            });
+        });
+
     EndUI();
     m_Node = node;
 
@@ -431,11 +608,12 @@ void PropertiesEditor::SetNode(GraphNode* node) {
 
         std::string current = "Point";
 
-        if(lc->GetLightType() == LightType::Directional) {
+        if (lc->GetLightType() == LightType::Directional) {
             current = "Directional";
-        } else if (lc->GetLightType() == LightType::Spot) {
+        }
+        else if (lc->GetLightType() == LightType::Spot) {
             current = "Spot";
-		}
+        }
 
         AddStringList("Light Type", { "Point","Directional","Spot" }, current.c_str(), [lc](QString op)
             {
@@ -443,17 +621,17 @@ void PropertiesEditor::SetNode(GraphNode* node) {
                     lc->SetLightType(LightType::Point);
                 }
                 if (op == "Directional") {
-					lc->SetLightType(LightType::Directional);
+                    lc->SetLightType(LightType::Directional);
                 }
                 if (op == "Spot") {
-					lc->SetLightType(LightType::Spot);
+                    lc->SetLightType(LightType::Spot);
                 }
 
 
 
-                
 
-                });
+
+            });
 
         AddVec3("Diffuse", QVector3D(lc->GetColor().r, lc->GetColor().g, lc->GetColor().b), 0.05, [lc](const QVector3D& col)
             {
@@ -514,7 +692,8 @@ void PropertiesEditor::SetNode(GraphNode* node) {
         });
 
 
-    auto mesh = node->GetComponent<StaticMeshComponent>();
+    //auto mesh = node->GetComponent<StaticMeshComponent>();
+
 
     if (mesh != nullptr) {
 
@@ -527,21 +706,21 @@ void PropertiesEditor::SetNode(GraphNode* node) {
             if (dynamic_cast<MaterialPBR*>(mat)) {
 
                 auto pbr = (MaterialPBR*)mat;
-                AddTexture("Color", pbr->GetColorTexture()->GetPath(), [node,pbr](std::string val)
+                AddTexture("Color", pbr->GetColorTexture()->GetPath(), [node, pbr](std::string val)
                     {
                         pbr->SetColorTexture(new Texture2D(val));
                         pbr->Save(pbr->GetPath());
                     });
-                AddTexture("Normal", pbr->GetNormalTexture()->GetPath(), [node,pbr](std::string val)
+                AddTexture("Normal", pbr->GetNormalTexture()->GetPath(), [node, pbr](std::string val)
                     {
                         pbr->SetNormalTexture(new Texture2D(val));
                         pbr->Save(pbr->GetPath());
                     });
-                AddTexture("Metallic", pbr->GetMetallicTexture()->GetPath(), [node,pbr](std::string val) {
+                AddTexture("Metallic", pbr->GetMetallicTexture()->GetPath(), [node, pbr](std::string val) {
                     pbr->SetMetallicTexture(new Texture2D(val));
                     pbr->Save(pbr->GetPath());
                     });
-                AddTexture("Roughness", pbr->GetRoughTexture()->GetPath(), [node,pbr](std::string val) {
+                AddTexture("Roughness", pbr->GetRoughTexture()->GetPath(), [node, pbr](std::string val) {
                     pbr->SetRoughnessTexture(new Texture2D(val));
                     pbr->Save(pbr->GetPath());
                     });
@@ -554,7 +733,7 @@ void PropertiesEditor::SetNode(GraphNode* node) {
     }
 
 
-	auto scomp = node->GetComponents<SharpComponent>();
+    auto scomp = node->GetComponents<SharpComponent>();
 
     for (auto sc : scomp)
     {
@@ -581,9 +760,10 @@ void PropertiesEditor::SetNode(GraphNode* node) {
                         auto r = node->CallFunctionValue_String("GetName");
                         name = r;
                         int b = 5;
-                    } else {
+                    }
+                    else {
 
-						name = "None";
+                        name = "None";
 
 
 
@@ -622,13 +802,13 @@ void PropertiesEditor::SetNode(GraphNode* node) {
                 int b = 5;
             }
 
-  
-            
-                break;
+
+
+            break;
             case SHARP_TYPE_INT:
                 AddInt(AddSpaces(v.name).c_str(), -1000, 1000, 1, sc->GetClass()->GetFieldValue<int>(v.name), [sc, v](const int value)
                     {
-						sc->GetClass()->SetFieldValue(v.name, value);
+                        sc->GetClass()->SetFieldValue(v.name, value);
                         //sc->SetInt(var.name, value);
 
 
@@ -637,16 +817,16 @@ void PropertiesEditor::SetNode(GraphNode* node) {
             case SHARP_TYPE_FLOAT:
                 AddFloat(AddSpaces(v.name).c_str(), -1000, 1000, 0.001, sc->GetClass()->GetFieldValue<float>(v.name), [sc, v](const double value)
                     {
-						sc->GetClass()->SetFieldValue(v.name, (float)value);
+                        sc->GetClass()->SetFieldValue(v.name, (float)value);
 
                     });
                 break;
             case SHARP_TYPE_STRING:
 
                 AddText(AddSpaces(v.name).c_str(), sc->GetClass()->GetFieldValue<std::string>(v.name).c_str(), [sc, v](const QString& str)
-                {
+                    {
                         sc->GetClass()->SetFieldValue(v.name, str.toStdString());
-                });
+                    });
 
                 break;
             case SHARP_TYPE_VEC3:
@@ -697,16 +877,16 @@ void PropertiesEditor::SetNode(GraphNode* node) {
 
                 if (var.cls == "GraphNode")
                 {
-                    
+
                     auto node = sc->GetNode(var.name);
 
                     std::string name = "None";
                     if (node != nullptr) {
-                       name =  node->GetName();
+                        name = node->GetName();
                     }
 
                     // Use the new AddNodeProperty and the new callback signature
-                    AddNodeProperty((AddSpaces(var.name) + " (Node)").c_str(),name.c_str(), [sc, var](GraphNode* droppedNode)
+                    AddNodeProperty((AddSpaces(var.name) + " (Node)").c_str(), name.c_str(), [sc, var](GraphNode* droppedNode)
                         {
                             if (droppedNode) {
                                 // The callback now provides the GraphNode pointer directly.
@@ -716,8 +896,8 @@ void PropertiesEditor::SetNode(GraphNode* node) {
                                 //sc->SetString(var.name, droppedNode->GetName());
                                 sc->SetNode(var.name, droppedNode);
 
-                                
-                                
+
+
                                 //sc->SetClass(var.name,)
 
 
@@ -765,7 +945,7 @@ void PropertiesEditor::SetNode(GraphNode* node) {
     for (auto g : graphs) {
         auto name = "(Graph)" + g->GetName();
         AddHeader(name.c_str());
-    
+
         for (auto v : g->GetVars()) {
 
             switch (v->GetType()) {
@@ -783,7 +963,7 @@ void PropertiesEditor::SetNode(GraphNode* node) {
                         v->SetDefaultValue(glm::vec3(v3.x(), v3.y(), v3.z()));
                     });
             }
-                break;
+            break;
             case DataType::Float:
             {
                 float dv = 0;
@@ -798,7 +978,7 @@ void PropertiesEditor::SetNode(GraphNode* node) {
 
                     });
             }
-                break;
+            break;
             case DataType::GraphNodeRef:
             {
                 AddNodeProperty((AddSpaces(v->GetName()) + " (Node)").c_str(), name.c_str(), [v, g](GraphNode* droppedNode)
@@ -808,124 +988,17 @@ void PropertiesEditor::SetNode(GraphNode* node) {
                         }
                     });
             }
-                break;
+            break;
             }
 
         }
 
     }
 
-    AddButton("Add Component", [node, this]() {
-        qDebug() << "Add Component button clicked";
 
-        // Get or create the component selector
-        ComponentSelector* selector = ComponentSelector::getInstance(this);
 
-        if (!selector) {
-            qDebug() << "Failed to create ComponentSelector";
-            return;
-        }
-
-        // Clear any existing categories first
-        selector->clearCategories();
-        qDebug() << "Cleared existing categories";
-
-        // Add categories and their component types
-        QStringList sharpComponents;
-        auto classes = QEngine::m_ComponentClasses;
-
-        qDebug() << "Available component classes:" << classes.size();
-
-        for (auto c : classes) {
-            QString componentName = QString::fromStdString(c.className);
-            sharpComponents.append(componentName);
-            qDebug() << "Added component:" << componentName;
-        }
-
-        // DEBUGGING: Ensure we have components to add
-        if (sharpComponents.isEmpty()) {
-            qDebug() << "Warning: No Sharp Components found!";
-            // Add some test components for debugging
-            sharpComponents << "Test Component 1" << "Test Component 2" << "Test Component 3";
-        }
-
-        selector->addCategory("Sharp Components", sharpComponents);
-        selector->addCategory("Rendering", { "Static Mesh Component", "Terrain Mesh Component", "Particle System" });
-        selector->addCategory("Lighting", { "Light Component", "Environment Light", "Spot Light" });
-        selector->addCategory("Physics", { "Rigid Body", "Collider", "Kinematic Body" });
-
-        qDebug() << "Added all categories";
-
-        // CRITICAL FIX: Use QPointer to safely check if PropertiesEditor still exists
-        // Also use Qt::QueuedConnection to ensure the call is made safely
-        QPointer<PropertiesEditor> safeThis(this);
-
-        connect(selector, &ComponentSelector::itemSelected, selector,
-            [safeThis, node](const QString& category, const QString& componentType) {
-                qDebug() << "Selected component:" << componentType << "from category:" << category;
-
-                // SAFETY CHECK: Ensure PropertiesEditor still exists
-                if (!safeThis) {
-                    qDebug() << "PropertiesEditor was destroyed, ignoring signal";
-                    return;
-                }
-
-                // SAFETY CHECK: Ensure node still exists (you might want to use QPointer for node too)
-                if (!node) {
-                    qDebug() << "Node is null, ignoring signal";
-                    return;
-                }
-
-                if (category == "Sharp Components") {
-                    // Handle Sharp Components
-                    qDebug() << "Creating Sharp Component:" << componentType;
-                    auto classes = QEngine::m_ComponentClasses;
-                    for (auto c : classes) {
-                        if (c.className == componentType.toStdString()) {
-                            SharpComponent* comp = new SharpComponent;
-                            node->AddComponent(comp);
-                            auto cls = QEngine::m_MonoLib->GetClass(c.className);
-                            comp->SetClass(cls, QEngine::m_MonoLib->GetAssembly(),QEngine::m_MonoLib->GetVivid());
-                            comp->SetName(c.className);
-                            comp->SetTime(QEngine::s_last_dll_write_time);
-                            // Refresh the properties editor - use the safe pointer
-                            safeThis->SetNode(node);
-                            break;
-                        }
-                    }
-                }
-                else {
-                    qDebug() << "Creating component from category:" << category;
-                    // Handle other component types here
-                    if (componentType == "Script Component") {
-                        // Create script component
-                    }
-                    else if (componentType == "Light Component") {
-                        // Create light component
-                    }
-                }
-            }, Qt::QueuedConnection); // Use queued connection for safety
-
-        qDebug() << "Connected itemSelected signal";
-
-        // Show the selector near the mouse
-        QPoint mousePos = QCursor::pos();
-        qDebug() << "Showing selector at mouse position:" << mousePos;
-
-        selector->showAt(mousePos);
-
-        // DEBUGGING: Check if selector is actually visible
-        QTimer::singleShot(100, [selector]() {
-            if (selector) {
-                qDebug() << "Selector visibility after 100ms:" << selector->isVisible();
-                qDebug() << "Selector position:" << selector->pos();
-                qDebug() << "Selector size:" << selector->size();
-            }
-            });
-        });
-
-        EndUI();
-        m_Node = node;
+    EndUI();
+    m_Node = node;
 }
 
 QSize PropertiesEditor::sizeHint() const

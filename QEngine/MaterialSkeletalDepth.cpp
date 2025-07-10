@@ -152,8 +152,8 @@ MaterialSkeletalDepth::MaterialSkeletalDepth() {
     //gp.NumRenderTargets = 0;
 
     gp.BlendDesc = b_desc;
-    gp.RTVFormats[0] = QEngine::m_pSwapChain->GetDesc().ColorBufferFormat;
-    gp.DSVFormat = QEngine::m_pSwapChain->GetDesc().DepthBufferFormat;
+    gp.RTVFormats[0] = QEngine::GetSwapChain()->GetDesc().ColorBufferFormat;
+    gp.DSVFormat = QEngine::GetSwapChain()->GetDesc().DepthBufferFormat;
     gp.InputLayout = in_desc;
     //gp.NumViewports = 1;
 
@@ -271,7 +271,7 @@ MaterialSkeletalDepth::MaterialSkeletalDepth() {
 
     RefCntAutoPtr<IPipelineState> ps;
 
-    QEngine::m_pDevice->CreateGraphicsPipelineState(gp_desc, &ps);
+    QEngine::GetDevice()->CreateGraphicsPipelineState(gp_desc, &ps);
 
     m_Pipeline = ps;
     m_Pipeline->GetStaticVariableByName(SHADER_TYPE_VERTEX, "Constants")->Set(m_UniformBuffer);
@@ -295,7 +295,7 @@ void MaterialSkeletalDepth::Bind(bool add) {
 
         //Engine::m_pImmediateContext->MapBuffer(BasicUniform, MAP_TYPE::MAP_WRITE, MAP_FLAGS::MAP_FLAG_DISCARD);
     {
-        MapHelper<DepthConstant> map_data(QEngine::m_pImmediateContext, m_UniformBuffer, MAP_WRITE, MAP_FLAG_DISCARD);
+        MapHelper<DepthConstant> map_data(QEngine::GetContext(), m_UniformBuffer, MAP_WRITE, MAP_FLAG_DISCARD);
         float FOVRadians = 45.0f * (3.14159265358979323846f / 180.0f);
 
 
@@ -358,16 +358,16 @@ void MaterialSkeletalDepth::Bind(bool add) {
     RESOURCE_STATE_TRANSITION_MODE flags = RESOURCE_STATE_TRANSITION_MODE::RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
 
     //     return;
-    QEngine::m_pImmediateContext->SetVertexBuffers(0, 1, pBuffs, &offsets, flags);
-    QEngine::m_pImmediateContext->SetIndexBuffer(m_Buffers[1], 0, flags);
+    QEngine::GetContext()->SetVertexBuffers(0, 1, pBuffs, &offsets, flags);
+    QEngine::GetContext()->SetIndexBuffer(m_Buffers[1], 0, flags);
 
 
     //   return;
 
 
-    QEngine::m_pImmediateContext->SetPipelineState(m_Pipeline);
+    QEngine::GetContext()->SetPipelineState(m_Pipeline);
 
-    QEngine::m_pImmediateContext->CommitShaderResources(m_SRB, flags);
+    QEngine::GetContext()->CommitShaderResources(m_SRB, flags);
     //Vivid::m_pImmediateContext->SetPipelineState(m_Pipeline);
 
 
@@ -381,6 +381,6 @@ void MaterialSkeletalDepth::Render() {
     attrib.NumIndices = m_IndexCount;
 
     attrib.Flags = DRAW_FLAG_VERIFY_ALL;
-    QEngine::m_pImmediateContext->DrawIndexed(attrib);
+    QEngine::GetContext()->DrawIndexed(attrib);
 
 }

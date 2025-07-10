@@ -395,13 +395,13 @@ extern "C" __declspec(dllexport) void SetScissor( int x, int y, int w, int h) {
 	QEngine::SetScissor(x, y, w, h);
 
 	return;
-	const auto& SCDesc = QEngine::m_pSwapChain->GetDesc();
+	const auto& SCDesc = QEngine::GetSwapChain()->GetDesc();
 	Rect scissorRect;
 	scissorRect.left = x;
 	scissorRect.top = y;
 	scissorRect.right = x + w;
 	scissorRect.bottom = y + h;
-	QEngine::m_pImmediateContext->SetScissorRects(1, &scissorRect, SCDesc.Width, SCDesc.Height);
+	QEngine::GetContext()->SetScissorRects(1, &scissorRect, SCDesc.Width, SCDesc.Height);
 
 
 

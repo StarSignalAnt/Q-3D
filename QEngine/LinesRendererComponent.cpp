@@ -50,7 +50,7 @@ void LinesRendererComponent::Finalize() {
 		vdata.DataSize = vbuf.Size;
 		vdata.pData = data;
 
-		QEngine::m_pDevice->CreateBuffer(vbuf, &vdata, &VertexBuffer);
+		QEngine::GetDevice()->CreateBuffer(vbuf, &vdata, &VertexBuffer);
 
 		BufferDesc ibuf;
 
@@ -74,7 +74,7 @@ void LinesRendererComponent::Finalize() {
 		idata.DataSize = ibuf.Size;
 		idata.pData = indices;
 
-		QEngine::m_pDevice->CreateBuffer(ibuf, &idata, &IndexBuffer);
+		QEngine::GetDevice()->CreateBuffer(ibuf, &idata, &IndexBuffer);
 
 
 }

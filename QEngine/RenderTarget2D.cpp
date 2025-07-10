@@ -18,7 +18,7 @@ RenderTarget2D::RenderTarget2D(int width, int height,bool isdepth) {
 		desc.Format = TEX_FORMAT_R32_FLOAT;
 	}
 	else {
-		desc.Format = QEngine::m_pSwapChain->GetDesc().ColorBufferFormat;
+		desc.Format = QEngine::GetSwapChain()->GetDesc().ColorBufferFormat;
 	}
 	desc.BindFlags = BIND_FLAGS::BIND_SHADER_RESOURCE | BIND_FLAGS::BIND_RENDER_TARGET;
 	desc.ClearValue.Format = desc.Format;
@@ -28,7 +28,7 @@ RenderTarget2D::RenderTarget2D(int width, int height,bool isdepth) {
 	desc.ClearValue.Color[3] = 1;
 	desc.SampleCount = 1;
 
-	QEngine::m_pDevice->CreateTexture(desc, nullptr, &m_Texture);
+	QEngine::GetDevice()->CreateTexture(desc, nullptr, &m_Texture);
 	m_RTView = m_Texture->GetDefaultView(TEXTURE_VIEW_RENDER_TARGET);
 	m_ShaderView = m_Texture->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE);
 
@@ -39,7 +39,7 @@ RenderTarget2D::RenderTarget2D(int width, int height,bool isdepth) {
 	depth.ClearValue.Format = TEX_FORMAT_D32_FLOAT;
 	depth.ClearValue.DepthStencil.Depth = 1.0;
 	depth.ClearValue.DepthStencil.Stencil = 0;
-	QEngine::m_pDevice->CreateTexture(depth, nullptr, &m_DepthTexture);
+	QEngine::GetDevice()->CreateTexture(depth, nullptr, &m_DepthTexture);
 
 	TextureViewDesc depthViewDesc;
 	depthViewDesc.ViewType = TEXTURE_VIEW_DEPTH_STENCIL;
@@ -65,7 +65,7 @@ Texture2D* RenderTarget2D::GetDepthTexture2D() {
 
 void RenderTarget2D::ClearZ() {
 
-	QEngine::m_pImmediateContext->ClearDepthStencil(m_DepthView, CLEAR_DEPTH_FLAG, 1.0f, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+	QEngine::GetContext()->ClearDepthStencil(m_DepthView, CLEAR_DEPTH_FLAG, 1.0f, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
 }
 
@@ -83,9 +83,9 @@ void RenderTarget2D::Bind() {
 
 	QEngine::SetBoundRT2D(this);
 
-	QEngine::m_pImmediateContext->SetRenderTargets(1, &m_RTView, m_DepthView, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-	QEngine::m_pImmediateContext->ClearRenderTarget(m_RTView, ClearColor, RESOURCE_STATE_TRANSITION_MODE_VERIFY);
-	QEngine::m_pImmediateContext->ClearDepthStencil(m_DepthView, CLEAR_DEPTH_FLAG, 1.0f, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+	QEngine::GetContext()->SetRenderTargets(1, &m_RTView, m_DepthView, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+	QEngine::GetContext()->ClearRenderTarget(m_RTView, ClearColor, RESOURCE_STATE_TRANSITION_MODE_VERIFY);
+	QEngine::GetContext()->ClearDepthStencil(m_DepthView, CLEAR_DEPTH_FLAG, 1.0f, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
 
 
@@ -93,9 +93,9 @@ void RenderTarget2D::Bind() {
 
 void RenderTarget2D::Release() {
 
-	auto pRTV = QEngine::m_pSwapChain->GetCurrentBackBufferRTV();
+	auto pRTV = QEngine::GetSwapChain()->GetCurrentBackBufferRTV();
 
-	QEngine::m_pImmediateContext->SetRenderTargets(1, &pRTV, QEngine::m_pSwapChain->GetDepthBufferDSV(), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+	QEngine::GetContext()->SetRenderTargets(1, &pRTV, QEngine::GetSwapChain()->GetDepthBufferDSV(), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 	QEngine::SetBoundRT2D(nullptr);
 
 }

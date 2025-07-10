@@ -25,7 +25,7 @@ public:
 	void WriteFloat(float v);
 	void WriteString(const char* str);
 	void WriteByte(char b);
-	void WriteBytes(void* data, int length);
+	void WriteBytes(void* data, long length);
 	void WriteBool(bool b);
 	void WriteVec3(glm::vec3 v);
 	void WriteVec4(glm::vec4 v);
@@ -46,7 +46,7 @@ public:
 	int ReadInt();
 	float ReadFloat();
 	char ReadByte();
-	void* ReadBytes(int len);
+	void* ReadBytes(long len);
 	const char* ReadString();
 	long ReadLong();
 	bool ReadBool();

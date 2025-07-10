@@ -4,9 +4,13 @@
 #include <iostream>
 #include <cstdlib> // For std::getenv
 #include "PixelMap.h"
+#include "QEngine.h"
+#include "GameContent.h"
+#include "ContentFile.h"
 // Static member definitions
 std::unordered_map<std::string, std::shared_ptr<CachedTexture>> Texture2D::s_textureCache;
 std::mutex Texture2D::s_cacheMutex;
+
 
 // Helper function to get the application's cache directory path
 // This avoids a dependency on Qt for path resolution.
@@ -54,9 +58,32 @@ Texture2D::Texture2D(std::string path, bool srgb)
 
     }
 
+
+    PixelMap* pmap;
+
+    auto con = QEngine::GetContent()->FindContent(path);
+
+    if (con != nullptr) {
+
+        void* data = con->LoadResource();
+         pmap = new PixelMap(data, con->GetSize(), PixelMapDataType::UINT8);
+        int b = 5;
+
+        
+    }
+    else {
+        pmap = new PixelMap(path, PixelMapDataType::UINT8);
+
+    }
+
+    
+
+    
+   
+
     // STEP 1: Load the image using PixelMap, forcing it into 8-bit (UINT8) mode.
     // This ensures we get the raw, unmodified pixel data from the file.
-    PixelMap* pmap = new PixelMap(path, PixelMapDataType::UINT8);
+  
 
     auto col = pmap->GetIntColor(5, 5);
 
@@ -106,7 +133,7 @@ Texture2D::Texture2D(std::string path, bool srgb)
     initialData.NumSubresources = 1;
 
     // Create the texture on the GPU.
-    QEngine::m_pDevice->CreateTexture(TexDesc, &initialData, &m_pTexture);
+    QEngine::GetDevice()->CreateTexture(TexDesc, &initialData, &m_pTexture);
 
     // The PixelMap object is no longer needed after its data is sent to the GPU.
     delete pmap;
@@ -177,12 +204,12 @@ Texture2D::Texture2D(std::string path, bool srgb)
     loadInfo.GenerateMips = true;
     loadInfo.MipLevels = 16;
 
-    QEngine::m_pImmediateContext->Flush();
-    CreateTextureFromFile(path.c_str(), loadInfo, QEngine::m_pDevice, &m_pTexture);
-    QEngine::m_pImmediateContext->Flush();
+    QEngine::GetContext()->Flush();
+    CreateTextureFromFile(path.c_str(), loadInfo, QEngine::GetDevice(), &m_pTexture);
+    QEngine::GetContext()->Flush();
 
     m_pTextureView = m_pTexture->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE);
-    QEngine::m_pImmediateContext->Flush();
+    QEngine::GetContext()->Flush();
 
     m_Width = m_pTexture->GetDesc().Width;
     m_Height = m_pTexture->GetDesc().Height;
@@ -230,7 +257,7 @@ Texture2D::Texture2D(int w, int h, float* data, int bpp)
     tdata.pSubResources = &adata;
 
     RefCntAutoPtr<ITexture> pTexture;
-    QEngine::m_pDevice->CreateTexture(TexDesc, &tdata, &pTexture);
+    QEngine::GetDevice()->CreateTexture(TexDesc, &tdata, &pTexture);
     m_pTexture = pTexture;
     m_pTextureView = pTexture->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE);
 }
@@ -260,7 +287,7 @@ Texture2D::Texture2D(int w, int h, char* data, int bpp)
     tdata.pSubResources = &adata;
 
     RefCntAutoPtr<ITexture> pTexture;
-    QEngine::m_pDevice->CreateTexture(TexDesc, &tdata, &pTexture);
+    QEngine::GetDevice()->CreateTexture(TexDesc, &tdata, &pTexture);
     m_pTexture = pTexture;
     m_pTextureView = pTexture->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE);
 }
@@ -278,7 +305,7 @@ void Texture2D::Update(float* data) {
     subresourceData.pData = data;
     subresourceData.Stride = updateBox.MaxX * 4 * sizeof(float);
 
-    QEngine::m_pImmediateContext->UpdateTexture(m_pTexture, 0, 0, updateBox, subresourceData,
+    QEngine::GetContext()->UpdateTexture(m_pTexture, 0, 0, updateBox, subresourceData,
         Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION, Diligent::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
     m_pTextureView = m_pTexture->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE);
 }
@@ -383,7 +410,7 @@ bool Texture2D::LoadFromBinaryCache(const std::string& path) {
         tdata.pSubResources = &adata;
 
         RefCntAutoPtr<ITexture> pTexture;
-        QEngine::m_pDevice->CreateTexture(TexDesc, &tdata, &pTexture);
+        QEngine::GetDevice()->CreateTexture(TexDesc, &tdata, &pTexture);
 
         if (!pTexture) {
             return false;
@@ -451,7 +478,7 @@ std::vector<uint8_t> Texture2D::ExtractTextureData() {
         stagingDesc.MipLevels = 1; // Only get the base mip level
 
         RefCntAutoPtr<ITexture> stagingTexture;
-        QEngine::m_pDevice->CreateTexture(stagingDesc, nullptr, &stagingTexture);
+        QEngine::GetDevice()->CreateTexture(stagingDesc, nullptr, &stagingTexture);
 
         if (!stagingTexture) {
             std::cerr << "Failed to create staging texture" << std::endl;
@@ -467,12 +494,12 @@ std::vector<uint8_t> Texture2D::ExtractTextureData() {
         copyAttribs.SrcSlice = 0;
         copyAttribs.DstSlice = 0;
 
-        QEngine::m_pImmediateContext->CopyTexture(copyAttribs);
-        QEngine::m_pImmediateContext->Flush();
+        QEngine::GetContext()->CopyTexture(copyAttribs);
+        QEngine::GetContext()->Flush();
 
         // Map staging texture and read data
         MappedTextureSubresource mappedData;
-        QEngine::m_pImmediateContext->MapTextureSubresource(stagingTexture, 0, 0, MAP_READ, MAP_FLAG_NONE, nullptr, mappedData);
+        QEngine::GetContext()->MapTextureSubresource(stagingTexture, 0, 0, MAP_READ, MAP_FLAG_NONE, nullptr, mappedData);
 
         if (mappedData.pData) {
             // Calculate bytes per pixel based on format
@@ -506,7 +533,7 @@ std::vector<uint8_t> Texture2D::ExtractTextureData() {
                 memcpy(dstData + y * rowSize, srcData + y * mappedData.Stride, rowSize);
             }
 
-            QEngine::m_pImmediateContext->UnmapTextureSubresource(stagingTexture, 0, 0);
+            QEngine::GetContext()->UnmapTextureSubresource(stagingTexture, 0, 0);
         }
         else {
             std::cerr << "Failed to map staging texture" << std::endl;

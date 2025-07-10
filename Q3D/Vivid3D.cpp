@@ -81,7 +81,7 @@ Vivid3D::Vivid3D(QWidget *parent)
     setPalette(pal);
 
     browser->Browse(QEngine::GetContentPath());
-	QEngine::DebugLogCB = ConsoleDebug; // Set the debug callback to our console output function
+//	QEngine::DebugLogCB = ConsoleDebug; // Set the debug callback to our console output function
 
 
 }

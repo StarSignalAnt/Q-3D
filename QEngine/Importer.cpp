@@ -22,6 +22,9 @@
 #include "Animation.h"
 #include "Animator.h"
 #include <random>
+#include "QEngine.h"
+#include "GameContent.h"
+#include "ContentFile.h"
 namespace fs = std::filesystem; // For C++17 compatibility
 Texture2D* LoadTexture(const std::string& path) {
     // Assume this loads and returns a new Texture2D*, or nullptr on failure
@@ -93,12 +96,32 @@ std::string GenerateRandomFileName(size_t length = 12) {
 GraphNode* Importer::ImportEntity(std::string path,bool gen_lod) {
     std::string modelDir = fs::path(path).parent_path().string();
     Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile(path,
-        aiProcess_Triangulate |
-        aiProcess_GenNormals | 
-        aiProcess_FlipUVs |
-        aiProcess_CalcTangentSpace);
 
+    auto con = QEngine::GetContent()->FindContent(path);
+
+    aiScene* scene = nullptr;
+
+  //  con = nullptr;
+    if (con != nullptr) {
+
+        void* data = con->LoadResource();
+        std::string ext = con->GetExtension();
+        const char* hint = ext.c_str() + (ext.rfind('.', 0) == 0 ? 1 : 0);
+
+        scene = (aiScene*)importer.ReadFileFromMemory(data, (size_t)con->GetSize(),
+            aiProcess_Triangulate |
+            aiProcess_GenNormals |
+            aiProcess_FlipUVs |
+            aiProcess_CalcTangentSpace, hint);
+
+    }
+    else {
+        scene = (aiScene*)importer.ReadFile(path,
+            aiProcess_Triangulate |
+            aiProcess_GenNormals |
+            aiProcess_FlipUVs |
+            aiProcess_CalcTangentSpace);
+    }
     if (!scene || !scene->HasMeshes()) {
         std::cerr << "Failed to load model: " << path << std::endl;
         return nullptr;
@@ -131,7 +154,7 @@ GraphNode* Importer::ImportEntity(std::string path,bool gen_lod) {
 
 
                 bool found = false;
-                for (auto m : QEngine::m_ActiveMaterials) {
+                for (auto m : QEngine::GetActiveMaterials()) {
 
                     if (m->GetName() == m_name.C_Str())
                     {
@@ -144,9 +167,14 @@ GraphNode* Importer::ImportEntity(std::string path,bool gen_lod) {
 
                 MaterialPBR* pbr = new MaterialPBR;
                 
-               // pbr->Load(m_path);
+                pbr->Load(m_path);
                 pbr->SetName(m_name.C_Str());
-                QEngine::m_ActiveMaterials.push_back(pbr);
+                
+                
+                auto am = QEngine::GetActiveMaterials();
+                am.push_back(pbr);
+                QEngine::SetActiveMaterials(am);
+                
                 materials.push_back(pbr);
                 continue;
 
@@ -205,7 +233,12 @@ GraphNode* Importer::ImportEntity(std::string path,bool gen_lod) {
 
             material->Save(m_path);
             materials.push_back(material);
-            QEngine::m_ActiveMaterials.push_back(material);
+            auto am = QEngine::GetActiveMaterials();
+            am.push_back(material);
+            QEngine::SetActiveMaterials(am);
+
+
+            //QEngine::m_ActiveMaterials.push_back(material);
         }
     }
 

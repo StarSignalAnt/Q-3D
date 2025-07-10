@@ -59,9 +59,9 @@ MaterialTerrain::MaterialTerrain() {
     // This tutorial will render to a single render target
     PSOCreateInfo.GraphicsPipeline.NumRenderTargets = 1;
     // Set render target format which is the format of the swap chain's color buffer
-    PSOCreateInfo.GraphicsPipeline.RTVFormats[0] = QEngine::m_pSwapChain->GetDesc().ColorBufferFormat;
+    PSOCreateInfo.GraphicsPipeline.RTVFormats[0] = QEngine::GetSwapChain()->GetDesc().ColorBufferFormat;
     // Set depth buffer format which is the format of the swap chain's back buffer
-    PSOCreateInfo.GraphicsPipeline.DSVFormat = QEngine::m_pSwapChain->GetDesc().DepthBufferFormat;
+    PSOCreateInfo.GraphicsPipeline.DSVFormat = QEngine::GetSwapChain()->GetDesc().DepthBufferFormat;
     // Primitive topology defines what kind of primitives will be rendered by this pipeline state
     PSOCreateInfo.GraphicsPipeline.PrimitiveTopology = PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     // Cull back faces
@@ -157,7 +157,7 @@ MaterialTerrain::MaterialTerrain() {
     PSOCreateInfo.PSODesc.ResourceLayout.ImmutableSamplers = ImtblSamplers;
     PSOCreateInfo.PSODesc.ResourceLayout.NumImmutableSamplers = _countof(ImtblSamplers);
 
-    QEngine::m_pDevice->CreateGraphicsPipelineState(PSOCreateInfo, &m_Pipeline);
+    QEngine::GetDevice()->CreateGraphicsPipelineState(PSOCreateInfo, &m_Pipeline);
 
 
     // Since we did not explicitly specify the type for 'Constants' variable, default
@@ -184,9 +184,9 @@ MaterialTerrain::MaterialTerrain() {
     // This tutorial will render to a single render target
     PSOCreateInfo.GraphicsPipeline.NumRenderTargets = 1;
     // Set render target format which is the format of the swap chain's color buffer
-    PSOCreateInfo.GraphicsPipeline.RTVFormats[0] = QEngine::m_pSwapChain->GetDesc().ColorBufferFormat;
+    PSOCreateInfo.GraphicsPipeline.RTVFormats[0] = QEngine::GetSwapChain()->GetDesc().ColorBufferFormat;
     // Set depth buffer format which is the format of the swap chain's back buffer
-    PSOCreateInfo.GraphicsPipeline.DSVFormat = QEngine::m_pSwapChain->GetDesc().DepthBufferFormat;
+    PSOCreateInfo.GraphicsPipeline.DSVFormat = QEngine::GetSwapChain()->GetDesc().DepthBufferFormat;
     // Primitive topology defines what kind of primitives will be rendered by this pipeline state
     PSOCreateInfo.GraphicsPipeline.PrimitiveTopology = PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     // Cull back faces
@@ -274,7 +274,7 @@ MaterialTerrain::MaterialTerrain() {
     PSOCreateInfo.PSODesc.ResourceLayout.ImmutableSamplers = ImtblSamplers;
     PSOCreateInfo.PSODesc.ResourceLayout.NumImmutableSamplers = _countof(ImtblSamplers);
 
-    QEngine::m_pDevice->CreateGraphicsPipelineState(PSOCreateInfo, &m_PipelineAdd);
+    QEngine::GetDevice()->CreateGraphicsPipelineState(PSOCreateInfo, &m_PipelineAdd);
 
 
     // Since we did not explicitly specify the type for 'Constants' variable, default
@@ -322,7 +322,7 @@ void MaterialTerrain::Bind(bool add) {
         m_SRBAdd->GetVariableByName(SHADER_TYPE_PIXEL, "v_Shadow")->Set(m_Light->GetComponent<LightComponent>()->GetShadowMap()->GetTexView());
         //Engine::m_pImmediateContext->MapBuffer(BasicUniform, MAP_TYPE::MAP_WRITE, MAP_FLAGS::MAP_FLAG_DISCARD);
         {
-            MapHelper<TerrainConstants> dd(QEngine::m_pImmediateContext, m_UniformBuffer, MAP_WRITE, MAP_FLAG_DISCARD);
+            MapHelper<TerrainConstants> dd(QEngine::GetContext(), m_UniformBuffer, MAP_WRITE, MAP_FLAG_DISCARD);
             float FOVRadians = 45.0f * (3.14159265358979323846f / 180.0f);
 
             dd[0].v_MVP = glm::transpose(mvp);
@@ -367,7 +367,7 @@ void MaterialTerrain::Bind(bool add) {
             // map_data[0] = glm::transpose(mvp);
         }
         {
-            MapHelper<LightingConstants> dd(QEngine::m_pImmediateContext, m_LightingBuffer, MAP_WRITE, MAP_FLAG_DISCARD);
+            MapHelper<LightingConstants> dd(QEngine::GetContext(), m_LightingBuffer, MAP_WRITE, MAP_FLAG_DISCARD);
             dd[0].v_CameraPos = glm::vec4(m_CameraPosition, 1.0f);
             dd[0].v_LightPos = glm::vec4(m_Light->GetPosition(), 1.0f);
             dd[0].v_LightDiff = glm::vec4(m_Light->GetComponent<LightComponent>()->GetColor(), 1.0f);
@@ -385,16 +385,16 @@ void MaterialTerrain::Bind(bool add) {
         RESOURCE_STATE_TRANSITION_MODE flags = RESOURCE_STATE_TRANSITION_MODE::RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
 
         //     return;
-        QEngine::m_pImmediateContext->SetVertexBuffers(0, 1, pBuffs, &offsets, flags);
-        QEngine::m_pImmediateContext->SetIndexBuffer(m_Buffers[1], 0, flags);
+        QEngine::GetContext()->SetVertexBuffers(0, 1, pBuffs, &offsets, flags);
+        QEngine::GetContext()->SetIndexBuffer(m_Buffers[1], 0, flags);
 
 
         //   return;
 
 
-        QEngine::m_pImmediateContext->SetPipelineState(m_PipelineAdd);
+        QEngine::GetContext()->SetPipelineState(m_PipelineAdd);
 
-        QEngine::m_pImmediateContext->CommitShaderResources(m_SRBAdd, flags);
+        QEngine::GetContext()->CommitShaderResources(m_SRBAdd, flags);
 
     }
     else {
@@ -407,7 +407,7 @@ void MaterialTerrain::Bind(bool add) {
         m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_Shadow")->Set(m_Light->GetComponent<LightComponent>()->GetShadowMap()->GetTexView());
         //Engine::m_pImmediateContext->MapBuffer(BasicUniform, MAP_TYPE::MAP_WRITE, MAP_FLAGS::MAP_FLAG_DISCARD);
         {
-            MapHelper<TerrainConstants> dd(QEngine::m_pImmediateContext, m_UniformBuffer, MAP_WRITE, MAP_FLAG_DISCARD);
+            MapHelper<TerrainConstants> dd(QEngine::GetContext(), m_UniformBuffer, MAP_WRITE, MAP_FLAG_DISCARD);
             float FOVRadians = 45.0f * (3.14159265358979323846f / 180.0f);
 
             dd[0].v_MVP = glm::transpose(mvp);
@@ -452,7 +452,7 @@ void MaterialTerrain::Bind(bool add) {
             // map_data[0] = glm::transpose(mvp);
         }
         {
-            MapHelper<LightingConstants> dd(QEngine::m_pImmediateContext, m_LightingBuffer, MAP_WRITE, MAP_FLAG_DISCARD);
+            MapHelper<LightingConstants> dd(QEngine::GetContext(), m_LightingBuffer, MAP_WRITE, MAP_FLAG_DISCARD);
             dd[0].v_CameraPos = glm::vec4(m_CameraPosition, 1.0f);
             dd[0].v_LightPos = glm::vec4(m_Light->GetPosition(), 1.0f);
             dd[0].v_LightDiff = glm::vec4(m_Light->GetComponent<LightComponent>()->GetColor(), 1.0f);
@@ -470,16 +470,16 @@ void MaterialTerrain::Bind(bool add) {
         RESOURCE_STATE_TRANSITION_MODE flags = RESOURCE_STATE_TRANSITION_MODE::RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
 
         //     return;
-        QEngine::m_pImmediateContext->SetVertexBuffers(0, 1, pBuffs, &offsets, flags);
-        QEngine::m_pImmediateContext->SetIndexBuffer(m_Buffers[1], 0, flags);
+        QEngine::GetContext()->SetVertexBuffers(0, 1, pBuffs, &offsets, flags);
+        QEngine::GetContext()->SetIndexBuffer(m_Buffers[1], 0, flags);
 
 
         //   return;
 
 
-        QEngine::m_pImmediateContext->SetPipelineState(m_Pipeline);
+        QEngine::GetContext()->SetPipelineState(m_Pipeline);
 
-        QEngine::m_pImmediateContext->CommitShaderResources(m_SRB, flags);
+        QEngine::GetContext()->CommitShaderResources(m_SRB, flags);
 
     }
     //Vivid::m_pImmediateContext->SetPipelineState(m_Pipeline);
@@ -497,6 +497,6 @@ void MaterialTerrain::Render() {
     attrib.NumIndices = m_IndexCount;
 
     attrib.Flags = DRAW_FLAG_VERIFY_ALL;
-    QEngine::m_pImmediateContext->DrawIndexed(attrib);
+    QEngine::GetContext()->DrawIndexed(attrib);
 
 }

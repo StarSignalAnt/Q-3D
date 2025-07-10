@@ -42,7 +42,7 @@ void VFile::WriteFloat(float b) {
 
 }
 
-void VFile::WriteBytes(void* dat, int len)
+void VFile::WriteBytes(void* dat,long len)
 {
 	ostream.write(reinterpret_cast<char*>(dat), len);
 }
@@ -112,7 +112,7 @@ char VFile::ReadByte() {
 
 }
 
-void* VFile::ReadBytes(int len) {
+void* VFile::ReadBytes(long len) {
 
 	char* r = (char*)malloc(len);
 	istream.read(reinterpret_cast<char*>(r), len);

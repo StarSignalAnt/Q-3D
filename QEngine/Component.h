@@ -36,6 +36,13 @@ public:
     virtual void OnRenderDepth(GraphNode* camera) {};
     virtual void Write(VFile* f) {};
     virtual void Read(VFile* f) {};
+    std::string GetName() {
+        return m_Name;
+    }
+    virtual Component* CreateInstance()
+    {
+        return nullptr;
+    }
 protected:
 
     // Pointer to the owner node

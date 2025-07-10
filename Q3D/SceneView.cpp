@@ -72,7 +72,10 @@
 #include "SharpComponent.h"
 #include "LogicGraphComponent.h"
 #include "SkyComponent.h"
+#include "GameContent.h"
+#include "ContentFile.h"
 using namespace Diligent;
+
 
 
 
@@ -85,12 +88,25 @@ SceneView::SceneView(QWidget *parent)
 {
 	//ui.setupUi(this);
 	setWindowTitle("Scene View");
+    auto path = QEngine::GetContentPath();
+
+    std::cout << "Creating content for path:" << path << std::endl;
+
+    GameContent* content = new GameContent(path);
+    content->ReadArchive();
+   // content->ScanContent();
+    //content->BuildArchive();
+    //content->Debug_ListFiles();
+
+    QEngine::SetContent(content);
     CreateGraphics();
     setMouseTracking(true);
     setFocusPolicy(Qt::StrongFocus);
     m_Instance = this;
     //Vivid::InitPython();
     
+    QEngine::InitCDLL();
+
     setAcceptDrops(true);
     m_SceneGraph = new SceneGraph;
     QEngine::InitEngine();
@@ -116,6 +132,11 @@ SceneView::SceneView(QWidget *parent)
     //h->CallFunc(inst, std::string("greet"), p);
 
 */
+    
+
+
+    int b = 5;
+
 
 
 
@@ -126,20 +147,21 @@ SceneView::SceneView(QWidget *parent)
 
 
     //m_Test1 = Importer::ImportEntity("test/test1.gltf");
-    auto test2 = Importer::ImportEntity("test/test3.fbx",false);
-    auto sp1 = Importer::ImportEntity("test/sphere1.fbx",true);
+  //  auto test2 = Importer::ImportEntity("test/test3.fbx",false);
+  //  auto sp1 = Importer::ImportEntity("test/sphere1.fbx",true);
 
-  test2->SetRenderType(NodeRenderType::RenderType_Static);
+//  test2->SetRenderType(NodeRenderType::RenderType_Static);
+
 
 
  
    // m_SceneGraph->AddNode(m_Test1);
-   m_SceneGraph->AddNode(test2);
-    m_SceneGraph->AddNode(sp1);
+ //  m_SceneGraph->AddNode(test2);
+  //  m_SceneGraph->AddNode(sp1);
 
 
 
-    sp1->SetPosition(glm::vec3(0, 5,0));
+    //sp1->SetPosition(glm::vec3(0, 5,0));
 
 
     //auto sc = new ScriptComponent;
@@ -379,7 +401,7 @@ void SceneView::paintEvent(QPaintEvent* event)
     float tt = ( ((float)ttick) / 1000.0f);
 
     if (m_RunMode == RM_Running) {
-        QEngine::m_Physics->Update(0.01);
+        QEngine::GetPhysics()->Update(0.01);
 
     }
     
@@ -403,7 +425,7 @@ void SceneView::paintEvent(QPaintEvent* event)
 
     //Vivid::ClearZ();
  
-  //  QEngine::m_pImmediateContext->Flush();
+  //  QEngine::GetContext()->Flush();
  
     if (m_RunMode == RM_Stopped) {
         m_SelectionOverlay->Render();
@@ -517,10 +539,10 @@ void SceneView::CreateGraphics() {
     pFactoryD3D12->CreateSwapChainD3D12(m_pDevice, m_pImmediateContext, SCDesc, FullScreenModeDesc{}, Window, &m_pSwapChain);
     pFactoryD3D12->CreateDefaultShaderSourceStreamFactory("engine\\shader\\", &m_pShaderFactory);
 
-	QEngine::m_pImmediateContext = m_pImmediateContext;
-	QEngine::m_pDevice = m_pDevice;
-	QEngine::m_pShaderFactory = m_pShaderFactory;
-	QEngine::m_pSwapChain = m_pSwapChain;
+    QEngine::SetContext(m_pImmediateContext);
+        QEngine::SetDevice(m_pDevice);
+        QEngine::SetShaderFactory(m_pShaderFactory);
+	QEngine::SetSwapChain(m_pSwapChain);
 
     MaterialProducer* pro = new MaterialProducer;
 

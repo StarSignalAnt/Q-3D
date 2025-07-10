@@ -3,6 +3,60 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+
+PixelMap::PixelMap(void* data,int size, PixelMapDataType type) {
+
+	m_Path = "memory"; // Path is not relevant when loading from memory
+	m_Type = type;
+
+	int w, h, bpp_in;
+
+	// Use stbi_load_from_memory to load the image data from the provided buffer.
+	// Note: stbi_load_from_memory expects the size as an 'int'. If you support
+	// image files larger than 2GB, you may need to find an alternative or
+	// add checks for this conversion.
+	unsigned char* loaded_data = stbi_load_from_memory(
+		static_cast<const stbi_uc*>(data),
+		static_cast<int>(size),
+		&w, &h, &bpp_in, 4 // Force 4 channels (RGBA)
+	);
+
+	if (loaded_data == NULL) {
+		// If loading fails, create a fallback error texture (magenta).
+		m_Width = 128;
+		m_Height = 128;
+		m_BPP = 4;
+		m_Type = PixelMapDataType::UINT8; // Fallback to 8-bit for error texture
+		m_Data = new unsigned char[m_Width * m_Height * m_BPP];
+		for (int i = 0; i < m_Width * m_Height; ++i) {
+			static_cast<unsigned char*>(m_Data)[i * 4 + 0] = 255; // R
+			static_cast<unsigned char*>(m_Data)[i * 4 + 1] = 0;   // G
+			static_cast<unsigned char*>(m_Data)[i * 4 + 2] = 255; // B
+			static_cast<unsigned char*>(m_Data)[i * 4 + 3] = 255; // A
+		}
+		return;
+	}
+
+	m_Width = w;
+	m_Height = h;
+	m_BPP = 4; // We forced 4 channels
+
+	if (m_Type == PixelMapDataType::FLOAT32) {
+		// Convert 8-bit data to 32-bit float data
+		m_Data = new float[w * h * 4];
+		for (int i = 0; i < w * h * 4; i++) {
+			static_cast<float*>(m_Data)[i] = (float)loaded_data[i] / 255.0f;
+		}
+		// Free the original 8-bit data returned by stb_image
+		stbi_image_free(loaded_data);
+	}
+	else {
+		// Use the 8-bit data directly
+		m_Data = loaded_data;
+	}
+
+}
+
 PixelMap::PixelMap(std::string path, PixelMapDataType type) {
 	m_Path = path;
 	m_Type = type;

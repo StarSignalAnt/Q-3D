@@ -19,12 +19,12 @@ void RenderMaterial::SetVertexShader(std::string path) {
 
     ShaderCreateInfo info;
     info.FilePath = diligentPath;
-    info.pShaderSourceStreamFactory = QEngine::m_pShaderFactory;
+    info.pShaderSourceStreamFactory = QEngine::GetShaderFactory();
     info.Desc = desc;
     info.EntryPoint = "main";
     info.SourceLanguage = SHADER_SOURCE_LANGUAGE_HLSL;
 
-    QEngine::m_pDevice->CreateShader(info, &m_VS);
+    QEngine::GetDevice()->CreateShader(info, &m_VS);
 
 
 
@@ -48,12 +48,12 @@ void RenderMaterial::SetPixelShader(std::string path) {
 
     ShaderCreateInfo info;
     info.FilePath = diligentPath;
-    info.pShaderSourceStreamFactory = QEngine::m_pShaderFactory;
+    info.pShaderSourceStreamFactory = QEngine::GetShaderFactory();
     info.Desc = desc;
     info.SourceLanguage = SHADER_SOURCE_LANGUAGE_HLSL;
     info.EntryPoint = "main";
 
-    QEngine::m_pDevice->CreateShader(info, &m_PS);
+    QEngine::GetDevice()->CreateShader(info, &m_PS);
 
 }
 
@@ -68,7 +68,7 @@ RefCntAutoPtr<IBuffer> RenderMaterial::CreateUniform(int size, std::string path)
 
     RefCntAutoPtr<IBuffer> buffer;
 
-    QEngine::m_pDevice->CreateBuffer(desc, nullptr, &buffer);
+    QEngine::GetDevice()->CreateBuffer(desc, nullptr, &buffer);
 
     return buffer;
 

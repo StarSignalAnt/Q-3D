@@ -286,7 +286,7 @@ void GraphNode::Play() {
 	switch (m_BodyType) {
 	case T_Box:
 		if (m_RB != nullptr) {
-			QEngine::m_Physics->RemoveActor(m_RB);
+			QEngine::GetPhysics()->RemoveActor(m_RB);
 		}
 		//SetBody(BodyType::T_Box);
 		CreateRB();
@@ -296,7 +296,7 @@ void GraphNode::Play() {
 	case T_TriMesh:
 
 		if (m_RS != nullptr) {
-			QEngine::m_Physics->RemoveStatic(m_RS);
+			QEngine::GetPhysics()->RemoveStatic(m_RS);
 		}
 
 
@@ -305,7 +305,7 @@ void GraphNode::Play() {
 		break;
 	case T_ConvexHull:
 		if (m_RB != nullptr) {
-			QEngine::m_Physics->RemoveActor(m_RB);
+			QEngine::GetPhysics()->RemoveActor(m_RB);
 		}
 		CreateBody();
 		break;
@@ -423,7 +423,7 @@ glm::mat4 PxQuatToGlmMat4(const physx::PxQuat& quat) {
 }
 
 void GraphNode::CreateBody() {
-	PxMaterial* material = QEngine::m_Physics->CreateMaterial(); // static friction, dynamic friction, restitution
+	PxMaterial* material = QEngine::GetPhysics()->CreateMaterial(); // static friction, dynamic friction, restitution
 
 
 	switch (m_BodyType)
@@ -437,7 +437,7 @@ void GraphNode::CreateBody() {
 		m_BoxBody = PxBoxGeometry(size.x/2.0, size.y/2.0, size.z/2.0);
 		m_Shape = PxRigidActorExt::createExclusiveShape(*m_RB, m_BoxBody, *material);
 
-		QEngine::m_Physics->AddActor(m_RB);
+		QEngine::GetPhysics()->AddActor(m_RB);
 	}
 		break;
 	case BodyType::T_TriMesh:
@@ -492,7 +492,7 @@ void GraphNode::CreateBody() {
 
 		PxDefaultMemoryOutputStream writeBuffer;
 		PxTriangleMeshCookingResult::Enum result;
-		bool success = QEngine::m_Physics->GetCooking()->cookTriangleMesh(meshDesc, writeBuffer, &result);
+		bool success = QEngine::GetPhysics()->GetCooking()->cookTriangleMesh(meshDesc, writeBuffer, &result);
 		if (!success || result != PxTriangleMeshCookingResult::eSUCCESS)
 		{
 			throw std::runtime_error("Failed to cook triangle mesh!");
@@ -500,20 +500,20 @@ void GraphNode::CreateBody() {
 
 		// 3. Create triangle mesh from cooked data
 		PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
-		PxTriangleMesh* triMesh = QEngine::m_Physics->GetPhysics()->createTriangleMesh(readBuffer);
+		PxTriangleMesh* triMesh = QEngine::GetPhysics()->GetPhysics()->createTriangleMesh(readBuffer);
 
 		// 4. Create triangle mesh geometry
 		PxTriangleMeshGeometry triGeom(triMesh);
 
 		// 5. Create a static actor
 		PxTransform pose(PxVec3(0.0f, 0.0f, 0.0f));  // Position in world
-		PxRigidStatic* staticActor = QEngine::m_Physics->GetPhysics()->createRigidStatic(pose);
+		PxRigidStatic* staticActor = QEngine::GetPhysics()->GetPhysics()->createRigidStatic(pose);
 
 		// 6. Attach shape to static actor
 		physx::PxShape* shape = PxRigidActorExt::createExclusiveShape(*staticActor, triGeom, *material);
 		// 7. Add actor to scene
 
-		QEngine::m_Physics->AddStatic(staticActor);
+		QEngine::GetPhysics()->AddStatic(staticActor);
 		m_RS = staticActor;
 	}
 	
@@ -543,21 +543,21 @@ void GraphNode::CreateBody() {
 		// 2. Cook convex mesh
 		PxDefaultMemoryOutputStream writeBuffer;
 		PxConvexMeshCookingResult::Enum result;
-		bool success = QEngine::m_Physics->GetCooking()->cookConvexMesh(convexDesc, writeBuffer, &result);
+		bool success = QEngine::GetPhysics()->GetCooking()->cookConvexMesh(convexDesc, writeBuffer, &result);
 		if (!success || result != PxConvexMeshCookingResult::eSUCCESS)
 		{
 			throw std::runtime_error("Failed to cook convex hull!");
 		}
 
 		PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
-		PxConvexMesh* convexMesh = QEngine::m_Physics->GetPhysics()->createConvexMesh(readBuffer);
+		PxConvexMesh* convexMesh = QEngine::GetPhysics()->GetPhysics()->createConvexMesh(readBuffer);
 
 		// 3. Create convex geometry
 		PxConvexMeshGeometry convexGeom(convexMesh);
 
 		// 4. Create dynamic rigid body
 		PxTransform transform(PxVec3(0.0f, 0.0f, 0.0f));  // Or set based on your object
-		PxRigidDynamic* dynamicActor = QEngine::m_Physics->GetPhysics()->createRigidDynamic(transform);
+		PxRigidDynamic* dynamicActor = QEngine::GetPhysics()->GetPhysics()->createRigidDynamic(transform);
 
 		// 5. Create shape and attach to actor
 		m_Shape = PxRigidActorExt::createExclusiveShape(*dynamicActor, convexGeom, *material);
@@ -567,7 +567,7 @@ void GraphNode::CreateBody() {
 		dynamicActor->setGlobalPose(t, true);
 
 		// 6. Add actor to scene
-		QEngine::m_Physics->AddActor(dynamicActor);
+		QEngine::GetPhysics()->AddActor(dynamicActor);
 		m_RB = dynamicActor;  // Store handle to the rigid body
 		break;
 	}
@@ -578,7 +578,7 @@ void GraphNode::CreateBody() {
 
 void GraphNode::CreateRB() {
 
-	m_RB = QEngine::m_Physics->CreateRB();
+	m_RB = QEngine::GetPhysics()->CreateRB();
 	
 	PxTransform t;
 	t.p = PxVec3(m_Position.x, m_Position.y, m_Position.z);
@@ -729,7 +729,7 @@ void GraphNode::ReadScripts(VFile* f) {
 
 
 		bool proxy = false;
-		auto cls = QEngine::m_MonoLib->GetClass(name);
+		auto cls = QEngine::GetMonoLib()->GetClass(name);
 		if (cls == nullptr) {
 			proxy = true;
 
@@ -739,7 +739,7 @@ void GraphNode::ReadScripts(VFile* f) {
 		MClass* cls1 = nullptr;
 		if (!proxy) {
 			AddComponent(comp);
-			comp->SetClass(cls, QEngine::m_MonoLib->GetAssembly(), QEngine::m_MonoLib->GetVivid());
+			comp->SetClass(cls, QEngine::GetMonoLib()->GetAssembly(), QEngine::GetMonoLib()->GetVivid());
 			comp->SetName(name);
 			// Refresh the properties editor - use the safe pointer
 
@@ -1271,11 +1271,11 @@ void GraphNode::JReadScripts(const json& j) {
 		if (node_scripts_json.contains("sharp_components")) {
 			for (const auto& sc_json : node_scripts_json["sharp_components"]) {
 				std::string class_name = sc_json.value("class_name", "");
-				auto* cls_template = QEngine::m_MonoLib->GetClass(class_name);
+				auto* cls_template = QEngine::GetMonoLib()->GetClass(class_name);
 				if (cls_template) {
 					auto* comp = new SharpComponent();
 					AddComponent(comp);
-					comp->SetClass(cls_template, QEngine::m_MonoLib->GetAssembly(), QEngine::m_MonoLib->GetVivid());
+					comp->SetClass(cls_template, QEngine::GetMonoLib()->GetAssembly(), QEngine::GetMonoLib()->GetVivid());
 					comp->SetName(class_name);
 
 					auto* cls_instance = comp->GetClass();
@@ -1307,7 +1307,7 @@ void GraphNode::JReadScripts(const json& j) {
 
 									// A referenced node must also have a SharpComponent to get its C# instance
 									//SharpComponent* target_sc = target_node->GetComponent<SharpComponent>();
-									//if (target_sc) {
+									//if (target_sc) {5
 
 
 										cls_instance->SetFieldClass(name, new_cls);
