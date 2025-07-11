@@ -223,6 +223,7 @@ void MainMenu::setupMenus()
 void MainMenu::onNewFile() {
     qDebug() << "New file triggered";
     SceneView::m_Instance->GetScene()->Reset();
+    NodeTree::m_Instance->SetRoot(SceneView::m_Instance->GetScene()->GetRootNode());
 }
 
 void MainMenu::onOpenFile() {

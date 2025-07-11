@@ -112,6 +112,43 @@ public:
             return nullptr;
         }
     }
+
+    int get_enumAsInt(const std::string& name) const {
+        // First, get the generic enum property object
+        if (PropertyEnumBase* enum_prop = get_enum(name)) {
+            // Get the string name of the currently selected option
+            std::string current_value = enum_prop->getValueAsString();
+
+            // Get all available string options
+            std::vector<std::string> options = enum_prop->getAvailableOptions();
+
+            // Find the position of the current value in the options list
+            for (int i = 0; i < options.size(); ++i) {
+                if (options[i] == current_value) {
+                    return i; // Return the index when found
+                }
+            }
+        }
+        // Return -1 on failure (property not found, not an enum, or value not in list)
+        return -1;
+    }
+
+    bool set_enumFromInt(const std::string& name, int index) {
+        // Get the generic enum property object
+        if (PropertyEnumBase* enum_prop = get_enum(name)) {
+            // Get all available string options
+            std::vector<std::string> options = enum_prop->getAvailableOptions();
+
+            // Check if the requested index is valid
+            if (index >= 0 && index < options.size()) {
+                // Set the value using the string that corresponds to the index
+                enum_prop->setValueFromString(options[index]);
+                return true;
+            }
+        }
+        // Return false on failure (property not found, not an enum, or index out of bounds)
+        return false;
+    }
   
     template<typename T>
     T* get(const std::string& name) const {

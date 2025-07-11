@@ -79,12 +79,12 @@ std::vector<SharpClassInfo> MonoLib::GetClasses() {
     return classList;
 }
 
-MClass* MonoLib::GetClass(const std::string& name) {
+MClass* MonoLib::GetClass(const std::string& name,std::string ns) {
     // This will correctly ask m_Assembly (which wraps game.dll) for the class
     if (!m_Assembly) {
         return nullptr;
     }
     // Assuming your scripts are in a "Vivid" namespace.
     // Modify as needed if the namespace is different.
-    return m_Assembly->GetClass("QNet", name);
+    return m_Assembly->GetClass(ns, name);
 }

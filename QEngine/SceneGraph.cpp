@@ -324,10 +324,12 @@ GraphNode* SceneGraph::GetCamera() {
 	return m_Camera;
 }
 
-void SceneGraph::AddLight(GraphNode* light) {
+void SceneGraph::AddLight(GraphNode* light,bool add_to_graph) {
 
 	m_Lights.push_back(light);
-	AddNode(light);
+	if (add_to_graph) {
+		AddNode(light);
+	}
 	light->SetName("Light" + std::to_string(m_Lights.size()));
 
 }
@@ -884,6 +886,8 @@ void SceneGraph::SaveScene(std::string path) {
 }
 
 void SceneGraph::LoadScene(std::string path) {
+
+	m_Lights.clear();
 
 	VFile* f = new VFile(path.c_str(), FileMode::Read);
 

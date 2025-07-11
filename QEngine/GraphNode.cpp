@@ -687,6 +687,11 @@ void GraphNode::ReadScripts(VFile* f) {
 
 		}
 
+		if (name == "LightComponent")
+		{
+			SceneGraph::m_Instance->AddLight(this,false);
+		}
+
 		auto& props = inst->GetProperties();
 		int pc = f->ReadInt();
 
@@ -696,6 +701,11 @@ void GraphNode::ReadScripts(VFile* f) {
 
 
 			switch (pt) {
+			case PropertyType::ENUM:
+
+				props.set_enumFromInt(prop, f->ReadInt());
+
+				break;
 			case PropertyType::STRING:
 
 				props.set(prop, (std::string)f->ReadString());
@@ -732,9 +742,9 @@ void GraphNode::ReadScripts(VFile* f) {
 		std::string name = f->ReadString();
 		SharpComponent* comp = new SharpComponent;
 
-
+		std::string ns = "******";
 		bool proxy = false;
-		auto cls = QEngine::GetMonoLib()->GetClass(name);
+		auto cls = QEngine::GetMonoLib()->GetClass(name,ns);
 		if (cls == nullptr) {
 			proxy = true;
 
@@ -911,6 +921,17 @@ void GraphNode::WriteScripts(VFile* f) {
 			f->WriteInt((int)ty);
 
 			switch (ty) {
+			case PropertyType::ENUM:
+			{
+
+				auto en = props.get_enum("LightType");
+				int op = props.get_enumAsInt(prop);
+
+				f->WriteInt(op);
+
+
+			}
+				break;
 			case PropertyType::STRING:
 			{
 				std::string path = *props.get<std::string>(prop);
@@ -1344,11 +1365,11 @@ void GraphNode::JReadScripts(const json& j) {
 		if (node_scripts_json.contains("sharp_components")) {
 			for (const auto& sc_json : node_scripts_json["sharp_components"]) {
 				std::string class_name = sc_json.value("class_name", "");
-				auto* cls_template = QEngine::GetMonoLib()->GetClass(class_name);
-				if (cls_template) {
+				//auto* cls_template = nullptr; // QEngine::GetMonoLib()->GetClass(class_name);
+				if (true) {
 					auto* comp = new SharpComponent();
 					AddComponent(comp);
-					comp->SetClass(cls_template, QEngine::GetMonoLib()->GetAssembly(), QEngine::GetMonoLib()->GetVivid());
+					//comp->SetClass(cls_template, QEngine::GetMonoLib()->GetAssembly(), QEngine::GetMonoLib()->GetVivid());
 					comp->SetName(class_name);
 
 					auto* cls_instance = comp->GetClass();

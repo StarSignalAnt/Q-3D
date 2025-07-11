@@ -9,7 +9,7 @@
 #include <map>
 
 enum ComponentType {
-    CT_Actor,CT_Component
+    CT_Actor, CT_Component, CT_SharpComponent
 };
 
 // Struct to hold information about a single component
@@ -37,6 +37,7 @@ struct DisplayItem {
     QString displayName;
     ItemType type;
     QRect rect;
+    ComponentType componentType; // Store the type for drawing
     // Only used for component items
     void* componentPtr = nullptr;
 };
@@ -68,6 +69,8 @@ private:
     void calculateLayout();
     void itemClicked(const DisplayItem& item);
     bool containsString(const std::string& text, const std::string& search);
+    ComponentType getCategoryType(const QString& categoryName);
+
 
     // Data storage
     std::vector<ComponentInfo> m_allComponents;

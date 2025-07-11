@@ -18,7 +18,7 @@ public:
     ~MonoLib(); // Good practice to have a destructor
 
     std::vector<SharpClassInfo> GetClasses();
-    MClass* GetClass(const std::string& name);
+    MClass* GetClass(const std::string& name,std::string ns);
 
     MAsm* GetAssembly() const { return m_Assembly; }
     MAsm* GetVivid() const { return m_Vivid; }

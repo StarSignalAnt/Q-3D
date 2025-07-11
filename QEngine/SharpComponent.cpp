@@ -504,7 +504,7 @@ void SharpComponent::SetScript(std::string dll,std::string name) {
 	}
 
 	// 2. Use MonoLib to get the C# class definition.
-	MClass* scriptClass = monoLib->GetClass(name); // Assumes "Vivid" namespace
+	MClass* scriptClass = monoLib->GetClass(name,"QNet"); // Assumes "Vivid" namespace
 	if (!scriptClass) {
 		std::cerr << "Error: Script class definition not found: Vivid." << name << std::endl;
 		return;

@@ -398,6 +398,136 @@ void PropertiesEditor::SetNode(GraphNode* node) {
 
     }
 
+    auto scomp = node->GetComponents<SharpComponent>();
+
+    for (auto sc : scomp)
+    {
+
+        auto name = "(Sharp)" + sc->GetName();
+        AddHeader(name.c_str());
+
+        for (auto v : sc->GetClass()->GetInstanceFields())
+        {
+
+            switch (v.ctype) {
+            case SHARP_TYPE_CLASS:
+            {
+                auto cls = v.etype;
+
+
+                if (cls == "QNet.Scene.GraphNode")
+                {
+                    auto node = sc->GetClass()->GetFieldValue<MClass*>(v.name);
+
+                    std::string name = "None";
+                    if (node != nullptr) {
+                        //name = no
+                        auto r = node->CallFunctionValue_String("GetName");
+                        name = r;
+                        int b = 5;
+                    }
+                    else {
+
+                        name = "None";
+
+
+
+                    }
+
+                    AddNodeProperty((AddSpaces(v.name) + " (Node)").c_str(), name.c_str(), [sc, v](GraphNode* droppedNode)
+                        {
+                            if (droppedNode) {
+                                // The callback now provides the GraphNode pointer directly.
+                                // We can now pass this to the script component.
+                                // For now, we'll just update the string representation,
+                                // which is how script variables are currently stored.
+                                //sc->SetString(var.name, droppedNode->GetName());
+                                //sc->SetNode(var.name, droppedNode);
+
+
+
+                                auto new_cls = sc->CreateGraphNode();
+
+                                new_cls->SetNativePtr("NodePtr", droppedNode);
+
+                                sc->GetClass()->SetFieldClass(v.name, new_cls);
+
+                                auto m_GgcHandle = mono_gchandle_new(new_cls->GetInstance(), false);
+
+
+                                //sc->SetClass(var.name,)
+
+
+
+                                // A future improvement would be to have a method like:
+                                // sc->SetObject(var.name, droppedNode);
+                            }
+                        });
+                }
+                int b = 5;
+            }
+
+
+
+            break;
+            case SHARP_TYPE_INT:
+                AddInt(AddSpaces(v.name).c_str(), -1000, 1000, 1, sc->GetClass()->GetFieldValue<int>(v.name), [sc, v](const int value)
+                    {
+                        sc->GetClass()->SetFieldValue(v.name, value);
+                        //sc->SetInt(var.name, value);
+
+
+                    });
+                break;
+            case SHARP_TYPE_FLOAT:
+                AddFloat(AddSpaces(v.name).c_str(), -1000, 1000, 0.001, sc->GetClass()->GetFieldValue<float>(v.name), [sc, v](const double value)
+                    {
+                        sc->GetClass()->SetFieldValue(v.name, (float)value);
+
+                    });
+                break;
+            case SHARP_TYPE_STRING:
+
+                AddText(AddSpaces(v.name).c_str(), sc->GetClass()->GetFieldValue<std::string>(v.name).c_str(), [sc, v](const QString& str)
+                    {
+                        sc->GetClass()->SetFieldValue(v.name, str.toStdString());
+                    });
+
+                break;
+            case SHARP_TYPE_VEC3:
+
+                auto val = sc->GetClass()->GetFieldValue<MClass*>(v.name);
+
+                auto vx = val->GetFieldValue<float>("x");
+                auto vy = val->GetFieldValue<float>("y");
+                auto vz = val->GetFieldValue<float>("z");
+
+                AddVec3(AddSpaces(v.name).c_str(), QVector3D(vx, vy, vz), 0.05f, [sc, v](const QVector3D& v3) {
+
+                    //auto v1 = sc->GetClass()->GetFieldValue<MClass*>(v.name);
+
+                    float* nv = new float[3];
+                    nv[0] = v3.x();
+                    nv[1] = v3.y();
+                    nv[2] = v3.z();
+
+                    sc->GetClass()->SetFieldStruct(v.name, nv);
+
+                    //v1->SetFieldValue<float>("x", v3.x());
+                    //v1->SetFieldValue<float>("y", v3.y());
+                    //v1->SetFieldValue<float>("z", v3.z());
+
+
+                    });
+
+                break;
+            }
+
+        }
+
+    }
+
+
     auto mesh = node->GetComponent<StaticMeshComponent>();
 
     if (mesh != nullptr) {
@@ -534,7 +664,7 @@ void PropertiesEditor::SetNode(GraphNode* node) {
                         if (c.className == componentType.toStdString()) {
                             SharpComponent* comp = new SharpComponent;
                             node->AddComponent(comp);
-                            auto cls = QEngine::GetMonoLib()->GetClass(c.className);
+                            auto cls = QEngine::GetMonoLib()->GetClass(c.className,c.namespaceName);
                             comp->SetClass(cls, QEngine::GetMonoLib()->GetAssembly(), QEngine::GetMonoLib()->GetVivid());
                             comp->SetName(c.className);
                            //******************
@@ -733,134 +863,7 @@ void PropertiesEditor::SetNode(GraphNode* node) {
     }
 
 
-    auto scomp = node->GetComponents<SharpComponent>();
-
-    for (auto sc : scomp)
-    {
-
-        auto name = "(Sharp)" + sc->GetName();
-        AddHeader(name.c_str());
-
-        for (auto v : sc->GetClass()->GetInstanceFields())
-        {
-
-            switch (v.ctype) {
-            case SHARP_TYPE_CLASS:
-            {
-                auto cls = v.etype;
-
-
-                if (cls == "QNet.Scene.GraphNode")
-                {
-                    auto node = sc->GetClass()->GetFieldValue<MClass*>(v.name);
-
-                    std::string name = "None";
-                    if (node != nullptr) {
-                        //name = no
-                        auto r = node->CallFunctionValue_String("GetName");
-                        name = r;
-                        int b = 5;
-                    }
-                    else {
-
-                        name = "None";
-
-
-
-                    }
-
-                    AddNodeProperty((AddSpaces(v.name) + " (Node)").c_str(), name.c_str(), [sc, v](GraphNode* droppedNode)
-                        {
-                            if (droppedNode) {
-                                // The callback now provides the GraphNode pointer directly.
-                                // We can now pass this to the script component.
-                                // For now, we'll just update the string representation,
-                                // which is how script variables are currently stored.
-                                //sc->SetString(var.name, droppedNode->GetName());
-                                //sc->SetNode(var.name, droppedNode);
-
-
-
-                                auto new_cls = sc->CreateGraphNode();
-
-                                new_cls->SetNativePtr("NodePtr", droppedNode);
-
-                                sc->GetClass()->SetFieldClass(v.name, new_cls);
-
-                                auto m_GgcHandle = mono_gchandle_new(new_cls->GetInstance(), false);
-
-
-                                //sc->SetClass(var.name,)
-
-
-
-                                // A future improvement would be to have a method like:
-                                // sc->SetObject(var.name, droppedNode);
-                            }
-                        });
-                }
-                int b = 5;
-            }
-
-
-
-            break;
-            case SHARP_TYPE_INT:
-                AddInt(AddSpaces(v.name).c_str(), -1000, 1000, 1, sc->GetClass()->GetFieldValue<int>(v.name), [sc, v](const int value)
-                    {
-                        sc->GetClass()->SetFieldValue(v.name, value);
-                        //sc->SetInt(var.name, value);
-
-
-                    });
-                break;
-            case SHARP_TYPE_FLOAT:
-                AddFloat(AddSpaces(v.name).c_str(), -1000, 1000, 0.001, sc->GetClass()->GetFieldValue<float>(v.name), [sc, v](const double value)
-                    {
-                        sc->GetClass()->SetFieldValue(v.name, (float)value);
-
-                    });
-                break;
-            case SHARP_TYPE_STRING:
-
-                AddText(AddSpaces(v.name).c_str(), sc->GetClass()->GetFieldValue<std::string>(v.name).c_str(), [sc, v](const QString& str)
-                    {
-                        sc->GetClass()->SetFieldValue(v.name, str.toStdString());
-                    });
-
-                break;
-            case SHARP_TYPE_VEC3:
-
-                auto val = sc->GetClass()->GetFieldValue<MClass*>(v.name);
-
-                auto vx = val->GetFieldValue<float>("x");
-                auto vy = val->GetFieldValue<float>("y");
-                auto vz = val->GetFieldValue<float>("z");
-
-                AddVec3(AddSpaces(v.name).c_str(), QVector3D(vx, vy, vz), 0.05f, [sc, v](const QVector3D& v3) {
-
-                    //auto v1 = sc->GetClass()->GetFieldValue<MClass*>(v.name);
-
-                    float* nv = new float[3];
-                    nv[0] = v3.x();
-                    nv[1] = v3.y();
-                    nv[2] = v3.z();
-
-                    sc->GetClass()->SetFieldStruct(v.name, nv);
-
-                    //v1->SetFieldValue<float>("x", v3.x());
-                    //v1->SetFieldValue<float>("y", v3.y());
-                    //v1->SetFieldValue<float>("z", v3.z());
-
-
-                    });
-
-                break;
-            }
-
-        }
-
-    }
+  
 
 
     auto scripts = node->GetComponents<ScriptComponent>();
@@ -1275,6 +1278,22 @@ void PropertiesEditor::AddedFromDrop(const QString& resourceName)
 
             }
 
+        }
+        for (auto cs : QEngine::GetSharpComponentClasses())
+        {
+            if (cs.className == path)
+            {
+                SharpComponent* comp = new SharpComponent;
+                m_Node->AddComponent(comp);
+
+                
+                auto cls = QEngine::GetMonoLib()->GetClass(cs.className,cs.namespaceName);
+                comp->SetClass(cls, QEngine::GetMonoLib()->GetAssembly(), QEngine::GetMonoLib()->GetVivid());
+                comp->SetName(cs.className);
+                
+                SetNode(m_Node);
+
+            }
         }
 
     }

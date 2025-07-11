@@ -52,7 +52,7 @@ public:
 	void SetCamera(GraphNode* cameraNode);
 	std::vector<GraphNode*> GetDynamics();
 	GraphNode* GetCamera();
-	void AddLight(GraphNode* lightNode);
+	void AddLight(GraphNode* lightNode,bool add_to_graph=true);
 
 	static SceneGraph* m_CurrentGraph;
 

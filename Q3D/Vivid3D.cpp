@@ -104,6 +104,18 @@ Vivid3D::Vivid3D(QWidget *parent)
 
     }
 
+    auto csc = QEngine::GetSharpComponentClasses();
+
+    for (auto comp : csc) {
+
+        ComponentInfo info;
+        info.category = comp.namespaceName;
+        info.name = comp.className;
+        info.componentPtr = nullptr;
+        info.type = CT_SharpComponent;
+        infos.push_back(info);
+
+    }
 
     componentBrowser->SetComponents(infos);
 

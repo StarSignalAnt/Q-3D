@@ -12,6 +12,10 @@ enum class LightType {
     Spot
 };
 
+
+
+
+
 class LightComponent :
     public Component
 {

@@ -80,6 +80,19 @@ bool ComponentContent::containsString(const std::string& text, const std::string
     return lowerText.find(search) != std::string::npos;
 }
 
+ComponentType ComponentContent::getCategoryType(const QString& categoryName)
+{
+    for (const auto& component : m_allComponents)
+    {
+        if (QString::fromStdString(component.category) == categoryName)
+        {
+            return component.type;
+        }
+    }
+    return CT_Component; // Default
+}
+
+
 void ComponentContent::calculateLayout()
 {
     if (!m_layoutDirty) return;
@@ -96,6 +109,7 @@ void ComponentContent::calculateLayout()
                 DisplayItem item;
                 item.displayName = categoryName;
                 item.type = ItemType::Category;
+                item.componentType = getCategoryType(categoryName);
                 m_displayItems.push_back(item);
             }
         }
@@ -111,6 +125,7 @@ void ComponentContent::calculateLayout()
                     DisplayItem item;
                     item.displayName = QString::fromStdString(componentInfo.name);
                     item.type = ItemType::Component;
+                    item.componentType = componentInfo.type;
                     item.componentPtr = componentInfo.componentPtr;
                     m_displayItems.push_back(item);
                 }
@@ -158,7 +173,7 @@ void ComponentContent::paintEvent(QPaintEvent* event)
         return;
     }
 
-    // --- PASS 1: Draw icons and highlights ---
+    // --- PASS 1: Draw icons, highlights, and type labels ---
     for (const DisplayItem& item : m_displayItems) {
         if (item.rect.isNull()) continue;
 
@@ -177,6 +192,26 @@ void ComponentContent::paintEvent(QPaintEvent* event)
         else {
             m_componentIcon.paint(&painter, iconRect);
         }
+
+        // --- Draw C++/C# Label ---
+        QString typeLabel;
+        if (item.componentType == CT_SharpComponent) {
+            typeLabel = "C#";
+        }
+        else if (item.componentType == CT_Component || item.componentType == CT_Actor) {
+            typeLabel = "CPP";
+        }
+
+        if (!typeLabel.isEmpty()) {
+            QFont typeFont = font();
+            typeFont.setPointSize(7);
+            painter.setFont(typeFont);
+            painter.setPen(Qt::white);
+
+            QRectF textRect = iconRect;
+            textRect.setHeight(textRect.height() - 4); // Add some padding
+            painter.drawText(textRect, Qt::AlignBottom | Qt::AlignRight, typeLabel);
+        }
     }
 
     // --- PASS 2: Draw non-hovered text ---
@@ -192,6 +227,7 @@ void ComponentContent::paintEvent(QPaintEvent* event)
             textRect = QRect(item.rect.x(), item.rect.y() + m_itemSize - 12, itemCellWidth, 40);
         }
 
+        painter.setFont(font()); // Reset font
         painter.setPen(palette().text().color());
         QFontMetrics fm(font());
         QString elidedText = fm.elidedText(item.displayName, Qt::ElideRight, textRect.width());
@@ -202,21 +238,15 @@ void ComponentContent::paintEvent(QPaintEvent* event)
     if (m_OverItem) {
         QFontMetrics fm(font());
 
-        // Calculate the size required for the full text
         int textPadding = 5;
         QRect textBoundingRect = fm.boundingRect(m_OverItem->displayName);
-        // Add a bit more vertical padding to fix the border issue
         QRect fullTextRect(0, 0, textBoundingRect.width() + textPadding * 2, textBoundingRect.height() + textPadding * 2 + 2);
 
-        // Calculate the Y position for the top of the standard text area
         int standardTextTopY = m_OverItem->rect.y() + m_itemSize - 12;
-        // Calculate the center of that standard 40px text area
         int standardTextCenterY = standardTextTopY + 20;
 
-        // Center the full text box in the same spot to prevent vertical shift
         fullTextRect.moveCenter(QPoint(m_OverItem->rect.center().x(), standardTextCenterY));
 
-        // Ensure it stays within the widget's horizontal bounds
         if (fullTextRect.right() > width() - 5) {
             fullTextRect.moveRight(width() - 5);
         }
@@ -224,12 +254,10 @@ void ComponentContent::paintEvent(QPaintEvent* event)
             fullTextRect.moveLeft(5);
         }
 
-        // Draw a background for readability
         painter.setBrush(palette().color(QPalette::ToolTipBase));
         painter.setPen(palette().color(QPalette::ToolTipText));
         painter.drawRoundedRect(fullTextRect, 5, 5);
 
-        // Draw the full, un-elided text
         painter.setPen(palette().text().color());
         painter.drawText(fullTextRect, Qt::AlignCenter, m_OverItem->displayName);
     }
