@@ -63,8 +63,15 @@ protected:
     void resizeEvent(QResizeEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
     void mousePressEvent(QMouseEvent* event) override;
-    void leaveEvent(QEvent* event) override;  // Add this line
+    void leaveEvent(QEvent* event) override;
     bool eventFilter(QObject* watched, QEvent* event) override;
+    void contextMenuEvent(QContextMenuEvent* event) override;
+
+
+private slots:
+    void onImportMesh();
+    void onImportTexture();
+
 private:
     Ui::ContentClass ui;
     void calculateLayout();

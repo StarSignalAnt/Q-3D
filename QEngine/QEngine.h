@@ -72,6 +72,8 @@ public:
 		m_CComponents.push_back(component);
 	}
 
+
+
 	QENGINE_API static void InitCDLL();
 	static float m_DeltaTime;
 
@@ -151,6 +153,9 @@ public:
 		ScW = w;
 		ScH = h;
 	}
+
+	QENGINE_API static bool IsCComponent(Component* comp);
+
 	QENGINE_API static Physics* GetPhysics() {
 		return m_Physics;
 	}

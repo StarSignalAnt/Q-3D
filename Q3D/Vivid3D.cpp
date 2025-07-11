@@ -5,6 +5,7 @@
 #include "ContentBrowser.h"
 #include "NodeTree.h"
 #include "ConsoleOutput.h"
+#include "ComponentBrowser.h"
 
 void ConsoleDebug(std::string value)
 {
@@ -63,6 +64,13 @@ Vivid3D::Vivid3D(QWidget *parent)
     addDockWidget(Qt::LeftDockWidgetArea, treeDock);
     addDockWidget(Qt::BottomDockWidgetArea, contentDock);
 
+    ComponentBrowser* componentBrowser = new ComponentBrowser;
+
+    QDockWidget* compContentDock = new QDockWidget("Component Content", this);
+    compContentDock->setWidget(componentBrowser);
+    compContentDock->setAllowedAreas(Qt::BottomDockWidgetArea | Qt::TopDockWidgetArea);
+    tabifyDockWidget(contentDock, compContentDock);
+
 	auto consoleOutput = new ConsoleOutput(this);
 
 	QDockWidget* consoleDock = new QDockWidget("Console", this);
@@ -82,6 +90,22 @@ Vivid3D::Vivid3D(QWidget *parent)
 
     browser->Browse(QEngine::GetContentPath());
 //	QEngine::DebugLogCB = ConsoleDebug; // Set the debug callback to our console output function
+
+    std::vector<ComponentInfo> infos;
+
+    for (auto comp : QEngine::GetCComponents()) {
+
+        ComponentInfo info;
+        info.name = comp->GetName();
+        info.category = comp->GetCategory();
+        info.componentPtr = (void*)comp;
+        info.type = CT_Component;
+        infos.push_back(info);
+
+    }
+
+
+    componentBrowser->SetComponents(infos);
 
 
 }

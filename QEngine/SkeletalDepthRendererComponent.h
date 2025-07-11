@@ -5,6 +5,8 @@ class SkeletalDepthRendererComponent : public Component
 {
 public:
 
+
+
 	void OnRenderDepth(GraphNode* camera) override;
 
 

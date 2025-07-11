@@ -164,6 +164,7 @@
     <ClInclude Include="DataType.h" />
     <ClInclude Include="DllImporter.h" />
     <ClInclude Include="Draw2D.h" />
+    <ClInclude Include="EngineImporter.h" />
     <ClInclude Include="FastNoiseLite.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GameAudio.h" />
@@ -295,6 +296,7 @@
     <ClCompile Include="CubeRenderer.cpp" />
     <ClCompile Include="DllImporter.cpp" />
     <ClCompile Include="Draw2D.cpp" />
+    <ClCompile Include="EngineImporter.cpp" />
     <ClCompile Include="GameAudio.cpp" />
     <ClCompile Include="GameContent.cpp" />
     <ClCompile Include="GameFont.cpp" />

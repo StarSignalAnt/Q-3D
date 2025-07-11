@@ -1,5 +1,7 @@
 #include "StaticMeshComponent.h"
 #include "QEngine.h"
+#include "MaterialProducer.h"
+#include "EngineImporter.h"
 
 void StaticMeshComponent::Finalize() {
 
@@ -77,4 +79,25 @@ void StaticMeshComponent::Finalize() {
 
 		}
 	}
+}
+
+
+
+void StaticMeshComponent::Initialize() {
+
+	auto node = EngineImporter::ImportMesh(mesh_path);
+	auto mesh = node->GetComponent<StaticMeshComponent>();
+
+	for (auto sub : mesh->GetSubMeshes()) {
+		AddSubMesh(sub);
+		
+	}
+
+
+
+
+
+
+	int b = 5;
+
 }

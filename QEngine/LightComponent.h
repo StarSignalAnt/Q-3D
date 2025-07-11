@@ -18,7 +18,10 @@ class LightComponent :
 public:
     LightComponent();
     ~LightComponent(); // Destructor is now needed to clean up pointers
-
+    Component* CreateInstance() override {
+        return new LightComponent;
+    }
+    void Initialize() override;
     // Common properties
     float GetIntensity() { return m_Intensity; }
     glm::vec3 GetColor() { return m_Color; }

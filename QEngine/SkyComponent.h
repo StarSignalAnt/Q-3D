@@ -8,6 +8,10 @@ class SkyComponent : public Component
 public:
 
 	SkyComponent();
+	Component* CreateInstance() override {
+		return new SkyComponent;
+
+	}
 	void OnUpdate(float dt) override;
 	void OnRender(GraphNode* camera) override;
 	

@@ -1261,6 +1261,23 @@ void PropertiesEditor::AddedFromDrop(const QString& resourceName)
 
     auto ext = getFileExtension(path);
 
+    if (ext == "") {
+
+        auto comps = QEngine::GetCComponents();
+        for (auto c : comps) {
+
+            if (c->GetName() == name) {
+
+                auto inst = c->CreateInstance();
+                m_Node->AddComponent(inst);
+                SetNode(m_Node);
+                return;
+
+            }
+
+        }
+
+    }
 
     if (ext == "py") {
         auto comp = new ScriptComponent();

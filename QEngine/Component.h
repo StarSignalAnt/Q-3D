@@ -43,12 +43,18 @@ public:
     {
         return nullptr;
     }
+    std::string GetCategory() {
+        return m_Category;
+    }
+    virtual void Initialize() {};
+
 protected:
 
     // Pointer to the owner node
     GraphNode* m_Owner = nullptr;
     bool m_Playing = false;
     std::string m_Name = "Component";
+    std::string m_Category = "General";
 
     Properties m_Properties;
 };

@@ -22,7 +22,9 @@ class LinesRendererComponent :
 public:
 
     LinesRendererComponent();
-
+    Component* CreateInstance() {
+        return new LinesRendererComponent;
+    }
     void AddVertex(LineVertex v);
     void AddLine(Line line);
     void Finalize();

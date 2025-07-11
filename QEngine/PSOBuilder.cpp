@@ -67,6 +67,19 @@ PSOBuilder& PSOBuilder::WithLayout(VertexLayoutType LayoutType)
 
     switch (LayoutType)
     {
+    case VertexLayoutType::Normal2D:
+    {
+        static Diligent::LayoutElement Normal2DLayoutElems[4];
+
+        Normal2DLayoutElems[0] = { 0, 0, 3, Diligent::VT_FLOAT32, false }; // Attribute 0: Vertex Position
+        Normal2DLayoutElems[1] = { 1, 0, 4, Diligent::VT_FLOAT32, false }; // Attribute 1: Vertex Color
+        Normal2DLayoutElems[2] = { 2, 0, 3, Diligent::VT_FLOAT32, false }; // Attribute 2: Normal
+        Normal2DLayoutElems[3] = { 3, 0, 4, Diligent::VT_FLOAT32, false }; // Attribute 3: Tangent
+        Layout.LayoutElements = Normal2DLayoutElems;
+        Layout.NumElements = 4;
+
+    }
+        break;
     case VertexLayoutType::Normal3D:
     {
         // As per your definition for a general 3D mesh vertex
@@ -90,26 +103,53 @@ PSOBuilder& PSOBuilder::WithLayout(VertexLayoutType LayoutType)
 }
 PSOBuilder& PSOBuilder::WithResourceLayout(LayoutResourceType Type)
 {
-    // These arrays must be static as the PSO description only stores a pointer to them.
-    static Diligent::ShaderResourceVariableDesc PBRVars[] = {
-        {Diligent::SHADER_TYPE_PIXEL, "v_Texture", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC},
-        {Diligent::SHADER_TYPE_PIXEL, "v_TextureNormal", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC},
-        {Diligent::SHADER_TYPE_PIXEL, "v_TextureMetal", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC},
-        {Diligent::SHADER_TYPE_PIXEL, "v_TextureRough", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC},
-        {Diligent::SHADER_TYPE_PIXEL, "v_TextureEnvironment", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC},
-        {Diligent::SHADER_TYPE_PIXEL, "v_TextureShadow", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC},
-        {Diligent::SHADER_TYPE_PIXEL, "v_TextureDirShadow", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC},
-        {Diligent::SHADER_TYPE_PIXEL, "v_TextureHeight", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC}
-    };
+  
 
-    static Diligent::ImmutableSamplerDesc PBRSamplers[8];
+ 
 
     Diligent::PipelineResourceLayoutDesc ResourceLayout;
 
     switch (Type)
     {
+    case LayoutResourceType::Material2D:
+    {
+        static Diligent::ImmutableSamplerDesc PBRSamplers[1];
+        static Diligent::ShaderResourceVariableDesc PBRVars[] = {
+          {Diligent::SHADER_TYPE_PIXEL, "v_Texture", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC},
+        };
+
+        Diligent::SamplerDesc SamplerLinearWrapDesc{
+            Diligent::FILTER_TYPE_LINEAR, Diligent::FILTER_TYPE_LINEAR, Diligent::FILTER_TYPE_LINEAR,
+            Diligent::TEXTURE_ADDRESS_WRAP, Diligent::TEXTURE_ADDRESS_WRAP, Diligent::TEXTURE_ADDRESS_CLAMP
+        };
+
+        for (int i = 0; i < 1; ++i) {
+            PBRSamplers[i] = { PBRVars[i].ShaderStages, PBRVars[i].Name, SamplerLinearWrapDesc };
+        }
+
+        ResourceLayout.DefaultVariableType = Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
+        ResourceLayout.Variables = PBRVars;
+        ResourceLayout.NumVariables = _countof(PBRVars);
+        ResourceLayout.ImmutableSamplers = PBRSamplers;
+        ResourceLayout.NumImmutableSamplers = _countof(PBRSamplers);
+
+    }
+        break;
     case LayoutResourceType::PBRMaterial:
     {
+        static Diligent::ImmutableSamplerDesc PBRSamplers[8];
+        // These arrays must be static as the PSO description only stores a pointer to them.
+        static Diligent::ShaderResourceVariableDesc PBRVars[] = {
+            {Diligent::SHADER_TYPE_PIXEL, "v_Texture", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC},
+            {Diligent::SHADER_TYPE_PIXEL, "v_TextureNormal", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC},
+            {Diligent::SHADER_TYPE_PIXEL, "v_TextureMetal", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC},
+            {Diligent::SHADER_TYPE_PIXEL, "v_TextureRough", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC},
+            {Diligent::SHADER_TYPE_PIXEL, "v_TextureEnvironment", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC},
+            {Diligent::SHADER_TYPE_PIXEL, "v_TextureShadow", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC},
+            {Diligent::SHADER_TYPE_PIXEL, "v_TextureDirShadow", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC},
+            {Diligent::SHADER_TYPE_PIXEL, "v_TextureHeight", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC}
+        };
+
         Diligent::SamplerDesc SamplerLinearWrapDesc{
             Diligent::FILTER_TYPE_LINEAR, Diligent::FILTER_TYPE_LINEAR, Diligent::FILTER_TYPE_LINEAR,
             Diligent::TEXTURE_ADDRESS_WRAP, Diligent::TEXTURE_ADDRESS_WRAP, Diligent::TEXTURE_ADDRESS_CLAMP

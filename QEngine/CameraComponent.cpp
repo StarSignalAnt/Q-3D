@@ -3,6 +3,14 @@
 #include "QEngine.h"
 #include "GraphNode.h"
 
+
+CameraComponent::CameraComponent() {
+
+    m_Name = "Camera Component";
+    m_Category = "Rendering";
+    
+}
+
 glm::mat4 CameraComponent::GetProjectionMatrix() {
     if (useOver) {
         return m_ProjOver;

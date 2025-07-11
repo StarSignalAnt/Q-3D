@@ -24,7 +24,7 @@
 #include "OctreeScene.h"
 #include "RenderTarget2D.h"
 #include "MaterialProducer.h"
-
+#include "EngineImporter.h"
 #if D3D11_SUPPORTED
 #    include "Graphics/GraphicsEngineD3D11/interface/EngineFactoryD3D11.h"
 #endif
@@ -147,8 +147,9 @@ SceneView::SceneView(QWidget *parent)
 
 
     //m_Test1 = Importer::ImportEntity("test/test1.gltf");
-  //  auto test2 = Importer::ImportEntity("test/test3.fbx",false);
+   // auto test2 = Importer::ImportEntity("test/test3.fbx",false);
   //  auto sp1 = Importer::ImportEntity("test/sphere1.fbx",true);
+
 
 //  test2->SetRenderType(NodeRenderType::RenderType_Static);
 
@@ -156,8 +157,9 @@ SceneView::SceneView(QWidget *parent)
 
  
    // m_SceneGraph->AddNode(m_Test1);
- //  m_SceneGraph->AddNode(test2);
-  //  m_SceneGraph->AddNode(sp1);
+   //m_SceneGraph->AddNode(test2);
+   // m_SceneGraph->AddNode(sp1);
+
 
 
 
@@ -402,10 +404,10 @@ void SceneView::paintEvent(QPaintEvent* event)
 
     if (m_RunMode == RM_Running) {
         QEngine::GetPhysics()->Update(0.01);
-
+        m_SceneGraph->Update(tt);
     }
     
-    m_SceneGraph->Update(tt);
+
 
 
    // m_SceneGraph->Update(tt);
@@ -452,8 +454,9 @@ void SceneView::paintEvent(QPaintEvent* event)
     QEngine::ClearZ();
     QEngine::SetScissor(0, 0, QEngine::GetFrameWidth(), QEngine::GetFrameHeight());
     m_Draw->BeginFrame();
-  //  m_Draw->Rect(m_SceneGraph->GetLights()[0]->GetComponent<LightComponent>()->GetDirectionalShadowMap()->GetDepthTexture2D(), glm::vec2(20, 20), glm::vec2(320, 320), glm::vec4(1, 1, 1, 1));
+    m_Draw->Rect(m_SceneGraph->GetLights()[0]->GetComponent<LightComponent>()->GetDirectionalShadowMap()->GetDepthTexture2D(), glm::vec2(20, 20), glm::vec2(320, 320), glm::vec4(1, 1, 1, 1));
     m_Draw->Flush();
+
 
 //    auto tex = m_Vid1->GetFrame();
 
@@ -1059,7 +1062,7 @@ void SceneView::dragEnterEvent(QDragEnterEvent* event)
     if (event->mimeData()->hasText())
     {
         QString path = event->mimeData()->text();
-        if (path.endsWith(".fbx", Qt::CaseInsensitive) || path.endsWith(".gltf", Qt::CaseInsensitive))
+        if (path.endsWith(".mesh", Qt::CaseInsensitive))
         {
             // If the file type is valid, accept the drag to allow a drop.
             event->acceptProposedAction();
@@ -1078,10 +1081,17 @@ void SceneView::dropEvent(QDropEvent* event)
     if (mime->hasText())
     {
         QString fullPath = mime->text();
-        if (fullPath.endsWith(".fbx", Qt::CaseInsensitive) || fullPath.endsWith(".gltf", Qt::CaseInsensitive))
+        if (fullPath.endsWith(".mesh", Qt::CaseInsensitive))
         {
             // 1. Import the entity using the file path.
-            GraphNode* importedNode = Importer::ImportEntity(fullPath.toStdString());
+            //GraphNode* importedNode = Importer::ImportEntity(fullPath.toStdString());
+
+            GraphNode* importedNode = new GraphNode;
+
+            importedNode = EngineImporter::ImportMesh(fullPath.toStdString());
+
+
+
 
             if (importedNode)
             {

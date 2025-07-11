@@ -10,6 +10,8 @@ class CameraComponent :
 {
 public:
 
+
+    CameraComponent();
     glm::mat4 GetProjectionMatrix();
     glm::mat4 Get2DProjectionMatrix();
     glm::mat4 GetViewMatrix();

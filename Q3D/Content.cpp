@@ -2,6 +2,19 @@
 #include "QEngine.h"
 #include "MaterialPBR.h"
 #include "PropertiesEditor.h"
+#include "MeshImportWindow.h"
+#include <QStandardPaths>
+#include <QCryptographicHash>
+#include <QImageReader>
+#include <QLabel>
+#include <QTimer>
+#include <QGuiApplication>
+#include <QScreen>
+#include <QMenu>
+#include <QFileDialog>
+#include <QContextMenuEvent>
+
+
 Content* Content::m_Instance = nullptr;
 
 Content::Content(QWidget* parent)
@@ -15,6 +28,7 @@ Content::Content(QWidget* parent)
 {
     setMinimumHeight(250);
     setMouseTracking(true);
+    setContextMenuPolicy(Qt::DefaultContextMenu); // Use the contextMenuEvent override
     QStyle* style = QApplication::style();
     m_Instance = this;
 
@@ -47,6 +61,58 @@ Content::~Content()
 {
     hideImagePreview();
 }
+
+void Content::contextMenuEvent(QContextMenuEvent* event)
+{
+    QMenu contextMenu(this);
+
+    QAction* importMeshAction = contextMenu.addAction("Import Mesh...");
+    QAction* importTextureAction = contextMenu.addAction("Import Texture...");
+
+    connect(importMeshAction, &QAction::triggered, this, &Content::onImportMesh);
+    connect(importTextureAction, &QAction::triggered, this, &Content::onImportTexture);
+
+    contextMenu.exec(event->globalPos());
+}
+
+void Content::onImportMesh()
+{
+    QString filePath = QFileDialog::getOpenFileName(this,
+        tr("Import Mesh"), m_currentPath,
+        tr("Mesh Files (*.fbx *.obj *.gltf);;All Files (*)"));
+
+    if (!filePath.isEmpty()) {
+        QFileInfo fileInfo(filePath);
+        QString fileName = fileInfo.baseName(); // Get name without extension
+
+        // Open the import options window
+        MeshImportWindow* importWindow = new MeshImportWindow(filePath, this);
+        importWindow->setAttribute(Qt::WA_DeleteOnClose); // Clean up memory
+
+        // Here you would connect the 'meshImported' signal to your actual import logic
+        // connect(importWindow, &MeshImportWindow::meshImported, this, &YourClass::handleMeshImport);
+
+        importWindow->show();
+    }
+}
+
+void Content::onImportTexture()
+{
+    QStringList filePaths = QFileDialog::getOpenFileNames(this,
+        tr("Import Textures"), m_currentPath,
+        tr("Image Files (*.png *.jpg *.jpeg *.bmp *.tga);;All Files (*)"));
+
+    if (!filePaths.isEmpty()) {
+        // Process each selected texture file
+        for (const QString& filePath : filePaths) {
+            qDebug() << "Importing texture:" << filePath;
+            // Add your texture import logic here
+            // e.g., copy file to project assets, generate metadata, etc.
+        }
+        Browse(m_CurrentPath); // Refresh the view
+    }
+}
+
 
 std::string Content::GetPath() {
     return m_CurrentPath;
@@ -90,11 +156,9 @@ bool Content::isImageFile(const QString& extension) {
 }
 
 QString Content::getThumbnailPath(const QString& filePath) {
-    // Create unique filename using hash of original file path
     QCryptographicHash hash(QCryptographicHash::Md5);
     hash.addData(filePath.toUtf8());
     QString hashedName = QString(hash.result().toHex());
-
     return m_thumbnailCacheDir + "/" + hashedName + ".thumb";
 }
 
@@ -103,76 +167,48 @@ QPixmap Content::generateThumbnail(const QString& filePath) {
     if (!reader.canRead()) {
         return QPixmap();
     }
-
-    // Scale image to fit within 72x72 while maintaining aspect ratio
     QSize originalSize = reader.size();
     QSize targetSize(72, 72);
-
     if (originalSize.width() > targetSize.width() || originalSize.height() > targetSize.height()) {
         originalSize.scale(targetSize, Qt::KeepAspectRatio);
         reader.setScaledSize(originalSize);
     }
-
     QImage image = reader.read();
-    if (image.isNull()) {
-        return QPixmap();
-    }
-
-    return QPixmap::fromImage(image);
+    return image.isNull() ? QPixmap() : QPixmap::fromImage(image);
 }
 
 QPixmap Content::generateLargePreview(const QString& filePath) {
     QImageReader reader(filePath);
-    if (!reader.canRead()) {
-        return QPixmap();
-    }
-
-    // Scale image to fit within 256x256 while maintaining aspect ratio
+    if (!reader.canRead()) return QPixmap();
     QSize originalSize = reader.size();
     QSize targetSize(256, 256);
-
     if (originalSize.width() > targetSize.width() || originalSize.height() > targetSize.height()) {
         originalSize.scale(targetSize, Qt::KeepAspectRatio);
         reader.setScaledSize(originalSize);
     }
-
     QImage image = reader.read();
-    if (image.isNull()) {
-        return QPixmap();
-    }
-
-    return QPixmap::fromImage(image);
+    return image.isNull() ? QPixmap() : QPixmap::fromImage(image);
 }
 
 void Content::showImagePreview(const FileItem* item, const QPoint& mousePos) {
     if (!item || !item->hasThumbnail) return;
-
-    hideImagePreview(); // Clean up any existing preview
-
-    // Generate large preview
+    hideImagePreview();
     QPixmap largePreview = generateLargePreview(item->fullPath);
     if (largePreview.isNull()) return;
 
-    // Create preview label
-    m_previewLabel = new QLabel(nullptr);
-    m_previewLabel->setWindowFlags(Qt::ToolTip | Qt::FramelessWindowHint);
+    m_previewLabel = new QLabel(nullptr, Qt::ToolTip | Qt::FramelessWindowHint);
     m_previewLabel->setAttribute(Qt::WA_TranslucentBackground);
-    m_previewLabel->setStyleSheet("QLabel { background-color: rgba(0, 0, 0, 200); border: 2px solid white; border-radius: 5px; padding: 5px; }");
     m_previewLabel->setPixmap(largePreview);
-    m_previewLabel->setFixedSize(largePreview.size() + QSize(10, 10)); // Add padding
+    m_previewLabel->setFixedSize(largePreview.size());
 
-    // Position near mouse cursor but keep on screen
     QPoint showPos = mousePos + QPoint(15, 15);
     QRect screenRect = QGuiApplication::primaryScreen()->geometry();
-
-    // Adjust position to keep preview on screen
     if (showPos.x() + m_previewLabel->width() > screenRect.right()) {
         showPos.setX(mousePos.x() - m_previewLabel->width() - 15);
     }
     if (showPos.y() + m_previewLabel->height() > screenRect.bottom()) {
         showPos.setY(mousePos.y() - m_previewLabel->height() - 15);
     }
-
     m_previewLabel->move(showPos);
     m_previewLabel->show();
 }
@@ -180,30 +216,20 @@ void Content::showImagePreview(const FileItem* item, const QPoint& mousePos) {
 void Content::hideImagePreview() {
     if (m_previewLabel) {
         m_previewLabel->deleteLater();
-        m_previewLabel->close();
         m_previewLabel = nullptr;
-      
     }
 }
 
 QPixmap Content::loadOrGenerateThumbnail(const QString& filePath) {
     QString thumbnailPath = getThumbnailPath(filePath);
-
-    // Try to load existing thumbnail
     QPixmap thumbnail;
-    if (QFile::exists(thumbnailPath)) {
-        if (thumbnail.load(thumbnailPath)) {
-            return thumbnail;
-        }
+    if (QFile::exists(thumbnailPath) && thumbnail.load(thumbnailPath)) {
+        return thumbnail;
     }
-
-    // Generate new thumbnail
     thumbnail = generateThumbnail(filePath);
     if (!thumbnail.isNull()) {
-        // Save thumbnail to cache
         thumbnail.save(thumbnailPath, "PNG");
     }
-
     return thumbnail;
 }
 
@@ -217,84 +243,45 @@ void Content::Browse(const std::string& path)
     }
     QDir dir(m_currentPath);
     if (!dir.exists()) {
-        qDebug() << "Error: Directory does not exist:" << m_currentPath;
         m_layoutDirty = true;
         update();
         return;
     }
 
-    QFileInfoList entries = dir.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot,
-        QDir::DirsFirst | QDir::Name);
-
-    if (entries.isEmpty() && !dir.isReadable()) {
-        qDebug() << "Error: Cannot read directory:" << m_currentPath;
-        m_layoutDirty = true;
-        update();
-        return;
-    }
+    QFileInfoList entries = dir.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot, QDir::DirsFirst | QDir::Name);
     m_layoutDirty = true;
     for (const QFileInfo& info : entries) {
         FileItem item;
         item.fullPath = info.absoluteFilePath();
         item.isDirectory = info.isDir();
-
-        if (item.isDirectory) {
-            item.displayName = info.fileName();
-        }
-        else {
-            item.displayName = info.baseName();
+        item.displayName = info.isDir() ? info.fileName() : info.baseName();
+        if (!item.isDirectory) {
             item.type = FileType::FT_File;
-
             auto ext = GetFileExtension(info.fileName().toStdString());
             item.ext = QString(ext.c_str());
-
-            // Skip thumbnail cache files
-            if (item.ext.toLower() == "thumb") {
-                continue;
-            }
-
-            if (ext == "fbx" || ext == "gltf") {
-                item.type = FileType::FT_Entity;
-            }
+            if (item.ext.toLower() == "thumb") continue;
+            if (ext == "mesh") item.type = FileType::FT_Entity;
             else if (isImageFile(item.ext)) {
                 item.type = FileType::FT_Texture;
-                // Load or generate thumbnail for image files
                 item.thumbnail = loadOrGenerateThumbnail(item.fullPath);
                 item.hasThumbnail = !item.thumbnail.isNull();
             }
             else if (ext == "py" || ext == "graph") {
                 item.type = FileType::FT_Script;
             }
-
-            if (item.displayName.isEmpty()) {
-                item.displayName = info.fileName();
-            }
+            if (item.displayName.isEmpty()) item.displayName = info.fileName();
         }
-
         m_items.push_back(item);
     }
-
     update();
 }
 
 void Content::GoBack()
 {
-    // Use QDir::cleanPath to normalize paths (e.g., remove trailing slashes) for a reliable comparison.
-    if (!m_rootPath.isEmpty() && QDir::cleanPath(m_currentPath) == QDir::cleanPath(m_rootPath))
-    {
-        qDebug() << "Already at root content path. Cannot go back further.";
-        return; // We are at the root, do nothing.
-    }
-
+    if (!m_rootPath.isEmpty() && QDir::cleanPath(m_currentPath) == QDir::cleanPath(m_rootPath)) return;
     QDir dir(m_currentPath);
-
-    // cdUp() navigates to the parent directory.
     if (dir.cdUp()) {
-        // Browse to the new parent path.
         Browse(dir.absolutePath().toStdString());
-    }
-    else {
-        qDebug() << "Failed to navigate up from current path:" << m_currentPath;
     }
 }
 
@@ -302,35 +289,31 @@ void Content::calculateLayout()
 {
     if (!m_layoutDirty) return;
 
-    m_itemRects.clear();
-    m_itemRects.reserve(m_items.size());
-
     int draw_X = 10;
     int draw_Y = 10;
     const int itemWidth = m_itemSize + 40;
     const int itemHeight = m_itemSize + 25 + 5;
 
     for (size_t i = 0; i < m_items.size(); ++i) {
-        if (m_SearchTerm.size() > 0) {
-            if (m_SearchTerm == m_items[i].ext) {
-                // Match by extension
-            }
-            else {
+        bool shouldDisplay = true;
+        if (!m_SearchTerm.empty()) {
+            if (m_SearchTerm != m_items[i].ext.toStdString()) {
                 if (!containsString(m_items[i].displayName.toStdString(), m_SearchTerm)) {
-                    continue;
+                    shouldDisplay = false;
                 }
             }
         }
 
-        QRect itemRect(draw_X, draw_Y, m_itemSize, itemHeight);
-        m_itemRects.push_back(itemRect);
-        m_items[i].rect = itemRect;
-
-        draw_X += itemWidth;
-
-        if (draw_X > (width() - (m_itemSize))) {
-            draw_X = 10;
-            draw_Y += 92;
+        if (shouldDisplay) {
+            m_items[i].rect = QRect(draw_X, draw_Y, itemWidth, itemHeight);
+            draw_X += itemWidth;
+            if (draw_X > (width() - itemWidth)) {
+                draw_X = 10;
+                draw_Y += 92;
+            }
+        }
+        else {
+            m_items[i].rect = QRect(); // Invalidate rect for filtered items
         }
     }
 
@@ -354,69 +337,21 @@ void Content::paintEvent(QPaintEvent* event)
         return;
     }
 
-    int draw_X = 10;
-    int draw_Y = 10;
-    m_itemSize = 64;
-
     for (const FileItem& item : m_items) {
-        if (m_SearchTerm.size() > 0) {
-            if (m_SearchTerm == item.ext) {
-                // Match by extension
-            }
-            else {
-                if (!containsString(item.displayName.toStdString(), m_SearchTerm)) {
-                    continue;
-                }
-            }
-        }
+        if (item.rect.isNull()) continue; // Skip items filtered by calculateLayout
 
-        QRect iconRect(draw_X, draw_Y, m_itemSize, m_itemSize);
-        bool over = (&item == m_OverItem);
+        QRect iconRect(item.rect.x(), item.rect.y(), m_itemSize, m_itemSize);
+        bool isHovered = (&item == m_OverItem);
 
-        if (over) {
-            QPixmap pixmap;
-            QRect rr;
-
-            if (item.hasThumbnail) {
-                // For thumbnails, make hover size just a bit bigger than the rendered thumbnail (48x48)
-                QSize hoverSize(56, 56); // Just 8 pixels bigger than 48x48
-                rr = QRect(draw_X + (m_itemSize - hoverSize.width()) / 2,
-                    draw_Y + (m_itemSize - hoverSize.height()) / 2,
-                    hoverSize.width(), hoverSize.height());
-                pixmap = item.thumbnail.scaled(hoverSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-            }
-            else {
-                // For regular icons, use the existing larger hover size
-                rr = QRect(draw_X - 4, draw_Y - 4, m_itemSize + 8, m_itemSize + 8);
-                if (item.isDirectory) {
-                    pixmap = DirIcon.pixmap(rr.size());
-                }
-                else if (item.type == FT_Entity) {
-                    pixmap = EntIcon.pixmap(rr.size());
-                }
-                else if (item.type == FT_Texture) {
-                    pixmap = ImageIcon.pixmap(rr.size());
-                }
-                else if (item.type == FT_Script) {
-                    pixmap = ScriptIcon.pixmap(rr.size());
-                }
-                else {
-                    pixmap = FileIcon.pixmap(rr.size());
-                }
-            }
-
-            QPainter iconPainter(&pixmap);
-            iconPainter.setCompositionMode(QPainter::CompositionMode_SourceIn);
-            iconPainter.fillRect(pixmap.rect(), Qt::white);
-            iconPainter.end();
-
-            painter.drawPixmap(rr.topLeft(), pixmap);
+        if (isHovered) {
+            painter.setBrush(QColor(255, 255, 255, 30));
+            painter.setPen(Qt::NoPen);
+            painter.drawRoundedRect(iconRect.adjusted(-2, -2, 2, 2), 5, 5);
         }
 
         // Draw normal icon or thumbnail
         if (item.hasThumbnail) {
-            // Draw thumbnail scaled to smaller size to not obscure text
-            QSize thumbnailSize(48, 48); // Smaller than the 64x64 icon size
+            QSize thumbnailSize(48, 48);
             QPixmap scaledThumbnail = item.thumbnail.scaled(thumbnailSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
             QRect centeredRect = iconRect;
             centeredRect.setSize(scaledThumbnail.size());
@@ -427,102 +362,64 @@ void Content::paintEvent(QPaintEvent* event)
             DirIcon.paint(&painter, iconRect);
         }
         else {
-            if (item.type == FT_Entity) {
-                EntIcon.paint(&painter, iconRect);
-            }
-            else if (item.type == FT_Texture) {
-                ImageIcon.paint(&painter, iconRect);
-            }
-            else if (item.type == FT_Script) {
-                ScriptIcon.paint(&painter, iconRect);
-            }
-            else {
-                FileIcon.paint(&painter, iconRect);
-            }
+            if (item.type == FT_Entity) EntIcon.paint(&painter, iconRect);
+            else if (item.type == FT_Texture) ImageIcon.paint(&painter, iconRect);
+            else if (item.type == FT_Script) ScriptIcon.paint(&painter, iconRect);
+            else FileIcon.paint(&painter, iconRect);
         }
 
-        QRect textRect(draw_X, draw_Y + m_itemSize - 12, m_itemSize, 40);
+        // Draw the name
+        QRect textRect(item.rect.x(), item.rect.y() + m_itemSize - 12, m_itemSize, 40);
         painter.setPen(palette().text().color());
         QFontMetrics fm(font());
         QString elidedText = fm.elidedText(item.displayName + "." + item.ext, Qt::ElideRight, textRect.width());
-        painter.drawText(textRect, Qt::AlignCenter, elidedText);
-
-        draw_X += m_itemSize + 40;
-
-        if (draw_X > (width() - (m_itemSize))) {
-            draw_X = 10;
-            draw_Y += 92;
-        }
+        painter.drawText(textRect, Qt::AlignCenter | Qt::TextWordWrap, elidedText);
     }
-    update();
 }
 
 void Content::mouseDoubleClickEvent(QMouseEvent* event)
 {
     QPoint clickPos = event->pos();
-
     for (const FileItem& item : m_items) {
         if (item.rect.contains(clickPos)) {
             fileClicked(item.fullPath, item.isDirectory);
             return;
         }
     }
-
     QWidget::mouseDoubleClickEvent(event);
 }
 
 void Content::resizeEvent(QResizeEvent* event)
 {
     QWidget::resizeEvent(event);
-
     if (event->oldSize().width() != event->size().width()) {
         m_layoutDirty = true;
     }
 }
 
-QSize Content::sizeHint() const
-{
-    return QSize(400, m_contentHeight);
-}
-
-QSize Content::minimumSizeHint() const
-{
-    return QSize(200, 250);
-}
+QSize Content::sizeHint() const { return QSize(400, m_contentHeight); }
+QSize Content::minimumSizeHint() const { return QSize(200, 250); }
 
 std::string GetFileNameWithoutExtension(const std::string& path) {
     std::string normalized = path;
     std::replace(normalized.begin(), normalized.end(), '\\', '/');
-
     size_t lastSlash = normalized.find_last_of('/');
-    std::string filename = (lastSlash != std::string::npos)
-        ? normalized.substr(lastSlash + 1)
-        : normalized;
-
+    std::string filename = (lastSlash != std::string::npos) ? normalized.substr(lastSlash + 1) : normalized;
     size_t dotPos = filename.find_last_of('.');
-    if (dotPos != std::string::npos) {
-        return filename.substr(0, dotPos);
-    }
-
-    return filename;
+    return (dotPos != std::string::npos) ? filename.substr(0, dotPos) : filename;
 }
 
 void Content::fileClicked(const QString& filePath, bool isDirectory)
 {
     if (isDirectory) {
-        qDebug() << "Directory double-clicked:" << filePath;
         Browse(filePath.toStdString());
         m_layoutDirty = true;
         update();
     }
     else {
-        qDebug() << "File double-clicked:" << filePath;
-
         auto ext = GetFileExtension(filePath.toStdString());
-
         if (ext == "material") {
             auto check_name = GetFileNameWithoutExtension(filePath.toStdString());
-
             bool found = false;
             for (auto m : QEngine::GetActiveMaterials()) {
                 if (m->GetName() == check_name) {
@@ -531,10 +428,7 @@ void Content::fileClicked(const QString& filePath, bool isDirectory)
                     break;
                 }
             }
-            if (found) {
-                return;
-            }
-
+            if (found) return;
             auto pbr = new MaterialPBR;
             pbr->Load(filePath.toStdString());
             auto am = QEngine::GetActiveMaterials();
@@ -551,7 +445,6 @@ void Content::mouseMoveEvent(QMouseEvent* event) {
     FileItem* previousOverItem = m_OverItem;
     m_OverItem = nullptr;
 
-    // Find the item under the cursor for hover effects
     for (FileItem& item : m_items) {
         if (item.rect.contains(clickPos)) {
             m_OverItem = &item;
@@ -559,135 +452,67 @@ void Content::mouseMoveEvent(QMouseEvent* event) {
         }
     }
 
-    // Handle image preview with improved logic
     if (m_OverItem != m_lastHoverItem) {
-        // Mouse moved to different item or off items
         m_previewTimer->stop();
         hideImagePreview();
-
         if (m_OverItem && m_OverItem->hasThumbnail) {
-            // Start timer for new item with thumbnail
             m_lastHoverItem = m_OverItem;
             m_previewTimer->start();
         }
         else {
-            // Mouse moved off item or to item without thumbnail
             m_lastHoverItem = nullptr;
         }
     }
 
-    // If the mouse has moved, trigger an update for the hover effect
     if (previousOverItem != m_OverItem) {
         update();
     }
 
-    // --- Drag and Drop Logic ---
-    if (!(event->buttons() & Qt::LeftButton))
-        return;
-    if ((event->pos() - m_dragStartPosition).manhattanLength() < QApplication::startDragDistance())
-        return;
+    if (!(event->buttons() & Qt::LeftButton)) return;
+    if ((event->pos() - m_dragStartPosition).manhattanLength() < QApplication::startDragDistance()) return;
 
-    FileItem* draggedItem = nullptr;
-    for (FileItem& item : m_items) {
-        if (item.rect.contains(m_dragStartPosition)) {
-            draggedItem = &item;
-            break;
-        }
-    }
-
-    if (draggedItem) {
-        // Hide preview during drag
+    if (m_OverItem) {
         hideImagePreview();
-
         QDrag* drag = new QDrag(this);
         QMimeData* mimeData = new QMimeData;
-
-        mimeData->setText(draggedItem->fullPath);
+        mimeData->setText(m_OverItem->fullPath);
         drag->setMimeData(mimeData);
-
-        QPixmap iconPixmap;
-        if (draggedItem->hasThumbnail) {
-            iconPixmap = draggedItem->thumbnail.scaled(QSize(m_itemSize, m_itemSize), Qt::KeepAspectRatio, Qt::SmoothTransformation);
-        }
-        else {
-            QIcon& icon = draggedItem->isDirectory ? DirIcon :
-                (draggedItem->type == FT_Entity ? EntIcon :
-                    (draggedItem->type == FT_Texture ? ImageIcon :
-                        (draggedItem->type == FT_Script ? ScriptIcon : FileIcon)));
-            iconPixmap = icon.pixmap(QSize(m_itemSize, m_itemSize));
-        }
-
-        QString fileName = QFileInfo(draggedItem->fullPath).fileName();
-
-        QPixmap dragPixmap(iconPixmap.size());
-        dragPixmap.fill(Qt::transparent);
-        QPainter painter(&dragPixmap);
-
-        painter.drawPixmap(0, 0, iconPixmap);
-
-        QFontMetrics fontMetrics(this->font());
-        QRect textBoundingRect = fontMetrics.boundingRect(fileName);
-        int padding = 4;
-        int bannerHeight = textBoundingRect.height() + (padding * 2);
-        QRect textBannerRect(0, dragPixmap.width() - bannerHeight, dragPixmap.width(), bannerHeight);
-
-        painter.setBrush(QColor(0, 0, 0, 140));
-        painter.setPen(Qt::NoPen);
-        painter.drawRect(textBannerRect);
-
-        painter.setPen(Qt::white);
-        painter.drawText(textBannerRect, Qt::AlignCenter, fileName);
-        painter.end();
-
-        drag->setPixmap(dragPixmap);
-        drag->setHotSpot(QPoint(dragPixmap.width() / 2, dragPixmap.height() / 2));
         drag->exec(Qt::CopyAction);
     }
 }
+
 void Content::mousePressEvent(QMouseEvent* event)
 {
-    if (event->button() == Qt::BackButton)
-    {
+    if (event->button() == Qt::BackButton) {
         GoBack();
-        return; // The event is handled, no need for further processing.
+        return;
     }
     if (event->button() == Qt::LeftButton) {
         m_dragStartPosition = event->pos();
-        // Hide preview when clicking
         hideImagePreview();
     }
     QWidget::mousePressEvent(event);
 }
 
 void Content::leaveEvent(QEvent* event) {
-    // Immediately hide preview and stop timer when mouse leaves the widget
     m_previewTimer->stop();
     hideImagePreview();
-
-    // Reset hover state
     if (m_OverItem) {
         m_OverItem = nullptr;
-        update(); // Refresh to remove hover effect
+        update();
     }
-
     m_lastHoverItem = nullptr;
-
     QWidget::leaveEvent(event);
 }
 
 bool Content::eventFilter(QObject* watched, QEvent* event)
 {
-    // Check if the event is a mouse button press.
     if (event->type() == QEvent::MouseButtonPress) {
-        // Cast the generic event to a mouse event to access button info.
         QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
         if (mouseEvent->button() == Qt::BackButton) {
             GoBack();
-            return true; // Return true to indicate we have handled the event.
-            // It will not be passed on to the original target.
+            return true;
         }
     }
-
-    // For all other events, pass them on to the default processing.
     return QWidget::eventFilter(watched, event);
 }

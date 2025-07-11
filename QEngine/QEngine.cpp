@@ -34,11 +34,16 @@
 #include "NodeStartVideo.h"
 #include "RenderEventNode.h"
 #include "NodeRenderVideo.h"
+#include "LinesRendererComponent.h"
 
 // --- Consolidated Logic Nodes Header ---
 #include "LogicNodes1.h" // *** CHANGED: Include the new single header ***
 #include "LogicNodes2.h"
 #include "DllImporter.h"
+#include "StaticMeshComponent.h"
+#include "StaticRendererComponent.h"
+#include "StaticDepthRendererComponent.h"
+#include "SkyComponent.h"
 
 namespace py = pybind11;
 RefCntAutoPtr<IRenderDevice>  QEngine::m_pDevice;
@@ -374,6 +379,15 @@ void QEngine::InitEngine() {
 	GameAudio* audio = new GameAudio;
 	m_Physics = new Physics;
 	RegisterNodeTypes();
+	RegisterCComponent(new StaticMeshComponent);
+	RegisterCComponent(new StaticRendererComponent);
+	RegisterCComponent(new StaticDepthRendererComponent);
+	RegisterCComponent(new SkyComponent);
+	RegisterCComponent(new LightComponent);
+	RegisterCComponent(new CameraComponent);
+	RegisterCComponent(new LinesRendererComponent);
+
+
 }
 
 // --- MOVED: The registration logic now lives here, on the engine side ---
@@ -489,6 +503,20 @@ void QEngine::InitCDLL() {
 
 }
 
+bool QEngine::IsCComponent(Component* comp) {
+
+	for (auto c : m_CComponents) {
+
+		if (c->GetName() == comp->GetName())
+		{
+			return true;
+		}
+
+	}
+
+	return false;
+
+}
 
 
 float QEngine::m_DeltaTime = 0.1;

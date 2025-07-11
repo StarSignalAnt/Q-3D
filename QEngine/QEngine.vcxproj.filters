@@ -219,6 +219,7 @@
     <ClCompile Include="DllImporter.cpp">
       <Filter>DLL</Filter>
     </ClCompile>
+    <ClCompile Include="EngineImporter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CLBase.h" />
@@ -407,6 +408,7 @@
     <ClInclude Include="DllImporter.h">
       <Filter>DLL</Filter>
     </ClInclude>
+    <ClInclude Include="EngineImporter.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

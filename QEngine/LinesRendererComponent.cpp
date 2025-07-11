@@ -5,7 +5,7 @@
 LinesRendererComponent::LinesRendererComponent() {
 
 	m_Material = new MaterialLines;
-
+	m_Name = "Lines Renderer";
 }
 
 void LinesRendererComponent::AddVertex(LineVertex vertex) {
@@ -82,7 +82,7 @@ void LinesRendererComponent::Finalize() {
 void LinesRendererComponent::OnRender(GraphNode* camera) {
 
 
-
+	if (m_Lines.size() == 0) return;
 	//	bool add = false;
 		//for (auto light : SceneGraph::m_CurrentGraph->GetLights()) {
 

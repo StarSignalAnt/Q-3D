@@ -121,6 +121,7 @@ public:
 	void SetRootNode(GraphNode* root) { m_RootNode = root; }
 	GraphNode* GetRootNode() const { return m_RootNode; }
 	void AddComponent(Component* component);
+	
 	template <typename T>
 	T* GetComponent() {
 		static_assert(std::is_base_of<Component, T>::value, "T must derive from Component");
@@ -146,7 +147,14 @@ public:
 		return res;
 	}
 	std::vector<Component*> GetAllComponents() {
-		return m_Components;
+		std::vector<Component*> res;
+		
+		for (auto c : m_Components) {
+			res.push_back(c);
+		}
+
+		return res;
+
 	}
 	std::string GetLongName() {
 
@@ -278,6 +286,7 @@ private:
 	std::vector<GraphNode*> m_Nodes;
 	std::string m_Name;
 	std::vector<Component*> m_Components;
+
 	bool m_Updated = true;
 	BodyType m_BodyType = BodyType::T_None;
 	PxBoxGeometry m_BoxBody;

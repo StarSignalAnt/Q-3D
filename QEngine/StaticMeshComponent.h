@@ -5,6 +5,7 @@
 #include "RenderMaterial.h"
 #define MESHOPTIMIZER_IMPLEMENTATION
 #include "meshoptimizer.h" 
+#include "MaterialProducer.h"
 struct Vertex3
 {
 
@@ -151,6 +152,92 @@ struct SubMesh {
 
     }
 
+    void Write(VFile* f) {
+
+
+
+        f->WriteString(m_Material->GetPath().c_str());
+
+        f->WriteInt(m_LODs.size());
+
+        for (auto lod : m_LODs) {
+
+            f->WriteInt(lod->m_Vertices.size());
+
+            for (auto vertex : lod->m_Vertices) {
+
+                f->WriteVec3(vertex.position);
+                f->WriteVec3(vertex.uv);
+                f->WriteVec4(vertex.color);
+                f->WriteVec3(vertex.normal);
+                f->WriteVec3(vertex.binormal);
+                f->WriteVec3(vertex.tangent);
+
+            }
+
+            f->WriteInt(lod->m_Triangles.size());
+
+            for (auto tri : lod->m_Triangles) {
+
+                f->WriteInt(tri.v0);
+                f->WriteInt(tri.v1);
+                f->WriteInt(tri.v2);
+
+            }
+
+        }
+
+
+    }
+
+    void Read(VFile* f) {
+
+
+
+
+        std::string mat_path = f->ReadString();
+
+
+        m_Material = (RenderMaterial*)MaterialProducer::m_Instance->GetPBR();
+        m_DepthMaterial = (RenderMaterial*)MaterialProducer::m_Instance->GetDepth();
+        m_Material->Load(mat_path);
+        int lods = f->ReadInt();
+
+        for (int j = 0; j < lods; j++) {
+
+            LODLevel* lod = new LODLevel;
+            m_LODs.push_back(lod);
+
+            int vc = f->ReadInt();
+
+            for (int k = 0; k < vc; k++) {
+
+                Vertex3 vertex;
+                vertex.position = f->ReadVec3();
+                vertex.uv = f->ReadVec3();
+                vertex.color = f->ReadVec4();
+                vertex.normal = f->ReadVec3();
+                vertex.binormal = f->ReadVec3();
+                vertex.tangent = f->ReadVec3();
+                lod->m_Vertices.push_back(vertex);
+            }
+
+            int tc = f->ReadInt();
+
+            for (int k = 0; k < tc; k++) {
+
+                Tri3 tri;
+                tri.v0 = f->ReadInt();
+                tri.v1 = f->ReadInt();
+                tri.v2 = f->ReadInt();
+                lod->m_Triangles.push_back(tri);
+
+            }
+
+        }
+
+    }
+
 };
 
 
@@ -162,7 +249,12 @@ public:
     StaticMeshComponent() {
 
         m_Name = "Static Mesh Component";
+        m_Properties.bind("mesh_path", &mesh_path);
 
+    }
+    void Initialize() override;
+    Component* CreateInstance() {
+        return new StaticMeshComponent;
     }
     void OnAttach(GraphNode* n) override
     {
@@ -188,10 +280,11 @@ public:
     }
     void Finalize();
 
-
+    std::string mesh_path;
 private:
 
     std::vector<SubMesh*> m_SubMeshes;
+
 
 };
 

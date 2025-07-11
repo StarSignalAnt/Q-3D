@@ -222,6 +222,7 @@ void MainMenu::setupMenus()
 
 void MainMenu::onNewFile() {
     qDebug() << "New file triggered";
+    SceneView::m_Instance->GetScene()->Reset();
 }
 
 void MainMenu::onOpenFile() {
@@ -239,8 +240,8 @@ void MainMenu::onOpenFile() {
         auto g = SceneView::m_Instance->GetScene();
 
         //SceneGraph* new_Graph = new SceneGraph;
-        g->JLoadScene(filePath.toStdString());
-        g->Reset();
+        g->LoadScene(filePath.toStdString());
+  
 
         SceneView::m_Instance->Update();
     }
@@ -272,7 +273,7 @@ void MainMenu::onSaveScene() {
             fileName += ".scene";
         }
 
-        SceneView::m_Instance->GetScene()->JSaveScene(fileName.toStdString());
+        SceneView::m_Instance->GetScene()->SaveScene(fileName.toStdString());
 
         qDebug() << "Selected file to save:" << fileName;
         // Save logic goes here...

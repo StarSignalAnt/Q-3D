@@ -7,6 +7,12 @@ public:
     StaticDepthRendererComponent() {
         m_Name = "Static Depth Renderer Component";
         m_Properties.bind("Use Lod", &m_UseLod);
+        m_Category = "Rendering";
+    }
+    Component* CreateInstance() override {
+
+        return new StaticDepthRendererComponent;
+
     }
 
     void OnRenderDepth(GraphNode* camera) override;

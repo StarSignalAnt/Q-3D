@@ -416,10 +416,7 @@ void SceneGraph::RenderDirectionalShadowMap(LightComponent* light)
 	shadowMap->Release();
 }
 
-void SceneGraph::Reset() { 
 
-	m_RayTester = new Intersections();
-}
 
 void SceneGraph::Update(float dt) {
 
@@ -912,7 +909,7 @@ void SceneGraph::LoadScene(std::string path) {
 	f->Close();
 
 	SetOwners(m_RootNode);
-
+	m_RayTester = new Intersections();
 }
 
 void SceneGraph::SetOwners(GraphNode* node) {
@@ -1492,4 +1489,13 @@ void SceneGraph::RenderSky() {
 
 	//m_Sky->RenderSky(m_Camera);
 
+}
+
+void SceneGraph::Reset() {
+
+	m_Lights.resize(1);
+	m_RootNode = new GraphNode;
+	m_Terrain = nullptr;
+	m_Octree = nullptr;
+	m_RayTester = new Intersections();
 }

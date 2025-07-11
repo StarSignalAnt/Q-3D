@@ -13,6 +13,7 @@
 #include "SharpComponent.h"
 #include "SceneGraph.h"
 #include "LightComponent.h" 
+#include "Properties.h"
 #include <glm/gtc/quaternion.hpp>
 using namespace Diligent;
 physx::PxQuat glmMat4ToPxQuat(const glm::mat4& rotationMatrix)
@@ -74,6 +75,10 @@ void GraphNode::Render(GraphNode* camera) {
 	for(auto & component : m_Components) {
 		component->OnRender(camera);
 	}
+//	for (auto& component : m_CComponents) {
+	//	component->OnRender(camera);
+//	}
+
 
 	for (auto sub : m_Nodes) {
 		sub->Render(camera);
@@ -86,6 +91,9 @@ void GraphNode::RenderDepth(GraphNode* camera) {
 	for (auto& component : m_Components) {
 		component->OnRenderDepth(camera);
 	}
+//	for (auto& component : m_CComponents) {
+//		component->OnRenderDepth(camera);
+	//}
 
 	for (auto sub : m_Nodes) {
 		sub->RenderDepth(camera);
@@ -171,6 +179,10 @@ void GraphNode::Update(float dt) {
 	for (auto& component : m_Components) {
 		component->OnUpdate(dt);
 	}
+
+	//for (auto& component : m_CComponents) {
+	//	component->OnUpdate(dt);
+	//}
 
 	for (auto sub : m_Nodes) {
 		sub->Update(dt);
@@ -611,20 +623,7 @@ void GraphNode::Write(VFile* f) {
 	f->WriteString(m_Name.c_str());
 	f->WriteBool(m_HideFromEditor);
 
-
-
-	f->WriteInt((int)m_ResourceType);
-	if (m_ResourceType == ResourceType::Static) {
-		f->WriteString(m_ResourcePath.c_str());
 	
-	}
-	else {
-
-
-
-	}
-
-
 
 
 	f->WriteInt(m_Nodes.size());
@@ -646,78 +645,84 @@ void GraphNode::Read(VFile* f)
 	m_Name = f->ReadString();
 	m_HideFromEditor = f->ReadBool();
 
-	ResourceType type = (ResourceType)f->ReadInt();
-	switch (type) {
-	case ResourceType::Static:
 
-		
-
-		auto path = f->ReadString();
-
-		if (path == "" || path == "\0")
-		{
-			int b = 5;
-			return;
-		}
-
-		auto imp = new Importer;
-
-		auto r = imp->ImportEntity(path);
-
-		if (r == nullptr) {
-			
-
-		}
-		else {
-
-			for (auto comp : r->GetAllComponents())
-			{
-
-				AddComponent(comp);
-
-			}
-
-
-			m_ResourceType = ResourceType::Static;
-			m_ResourcePath = path;
-
-			for (auto n : r->GetNodes()) {
-
-				AddNode(n);
-
-			}
-
-		}
-		
-
-		break;
-	}
 	int nc = f->ReadInt();
-	if (m_Nodes.size() > 0) {
-		for (int i = 0; i < nc; i++)
-		{
-			auto sub = m_Nodes[i];
-			sub->Read(f);
-			
 
-			//AddNode(sub);
-		}
-	}
-	else {
-		for (int i = 0; i < nc; i++)
-		{
-			auto sub = new GraphNode;
-			sub->Read(f);
+	for (int i = 0; i < nc; i++)
+	{
 
-			AddNode(sub);
-		}
+		auto sub = new GraphNode;
+		m_Nodes.push_back(sub);
+		sub->Read(f);
 	}
 
 
+	//AddNode(sub);
 }
 
 
+
 void GraphNode::ReadScripts(VFile* f) {
+
+
+	int cs = f->ReadInt();
+
+	for (int i = 0; i < cs; i++) {
+
+
+
+		std::string name = f->ReadString();
+
+		auto comps = QEngine::GetCComponents();
+		Component* inst = nullptr;
+		for (auto c : comps) {
+
+			if (c->GetName() == name) {
+
+				inst = c->CreateInstance();
+				AddComponent(inst);
+				break;
+
+			}
+
+		}
+
+		auto& props = inst->GetProperties();
+		int pc = f->ReadInt();
+
+		for (auto prop : props) {
+			PropertyType pt = (PropertyType)f->ReadInt();
+
+
+
+			switch (pt) {
+			case PropertyType::STRING:
+
+				props.set(prop, (std::string)f->ReadString());
+
+				break;
+			case PropertyType::FLOAT:
+
+				props.set(prop, f->ReadFloat());
+
+				break;
+			case PropertyType::INT:
+
+				props.set(prop, f->ReadInt());
+
+				break;
+			case PropertyType::VEC3:
+
+				props.set(prop, f->ReadVec3());
+
+				break;
+			}
+
+		}
+
+		inst->Initialize();
+
+	}
 
 
 	int shc = f->ReadInt();
@@ -874,6 +879,74 @@ void GraphNode::ReadScripts(VFile* f) {
 }
 
 void GraphNode::WriteScripts(VFile* f) {
+
+	f->WriteInt(m_Components.size());
+
+	for (int i = 0; i < m_Components.size(); i++) {
+
+		auto comp = m_Components[i];
+
+
+
+
+		//if (QEngine::IsCComponent(comp))
+		//{
+		//	f->WriteBool(true);
+		f->WriteString(comp->GetName().c_str());
+		if (comp->GetName() == "Component")
+		{
+			int b = 5;
+		}
+		//	}
+		//	else {
+		//		f->WriteBool(false);
+	//		}
+		auto props = m_Components[i]->GetProperties();
+
+		f->WriteInt(props.size());
+		for (auto prop : props) {
+
+			auto ty = props.GetType(prop);
+
+			f->WriteInt((int)ty);
+
+			switch (ty) {
+			case PropertyType::STRING:
+			{
+				std::string path = *props.get<std::string>(prop);
+
+				f->WriteString(path.c_str());
+			}
+				break;
+			case PropertyType::FLOAT:
+
+				f->WriteFloat(*props.get<float>(prop));
+
+				break;
+			case PropertyType::INT:
+
+				f->WriteInt(*props.get<int>(prop));
+
+				break;
+
+			case PropertyType::VEC3:
+
+				f->WriteVec3(*props.get<glm::vec3>(prop));
+
+				break;
+			}
+
+			//f->WriteString(prop.)
+
+		}
+
+	}
+
+	for (int i = 0; i < m_Components.size(); i++) {
+
+		
+	}
+
 
 	f->WriteInt(GetComponents<SharpComponent>().size());
 

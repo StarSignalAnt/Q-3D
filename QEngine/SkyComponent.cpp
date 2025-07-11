@@ -13,7 +13,7 @@ SkyComponent::SkyComponent() {
 	m_Properties.bind("Time Of Day", &TimeOfDay);
 	m_Properties.bind("Cloud Coversage", &m_Clouds->m_Coverage);
 	m_Properties.bind("Animation Speed", &m_Clouds->m_AnimationSpeed);
-
+	m_Category = "Atmosphere";
 }
 
 void SkyComponent::OnRender(GraphNode* camera)

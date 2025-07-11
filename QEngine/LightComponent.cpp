@@ -16,7 +16,7 @@ LightComponent::LightComponent() {
     m_Properties.bind("Range", &m_Range);
     m_Properties.bind("Intensity", &m_Intensity);
     m_Name = "LightComponent";
-
+    m_Category = "Lighting";
     m_Properties.set("ComponentName", &m_Name);
     m_Properties.bind_enum("LightType", &m_Type, LightTypeOptions);
 
@@ -94,4 +94,10 @@ void LightComponent::UpdateLightSpaceMatrix() {
         // 3. Combine them to create the final matrix
         m_LightSpaceMatrix = lightProjection * lightView;
     }
+}
+
+void LightComponent::Initialize() {
+
+    SetLightType(m_Type);
+
 }

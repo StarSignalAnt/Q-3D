@@ -134,6 +134,8 @@
     <QtUic Include="Vivid3D.ui" />
     <QtMoc Include="Vivid3D.h" />
     <ClCompile Include="CameraController.cpp" />
+    <ClCompile Include="ComponentBrowser.cpp" />
+    <ClCompile Include="ComponentContent.cpp" />
     <ClCompile Include="ComponentSelector.cpp" />
     <ClCompile Include="ConnectionItem.cpp" />
     <ClCompile Include="ConsoleOutput.cpp" />
@@ -146,6 +148,7 @@
     <ClCompile Include="LogicGraphMenu.cpp" />
     <ClCompile Include="MainMenu.cpp" />
     <ClCompile Include="MainToolBar.cpp" />
+    <ClCompile Include="MeshImportWindow.cpp" />
     <ClCompile Include="NodeCreationWidget.cpp" />
     <ClCompile Include="NodeTree.cpp" />
     <ClCompile Include="Pathfinder.cpp" />
@@ -214,8 +217,11 @@
     <QtMoc Include="ComponentSelector.h" />
     <QtMoc Include="ConsoleOutput.h" />
     <QtMoc Include="LGNode.h" />
+    <QtMoc Include="ComponentBrowser.h" />
+    <QtMoc Include="ComponentContent.h" />
     <ClInclude Include="ConnectionItem.h" />
     <QtMoc Include="NodeCreationWidget.h" />
+    <QtMoc Include="MeshImportWindow.h" />
     <ClInclude Include="NodeRegistry.h" />
     <ClInclude Include="Pathfinder.h" />
     <ClInclude Include="RotateGizmo.h" />

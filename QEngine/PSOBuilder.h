@@ -30,12 +30,12 @@ namespace Diligent
 
 enum class VertexLayoutType
 {
-    Normal3D
+    Normal3D,Normal2D
     // You can add other layouts like SkinnedMesh, PostProcess, etc. here
 };
 enum class LayoutResourceType
 {
-    PBRMaterial
+    PBRMaterial,Material2D
 };
 
 
