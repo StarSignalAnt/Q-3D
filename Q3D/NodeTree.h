@@ -30,6 +30,10 @@ public:
     void SetRoot(GraphNode* node);
     void ClearSelection();
     GraphNode* GetSelectedNode() const { return m_SelectedNode; }
+    void SelectNode(GraphNode* node) {
+		m_SelectedNode = node;
+        update();
+    }
 
     static NodeTree* m_Instance;
 

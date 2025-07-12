@@ -2,6 +2,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "QEngine.h"
 #include "GraphNode.h"
+#include "GameInput.h"
 
 
 CameraComponent::CameraComponent() {
@@ -141,4 +142,39 @@ bool CameraComponent::InFrustum(const Bounds& bounds) {
 
     // If the box was not fully outside any plane, it is intersecting or inside the frustum.
     return true;
+}
+
+glm::vec2 CameraComponent::GetMouseCoords()
+{
+    // This function needs to get the mouse position from your engine's input manager.
+    // Based on your code, it's likely QEngine handles this.
+    // NOTE: You may need to adjust this if your engine uses a different function name.
+    return glm::vec2((float)GameInput::MousePosition.x, (float)GameInput::MousePosition.y);
+}
+
+void CameraComponent::ScreenToWorldRay(glm::vec2 mouseCoords, glm::vec3& out_origin, glm::vec3& out_direction)
+{
+    // The ray's origin is simply the camera's position in the world.
+    out_origin = m_Owner->GetPosition();
+
+    // 1. Convert 2D screen coordinates to 3D Normalized Device Coordinates (NDC)
+    //    The coordinate system goes from [-1, 1] on all axes.
+    float x = (2.0f * mouseCoords.x) / (float)QEngine::GetFrameWidth() - 1.0f;
+    float y = 1.0f - (2.0f * mouseCoords.y) / (float)QEngine::GetFrameHeight(); // Y is inverted in NDC
+    glm::vec3 ray_ndc = glm::vec3(x, y, 1.0f);
+
+    // 2. Convert NDC to Homogeneous Clip Coordinates
+    //    We want a direction vector, so we set z to -1.0 (forward) and w to 1.0.
+    glm::vec4 ray_clip = glm::vec4(ray_ndc.x, ray_ndc.y, -1.0, 1.0);
+
+    // 3. Convert Homogeneous Clip Coordinates to Eye (Camera) Coordinates
+    //    We do this by multiplying by the inverse of the projection matrix.
+    glm::vec4 ray_eye = glm::inverse(GetProjectionMatrix()) * ray_clip;
+    ray_eye = glm::vec4(ray_eye.x, ray_eye.y, -1.0, 0.0); // Set w to 0 to make it a direction
+
+    // 4. Convert Eye Coordinates to World Coordinates
+    //    We do this by multiplying by the inverse of the view matrix (which is the world matrix).
+    glm::vec3 ray_world = glm::vec3(m_Owner->GetWorldMatrix() * ray_eye);
+
+    out_direction = glm::normalize(ray_world);
 }

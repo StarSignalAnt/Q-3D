@@ -1471,3 +1471,43 @@ void GraphNode::LookAt(glm::vec3 pos)
 	MarkBoundsAsDirty();
 
 }
+
+glm::vec3 GraphNode::GetRightVector()
+{
+	// The 'Right' vector is the first column of the node's world matrix.
+	// We normalize it to ensure it's a unit vector.
+	return glm::normalize(glm::vec3(GetWorldMatrix()[0]));
+}
+
+glm::vec3 GraphNode::GetUpVector()
+{
+	// The 'Up' vector is the second column of the node's world matrix.
+	// We normalize it to ensure it's a unit vector.
+	return glm::normalize(glm::vec3(GetWorldMatrix()[1]));
+}
+
+void GraphNode::SetRotation(glm::quat rotation)
+{
+	// Converts a quaternion directly to a 4x4 matrix for local rotation.
+	m_Rotation = glm::mat4_cast(rotation);
+	MarkBoundsAsDirty();
+}
+
+void GraphNode::SetWorldRotation(glm::quat newWorldRotation)
+{
+	// To set the world rotation, we must account for the parent's rotation.
+	// The node's final local rotation is the difference between the desired
+	// world rotation and the parent's world rotation.
+	if (m_RootNode)
+	{
+		glm::quat parentWorldRotation = m_RootNode->GetWorldRotation();
+		// To subtract the parent's rotation, we multiply by its inverse.
+		glm::quat localRotation = glm::inverse(parentWorldRotation) * newWorldRotation;
+		SetRotation(localRotation);
+	}
+	else
+	{
+		// If there's no parent, the world rotation is the local rotation.
+		SetRotation(newWorldRotation);
+	}
+}

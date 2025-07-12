@@ -37,6 +37,11 @@ public:
         useOver = true;
 
     }
+    // Un-project 2D screen point to a 3D world ray
+    void ScreenToWorldRay(glm::vec2 mouseCoords, glm::vec3& out_origin, glm::vec3& out_direction);
+
+    // Gets the current mouse coordinates
+    glm::vec2 GetMouseCoords();
 private:
     struct FrustumPlane
     {

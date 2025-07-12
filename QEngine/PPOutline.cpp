@@ -40,8 +40,9 @@ Texture2D* PPOutline::Process(Texture2D* frame) {
 	ReleaseRT(1);
 
 
+	m_Draw->BeginFrame();
 	m_Draw->Rect(GetTexture(1), glm::vec2(0,0), glm::vec2(QEngine::GetFrameWidth(),QEngine::GetFrameHeight()), glm::vec4(1, 1, 1, 1));
-
+	m_Draw->Flush();
 
 	/*
 

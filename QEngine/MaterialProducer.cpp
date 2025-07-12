@@ -33,5 +33,9 @@ MaterialPBR* MaterialProducer::GetPBR() {
 	pbr->SetSRBAdd(m_PBR->GetSRBAdd());
 	pbr->SetUniformBuffer(m_PBR->GetUniformBuf());
 	pbr->SetEnvironmentMap(m_PBR->GetEnvironmentMap());
+	pbr->SetColorTexture(m_PBR->GetColorTexture());
+	pbr->SetNormalTexture(m_PBR->GetNormalTexture());
+	pbr->SetRoughnessTexture(m_PBR->GetRoughTexture());
+	pbr->SetMetallicTexture(m_PBR->GetMetallicTexture());
 	return pbr;
 }

@@ -165,7 +165,7 @@ GraphNode* Importer::ImportEntity(std::string path,bool gen_lod) {
                 }
                 if (found) continue;
 
-                MaterialPBR* pbr = new MaterialPBR;
+                MaterialPBR* pbr = MaterialProducer::m_Instance->GetPBR();
                 
                 pbr->Load(m_path);
                 pbr->SetName(m_name.C_Str());
@@ -180,7 +180,7 @@ GraphNode* Importer::ImportEntity(std::string path,bool gen_lod) {
 
             }
 
-            auto material = new MaterialPBR;
+            auto material = MaterialProducer::m_Instance->GetPBR();
             material->SetName(m_name.C_Str());
 
             // Albedo / Base Color
@@ -276,7 +276,7 @@ GraphNode* Importer::ImportEntity(std::string path,bool gen_lod) {
 
         subMesh->m_LODs.push_back(lod);
         subMesh->m_Material = materials[mesh->mMaterialIndex];  // Use shared material
-        subMesh->m_DepthMaterial = new MaterialDepth;
+        subMesh->m_DepthMaterial = MaterialProducer::m_Instance->GetDepth();
     }
 
     // Recursive function to process scene nodes

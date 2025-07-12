@@ -494,6 +494,9 @@ void SceneView::paintEvent(QPaintEvent* event)
                         printf("Set Property Node\n");
                     }
                 }
+                else {
+                    SelectNode(nullptr);
+                }
 
             }
         }
@@ -1032,11 +1035,14 @@ void SceneView::SelectNode(GraphNode* node)
     m_SelectionOverlay->SelectNode(node);
     if (node == nullptr) {
         
+        m_SelectedNode = nullptr;
         PropertiesEditor::m_Instance->SetNode(nullptr);
+        NodeTree::m_Instance->SelectNode(nullptr);
         return;
     }
     m_SelectedNode = node;
     m_SceneController->SelectNode(node);
+    NodeTree::m_Instance->SelectNode(node);
 
     if (node->GetComponent<TerrainMeshComponent>()) {
         PropertiesEditor::m_Instance->SetTerrain(node);

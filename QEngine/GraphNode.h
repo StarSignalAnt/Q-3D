@@ -11,7 +11,7 @@
 #include "Properties.h"
 // ADDED: Include for nlohmann/json
 #include "json.hpp" // Assumes nlohmann/json.hpp is in your project include paths
-
+#include <glm/gtx/euler_angles.hpp>
 
 using json = nlohmann::json;
 using namespace physx;
@@ -197,6 +197,46 @@ public:
 	glm::vec3 TransformVector(glm::vec3 transform) {
 
 		return m_Rotation * glm::vec4(transform, 1.0);
+
+	}
+	glm::vec3 GetRightVector();
+
+	// Gets the node's up-facing vector in world space
+	glm::vec3 GetUpVector();
+
+	// Sets the node's local rotation from a quaternion
+	void SetRotation(glm::quat rotation);
+
+	// Sets the node's total world rotation from a quaternion
+	void SetWorldRotation(glm::quat newWorldRotation);
+	float getYaw(const glm::mat4& mat) {
+		// Get the forward vector (third column of the matrix)
+		glm::vec3 forward = glm::normalize(glm::vec3(mat[2]));
+
+		// Project the forward vector onto the XZ plane (by ignoring the Y component)
+		// We use -forward.z and forward.x because atan2(y, x) is typically used for 2D,
+		// where y is the vertical axis. In our 3D XZ plane, Z acts as the "y".
+		float yaw = glm::atan(-forward.z, forward.x);
+
+		return yaw;
+	}
+
+	glm::vec3 TransformVectorGlobal(glm::vec3 transform) {
+
+		// 1. Get the original matrix
+		glm::mat4 originalMatrix = m_Rotation; /* your matrix */;
+
+		// 2. Extract the yaw in radians
+		float yawAngle = getYaw(originalMatrix);
+
+		// 3. Create a new rotation matrix with only this yaw
+		// The other angles (pitch and roll) are set to 0.0f.
+		glm::mat4 yawOnlyMatrix = glm::yawPitchRoll(yawAngle, 0.0f, 0.0f);
+
+		return yawOnlyMatrix * glm::vec4(transform, 1.0f);
+
+		glm::mat4 rot = glm::mat4(1.0f);
+		return rot * glm::vec4(transform, 1.0f);
 
 	}
 	void Push();
