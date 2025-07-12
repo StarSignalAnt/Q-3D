@@ -12,7 +12,7 @@ void CreateArrowGeometry(std::vector<Vertex3>& outVertices, std::vector<Tri3>& o
     outTriangles.clear();
 
     // --- Define Arrow Dimensions ---
-    float shaftLength = scale * 0.8f;
+    float shaftLength = scale * 1.2f;
     float shaftWidth = scale * 0.05f; // This is the half-width
     float headLength = scale * 0.2f;
     float headWidth = scale * 0.1f;  // This is the half-width

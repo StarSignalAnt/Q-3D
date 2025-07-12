@@ -430,6 +430,7 @@ void SceneView::paintEvent(QPaintEvent* event)
   //  QEngine::GetContext()->Flush();
  
     if (m_RunMode == RM_Stopped) {
+        QEngine::ClearZ();
         m_SelectionOverlay->Render();
     }
 

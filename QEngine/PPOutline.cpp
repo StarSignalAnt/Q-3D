@@ -32,14 +32,14 @@ Texture2D* PPOutline::Process(Texture2D* frame) {
 
 
 	if (m_Node) {
-		//m_Node->RenderDepth(m_Camera);
+		m_Node->RenderDepth(m_Camera);
 	}
 	//m_Draw->SetMaterial((Material2D*)m_ColorLimit);
 	//m_Draw->Rect(frame, float2(0, 0), float2(Engine::GetFrameWidth(), Engine::GetFrameHeight()), float4(1, 1, 1, 1));
 
 	ReleaseRT(1);
 
-
+	QEngine::SetScissor(0, 0, QEngine::GetFrameWidth(), QEngine::GetFrameHeight());
 	m_Draw->BeginFrame();
 	m_Draw->Rect(GetTexture(1), glm::vec2(0,0), glm::vec2(QEngine::GetFrameWidth(),QEngine::GetFrameHeight()), glm::vec4(1, 1, 1, 1));
 	m_Draw->Flush();

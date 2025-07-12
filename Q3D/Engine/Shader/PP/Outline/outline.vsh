@@ -9,12 +9,10 @@ cbuffer Constants
 // labeled 'ATTRIBn', where n is the attribute number.
 struct VSInput
 {
-    float3 Pos : ATTRIB0;
+      float3 Pos : ATTRIB0;
     float4 Color : ATTRIB1;
     float3 Uv : ATTRIB2;
-    float3 Norm : ATTRIB3;
-    float3 BiNorm : ATTRIB4;
-    float3 Tang : ATTRIB5;
+    float4 View : ATTRIB3;
 
 
 };

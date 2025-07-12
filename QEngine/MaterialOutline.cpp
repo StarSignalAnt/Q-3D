@@ -96,14 +96,14 @@ MaterialOutline::MaterialOutline() {
         // Attribute 1 - vertex color
         LayoutElement{1, 0, 4, VT_FLOAT32, False},
                 LayoutElement{2, 0, 3, VT_FLOAT32, False},
-                        LayoutElement{3, 0, 3, VT_FLOAT32, False},
-                                LayoutElement{4, 0, 3, VT_FLOAT32, False},
-                                        LayoutElement{5, 0, 3, VT_FLOAT32, False},
+                        LayoutElement{3, 0, 4, VT_FLOAT32, False},
+                                //LayoutElement{4, 0, 3, VT_FLOAT32, False},
+                                  //      LayoutElement{5, 0, 3, VT_FLOAT32, False},
 
     };
 
     in_desc.LayoutElements = LayoutElems;
-    in_desc.NumElements = 6;
+    in_desc.NumElements = 4;
 
 
 

@@ -2,7 +2,10 @@
 
 Texture2D v_Texture;
 SamplerState v_Texture_sampler;
-
+#define OUTLINE_THICKNESS 2
+// Adjusts how sensitive the edge detection is to changes in depth.
+// Smaller values detect more subtle edges.
+#define DEPTH_SENSITIVITY 0.01
 
 struct PSInput
 {
@@ -24,57 +27,52 @@ struct PSOutput
 void main(in PSInput PSIn,
     out PSOutput PSOut)
 {
-
-   float2 texelSize;
+   // Get the size of a single pixel in UV coordinates
+    float2 texelSize;
     v_Texture.GetDimensions(texelSize.x, texelSize.y);
     texelSize = 1.0 / texelSize;
-    
-    // Check if we're near the screen edges and discard early
-    float2 uv = PSIn.Uv.xy;
-    float edgeMargin = 2.0 * max(texelSize.x, texelSize.y); // 2-pixel margin
-    
-    if (uv.x < edgeMargin || uv.x > (1.0 - edgeMargin) || 
-        uv.y < edgeMargin || uv.y > (1.0 - edgeMargin))
+
+    // Sample the depth of the center pixel
+    float centerDepth = v_Texture.Sample(v_Texture_sampler, PSIn.Uv.xy).r;
+
+    float maxDepthDiff = 0.0;
+
+    // Loop through a grid around the center pixel
+    for (int x = -OUTLINE_THICKNESS; x <= OUTLINE_THICKNESS; ++x)
     {
-        discard;
+        for (int y = -OUTLINE_THICKNESS; y <= OUTLINE_THICKNESS; ++y)
+        {
+            if (x == 0 && y == 0)
+                continue;
+
+            // Calculate sample coordinate
+            float2 sampleCoord = PSIn.Uv.xy + float2(x, y) * texelSize;
+
+            // --- BUG FIX ---
+            // Check if the sample coordinate is within the screen bounds [0, 1]
+            // If it's outside, skip this sample to prevent texture wrapping.
+            if (sampleCoord.x < 0.0 || sampleCoord.x > 1.0 || 
+                sampleCoord.y < 0.0 || sampleCoord.y > 1.0)
+            {
+                continue;
+            }
+
+            // Sample the depth of the neighboring pixel
+            float sampleDepth = v_Texture.Sample(v_Texture_sampler, sampleCoord).r;
+
+            // Calculate the difference and update the maximum
+            float depthDiff = abs(centerDepth - sampleDepth);
+            maxDepthDiff = max(maxDepthDiff, depthDiff);
+        }
     }
-    
-    // Sample center depth
-    float centerDepth = v_Texture.Sample(v_Texture_sampler, uv).r;
-    
-    // Sample adjacent depths with clamping to avoid wrap-around
-    float2 leftUV = float2(max(0.0, uv.x - texelSize.x), uv.y);
-    float2 rightUV = float2(min(1.0, uv.x + texelSize.x), uv.y);
-    float2 upUV = float2(uv.x, max(0.0, uv.y - texelSize.y));
-    float2 downUV = float2(uv.x, min(1.0, uv.y + texelSize.y));
-    
-    float leftDepth = v_Texture.Sample(v_Texture_sampler, leftUV).r;
-    float rightDepth = v_Texture.Sample(v_Texture_sampler, rightUV).r;
-    float upDepth = v_Texture.Sample(v_Texture_sampler, upUV).r;
-    float downDepth = v_Texture.Sample(v_Texture_sampler, downUV).r;
-    
-    // Only calculate differences if we're not sampling the same pixel (i.e., not at edges)
-    float depthDiffX = 0.0;
-    float depthDiffY = 0.0;
-    
-    if (leftUV.x != uv.x) depthDiffX += abs(centerDepth - leftDepth);
-    if (rightUV.x != uv.x) depthDiffX += abs(centerDepth - rightDepth);
-    if (upUV.y != uv.y) depthDiffY += abs(centerDepth - upDepth);
-    if (downUV.y != uv.y) depthDiffY += abs(centerDepth - downDepth);
-    
-    // Combine differences
-    float totalDepthDiff = depthDiffX + depthDiffY;
-    
-    // Threshold for edge detection (adjust this value to control sensitivity)
-    float edgeThreshold = 0.01; // Adjust this value based on your scene
-    
-    // If depth difference is significant, draw green outline
-    if (totalDepthDiff > edgeThreshold)
+
+    // If the maximum depth difference is significant, it's an edge
+    if (maxDepthDiff > DEPTH_SENSITIVITY)
     {
-        PSOut.Color = float4(0, 1, 0, 1); // Green outline
+        PSOut.Color = float4(0.0, 1.0, 0.0, 1.0); // Green outline
     }
     else
     {
-        discard; // Discard pixel if no edge detected
+        discard;
     }
 }
