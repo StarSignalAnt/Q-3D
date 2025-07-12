@@ -12,6 +12,8 @@ using namespace Diligent;
 
 MaterialBasic3D::MaterialBasic3D() {
 
+	m_Textures[0] = new Texture2D("Engine/Maps/White.png");
+
 	SetVertexShader("Engine/Shader/MaterialBasic/basic.vsh");
 	SetPixelShader("Engine/Shader/MaterialBasic/basic.psh");
 
@@ -203,6 +205,9 @@ MaterialBasic3D::MaterialBasic3D() {
 
 void MaterialBasic3D::Bind(bool add) {
 
+    if (m_Textures[0] == nullptr) {
+		m_Textures[0] = new Texture2D("Engine/Maps/White.png");
+    }
     m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_Texture")->Set(m_Textures[0]->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
     //Engine::m_pImmediateContext->MapBuffer(BasicUniform, MAP_TYPE::MAP_WRITE, MAP_FLAGS::MAP_FLAG_DISCARD);
     {
