@@ -20,7 +20,7 @@ void PostProcessing::AddPostProcess(PostProcess* process) {
 
 }
 
-void PostProcessing::Process(Texture2D* frame) {
+void PostProcessing::Process(Q3D::Engine::Texture::Texture2D* frame) {
 
 	for (auto pp : m_Processes) {
 

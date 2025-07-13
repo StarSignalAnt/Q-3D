@@ -94,7 +94,7 @@ TextureCube::TextureCube(std::string path) {
 
 
     RefCntAutoPtr<ITexture> pTexture;
-    QEngine::GetDevice()->CreateTexture(TexDesc, &data, &pTexture);
+    Q3D::Engine::QEngine::GetDevice()->CreateTexture(TexDesc, &data, &pTexture);
     m_Texture = pTexture;
     m_TexView = pTexture->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE);
 

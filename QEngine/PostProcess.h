@@ -4,7 +4,13 @@
 class RenderTarget2D;
 class Draw2D;
 class SceneGraph;
-class Texture2D;
+
+namespace Q3D::Engine::Texture {
+	class Texture2D;
+}
+
+//class Texture2D;
+
 class GraphNode;
 
 class PostProcess
@@ -15,10 +21,10 @@ public:
 	void SetGraph(SceneGraph* graph);
 	void CreateTarget(int width, int height);
 	void CreateTargets(int width, int height, int num);
-	virtual Texture2D* Process(Texture2D* frame);
+	virtual Q3D::Engine::Texture::Texture2D* Process(Q3D::Engine::Texture::Texture2D* frame);
 	void BindRT(int i);
 	void ReleaseRT(int i);
-	Texture2D* GetTexture(int i);
+	Q3D::Engine::Texture::Texture2D* GetTexture(int i);
 	SceneGraph* GetGraph() {
 		return m_Graph;
 	}

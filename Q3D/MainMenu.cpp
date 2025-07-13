@@ -291,7 +291,7 @@ void MainMenu::onLG() {
 
 void MainMenu::onOpenSolution() {
 
-    auto path = QEngine::GetContentPath() + "Game\\GameDLL.sln";
+    auto path = Q3D::Engine::QEngine::GetContentPath() + "Game\\GameDLL.sln";
     QString qPath = QString::fromStdString(path);
     QDesktopServices::openUrl(QUrl::fromLocalFile(qPath));
 

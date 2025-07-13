@@ -41,7 +41,7 @@ void PostProcess::CreateTargets(int width, int height, int num) {
 
 }
 
-Texture2D* PostProcess::Process(Texture2D* frame) {
+Q3D::Engine::Texture::Texture2D* PostProcess::Process(Q3D::Engine::Texture::Texture2D* frame) {
 
 	return nullptr;
 
@@ -59,8 +59,8 @@ void PostProcess::ReleaseRT(int i) {
 
 }
 
-Texture2D* PostProcess::GetTexture(int i) {
+Q3D::Engine::Texture::Texture2D* PostProcess::GetTexture(int i) {
 
-	return new Texture2D(m_Targets[i]);
+	return new Q3D::Engine::Texture::Texture2D(m_Targets[i]);
 
 }

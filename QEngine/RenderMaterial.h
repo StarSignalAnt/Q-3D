@@ -35,7 +35,12 @@
 #include "SwapChain.h"
 #include "BasicMath.hpp"
 
-class Texture2D;
+//using namespace Q3D::Engine::Texture;
+
+
+namespace Q3D::Engine::Texture {
+	class Texture2D;
+}
 class TextureCube;
 
 using namespace Diligent;
@@ -48,7 +53,7 @@ public:
 	RefCntAutoPtr<IBuffer> CreateUniform(int size, std::string path);
 	void SetBuffer(RefCntAutoPtr<IBuffer> buffer, int index);
 	void SetMatrix(glm::mat4 matrix, int index);	
-	void SetTexture(Texture2D* texture, int index) {
+	void SetTexture(Q3D::Engine::Texture::Texture2D* texture, int index) {
 		m_Textures[index] = texture;
 	};
 	void SetCameraExt(glm::vec4 ext) { m_CameraExt = ext; }
@@ -134,7 +139,7 @@ protected:
 	int m_Indices[128];
 	RefCntAutoPtr<IBuffer> m_Buffers[128];
 	glm::mat4 m_RenderMatrices[256];
-	Texture2D* m_Textures[256];
+	Q3D::Engine::Texture::Texture2D* m_Textures[256];
 	glm::vec4 m_CameraExt;
 	glm::vec3 m_CameraPosition = glm::vec3(0.0f, 0.0f, 0.0f);
 	//Tex2D

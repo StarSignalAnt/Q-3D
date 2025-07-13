@@ -86,16 +86,16 @@ void TerrainMeshComponent::CreateTerrain(int layers) {
         {
 
 
-            layer1->SetColor(new Texture2D("edit/blank_layer.png"));
+            layer1->SetColor(new Q3D::Engine::Texture::Texture2D("edit/blank_layer.png"));
         }
         else
         {
 
-            layer1->SetColor(new Texture2D("engine\\white.png"));
+            layer1->SetColor(new Q3D::Engine::Texture::Texture2D("engine\\white.png"));
         }
-        layer1->SetNormal(new Texture2D("engine/norm.png"));
-        layer1->SetSpecular(new Texture2D("engine/white.png"));
-        layer1->SetSpecular(new Texture2D("engine/white.png"));
+        layer1->SetNormal(new Q3D::Engine::Texture::Texture2D("engine/norm.png"));
+        layer1->SetSpecular(new Q3D::Engine::Texture::Texture2D("engine/white.png"));
+        layer1->SetSpecular(new Q3D::Engine::Texture::Texture2D("engine/white.png"));
         //layer1.NormalMap = new Texture.Texture2D("engine\\maps\\blanknormal.jpg");
         //layer1.SpecularMap = new Texture.Texture2D("engine\\maps\\white.png");
         layer1->SetPixels(new PixelMap(1024, 1024,PixelMapDataType::FLOAT32,0));
@@ -103,10 +103,10 @@ void TerrainMeshComponent::CreateTerrain(int layers) {
 
         if (i == 0)
         {
-            layer1->SetLayerMap(new Texture2D("engine\\white.png"));
+            layer1->SetLayerMap(new Q3D::Engine::Texture::Texture2D("engine\\white.png"));
             auto pixmap = new PixelMap(1024, 1024,PixelMapDataType::FLOAT32,1.0f);
            layer1->SetPixels(pixmap);
-            layer1->SetLayerMap(new Texture2D(pixmap->GetWidth(), pixmap->GetHeight(), (float*)pixmap->GetData(), 4));
+            layer1->SetLayerMap(new Q3D::Engine::Texture::Texture2D(pixmap->GetWidth(), pixmap->GetHeight(), (float*)pixmap->GetData(), 4));
             //
             // layer1->SetPixels()
 
@@ -115,7 +115,7 @@ void TerrainMeshComponent::CreateTerrain(int layers) {
         {
 
 
-           layer1->SetLayerMap(new Texture2D(1024, 1024, (float*)layer1->GetPixels()->GetData(), 4));
+           layer1->SetLayerMap(new Q3D::Engine::Texture::Texture2D(1024, 1024, (float*)layer1->GetPixels()->GetData(), 4));
            //layer1.LayerMap = new Texture.Texture2D("engine\\terrain\\layer1.png");
         }
         m_Layers.push_back(layer1);

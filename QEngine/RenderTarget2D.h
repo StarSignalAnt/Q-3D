@@ -12,7 +12,10 @@
 using namespace Diligent;
 #include<glm/glm.hpp>
 
-class Texture2D;
+namespace Q3D::Engine::Texture {
+	class Texture2D;
+}
+//class Texture2D;
 
 
 class RenderTarget2D
@@ -43,8 +46,8 @@ public:
 	RefCntAutoPtr<ITextureView> GetDepthShaderView() {
 		return m_DepthShaderView;
 	}
-	Texture2D* GetDepthTexture2D();
-	Texture2D* GetTexture2D();
+	Q3D::Engine::Texture::Texture2D* GetDepthTexture2D();
+	Q3D::Engine::Texture::Texture2D* GetTexture2D();
 	void ClearZ();
 	void SetClearCol(glm::vec4 col) {
 		ClearCol = col;

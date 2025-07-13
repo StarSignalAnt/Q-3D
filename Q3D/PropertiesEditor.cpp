@@ -543,20 +543,20 @@ void PropertiesEditor::SetNode(GraphNode* node) {
                 auto pbr = (MaterialPBR*)mat;
                 AddTexture("Color", pbr->GetColorTexture()->GetPath(), [node, pbr](std::string val)
                     {
-                        pbr->SetColorTexture(new Texture2D(val));
+                        pbr->SetColorTexture(new Q3D::Engine::Texture::Texture2D(val));
                         pbr->Save(pbr->GetPath());
                     });
                 AddTexture("Normal", pbr->GetNormalTexture()->GetPath(), [node, pbr](std::string val)
                     {
-                        pbr->SetNormalTexture(new Texture2D(val));
+                        pbr->SetNormalTexture(new Q3D::Engine::Texture::Texture2D(val));
                         pbr->Save(pbr->GetPath());
                     });
                 AddTexture("Metallic", pbr->GetMetallicTexture()->GetPath(), [node, pbr](std::string val) {
-                    pbr->SetMetallicTexture(new Texture2D(val));
+                    pbr->SetMetallicTexture(new Q3D::Engine::Texture::Texture2D(val));
                     pbr->Save(pbr->GetPath());
                     });
                 AddTexture("Roughness", pbr->GetRoughTexture()->GetPath(), [node, pbr](std::string val) {
-                    pbr->SetRoughnessTexture(new Texture2D(val));
+                    pbr->SetRoughnessTexture(new Q3D::Engine::Texture::Texture2D(val));
                     pbr->Save(pbr->GetPath());
                     });
                 int b = 5;
@@ -585,7 +585,7 @@ void PropertiesEditor::SetNode(GraphNode* node) {
         // Add categories and their component types
         QStringList sharpComponents;
         QStringList cppComponents;
-        auto classes = QEngine::GetSharpComponentClasses();
+        auto classes = Q3D::Engine::QEngine::GetSharpComponentClasses();
 
         qDebug() << "Available component classes:" << classes.size();
 
@@ -595,7 +595,7 @@ void PropertiesEditor::SetNode(GraphNode* node) {
             qDebug() << "Added component:" << componentName;
         }
 
-        for (auto c : QEngine::GetCComponents()) {
+        for (auto c : Q3D::Engine::QEngine::GetCComponents()) {
 
             std::string name = c->GetName();
             cppComponents.append(name.c_str());
@@ -639,7 +639,7 @@ void PropertiesEditor::SetNode(GraphNode* node) {
                 if (category == "CPP Components")
                 {
                     qDebug() << "Creating XPP Component:" << componentType;
-                    auto classes = QEngine::GetCComponents();
+                    auto classes = Q3D::Engine::QEngine::GetCComponents();
                     for (auto c : classes) {
                         if (c->GetName() == componentType.toStdString()) {
                             //SharpComponent* comp = new SharpComponent;
@@ -659,13 +659,13 @@ void PropertiesEditor::SetNode(GraphNode* node) {
                 if (category == "Sharp Components") {
                     // Handle Sharp Components
                     qDebug() << "Creating Sharp Component:" << componentType;
-                    auto classes = QEngine::GetSharpComponentClasses();
+                    auto classes = Q3D::Engine::QEngine::GetSharpComponentClasses();
                     for (auto c : classes) {
                         if (c.className == componentType.toStdString()) {
                             SharpComponent* comp = new SharpComponent;
                             node->AddComponent(comp);
-                            auto cls = QEngine::GetMonoLib()->GetClass(c.className,c.namespaceName);
-                            comp->SetClass(cls, QEngine::GetMonoLib()->GetAssembly(), QEngine::GetMonoLib()->GetVivid());
+                            auto cls = Q3D::Engine::QEngine::GetMonoLib()->GetClass(c.className,c.namespaceName);
+                            comp->SetClass(cls, Q3D::Engine::QEngine::GetMonoLib()->GetAssembly(), Q3D::Engine::QEngine::GetMonoLib()->GetVivid());
                             comp->SetName(c.className);
                            //******************
                             // comp->SetTime(QEngine::s_last_dll_write_time);
@@ -838,20 +838,20 @@ void PropertiesEditor::SetNode(GraphNode* node) {
                 auto pbr = (MaterialPBR*)mat;
                 AddTexture("Color", pbr->GetColorTexture()->GetPath(), [node, pbr](std::string val)
                     {
-                        pbr->SetColorTexture(new Texture2D(val));
+                        pbr->SetColorTexture(new Q3D::Engine::Texture::Texture2D(val));
                         pbr->Save(pbr->GetPath());
                     });
                 AddTexture("Normal", pbr->GetNormalTexture()->GetPath(), [node, pbr](std::string val)
                     {
-                        pbr->SetNormalTexture(new Texture2D(val));
+                        pbr->SetNormalTexture(new Q3D::Engine::Texture::Texture2D(val));
                         pbr->Save(pbr->GetPath());
                     });
                 AddTexture("Metallic", pbr->GetMetallicTexture()->GetPath(), [node, pbr](std::string val) {
-                    pbr->SetMetallicTexture(new Texture2D(val));
+                    pbr->SetMetallicTexture(new Q3D::Engine::Texture::Texture2D(val));
                     pbr->Save(pbr->GetPath());
                     });
                 AddTexture("Roughness", pbr->GetRoughTexture()->GetPath(), [node, pbr](std::string val) {
-                    pbr->SetRoughnessTexture(new Texture2D(val));
+                    pbr->SetRoughnessTexture(new Q3D::Engine::Texture::Texture2D(val));
                     pbr->Save(pbr->GetPath());
                     });
                 int b = 5;
@@ -1266,7 +1266,7 @@ void PropertiesEditor::AddedFromDrop(const QString& resourceName)
 
     if (ext == "") {
 
-        auto comps = QEngine::GetCComponents();
+        auto comps = Q3D::Engine::QEngine::GetCComponents();
         for (auto c : comps) {
 
             if (c->GetName() == name) {
@@ -1279,7 +1279,7 @@ void PropertiesEditor::AddedFromDrop(const QString& resourceName)
             }
 
         }
-        for (auto cs : QEngine::GetSharpComponentClasses())
+        for (auto cs : Q3D::Engine::QEngine::GetSharpComponentClasses())
         {
             if (cs.className == path)
             {
@@ -1287,8 +1287,8 @@ void PropertiesEditor::AddedFromDrop(const QString& resourceName)
                 m_Node->AddComponent(comp);
 
                 
-                auto cls = QEngine::GetMonoLib()->GetClass(cs.className,cs.namespaceName);
-                comp->SetClass(cls, QEngine::GetMonoLib()->GetAssembly(), QEngine::GetMonoLib()->GetVivid());
+                auto cls = Q3D::Engine::QEngine::GetMonoLib()->GetClass(cs.className,cs.namespaceName);
+                comp->SetClass(cls, Q3D::Engine::QEngine::GetMonoLib()->GetAssembly(), Q3D::Engine::QEngine::GetMonoLib()->GetVivid());
                 comp->SetName(cs.className);
                 
                 SetNode(m_Node);
@@ -1309,7 +1309,7 @@ void PropertiesEditor::AddedFromDrop(const QString& resourceName)
 
             LGraph* tg = new LGraph("Graph");
 
-            tg = tg->LoadFromFile(resourceName.toStdString(), QEngine::GetNodeRegistry());
+            tg = tg->LoadFromFile(resourceName.toStdString(), Q3D::Engine::QEngine::GetNodeRegistry());
             LogicGraphComponent* lg = new LogicGraphComponent;
             m_Node->AddComponent(lg);
             lg->SetGraph(tg);
@@ -1366,20 +1366,20 @@ void PropertiesEditor::SetMaterial(MaterialPBR* mat)
         auto pbr = (MaterialPBR*)mat;
         AddTexture("Color", pbr->GetColorTexture()->GetPath(), [pbr](std::string val)
             {
-                pbr->SetColorTexture(new Texture2D(val));
+                pbr->SetColorTexture(new Q3D::Engine::Texture::Texture2D(val));
                 pbr->Save(pbr->GetPath());
             });
         AddTexture("Normal", pbr->GetNormalTexture()->GetPath(), [pbr](std::string val)
             {
-                pbr->SetNormalTexture(new Texture2D(val));
+                pbr->SetNormalTexture(new Q3D::Engine::Texture::Texture2D(val));
                 pbr->Save(pbr->GetPath());
             });
         AddTexture("Metallic", pbr->GetMetallicTexture()->GetPath(), [pbr](std::string val) {
-            pbr->SetMetallicTexture(new Texture2D(val));
+            pbr->SetMetallicTexture(new Q3D::Engine::Texture::Texture2D(val));
             pbr->Save(pbr->GetPath());
             });
         AddTexture("Roughness", pbr->GetRoughTexture()->GetPath(), [pbr](std::string val) {
-            pbr->SetRoughnessTexture(new Texture2D(val));
+            pbr->SetRoughnessTexture(new Q3D::Engine::Texture::Texture2D(val));
             pbr->Save(pbr->GetPath());
             });
         int b = 5;
@@ -1438,13 +1438,13 @@ void PropertiesEditor::SetTerrain(GraphNode* node) {
         AddHeader(head.c_str());
 
         AddTexture("Color", layer->GetColor()->GetPath(), [layer](std::string v) {
-            layer->SetColor(new Texture2D(v));
+            layer->SetColor(new Q3D::Engine::Texture::Texture2D(v));
             });
         AddTexture("Normal", layer->GetNormal()->GetPath(), [layer](std::string v) {
-            layer->SetNormal(new Texture2D(v));
+            layer->SetNormal(new Q3D::Engine::Texture::Texture2D(v));
             });
         AddTexture("Specular", layer->GetSpec()->GetPath(), [layer](std::string v) {
-            layer->SetSpecular(new Texture2D(v));
+            layer->SetSpecular(new Q3D::Engine::Texture::Texture2D(v));
             });
         ix++;
     }

@@ -7,7 +7,7 @@ public:
     MaterialSky();
     void Bind(bool add) override;
     void Render() override;
-    void SetColorTexture(Texture2D* texture)
+    void SetColorTexture(Q3D::Engine::Texture::Texture2D* texture)
     {
 //        m_ColorTexture = texture;
     }

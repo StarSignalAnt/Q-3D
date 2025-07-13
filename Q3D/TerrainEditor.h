@@ -56,7 +56,7 @@ private:
 	glm::vec3 m_EditPos = glm::vec3(0, 0, 0);
 	float m_TerrainBrushSize = 0.75;
 	GraphNode* m_BrushNode = nullptr;
-	Texture2D* m_White;
+	Q3D::Engine::Texture::Texture2D* m_White;
 	float m_TerrainStrength = 0.5f;
 	bool m_TerrainEditing = false;
 	int m_TerrainLayer = 0;

@@ -36,50 +36,54 @@ struct BinaryCacheHeader {
 	size_t dataSize;
 };
 
-class Texture2D
-{
-public:
+namespace Q3D::Engine::Texture {
 
-	Texture2D(RenderTarget2D* target);
-	Texture2D(std::string path, bool srgb = false);
-	Texture2D(int w, int h, float* data, int bpp);
-	Texture2D(int w, int h,char* data, int bpp);
-	Texture2D(RefCntAutoPtr<ITexture> tex, RefCntAutoPtr<ITextureView> view) {
-		m_pTextureView = view;
-		m_pTexture = tex;
-	}
-	void Update(float* data);
+	class Texture2D
+	{
+	public:
 
-	RefCntAutoPtr<ITextureView> GetView() {
-		return m_pTextureView;
-	}
+		Texture2D(RenderTarget2D* target);
+		Texture2D(std::string path, bool srgb = false);
+		Texture2D(int w, int h, float* data, int bpp);
+		Texture2D(int w, int h, char* data, int bpp);
+		Texture2D(RefCntAutoPtr<ITexture> tex, RefCntAutoPtr<ITextureView> view) {
+			m_pTextureView = view;
+			m_pTexture = tex;
+		}
+		void Update(float* data);
 
-	RefCntAutoPtr<ITexture> GetTex() {
-		return m_pTexture;
-	}
+		RefCntAutoPtr<ITextureView> GetView() {
+			return m_pTextureView;
+		}
 
-	std::string GetPath() {
-		return m_Path;
-	}
+		RefCntAutoPtr<ITexture> GetTex() {
+			return m_pTexture;
+		}
 
-	// Static methods for cache management
-	static void ClearMemoryCache();
-	static void ClearBinaryCache(const std::string& path);
+		std::string GetPath() {
+			return m_Path;
+		}
 
-private:
-	int m_Width;
-	int m_Height;
-	RefCntAutoPtr<ITexture> m_pTexture;
-	RefCntAutoPtr<ITextureView> m_pTextureView;
-	std::string m_Path;
+		// Static methods for cache management
+		static void ClearMemoryCache();
+		static void ClearBinaryCache(const std::string& path);
 
-	// Static cache storage
-	static std::unordered_map<std::string, std::shared_ptr<CachedTexture>> s_textureCache;
-	static std::mutex s_cacheMutex;
+	private:
+		int m_Width;
+		int m_Height;
+		RefCntAutoPtr<ITexture> m_pTexture;
+		RefCntAutoPtr<ITextureView> m_pTextureView;
+		std::string m_Path;
 
-	// Helper methods
-	std::string GetBinaryCachePath(const std::string& texturePath);
-	bool LoadFromBinaryCache(const std::string& path);
-	void SaveToBinaryCache(const std::string& path);
-	std::vector<uint8_t> ExtractTextureData();
-};
+		// Static cache storage
+		static std::unordered_map<std::string, std::shared_ptr<CachedTexture>> s_textureCache;
+		static std::mutex s_cacheMutex;
+
+		// Helper methods
+		std::string GetBinaryCachePath(const std::string& texturePath);
+		bool LoadFromBinaryCache(const std::string& path);
+		void SaveToBinaryCache(const std::string& path);
+		std::vector<uint8_t> ExtractTextureData();
+	};
+
+}

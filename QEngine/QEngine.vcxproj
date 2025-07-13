@@ -112,9 +112,11 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>C:\Q3D\ZLib\1.3.1\include;C:\Q3D\entt\entt-3.15.0\src;C:\Q3D\freetype\include;C:\git\openal-soft-master\include;C:\Q3D\ffmpeg\include;C:\Users\antro\Downloads\json-develop\json-develop\single_include\nlohmann;C:\Program Files\Mono\include\mono-2.0;C:\Program Files\Mono\include\mono-2.0\mono;C:\git\PhysX\pxshared\include;C:\git\PhysX\physx\include;C:\git\soloud-master\include;C:\Q3D\CL;C:\Users\antro\AppData\Local\Programs\Python\Python313\include;C:\Q3D\QEngine\include;C:\git\assimp\include;C:\git\DiligentEngine\DiligentCore;C:\git\DiligentEngine\DiligentFX;C:\git\DiligentEngine\DiligentFX\PostProcess\Common\interface;C:\DiligentEngine\DiligentFX\PostProcess\ScreenSpaceReflection\interface;C:\dev\Vivid3D\VScript;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsTools\interface;C:git\DiligentEngine\DiligentCore;C:\git\DiligentEngine\DiligentTools\TextureLoader\interface;C:\git\DiligentEngine\DiligentTools\TextureLoader\include;C:\Dev\Assimp\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngine\interface;C:\git\DiligentEngine\DiligentCore\Common\interface;C:\git\DiligentEngine\DiligentCore\ThirdParty\SPIRV-Cross\include;C:\git\DiligentEngine\DiligentCore\Platforms\Basic\include;C:\git\DiligentEngine\DiligentCore\Graphics\ShaderTools\include;C:\\git\DiligentEngine\DiligentCore\Graphics\HLSL2GLSLConverterLib\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngineD3D12\include;C:\git\DiligentEngine\DiligentCore\Graphics\GraphicsEngine\include;C:\git\DiligentEngine\DiligentCore\Common\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard_C>stdclatest</LanguageStandard_C>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <EnableModules>false</EnableModules>
+      <BuildStlModules>false</BuildStlModules>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -156,6 +158,7 @@
     <ClInclude Include="Bone.h" />
     <ClInclude Include="BoneInfo.h" />
     <ClInclude Include="CameraComponent.h" />
+    <ClInclude Include="Cinematic.h" />
     <ClInclude Include="CLBase.h" />
     <ClInclude Include="CloudsSystem.h" />
     <ClInclude Include="Component.h" />
@@ -279,7 +282,6 @@
     <ClInclude Include="TextureCube.h" />
     <ClInclude Include="TickEventNode.h" />
     <ClInclude Include="VFile.h" />
-    <ClInclude Include="QEngine.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="allocator.cpp" />
@@ -288,6 +290,7 @@
     <ClCompile Include="Bone.cpp" />
     <ClCompile Include="BoneInfo.cpp" />
     <ClCompile Include="CameraComponent.cpp" />
+    <ClCompile Include="Cinematic.cpp" />
     <ClCompile Include="CLBase.cpp" />
     <ClCompile Include="CloudsSystem.cpp" />
     <ClCompile Include="clusterizer.cpp" />

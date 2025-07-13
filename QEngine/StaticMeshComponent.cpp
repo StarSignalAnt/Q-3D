@@ -51,7 +51,7 @@ void StaticMeshComponent::Finalize() {
 			vdata.DataSize = vbuf.Size;
 			vdata.pData = data;
 
-			QEngine::GetDevice()->CreateBuffer(vbuf, &vdata, &lod->VertexBuffer);
+			Q3D::Engine::QEngine::GetDevice()->CreateBuffer(vbuf, &vdata, &lod->VertexBuffer);
 
 			BufferDesc ibuf;
 
@@ -75,7 +75,7 @@ void StaticMeshComponent::Finalize() {
 			idata.DataSize = ibuf.Size;
 			idata.pData = indices;
 
-			QEngine::GetDevice()->CreateBuffer(ibuf, &idata, &lod->IndexBuffer);
+			Q3D::Engine::QEngine::GetDevice()->CreateBuffer(ibuf, &idata, &lod->IndexBuffer);
 
 		}
 	}

@@ -15,14 +15,14 @@ PPOutline::PPOutline(){
 	//	CreateTarget(Engine::GetFrameWidth() / 4, Engine::GetFrameHeight() / 4);
 	
 
-	CreateTargets(QEngine::GetFrameWidth(), QEngine::GetFrameHeight(), 2);
+	CreateTargets(Q3D::Engine::QEngine::GetFrameWidth(), Q3D::Engine::QEngine::GetFrameHeight(), 2);
 //	m_ColorLimit = new MaterialColorLimit;
 	//m_Combine = new MaterialCombine;
 	//m_Blur = new MaterialBlur;
 
 }
 
-Texture2D* PPOutline::Process(Texture2D* frame) {
+Q3D::Engine::Texture::Texture2D* PPOutline::Process(Q3D::Engine::Texture::Texture2D* frame) {
 
 
 
@@ -39,9 +39,9 @@ Texture2D* PPOutline::Process(Texture2D* frame) {
 
 	ReleaseRT(1);
 
-	QEngine::SetScissor(0, 0, QEngine::GetFrameWidth(), QEngine::GetFrameHeight());
+	Q3D::Engine::QEngine::SetScissor(0, 0, Q3D::Engine::QEngine::GetFrameWidth(), Q3D::Engine::QEngine::GetFrameHeight());
 	m_Draw->BeginFrame();
-	m_Draw->Rect(GetTexture(1), glm::vec2(0,0), glm::vec2(QEngine::GetFrameWidth(),QEngine::GetFrameHeight()), glm::vec4(1, 1, 1, 1));
+	m_Draw->Rect(GetTexture(1), glm::vec2(0,0), glm::vec2(Q3D::Engine::QEngine::GetFrameWidth(), Q3D::Engine::QEngine::GetFrameHeight()), glm::vec4(1, 1, 1, 1));
 	m_Draw->Flush();
 
 	/*

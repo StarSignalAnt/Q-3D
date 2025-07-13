@@ -19,7 +19,7 @@ class GraphNode;
 // Holds the data for a single character glyph
 struct Character
 {
-    std::unique_ptr<Texture2D> texture;
+    std::unique_ptr<Q3D::Engine::Texture::Texture2D> texture;
     std::vector<float> pixelData;
     int width = 0;
     int height = 0;
@@ -31,7 +31,7 @@ struct Character
 // Holds the generated texture and layout data for a cached string
 struct CachedText
 {
-    std::unique_ptr<Texture2D> texture;
+    std::unique_ptr<Q3D::Engine::Texture::Texture2D> texture;
     glm::vec2 size;
     int ascent;
     float bearingX; // For correct horizontal placement

@@ -220,6 +220,9 @@
       <Filter>DLL</Filter>
     </ClCompile>
     <ClCompile Include="EngineImporter.cpp" />
+    <ClCompile Include="Cinematic.cpp">
+      <Filter>Cinematic</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CLBase.h" />
@@ -320,9 +323,6 @@
     <ClInclude Include="TextureCube.h" />
     <ClInclude Include="TickEventNode.h" />
     <ClInclude Include="VFile.h" />
-    <ClInclude Include="QEngine.h">
-      <Filter>Engine</Filter>
-    </ClInclude>
     <ClInclude Include="GraphNode.h">
       <Filter>Graph</Filter>
     </ClInclude>
@@ -409,6 +409,9 @@
       <Filter>DLL</Filter>
     </ClInclude>
     <ClInclude Include="EngineImporter.h" />
+    <ClInclude Include="Cinematic.h">
+      <Filter>Cinematic</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -437,6 +440,9 @@
     </Filter>
     <Filter Include="DLL">
       <UniqueIdentifier>{8f527908-478e-4ccf-9c06-d217081c00f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Cinematic">
+      <UniqueIdentifier>{b91280c1-e200-4796-8e83-fec1c0fdc450}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

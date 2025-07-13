@@ -27,7 +27,7 @@ void NodeStartVideo::Exec() {
     // Get the value from the "Delta" input pin, specifying you expect a glm::vec3.
     auto path = GetInputValue<std::string>("Path").value();
 
-    QEngine::StartVideo(path);
+    Q3D::Engine::QEngine::StartVideo(path);
 
 
     ExecNext();

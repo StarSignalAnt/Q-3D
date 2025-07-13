@@ -42,6 +42,6 @@ void NodeRenderVideo::Exec() {
    // }
     // --- END FINAL USAGE ---
 
-    QEngine::RenderVideo();
+    Q3D::Engine::QEngine::RenderVideo();
     ExecNext();
 }

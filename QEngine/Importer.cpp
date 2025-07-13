@@ -26,11 +26,11 @@
 #include "GameContent.h"
 #include "ContentFile.h"
 namespace fs = std::filesystem; // For C++17 compatibility
-Texture2D* LoadTexture(const std::string& path) {
+Q3D::Engine::Texture::Texture2D* LoadTexture(const std::string& path) {
     // Assume this loads and returns a new Texture2D*, or nullptr on failure
-    return new Texture2D(path); // Placeholder logic
+    return new Q3D::Engine::Texture::Texture2D(path); // Placeholder logic
 }
-Texture2D* FindTexture(const aiMaterial* material, aiTextureType type, const std::string& modelDir) {
+Q3D::Engine::Texture::Texture2D* FindTexture(const aiMaterial* material, aiTextureType type, const std::string& modelDir) {
     if (material->GetTextureCount(type) == 0)
         return nullptr;
 
@@ -97,7 +97,7 @@ GraphNode* Importer::ImportEntity(std::string path,bool gen_lod) {
     std::string modelDir = fs::path(path).parent_path().string();
     Assimp::Importer importer;
 
-    auto con = QEngine::GetContent()->FindContent(path);
+    auto con = Q3D::Engine::QEngine::GetContent()->FindContent(path);
 
     aiScene* scene = nullptr;
 
@@ -154,7 +154,7 @@ GraphNode* Importer::ImportEntity(std::string path,bool gen_lod) {
 
 
                 bool found = false;
-                for (auto m : QEngine::GetActiveMaterials()) {
+                for (auto m : Q3D::Engine::QEngine::GetActiveMaterials()) {
 
                     if (m->GetName() == m_name.C_Str())
                     {
@@ -171,9 +171,9 @@ GraphNode* Importer::ImportEntity(std::string path,bool gen_lod) {
                 pbr->SetName(m_name.C_Str());
                 
                 
-                auto am = QEngine::GetActiveMaterials();
+                auto am = Q3D::Engine::QEngine::GetActiveMaterials();
                 am.push_back(pbr);
-                QEngine::SetActiveMaterials(am);
+                Q3D::Engine::QEngine::SetActiveMaterials(am);
                 
                 materials.push_back(pbr);
                 continue;
@@ -184,32 +184,33 @@ GraphNode* Importer::ImportEntity(std::string path,bool gen_lod) {
             material->SetName(m_name.C_Str());
 
             // Albedo / Base Color
-            if (Texture2D* tex = FindTexture(aiMat, aiTextureType_DIFFUSE, modelDir))
+            if (Q3D::Engine::Texture::Texture2D* tex = FindTexture(aiMat, aiTextureType_DIFFUSE, modelDir))
             {
 
            //     material->SetColorTexture(tex);
             //    material->SetTexture(tex, 0);
             }
-            if (Texture2D* tex = FindTexture(aiMat, aiTextureType_SPECULAR, modelDir))
+            if (Q3D::Engine::Texture::Texture2D* tex = FindTexture(aiMat, aiTextureType_SPECULAR, modelDir))
             {
 
 
                 //material->SetSpecularTexture(tex);
             }
-            if (Texture2D* tex = FindTexture(aiMat, aiTextureType_NORMALS, modelDir))
+            if (Q3D::Engine::Texture::Texture2D* tex = FindTexture(aiMat, aiTextureType_NORMALS, modelDir))
             {
               //  material->SetNormalTexture(tex);
             }
             //aterial->SetNormal(tex);
 
-            if (Texture2D* tex = FindTexture(aiMat, aiTextureType_METALNESS, modelDir))
+            if (Q3D::Engine::Texture::Texture2D* tex = FindTexture(aiMat, aiTextureType_METALNESS, modelDir))
             {
+
               //  material->SetMetallicTexture(tex);
             }
             //material->SetMetallic(tex);
 
 
-            if (Texture2D* tex = FindTexture(aiMat, aiTextureType_DIFFUSE_ROUGHNESS, modelDir))
+            if (Q3D::Engine::Texture::Texture2D* tex = FindTexture(aiMat, aiTextureType_DIFFUSE_ROUGHNESS, modelDir))
             {
             //    material->SetRoughnessTexture(tex);
             }
@@ -226,16 +227,16 @@ GraphNode* Importer::ImportEntity(std::string path,bool gen_lod) {
             }
             //  material->SetRoughness(tex);
 
-            if (Texture2D* tex = FindTexture(aiMat, aiTextureType_AMBIENT_OCCLUSION, modelDir))
+            if (Q3D::Engine::Texture::Texture2D* tex = FindTexture(aiMat, aiTextureType_AMBIENT_OCCLUSION, modelDir))
                 //    material->SetAO(tex);
             {
             }
 
             material->Save(m_path);
             materials.push_back(material);
-            auto am = QEngine::GetActiveMaterials();
+            auto am = Q3D::Engine::QEngine::GetActiveMaterials();
             am.push_back(material);
-            QEngine::SetActiveMaterials(am);
+            Q3D::Engine::QEngine::SetActiveMaterials(am);
 
 
             //QEngine::m_ActiveMaterials.push_back(material);

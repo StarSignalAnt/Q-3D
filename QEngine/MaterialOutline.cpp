@@ -118,8 +118,8 @@ MaterialOutline::MaterialOutline() {
     //gp.NumRenderTargets = 0;
 
     gp.BlendDesc = b_desc;
-    gp.RTVFormats[0] = QEngine::GetSwapChain()->GetDesc().ColorBufferFormat;
-    gp.DSVFormat = QEngine::GetSwapChain()->GetDesc().DepthBufferFormat;
+    gp.RTVFormats[0] = Q3D::Engine::QEngine::GetSwapChain()->GetDesc().ColorBufferFormat;
+    gp.DSVFormat = Q3D::Engine::QEngine::GetSwapChain()->GetDesc().DepthBufferFormat;
     gp.InputLayout = in_desc;
     //gp.NumViewports = 1;
 
@@ -188,7 +188,8 @@ MaterialOutline::MaterialOutline() {
 
     RefCntAutoPtr<IPipelineState> ps;
 
-    QEngine::GetDevice()->CreateGraphicsPipelineState(gp_desc, &ps);
+    Q3D::Engine::QEngine::GetDevice()->CreateGraphicsPipelineState(gp_desc, &ps);
+
 
     m_Pipeline = ps;
     m_Pipeline->GetStaticVariableByName(SHADER_TYPE_VERTEX, "Constants")->Set(m_UniformBuffer);
@@ -204,7 +205,7 @@ void MaterialOutline::Bind(bool add) {
     m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_Texture")->Set(m_Textures[0]->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
     //Engine::m_pImmediateContext->MapBuffer(BasicUniform, MAP_TYPE::MAP_WRITE, MAP_FLAGS::MAP_FLAG_DISCARD);
     {
-        MapHelper<glm::mat4> map_data(QEngine::GetContext(), m_UniformBuffer, MAP_WRITE, MAP_FLAG_DISCARD);
+        MapHelper<glm::mat4> map_data(Q3D::Engine::QEngine::GetContext(), m_UniformBuffer, MAP_WRITE, MAP_FLAG_DISCARD);
         float FOVRadians = 45.0f * (3.14159265358979323846f / 180.0f);
 
 
@@ -243,16 +244,18 @@ void MaterialOutline::Bind(bool add) {
     RESOURCE_STATE_TRANSITION_MODE flags = RESOURCE_STATE_TRANSITION_MODE::RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
 
     //     return;
-    QEngine::GetContext()->SetVertexBuffers(0, 1, pBuffs, &offsets, flags);
-    QEngine::GetContext()->SetIndexBuffer(m_Buffers[1], 0, flags);
+    Q3D::Engine::QEngine::GetContext()->SetVertexBuffers(0, 1, pBuffs, &offsets, flags);
+    Q3D::Engine::QEngine::GetContext()->SetIndexBuffer(m_Buffers[1], 0, flags);
 
 
     //   return;
 
 
-    QEngine::GetContext()->SetPipelineState(m_Pipeline);
+    Q3D::Engine::QEngine::GetContext()->SetPipelineState(m_Pipeline);
 
-    QEngine::GetContext()->CommitShaderResources(m_SRB, flags);
+
+
+    Q3D::Engine::QEngine::GetContext()->CommitShaderResources(m_SRB, flags);
     //Vivid::m_pImmediateContext->SetPipelineState(m_Pipeline);
 
 
@@ -268,6 +271,7 @@ void MaterialOutline::Render() {
     attrib.NumIndices = m_IndexCount;
 
     attrib.Flags = DRAW_FLAG_VERIFY_ALL;
-    QEngine::GetContext()->DrawIndexed(attrib);
+    Q3D::Engine::QEngine::GetContext()->DrawIndexed(attrib);
+
 
 }

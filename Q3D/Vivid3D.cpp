@@ -88,12 +88,12 @@ Vivid3D::Vivid3D(QWidget *parent)
     setAutoFillBackground(true);
     setPalette(pal);
 
-    browser->Browse(QEngine::GetContentPath());
+    browser->Browse(Q3D::Engine::QEngine::GetContentPath());
 //	QEngine::DebugLogCB = ConsoleDebug; // Set the debug callback to our console output function
 
     std::vector<ComponentInfo> infos;
 
-    for (auto comp : QEngine::GetCComponents()) {
+    for (auto comp : Q3D::Engine::QEngine::GetCComponents()) {
 
         ComponentInfo info;
         info.name = comp->GetName();
@@ -104,7 +104,8 @@ Vivid3D::Vivid3D(QWidget *parent)
 
     }
 
-    auto csc = QEngine::GetSharpComponentClasses();
+    auto csc = Q3D::Engine::QEngine::GetSharpComponentClasses();
+
 
     for (auto comp : csc) {
 

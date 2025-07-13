@@ -137,7 +137,8 @@ extern "C" __declspec(dllexport) void* NodeGetLongName(void* node) {
 
 extern "C" __declspec(dllexport) void ConsoleLog(const char* str)
 {
-	QEngine::DebugLog(str);
+	Q3D::Engine::QEngine::DebugLog(str);
+
 
 }
 
@@ -189,7 +190,7 @@ extern "C" __declspec(dllexport) void DrawRect(void* draw,void*tex, Vec2 pos, Ve
 
 	Draw2D* drawObj = static_cast<Draw2D*>(draw);
 
-	drawObj->Rect(static_cast<Texture2D*>(tex), glm::vec2(pos.x, pos.y), glm::vec2(size.x, size.y), glm::vec4(color.x,color.y,color.z,color.w));
+	drawObj->Rect(static_cast<Q3D::Engine::Texture::Texture2D*>(tex), glm::vec2(pos.x, pos.y), glm::vec2(size.x, size.y), glm::vec4(color.x,color.y,color.z,color.w));
 
 	
 
@@ -205,20 +206,20 @@ extern "C" __declspec(dllexport) void DrawFlush(void* draw) {
 }
 extern "C" __declspec(dllexport) void* LoadTexture2D(const char* path) {
 
-	auto cp = QEngine::GetContentPath() + std::string(path);
+	auto cp = Q3D::Engine::QEngine::GetContentPath() + std::string(path);
 
-	return (void*)new Texture2D(cp,true);
+	return (void*)new Q3D::Engine::Texture::Texture2D(cp,true);
 
 }
 
 extern "C" __declspec(dllexport) int EngineGetWidth() {
 
-	return QEngine::GetFrameWidth();
+	return Q3D::Engine::QEngine::GetFrameWidth();
 
 }
 extern "C" __declspec(dllexport) int EngineGetHeight() {
 
-	return QEngine::GetFrameHeight();
+	return Q3D::Engine::QEngine::GetFrameHeight();
 
 }
 
@@ -392,16 +393,17 @@ extern "C" __declspec(dllexport) void SetFontDraw(void* font, void* draw) {
 extern "C" __declspec(dllexport) void SetScissor( int x, int y, int w, int h) {
 
 
-	QEngine::SetScissor(x, y, w, h);
+	Q3D::Engine::QEngine::SetScissor(x, y, w, h);
 
 	return;
-	const auto& SCDesc = QEngine::GetSwapChain()->GetDesc();
+
+	//const auto& SCDesc = QEngine::GetSwapChain()->GetDesc();
 	Rect scissorRect;
 	scissorRect.left = x;
 	scissorRect.top = y;
 	scissorRect.right = x + w;
 	scissorRect.bottom = y + h;
-	QEngine::GetContext()->SetScissorRects(1, &scissorRect, SCDesc.Width, SCDesc.Height);
+	//QEngine::GetContext()->SetScissorRects(1, &scissorRect, SCDesc.Width, SCDesc.Height);
 
 
 
@@ -497,7 +499,7 @@ void SharpComponent::SetClass(MClass* cls,MAsm* as,MAsm* vivid) {
 }
 void SharpComponent::SetScript(std::string dll,std::string name) {
 	// Initialization code here
-	MonoLib* monoLib = QEngine::GetMonoLib();
+	MonoLib* monoLib = Q3D::Engine::QEngine::GetMonoLib();
 	if (!monoLib) {
 		std::cerr << "Error: SetScript failed because MonoLib is not available." << std::endl;
 		return;

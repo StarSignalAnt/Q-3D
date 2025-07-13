@@ -15,11 +15,17 @@ extern "C" {
 #include <libavutil/channel_layout.h>
 #include <libavutil/samplefmt.h>
 #include <libavutil/avconfig.h>
-class Texture2D;
+namespace Q3D {
+    namespace Engine {
+        namespace Texture {
+            class Texture2D;
+        }
+    }
+}
 
 struct Frame {
 
-    Texture2D* Image;
+    Q3D::Engine::Texture::Texture2D* Image;
     double TimeStamp;
 
 
@@ -33,7 +39,7 @@ public:
     ~GameVideo();
     void Play();
     void Update();
-    Texture2D* GetFrame();
+    Q3D::Engine::Texture::Texture2D* GetFrame();
     double GetCurrentFrameTimestamp() const;
     void Pause();
     void Resume();
@@ -52,7 +58,7 @@ private:
     ALCdevice* device;
     ALCcontext* context;
     ALuint source;
-    Texture2D* m_CurrentFrame = nullptr;
+    Q3D::Engine::Texture::Texture2D* m_CurrentFrame = nullptr;
 
     std::vector<Frame*> m_Frames;
     double m_CurrentFrameTimestamp;

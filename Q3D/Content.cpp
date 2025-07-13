@@ -421,7 +421,7 @@ void Content::fileClicked(const QString& filePath, bool isDirectory)
         if (ext == "material") {
             auto check_name = GetFileNameWithoutExtension(filePath.toStdString());
             bool found = false;
-            for (auto m : QEngine::GetActiveMaterials()) {
+            for (auto m : Q3D::Engine::QEngine::GetActiveMaterials()) {
                 if (m->GetName() == check_name) {
                     PropertiesEditor::m_Instance->SetMaterial(m);
                     found = true;
@@ -431,9 +431,9 @@ void Content::fileClicked(const QString& filePath, bool isDirectory)
             if (found) return;
             auto pbr = new MaterialPBR;
             pbr->Load(filePath.toStdString());
-            auto am = QEngine::GetActiveMaterials();
+            auto am = Q3D::Engine::QEngine::GetActiveMaterials();
             am.push_back(pbr);
-            QEngine::SetActiveMaterials(am);
+            Q3D::Engine::QEngine::SetActiveMaterials(am);
             pbr->SetName(GetFileNameWithoutExtension(filePath.toStdString()));
             PropertiesEditor::m_Instance->SetMaterial(pbr);
         }

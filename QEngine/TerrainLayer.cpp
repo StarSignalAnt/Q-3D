@@ -11,7 +11,7 @@ TerrainLayer::TerrainLayer() {
 
 void TerrainLayer::SetPixels(PixelMap* pixels) {
     m_LayerPixMap = pixels;
-    m_LayerMap = new Texture2D(pixels->GetWidth(), pixels->GetHeight(), (float*)pixels->GetData(), 4);
+    m_LayerMap = new Q3D::Engine::Texture::Texture2D(pixels->GetWidth(), pixels->GetHeight(), (float*)pixels->GetData(), 4);
 }
 
 
@@ -23,7 +23,7 @@ void TerrainLayer::FillBrush(float4 value) {
         m_LayerMap->Update((float*)pix->GetData());
     }
     else {
-        m_LayerMap = new Texture2D(pix->GetWidth(), pix->GetHeight(), (float*)pix->GetData(), 4);
+        m_LayerMap = new Q3D::Engine::Texture::Texture2D(pix->GetWidth(), pix->GetHeight(), (float*)pix->GetData(), 4);
     }
 
 }
@@ -87,7 +87,7 @@ void TerrainLayer::PlotBrush(float x, float y, int w, int h, float strength)
         m_LayerMap->Update((float*)m_LayerPixMap->GetData());
     }
     else {
-        m_LayerMap = new Texture2D(m_LayerPixMap->GetWidth(), m_LayerPixMap->GetHeight(),(float*) m_LayerPixMap->GetData(), 4);
+        m_LayerMap = new Q3D::Engine::Texture::Texture2D(m_LayerPixMap->GetWidth(), m_LayerPixMap->GetHeight(),(float*) m_LayerPixMap->GetData(), 4);
     }
 }
 
@@ -97,6 +97,6 @@ void TerrainLayer::Create() {
         m_LayerMap->Update((float*)m_LayerPixMap->GetData());
     }
     else {
-        m_LayerMap = new Texture2D(m_LayerPixMap->GetWidth(), m_LayerPixMap->GetHeight(), (float*)m_LayerPixMap->GetData(), 4);
+        m_LayerMap = new Q3D::Engine::Texture::Texture2D(m_LayerPixMap->GetWidth(), m_LayerPixMap->GetHeight(), (float*)m_LayerPixMap->GetData(), 4);
     }
 }

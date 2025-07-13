@@ -298,7 +298,7 @@ void GraphNode::Play() {
 	switch (m_BodyType) {
 	case T_Box:
 		if (m_RB != nullptr) {
-			QEngine::GetPhysics()->RemoveActor(m_RB);
+			Q3D::Engine::QEngine::GetPhysics()->RemoveActor(m_RB);
 		}
 		//SetBody(BodyType::T_Box);
 		CreateRB();
@@ -308,7 +308,7 @@ void GraphNode::Play() {
 	case T_TriMesh:
 
 		if (m_RS != nullptr) {
-			QEngine::GetPhysics()->RemoveStatic(m_RS);
+			Q3D::Engine::QEngine::GetPhysics()->RemoveStatic(m_RS);
 		}
 
 
@@ -317,7 +317,7 @@ void GraphNode::Play() {
 		break;
 	case T_ConvexHull:
 		if (m_RB != nullptr) {
-			QEngine::GetPhysics()->RemoveActor(m_RB);
+			Q3D::Engine::QEngine::GetPhysics()->RemoveActor(m_RB);
 		}
 		CreateBody();
 		break;
@@ -352,7 +352,7 @@ Bounds GraphNode::GetStaticMeshBounds(bool includeChildren) {
 	if (m_Bounds == nullptr) {
 		// Get all StaticMeshComponent instances from this node
 		auto staticMeshComponents = GetComponents<StaticMeshComponent>();
-		QEngine::DebugLog("Getting bounds");
+		Q3D::Engine::QEngine::DebugLog("Getting bounds");
 		m_bBoundsAreDirty = false;
 
 
@@ -435,7 +435,7 @@ glm::mat4 PxQuatToGlmMat4(const physx::PxQuat& quat) {
 }
 
 void GraphNode::CreateBody() {
-	PxMaterial* material = QEngine::GetPhysics()->CreateMaterial(); // static friction, dynamic friction, restitution
+	PxMaterial* material = Q3D::Engine::QEngine::GetPhysics()->CreateMaterial(); // static friction, dynamic friction, restitution
 
 
 	switch (m_BodyType)
@@ -449,7 +449,7 @@ void GraphNode::CreateBody() {
 		m_BoxBody = PxBoxGeometry(size.x/2.0, size.y/2.0, size.z/2.0);
 		m_Shape = PxRigidActorExt::createExclusiveShape(*m_RB, m_BoxBody, *material);
 
-		QEngine::GetPhysics()->AddActor(m_RB);
+		Q3D::Engine::QEngine::GetPhysics()->AddActor(m_RB);
 	}
 		break;
 	case BodyType::T_TriMesh:
@@ -504,7 +504,7 @@ void GraphNode::CreateBody() {
 
 		PxDefaultMemoryOutputStream writeBuffer;
 		PxTriangleMeshCookingResult::Enum result;
-		bool success = QEngine::GetPhysics()->GetCooking()->cookTriangleMesh(meshDesc, writeBuffer, &result);
+		bool success = Q3D::Engine::QEngine::GetPhysics()->GetCooking()->cookTriangleMesh(meshDesc, writeBuffer, &result);
 		if (!success || result != PxTriangleMeshCookingResult::eSUCCESS)
 		{
 			throw std::runtime_error("Failed to cook triangle mesh!");
@@ -512,20 +512,20 @@ void GraphNode::CreateBody() {
 
 		// 3. Create triangle mesh from cooked data
 		PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
-		PxTriangleMesh* triMesh = QEngine::GetPhysics()->GetPhysics()->createTriangleMesh(readBuffer);
+		PxTriangleMesh* triMesh = Q3D::Engine::QEngine::GetPhysics()->GetPhysics()->createTriangleMesh(readBuffer);
 
 		// 4. Create triangle mesh geometry
 		PxTriangleMeshGeometry triGeom(triMesh);
 
 		// 5. Create a static actor
 		PxTransform pose(PxVec3(0.0f, 0.0f, 0.0f));  // Position in world
-		PxRigidStatic* staticActor = QEngine::GetPhysics()->GetPhysics()->createRigidStatic(pose);
+		PxRigidStatic* staticActor = Q3D::Engine::QEngine::GetPhysics()->GetPhysics()->createRigidStatic(pose);
 
 		// 6. Attach shape to static actor
 		physx::PxShape* shape = PxRigidActorExt::createExclusiveShape(*staticActor, triGeom, *material);
 		// 7. Add actor to scene
 
-		QEngine::GetPhysics()->AddStatic(staticActor);
+		Q3D::Engine::QEngine::GetPhysics()->AddStatic(staticActor);
 		m_RS = staticActor;
 	}
 	
@@ -555,21 +555,21 @@ void GraphNode::CreateBody() {
 		// 2. Cook convex mesh
 		PxDefaultMemoryOutputStream writeBuffer;
 		PxConvexMeshCookingResult::Enum result;
-		bool success = QEngine::GetPhysics()->GetCooking()->cookConvexMesh(convexDesc, writeBuffer, &result);
+		bool success = Q3D::Engine::QEngine::GetPhysics()->GetCooking()->cookConvexMesh(convexDesc, writeBuffer, &result);
 		if (!success || result != PxConvexMeshCookingResult::eSUCCESS)
 		{
 			throw std::runtime_error("Failed to cook convex hull!");
 		}
 
 		PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
-		PxConvexMesh* convexMesh = QEngine::GetPhysics()->GetPhysics()->createConvexMesh(readBuffer);
+		PxConvexMesh* convexMesh = Q3D::Engine::QEngine::GetPhysics()->GetPhysics()->createConvexMesh(readBuffer);
 
 		// 3. Create convex geometry
 		PxConvexMeshGeometry convexGeom(convexMesh);
 
 		// 4. Create dynamic rigid body
 		PxTransform transform(PxVec3(0.0f, 0.0f, 0.0f));  // Or set based on your object
-		PxRigidDynamic* dynamicActor = QEngine::GetPhysics()->GetPhysics()->createRigidDynamic(transform);
+		PxRigidDynamic* dynamicActor = Q3D::Engine::QEngine::GetPhysics()->GetPhysics()->createRigidDynamic(transform);
 
 		// 5. Create shape and attach to actor
 		m_Shape = PxRigidActorExt::createExclusiveShape(*dynamicActor, convexGeom, *material);
@@ -579,7 +579,7 @@ void GraphNode::CreateBody() {
 		dynamicActor->setGlobalPose(t, true);
 
 		// 6. Add actor to scene
-		QEngine::GetPhysics()->AddActor(dynamicActor);
+		Q3D::Engine::QEngine::GetPhysics()->AddActor(dynamicActor);
 		m_RB = dynamicActor;  // Store handle to the rigid body
 		break;
 	}
@@ -590,7 +590,7 @@ void GraphNode::CreateBody() {
 
 void GraphNode::CreateRB() {
 
-	m_RB = QEngine::GetPhysics()->CreateRB();
+	m_RB = Q3D::Engine::QEngine::GetPhysics()->CreateRB();
 	
 	PxTransform t;
 	t.p = PxVec3(m_Position.x, m_Position.y, m_Position.z);
@@ -673,7 +673,7 @@ void GraphNode::ReadScripts(VFile* f) {
 
 		std::string name = f->ReadString();
 
-		auto comps = QEngine::GetCComponents();
+		auto comps = Q3D::Engine::QEngine::GetCComponents();
 		Component* inst = nullptr;
 		for (auto c : comps) {
 
@@ -744,7 +744,7 @@ void GraphNode::ReadScripts(VFile* f) {
 
 		std::string ns = "******";
 		bool proxy = false;
-		auto cls = QEngine::GetMonoLib()->GetClass(name,ns);
+		auto cls = Q3D::Engine::QEngine::GetMonoLib()->GetClass(name,ns);
 		if (cls == nullptr) {
 			proxy = true;
 
@@ -754,7 +754,7 @@ void GraphNode::ReadScripts(VFile* f) {
 		MClass* cls1 = nullptr;
 		if (!proxy) {
 			AddComponent(comp);
-			comp->SetClass(cls, QEngine::GetMonoLib()->GetAssembly(), QEngine::GetMonoLib()->GetVivid());
+			comp->SetClass(cls, Q3D::Engine::QEngine::GetMonoLib()->GetAssembly(), Q3D::Engine::QEngine::GetMonoLib()->GetVivid());
 			comp->SetName(name);
 			// Refresh the properties editor - use the safe pointer
 

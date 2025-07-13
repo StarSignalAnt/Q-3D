@@ -80,7 +80,7 @@ void LGDesigner::LoadGraph() {
     QString filePath = QFileDialog::getOpenFileName(this, "Load Graph", "", "Graph Files (*.graph)");
     if (filePath.isEmpty()) return;
 
-    LGraph* loadedGraph = LGraph::LoadFromFile(filePath.toStdString(), QEngine::GetNodeRegistry());
+    LGraph* loadedGraph = LGraph::LoadFromFile(filePath.toStdString(), Q3D::Engine::QEngine::GetNodeRegistry());
 
     if (loadedGraph) {
         scene->clear();
@@ -224,7 +224,7 @@ void LGDesigner::keyPressEvent(QKeyEvent* event) {
         m_nodeCreationPos = mapToScene(mapFromGlobal(QCursor::pos()));
 
         // --- FIX: Pass the current graph pointer to the constructor ---
-        NodeCreationWidget* widget = new NodeCreationWidget(m_graph, QEngine::GetNodeRegistry(), this);
+        NodeCreationWidget* widget = new NodeCreationWidget(m_graph, Q3D::Engine::QEngine::GetNodeRegistry(), this);
 
         connect(widget, &NodeCreationWidget::nodeSelected, this, &LGDesigner::onCreateNode);
         widget->move(QCursor::pos());
@@ -244,7 +244,7 @@ void LGDesigner::onCreateNode(const std::string& creationCommand) {
 
     // First, try to create the node from the registry using its name.
     // This will correctly find and create "Get Scene Node", "Turn GraphNode", etc.
-    logicNode = QEngine::GetNodeRegistry().CreateNode(creationCommand);
+    logicNode = Q3D::Engine::QEngine::GetNodeRegistry().CreateNode(creationCommand);
 
     // If, and only if, no registered node was found, then we check for special
     // dynamic node types like variable getters.

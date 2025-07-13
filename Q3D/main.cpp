@@ -42,12 +42,13 @@ int main(int argc, char *argv[])
         projectPath = args.at(1);
         qDebug() << "Project Path Loaded:" << projectPath + "\\";
 
-        QEngine::SetContentPath(projectPath.toStdString());
+        Q3D::Engine::QEngine::SetContentPath(projectPath.toStdString());
+
 
     }
     else
     {
-        QEngine::SetContentPath("C:\\vividprojects\\Pong3D\\");
+        Q3D::Engine::QEngine::SetContentPath("C:\\vividprojects\\Pong3D\\");
         qDebug() << "No project path was provided on launch.";
         // You might want to handle this case, e.g., show an error or a project selection dialog.
     }

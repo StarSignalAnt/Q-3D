@@ -49,12 +49,12 @@ MaterialPBR::MaterialPBR(bool clone) {
 
 MaterialPBR::MaterialPBR() {
 
-    m_ColorTexture = new Texture2D("Engine/Maps/White.png");
-	m_MetallicTexture = new Texture2D("Engine/Maps/White.png");
-	m_RoughnessTexture = new Texture2D("Engine/Maps/White.png");
-	m_NormalTexture = new Texture2D("Engine/Maps/Normal.png");
+    m_ColorTexture = new Q3D::Engine::Texture::Texture2D("Engine/Maps/White.png");
+	m_MetallicTexture = new Q3D::Engine::Texture::Texture2D("Engine/Maps/White.png");
+	m_RoughnessTexture = new Q3D::Engine::Texture::Texture2D("Engine/Maps/White.png");
+	m_NormalTexture = new Q3D::Engine::Texture::Texture2D("Engine/Maps/Normal.png");
 	m_EnvironmentMap = new TextureCube("Engine/Maps/blackcm.tex");
-	m_HeightTexture = new Texture2D("Engine/Maps/Black.png");
+	m_HeightTexture = new Q3D::Engine::Texture::Texture2D("Engine/Maps/Black.png");
 	//m_BRDF = new Texture2D("Engine/Maps/BRDF.png");
 
 
@@ -71,15 +71,15 @@ MaterialPBR::MaterialPBR() {
         PSOBuilder builder;
         m_Pipeline = builder
             .SetName("Material PBR")
-            .WithShaders(QEngine::GetDevice(), QEngine::GetShaderFactory(), "Engine/Shader/PBR/pbr.vsh", "Engine/Shader/PBR/pbr.psh")
+            .WithShaders(Q3D::Engine::QEngine::GetDevice(), Q3D::Engine::QEngine::GetShaderFactory(), "Engine/Shader/PBR/pbr.vsh", "Engine/Shader/PBR/pbr.psh")
             .WithLayout(VertexLayoutType::Normal3D)
             .WithResourceLayout(LayoutResourceType::PBRMaterial)
             .DefaultsForTransparent() 
             .WithDepthStencilState(DSDesc)
             .WithNumRenderTargets(1)
-            .WithRTVFormat(0, QEngine::GetSwapChain()->GetDesc().ColorBufferFormat)
-            .WithDSVFormat(QEngine::GetSwapChain()->GetDesc().DepthBufferFormat)
-            .Build(QEngine::GetDevice());
+            .WithRTVFormat(0, Q3D::Engine::QEngine::GetSwapChain()->GetDesc().ColorBufferFormat)
+            .WithDSVFormat(Q3D::Engine::QEngine::GetSwapChain()->GetDesc().DepthBufferFormat)
+            .Build(Q3D::Engine::QEngine::GetDevice());
 
         m_Pipeline->GetStaticVariableByName(SHADER_TYPE_VERTEX, "Constants")->Set(m_UniformBuffer);
         m_Pipeline->GetStaticVariableByName(SHADER_TYPE_PIXEL, "Constants")->Set(m_UniformBuffer);
@@ -101,15 +101,15 @@ MaterialPBR::MaterialPBR() {
         PSOBuilder builder;
         m_PipelineAdd = builder
             .SetName("Material PBR (Additive)")
-            .WithShaders(QEngine::GetDevice(), QEngine::GetShaderFactory(), "Engine/Shader/PBR/pbr.vsh", "Engine/Shader/PBR/pbr.psh")
+            .WithShaders(Q3D::Engine::QEngine::GetDevice(), Q3D::Engine::QEngine::GetShaderFactory(), "Engine/Shader/PBR/pbr.vsh", "Engine/Shader/PBR/pbr.psh")
             .WithLayout(VertexLayoutType::Normal3D)
             .WithResourceLayout(LayoutResourceType::PBRMaterial)
             .WithDepthStencilState(DSDesc_Add)
             .WithBlendState(BSDesc_Add)
             .WithNumRenderTargets(1) 
-            .WithRTVFormat(0, QEngine::GetSwapChain()->GetDesc().ColorBufferFormat)
-            .WithDSVFormat(QEngine::GetSwapChain()->GetDesc().DepthBufferFormat)
-            .Build(QEngine::GetDevice());
+            .WithRTVFormat(0, Q3D::Engine::QEngine::GetSwapChain()->GetDesc().ColorBufferFormat)
+            .WithDSVFormat(Q3D::Engine::QEngine::GetSwapChain()->GetDesc().DepthBufferFormat)
+            .Build(Q3D::Engine::QEngine::GetDevice());
 
         m_PipelineAdd->GetStaticVariableByName(SHADER_TYPE_VERTEX, "Constants")->Set(m_UniformBuffer);
         m_PipelineAdd->GetStaticVariableByName(SHADER_TYPE_PIXEL, "Constants")->Set(m_UniformBuffer);
@@ -146,7 +146,7 @@ void MaterialPBR::Bind(bool add) {
 
         //Engine::m_pImmediateContext->MapBuffer(BasicUniform, MAP_TYPE::MAP_WRITE, MAP_FLAGS::MAP_FLAG_DISCARD);
         {
-            MapHelper<PBRConstant> map_data(QEngine::GetContext(), m_UniformBuffer, MAP_WRITE, MAP_FLAG_DISCARD);
+            MapHelper<PBRConstant> map_data(Q3D::Engine::QEngine::GetContext(), m_UniformBuffer, MAP_WRITE, MAP_FLAG_DISCARD);
             float FOVRadians = 45.0f * (3.14159265358979323846f / 180.0f);
 
 
@@ -218,16 +218,17 @@ void MaterialPBR::Bind(bool add) {
         RESOURCE_STATE_TRANSITION_MODE flags = RESOURCE_STATE_TRANSITION_MODE::RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
 
         //     return;
-        QEngine::GetContext()->SetVertexBuffers(0, 1, pBuffs, &offsets, flags);
-        QEngine::GetContext()->SetIndexBuffer(m_Buffers[1], 0, flags);
+        Q3D::Engine::QEngine::GetContext()->SetVertexBuffers(0, 1, pBuffs, &offsets, flags);
+        Q3D::Engine::QEngine::GetContext()->SetIndexBuffer(m_Buffers[1], 0, flags);
 
 
         //   return;
 
 
-        QEngine::GetContext()->SetPipelineState(m_PipelineAdd);
+        Q3D::Engine::QEngine::GetContext()->SetPipelineState(m_PipelineAdd);
 
-        QEngine::GetContext()->CommitShaderResources(m_SRBAdd, flags);
+
+        Q3D::Engine::QEngine::GetContext()->CommitShaderResources(m_SRBAdd, flags);
     }
     else {
         auto l1 = m_Light;
@@ -250,7 +251,7 @@ void MaterialPBR::Bind(bool add) {
 
         //Engine::m_pImmediateContext->MapBuffer(BasicUniform, MAP_TYPE::MAP_WRITE, MAP_FLAGS::MAP_FLAG_DISCARD);
         {
-            MapHelper<PBRConstant> map_data(QEngine::GetContext(), m_UniformBuffer, MAP_WRITE, MAP_FLAG_DISCARD);
+            MapHelper<PBRConstant> map_data(Q3D::Engine::QEngine::GetContext(), m_UniformBuffer, MAP_WRITE, MAP_FLAG_DISCARD);
             float FOVRadians = 45.0f * (3.14159265358979323846f / 180.0f);
 
 
@@ -322,16 +323,16 @@ void MaterialPBR::Bind(bool add) {
         RESOURCE_STATE_TRANSITION_MODE flags = RESOURCE_STATE_TRANSITION_MODE::RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
 
         //     return;
-        QEngine::GetContext()->SetVertexBuffers(0, 1, pBuffs, &offsets, flags);
-        QEngine::GetContext()->SetIndexBuffer(m_Buffers[1], 0, flags);
+        Q3D::Engine::QEngine::GetContext()->SetVertexBuffers(0, 1, pBuffs, &offsets, flags);
+        Q3D::Engine::QEngine::GetContext()->SetIndexBuffer(m_Buffers[1], 0, flags);
 
 
         //   return;
 
 
-        QEngine::GetContext()->SetPipelineState(m_Pipeline);
+        Q3D::Engine::QEngine::GetContext()->SetPipelineState(m_Pipeline);
 
-        QEngine::GetContext()->CommitShaderResources(m_SRB, flags);
+        Q3D::Engine::QEngine::GetContext()->CommitShaderResources(m_SRB, flags);
         //Vivid::m_pImmediateContext->SetPipelineState(m_Pipeline);
     }
 
@@ -345,7 +346,7 @@ void MaterialPBR::Render() {
     attrib.NumIndices = m_IndexCount;
 
     attrib.Flags = DRAW_FLAG_VERIFY_ALL;
-    QEngine::GetContext()->DrawIndexed(attrib);
+    Q3D::Engine::QEngine::GetContext()->DrawIndexed(attrib);
 
 }
 
@@ -397,10 +398,10 @@ void MaterialPBR::Load(std::string path) {
     m_Path = path;
     VFile* f = new VFile(path.c_str(), FileMode::Read);
 
-    m_ColorTexture = new Texture2D(f->ReadString());
-    m_NormalTexture = new Texture2D(f->ReadString());
-    m_MetallicTexture = new Texture2D(f->ReadString());
-    m_RoughnessTexture = new Texture2D(f->ReadString());
+    m_ColorTexture = new Q3D::Engine::Texture::Texture2D(f->ReadString());
+    m_NormalTexture = new Q3D::Engine::Texture::Texture2D(f->ReadString());
+    m_MetallicTexture = new Q3D::Engine::Texture::Texture2D(f->ReadString());
+    m_RoughnessTexture = new Q3D::Engine::Texture::Texture2D(f->ReadString());
 
     f->Close();
 }

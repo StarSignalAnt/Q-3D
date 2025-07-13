@@ -432,8 +432,8 @@ void SceneGraph::Update(float dt) {
 
 HitResult SceneGraph::MousePick(int x, int y)
 {
-	float mx = -1.0f + 2.0f * (float)(x) / (float)QEngine::GetFrameWidth();
-	float my = 1.0f - 2.0f * (float)(y) / (float)QEngine::GetFrameHeight();
+	float mx = -1.0f + 2.0f * (float)(x) / (float)Q3D::Engine::QEngine::GetFrameWidth();
+	float my = 1.0f - 2.0f * (float)(y) / (float)Q3D::Engine::QEngine::GetFrameHeight();
 
 	// Create points on near and far planes in NDC space
 	glm::vec4 near_ndc = glm::vec4(mx, my, -1.0f, 1.0f);  // Near plane (z = -1)
@@ -765,8 +765,8 @@ HitResult SceneGraph::RayCast(StaticMeshComponent* mesh, glm::vec3 pos, glm::vec
 	return close;
 }
 HitResult SceneGraph::MousePickTerrain(int x, int y, TerrainMeshComponent* terrain) {
-	float mx = -1.0f + 2.0f * (float)(x) / (float)QEngine::GetFrameWidth();
-	float my = 1.0f - 2.0f * (float)(y) / (float)QEngine::GetFrameHeight();
+	float mx = -1.0f + 2.0f * (float)(x) / (float)Q3D::Engine::QEngine::GetFrameWidth();
+	float my = 1.0f - 2.0f * (float)(y) / (float)Q3D::Engine::QEngine::GetFrameHeight();
 
 	// --- Get Matrices and Camera Position ---
 	glm::mat4 cameraWorldMatrix = m_Camera->GetWorldMatrix();
@@ -804,8 +804,8 @@ HitResult SceneGraph::MousePickTerrain(int x, int y, TerrainMeshComponent* terra
 
 HitResult SceneGraph::MousePickSelect(int x, int y, StaticMeshComponent* mesh)
 {
-	float mx = -1.0f + 2.0f * (float)(x) / (float)QEngine::GetFrameWidth();
-	float my = 1.0f - 2.0f * (float)(y) / (float)QEngine::GetFrameHeight();
+	float mx = -1.0f + 2.0f * (float)(x) / (float)Q3D::Engine::QEngine::GetFrameWidth();
+	float my = 1.0f - 2.0f * (float)(y) / (float)Q3D::Engine::QEngine::GetFrameHeight();
 
 	// Create points on near and far planes in NDC space
 	glm::vec4 near_ndc = glm::vec4(mx, my, -1.0f, 1.0f);  // Near plane (z = -1)
@@ -979,9 +979,9 @@ void SceneGraph::ReadTerrain(VFile* f) {
 		std::string colorPath = f->ReadString();
 		std::string normalPath = f->ReadString();
 		std::string specPath = f->ReadString();
-		Texture2D* colorTex = new Texture2D(colorPath);
-		Texture2D* normalTex = new Texture2D(normalPath);
-		Texture2D* specTex = new Texture2D(specPath);
+		Q3D::Engine::Texture::Texture2D* colorTex = new Q3D::Engine::Texture::Texture2D(colorPath);
+		Q3D::Engine::Texture::Texture2D* normalTex = new Q3D::Engine::Texture::Texture2D(normalPath);
+		Q3D::Engine::Texture::Texture2D* specTex = new Q3D::Engine::Texture::Texture2D(specPath);
 		TerrainLayer* layer = new TerrainLayer;
 		PixelMap* pix = new PixelMap(1, 1);
 //		pix->Read(f);
@@ -1261,9 +1261,9 @@ void SceneGraph::JReadTerrain(const json& j) {
 	if (j.contains("layers")) {
 		for (const auto& layer_json : j["layers"]) {
 			auto* layer = new TerrainLayer();
-			layer->SetColor(new Texture2D(layer_json.value("color_path", "")));
-			layer->SetNormal(new Texture2D(layer_json.value("normal_path", "")));
-			layer->SetSpecular(new Texture2D(layer_json.value("specular_path", "")));
+			layer->SetColor(new Q3D::Engine::Texture::Texture2D(layer_json.value("color_path", "")));
+			layer->SetNormal(new Q3D::Engine::Texture::Texture2D(layer_json.value("normal_path", "")));
+			layer->SetSpecular(new Q3D::Engine::Texture::Texture2D(layer_json.value("specular_path", "")));
 			layer->SetPixels(new PixelMap(256, 256));
 			layer->Create();
 			tcom->AddLayer(layer);

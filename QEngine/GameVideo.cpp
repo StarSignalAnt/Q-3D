@@ -167,7 +167,7 @@ void GameVideo::Update() {
                 // --- END: TWO-STEP CONVERSION ---
 
                 // Now, create the texture using the final float buffer
-                auto img = new Texture2D(videoCodecCtx->width, videoCodecCtx->height, finalFloatBuffer, 4);
+                auto img = new Q3D::Engine::Texture::Texture2D(videoCodecCtx->width, videoCodecCtx->height, finalFloatBuffer, 4);
 
                 // IMPORTANT: Clean up both buffers
                 delete[] intermediateRgbaBuffer;
@@ -231,7 +231,7 @@ void GameVideo::Update() {
     av_packet_unref(&packet);
 }
 
-Texture2D* GameVideo::GetFrame() {
+Q3D::Engine::Texture::Texture2D* GameVideo::GetFrame() {
     float ftime = getSourceTime(source);
 
     if (m_Frames.size() > 0) {

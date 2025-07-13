@@ -9,19 +9,19 @@ public:
     MaterialSkeletal();
     void Bind(bool add) override;
     void Render() override;
-    void SetColorTexture(Texture2D* texture)
+    void SetColorTexture(Q3D::Engine::Texture::Texture2D* texture)
     {
         m_ColorTexture = texture;
     }
-    void SetNormalTexture(Texture2D* texture)
+    void SetNormalTexture(Q3D::Engine::Texture::Texture2D* texture)
     {
         m_NormalTexture = texture;
     }
-    void SetMetallicTexture(Texture2D* texture)
+    void SetMetallicTexture(Q3D::Engine::Texture::Texture2D* texture)
     {
         m_MetallicTexture = texture;
     }
-    void SetRoughnessTexture(Texture2D* texture)
+    void SetRoughnessTexture(Q3D::Engine::Texture::Texture2D* texture)
     {
         m_RoughnessTexture = texture;
     }
@@ -29,7 +29,7 @@ public:
     {
         m_EnvironmentMap = texture;
     }
-    void SetBRDF(Texture2D* texture)
+    void SetBRDF(Q3D::Engine::Texture::Texture2D* texture)
     {
         m_BRDF = texture;
     }
@@ -40,15 +40,15 @@ public:
 
 
 
-    Texture2D* GetColorTexture() const
+    Q3D::Engine::Texture::Texture2D* GetColorTexture() const
     {
         return m_ColorTexture;
     }
-    Texture2D* GetNormalTexture() const
+    Q3D::Engine::Texture::Texture2D* GetNormalTexture() const
     {
         return m_NormalTexture;
     }
-    Texture2D* GetMetallicTexture() const
+    Q3D::Engine::Texture::Texture2D* GetMetallicTexture() const
     {
         return m_MetallicTexture;
     }
@@ -57,7 +57,7 @@ public:
     {
         return m_EnvironmentMap;
     }
-    void SetHeightTexture(Texture2D* texture)
+    void SetHeightTexture(Q3D::Engine::Texture::Texture2D* texture)
     {
         m_HeightTexture = texture;
     }
@@ -70,14 +70,14 @@ private:
 
 
 
-    Texture2D* m_ColorTexture = nullptr;
-    Texture2D* m_NormalTexture = nullptr;
-    Texture2D* m_MetallicTexture = nullptr;
-    Texture2D* m_RoughnessTexture = nullptr;
-    Texture2D* m_BRDF = nullptr;
+    Q3D::Engine::Texture::Texture2D* m_ColorTexture = nullptr;
+    Q3D::Engine::Texture::Texture2D* m_NormalTexture = nullptr;
+    Q3D::Engine::Texture::Texture2D* m_MetallicTexture = nullptr;
+    Q3D::Engine::Texture::Texture2D* m_RoughnessTexture = nullptr;
+    Q3D::Engine::Texture::Texture2D* m_BRDF = nullptr;
     TextureCube* m_IRR = nullptr;
     TextureCube* m_EnvironmentMap = nullptr;
-    Texture2D* m_HeightTexture = nullptr;
+    Q3D::Engine::Texture::Texture2D* m_HeightTexture = nullptr;
     float m_ParalaxScale = 0.05f;
 };
 

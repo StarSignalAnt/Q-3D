@@ -27,7 +27,7 @@ Texture3D::Texture3D(int width, int height, int depth) :
 
     // Create the texture on the GPU. We pass nullptr for the initial data
     // because we will be uploading it layer by layer.
-    QEngine::GetDevice()->CreateTexture(TexDesc, nullptr, &m_pTexture);
+    Q3D::Engine::QEngine::GetDevice()->CreateTexture(TexDesc, nullptr, &m_pTexture);
 
     if (m_pTexture)
     {
@@ -72,7 +72,7 @@ void Texture3D::UploadLayer(const void* pData, int depthSlice)
     subresourceData.DepthStride = m_Width * m_Height * sizeof(uint8_t);
 
     // Execute the update on the GPU
-    QEngine::GetContext()->UpdateTexture(
+    Q3D::Engine::QEngine::GetContext()->UpdateTexture(
         m_pTexture,                             // Destination texture
         0,                                      // Mip level to update
         0,                                      // Array slice (not used for Tex3D)

@@ -112,7 +112,8 @@ void SceneController::Init() {
 
 void SceneController::Render() {
 
-    QEngine::ClearZ();
+    Q3D::Engine::QEngine::ClearZ();
+
     if (m_CurrentGizmo != nullptr) {
         m_CurrentGizmo->Render(m_Scene->GetCamera());
     }

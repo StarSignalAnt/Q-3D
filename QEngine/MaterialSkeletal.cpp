@@ -41,12 +41,12 @@ struct ActorConstant {
 
 MaterialSkeletal::MaterialSkeletal() {
 
-    m_ColorTexture = new Texture2D("Engine/Maps/White.png");
-    m_MetallicTexture = new Texture2D("Engine/Maps/White.png");
-    m_RoughnessTexture = new Texture2D("Engine/Maps/White.png");
-    m_NormalTexture = new Texture2D("Engine/Maps/Normal.png");
+    m_ColorTexture = new Q3D::Engine::Texture::Texture2D("Engine/Maps/White.png");
+    m_MetallicTexture = new Q3D::Engine::Texture::Texture2D("Engine/Maps/White.png");
+    m_RoughnessTexture = new Q3D::Engine::Texture::Texture2D("Engine/Maps/White.png");
+    m_NormalTexture = new Q3D::Engine::Texture::Texture2D("Engine/Maps/Normal.png");
     m_EnvironmentMap = new TextureCube("Engine/Maps/blackcm.tex");
-    m_HeightTexture = new Texture2D("Engine/Maps/Black.png");
+    m_HeightTexture = new Q3D::Engine::Texture::Texture2D("Engine/Maps/Black.png");
     //m_BRDF = new Texture2D("Engine/Maps/BRDF.png");
 
 
@@ -177,8 +177,8 @@ MaterialSkeletal::MaterialSkeletal() {
     //gp.NumRenderTargets = 0;
 
     gp.BlendDesc = b_desc;
-    gp.RTVFormats[0] = QEngine::GetSwapChain()->GetDesc().ColorBufferFormat;
-    gp.DSVFormat = QEngine::GetSwapChain()->GetDesc().DepthBufferFormat;
+    gp.RTVFormats[0] = Q3D::Engine::QEngine::GetSwapChain()->GetDesc().ColorBufferFormat;
+    gp.DSVFormat = Q3D::Engine::QEngine::GetSwapChain()->GetDesc().DepthBufferFormat;
     gp.InputLayout = in_desc;
     //gp.NumViewports = 1;
 
@@ -321,7 +321,8 @@ MaterialSkeletal::MaterialSkeletal() {
 
     RefCntAutoPtr<IPipelineState> ps;
 
-    QEngine::GetDevice()->CreateGraphicsPipelineState(gp_desc, &ps);
+    Q3D::Engine::QEngine::GetDevice()->CreateGraphicsPipelineState(gp_desc, &ps);
+
 
     m_Pipeline = ps;
     m_Pipeline->GetStaticVariableByName(SHADER_TYPE_VERTEX, "Constants")->Set(m_UniformBuffer);
@@ -427,8 +428,8 @@ MaterialSkeletal::MaterialSkeletal() {
     //gp.NumRenderTargets = 0;
 
     gp.BlendDesc = b_desc;
-    gp.RTVFormats[0] = QEngine::GetSwapChain()->GetDesc().ColorBufferFormat;
-    gp.DSVFormat = QEngine::GetSwapChain()->GetDesc().DepthBufferFormat;
+    gp.RTVFormats[0] = Q3D::Engine::QEngine::GetSwapChain()->GetDesc().ColorBufferFormat;
+    gp.DSVFormat = Q3D::Engine::QEngine::GetSwapChain()->GetDesc().DepthBufferFormat;
     gp.InputLayout = in_desc;
     //gp.NumViewports = 1;
 
@@ -576,7 +577,8 @@ MaterialSkeletal::MaterialSkeletal() {
     RefCntAutoPtr<IPipelineState> ps2;
 
 
-    QEngine::GetDevice()->CreateGraphicsPipelineState(gp_desc, &ps2);
+    Q3D::Engine::QEngine::GetDevice()->CreateGraphicsPipelineState(gp_desc, &ps2);
+
 
     m_PipelineAdd = ps2;
     m_PipelineAdd->GetStaticVariableByName(SHADER_TYPE_VERTEX, "Constants")->Set(m_UniformBuffer);
@@ -610,7 +612,7 @@ void MaterialSkeletal::Bind(bool add) {
 
         //Engine::m_pImmediateContext->MapBuffer(BasicUniform, MAP_TYPE::MAP_WRITE, MAP_FLAGS::MAP_FLAG_DISCARD);
         {
-            MapHelper<ActorConstant> map_data(QEngine::GetContext(), m_UniformBuffer, MAP_WRITE, MAP_FLAG_DISCARD);
+            MapHelper<ActorConstant> map_data(Q3D::Engine::QEngine::GetContext(), m_UniformBuffer, MAP_WRITE, MAP_FLAG_DISCARD);
             float FOVRadians = 45.0f * (3.14159265358979323846f / 180.0f);
 
 
@@ -674,16 +676,17 @@ void MaterialSkeletal::Bind(bool add) {
         RESOURCE_STATE_TRANSITION_MODE flags = RESOURCE_STATE_TRANSITION_MODE::RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
 
         //     return;
-        QEngine::GetContext()->SetVertexBuffers(0, 1, pBuffs, &offsets, flags);
-        QEngine::GetContext()->SetIndexBuffer(m_Buffers[1], 0, flags);
+        Q3D::Engine::QEngine::GetContext()->SetVertexBuffers(0, 1, pBuffs, &offsets, flags);
+        Q3D::Engine::QEngine::GetContext()->SetIndexBuffer(m_Buffers[1], 0, flags);
+
 
 
         //   return;
 
 
-        QEngine::GetContext()->SetPipelineState(m_PipelineAdd);
+        Q3D::Engine::QEngine::GetContext()->SetPipelineState(m_PipelineAdd);
 
-        QEngine::GetContext()->CommitShaderResources(m_SRBAdd, flags);
+        Q3D::Engine::QEngine::GetContext()->CommitShaderResources(m_SRBAdd, flags);
     }
     else {
         auto l1 = m_Light;
@@ -700,7 +703,7 @@ void MaterialSkeletal::Bind(bool add) {
 
         //Engine::m_pImmediateContext->MapBuffer(BasicUniform, MAP_TYPE::MAP_WRITE, MAP_FLAGS::MAP_FLAG_DISCARD);
         {
-            MapHelper<ActorConstant> map_data(QEngine::GetContext(), m_UniformBuffer, MAP_WRITE, MAP_FLAG_DISCARD);
+            MapHelper<ActorConstant> map_data(Q3D::Engine::QEngine::GetContext(), m_UniformBuffer, MAP_WRITE, MAP_FLAG_DISCARD);
             float FOVRadians = 45.0f * (3.14159265358979323846f / 180.0f);
 
 
@@ -765,16 +768,17 @@ void MaterialSkeletal::Bind(bool add) {
         RESOURCE_STATE_TRANSITION_MODE flags = RESOURCE_STATE_TRANSITION_MODE::RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
 
         //     return;
-        QEngine::GetContext()->SetVertexBuffers(0, 1, pBuffs, &offsets, flags);
-        QEngine::GetContext()->SetIndexBuffer(m_Buffers[1], 0, flags);
+        Q3D::Engine::QEngine::GetContext()->SetVertexBuffers(0, 1, pBuffs, &offsets, flags);
+        Q3D::Engine::QEngine::GetContext()->SetIndexBuffer(m_Buffers[1], 0, flags);
 
 
         //   return;
 
 
-        QEngine::GetContext()->SetPipelineState(m_Pipeline);
 
-        QEngine::GetContext()->CommitShaderResources(m_SRB, flags);
+        Q3D::Engine::QEngine::GetContext()->SetPipelineState(m_Pipeline);
+
+        Q3D::Engine::QEngine::GetContext()->CommitShaderResources(m_SRB, flags);
         //Vivid::m_pImmediateContext->SetPipelineState(m_Pipeline);
     }
 
@@ -788,6 +792,6 @@ void MaterialSkeletal::Render() {
     attrib.NumIndices = m_IndexCount;
 
     attrib.Flags = DRAW_FLAG_VERIFY_ALL;
-    QEngine::GetContext()->DrawIndexed(attrib);
+    Q3D::Engine::QEngine::GetContext()->DrawIndexed(attrib);
 
 }

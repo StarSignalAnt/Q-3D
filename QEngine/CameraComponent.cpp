@@ -16,7 +16,7 @@ glm::mat4 CameraComponent::GetProjectionMatrix() {
     if (useOver) {
         return m_ProjOver;
     }
-    float aspectRatio = ((float)QEngine::GetFrameWidth()) / ((float)QEngine::GetFrameHeight());
+    float aspectRatio = ((float)Q3D::Engine::QEngine::GetFrameWidth()) / ((float)Q3D::Engine::QEngine::GetFrameHeight());
     glm::mat4 projection = glm::perspective(
         glm::radians(m_FOV), // glm expects radians
         aspectRatio,
@@ -28,9 +28,9 @@ glm::mat4 CameraComponent::GetProjectionMatrix() {
 }
 
 glm::mat4 CameraComponent::Get2DProjectionMatrix() {
-    return glm::orthoRH<float>(0, QEngine::GetFrameWidth(), QEngine::GetFrameHeight(), 0, 1, -1);
+    return glm::orthoRH<float>(0, Q3D::Engine::QEngine::GetFrameWidth(), Q3D::Engine::QEngine::GetFrameHeight(), 0, 1, -1);
 
-    float aspectRatio = ((float)QEngine::GetFrameWidth()) / ((float)QEngine::GetFrameHeight());
+    float aspectRatio = ((float)Q3D::Engine::QEngine::GetFrameWidth()) / ((float)Q3D::Engine::QEngine::GetFrameHeight());
     glm::mat4 projection = glm::perspective(
         glm::radians(m_FOV), // glm expects radians
         aspectRatio,
@@ -53,8 +53,8 @@ glm::mat4 CameraComponent::GetViewMatrix() {
 
 glm::vec2 CameraComponent::WorldToScreen(const glm::vec3& worldPos) {
     // Get viewport dimensions
-    float viewportWidth = (float)QEngine::GetFrameWidth();
-    float viewportHeight = (float)QEngine::GetFrameHeight();
+    float viewportWidth = (float)Q3D::Engine::QEngine::GetFrameWidth();
+    float viewportHeight = (float)Q3D::Engine::QEngine::GetFrameHeight();
 
     // Transform world position to clip space
     glm::vec4 clipSpacePos = GetProjectionMatrix() * GetViewMatrix() * glm::vec4(worldPos, 1.0f);
@@ -159,8 +159,8 @@ void CameraComponent::ScreenToWorldRay(glm::vec2 mouseCoords, glm::vec3& out_ori
 
     // 1. Convert 2D screen coordinates to 3D Normalized Device Coordinates (NDC)
     //    The coordinate system goes from [-1, 1] on all axes.
-    float x = (2.0f * mouseCoords.x) / (float)QEngine::GetFrameWidth() - 1.0f;
-    float y = 1.0f - (2.0f * mouseCoords.y) / (float)QEngine::GetFrameHeight(); // Y is inverted in NDC
+    float x = (2.0f * mouseCoords.x) / (float)Q3D::Engine::QEngine::GetFrameWidth() - 1.0f;
+    float y = 1.0f - (2.0f * mouseCoords.y) / (float)Q3D::Engine::QEngine::GetFrameHeight(); // Y is inverted in NDC
     glm::vec3 ray_ndc = glm::vec3(x, y, 1.0f);
 
     // 2. Convert NDC to Homogeneous Clip Coordinates

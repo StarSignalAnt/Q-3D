@@ -3,7 +3,10 @@
 
 class PostProcess;
 class Draw2D;
-class Texture2D;
+
+namespace Q3D::Engine::Texture {
+	class Texture2D;
+}
 
 class PostProcessing
 {
@@ -11,7 +14,7 @@ public:
 
 	PostProcessing();
 	void AddPostProcess(PostProcess* process);
-	void Process(Texture2D* frame);
+	void Process(Q3D::Engine::Texture::Texture2D* frame);
 	void Clear() {
 		m_Processes.clear();
 	}

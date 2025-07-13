@@ -102,7 +102,7 @@ Character& GameFont::GetOrLoadCharacter(uint32_t charCode)
     int width = bitmap->width;
     int height = bitmap->rows;
 
-    std::unique_ptr<Texture2D> characterTexture = nullptr;
+    std::unique_ptr<Q3D::Engine::Texture::Texture2D> characterTexture = nullptr;
     std::vector<float> pixelBuffer;
 
     if (width > 0 && height > 0)
@@ -119,7 +119,7 @@ Character& GameFont::GetOrLoadCharacter(uint32_t charCode)
                 pixelBuffer[index + 3] = normalizedAlpha;
             }
         }
-        characterTexture = std::make_unique<Texture2D>(width, height, pixelBuffer.data(), 4);
+        characterTexture = std::make_unique<Q3D::Engine::Texture::Texture2D>(width, height, pixelBuffer.data(), 4);
     }
 
     Character character = {
@@ -211,7 +211,7 @@ void GameFont::DrawTextAsTexture(const std::string& text, glm::vec2 position, fl
         cursor.x += ch.advance * scale;
     }
 
-    auto newTexture = std::make_unique<Texture2D>(scaledWidth, scaledHeight, finalBuffer.data(), 4);
+    auto newTexture = std::make_unique<Q3D::Engine::Texture::Texture2D>(scaledWidth, scaledHeight, finalBuffer.data(), 4);
     glm::vec2 renderPos = { position.x + initialBearingX, position.y - scaledAscent };
     m_drawer->Rect(newTexture.get(), renderPos, { (float)scaledWidth, (float)scaledHeight }, color);
 

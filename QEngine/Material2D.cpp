@@ -24,15 +24,15 @@ Material2D::Material2D() {
         PSOBuilder builder;
         m_Pipeline = builder
             .SetName("Material 2D")
-            .WithShaders(QEngine::GetDevice(), QEngine::GetShaderFactory(), "Engine/Shader/Material2D/2d.vsh", "Engine/Shader/Material2D/2d.psh")
+            .WithShaders(Q3D::Engine::QEngine::GetDevice(), Q3D::Engine::QEngine::GetShaderFactory(), "Engine/Shader/Material2D/2d.vsh", "Engine/Shader/Material2D/2d.psh")
             .WithLayout(VertexLayoutType::Normal2D)
             .WithResourceLayout(LayoutResourceType::Material2D)
             .DefaultsForTransparent()
             .WithDepthStencilState(DSDesc)
             .WithNumRenderTargets(1)
-            .WithRTVFormat(0, QEngine::GetSwapChain()->GetDesc().ColorBufferFormat)
-            .WithDSVFormat(QEngine::GetSwapChain()->GetDesc().DepthBufferFormat)
-            .Build(QEngine::GetDevice());
+            .WithRTVFormat(0, Q3D::Engine::QEngine::GetSwapChain()->GetDesc().ColorBufferFormat)
+            .WithDSVFormat(Q3D::Engine::QEngine::GetSwapChain()->GetDesc().DepthBufferFormat)
+            .Build(Q3D::Engine::QEngine::GetDevice());
 
         m_Pipeline->GetStaticVariableByName(SHADER_TYPE_VERTEX, "Constants")->Set(m_UniformBuffer);
 //        m_Pipeline->GetStaticVariableByName(SHADER_TYPE_PIXEL, "Constants")->Set(m_UniformBuffer);
@@ -56,7 +56,7 @@ Material2D::Material2D() {
         PSOBuilder builder;
         m_PipelineAdd = builder
             .SetName("Material 2D")
-            .WithShaders(QEngine::GetDevice(), QEngine::GetShaderFactory(), "Engine/Shader/Material2D/2d.vsh", "Engine/Shader/Material2D/2d.psh")
+            .WithShaders(Q3D::Engine::QEngine::GetDevice(), Q3D::Engine::QEngine::GetShaderFactory(), "Engine/Shader/Material2D/2d.vsh", "Engine/Shader/Material2D/2d.psh")
             .WithLayout(VertexLayoutType::Normal2D)
             .WithResourceLayout(LayoutResourceType::Material2D)
             .DefaultsForTransparent()
@@ -64,9 +64,9 @@ Material2D::Material2D() {
             .WithBlendState(BSDesc_Add)
 
             .WithNumRenderTargets(1)
-            .WithRTVFormat(0, QEngine::GetSwapChain()->GetDesc().ColorBufferFormat)
-            .WithDSVFormat(QEngine::GetSwapChain()->GetDesc().DepthBufferFormat)
-            .Build(QEngine::GetDevice());
+            .WithRTVFormat(0, Q3D::Engine::QEngine::GetSwapChain()->GetDesc().ColorBufferFormat)
+            .WithDSVFormat(Q3D::Engine::QEngine::GetSwapChain()->GetDesc().DepthBufferFormat)
+            .Build(Q3D::Engine::QEngine::GetDevice());
 
         m_PipelineAdd->GetStaticVariableByName(SHADER_TYPE_VERTEX, "Constants")->Set(m_UniformBuffer);
   //      m_PipelineAdd->GetStaticVariableByName(SHADER_TYPE_PIXEL, "Constants")->Set(m_UniformBuffer);
@@ -84,7 +84,7 @@ void Material2D::Bind(bool add) {
         m_SRB->GetVariableByName(SHADER_TYPE_PIXEL, "v_Texture")->Set(m_Textures[0]->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
         //Engine::m_pImmediateContext->MapBuffer(BasicUniform, MAP_TYPE::MAP_WRITE, MAP_FLAGS::MAP_FLAG_DISCARD);
         {
-            MapHelper<glm::mat4> map_data(QEngine::GetContext(), m_UniformBuffer, MAP_WRITE, MAP_FLAG_DISCARD);
+            MapHelper<glm::mat4> map_data(Q3D::Engine::QEngine::GetContext(), m_UniformBuffer, MAP_WRITE, MAP_FLAG_DISCARD);
             float FOVRadians = 45.0f * (3.14159265358979323846f / 180.0f);
 
 
@@ -123,23 +123,23 @@ void Material2D::Bind(bool add) {
         RESOURCE_STATE_TRANSITION_MODE flags = RESOURCE_STATE_TRANSITION_MODE::RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
 
         //     return;
-        QEngine::GetContext()->SetVertexBuffers(0, 1, pBuffs, &offsets, flags);
-        QEngine::GetContext()->SetIndexBuffer(m_Buffers[1], 0, flags);
+        Q3D::Engine::QEngine::GetContext()->SetVertexBuffers(0, 1, pBuffs, &offsets, flags);
+        Q3D::Engine::QEngine::GetContext()->SetIndexBuffer(m_Buffers[1], 0, flags);
 
 
         //   return;
 
 
-        QEngine::GetContext()->SetPipelineState(m_Pipeline);
+        Q3D::Engine::QEngine::GetContext()->SetPipelineState(m_Pipeline);
 
-        QEngine::GetContext()->CommitShaderResources(m_SRB, flags);
+        Q3D::Engine::QEngine::GetContext()->CommitShaderResources(m_SRB, flags);
         //Vivid::m_pImmediateContext->SetPipelineState(m_Pipeline);
     }
     else {
         m_SRBAdd->GetVariableByName(SHADER_TYPE_PIXEL, "v_Texture")->Set(m_Textures[0]->GetView(), SET_SHADER_RESOURCE_FLAG_NONE);
         //Engine::m_pImmediateContext->MapBuffer(BasicUniform, MAP_TYPE::MAP_WRITE, MAP_FLAGS::MAP_FLAG_DISCARD);
         {
-            MapHelper<glm::mat4> map_data(QEngine::GetContext(), m_UniformBuffer, MAP_WRITE, MAP_FLAG_DISCARD);
+            MapHelper<glm::mat4> map_data(Q3D::Engine::QEngine::GetContext(), m_UniformBuffer, MAP_WRITE, MAP_FLAG_DISCARD);
             float FOVRadians = 45.0f * (3.14159265358979323846f / 180.0f);
 
 
@@ -178,16 +178,16 @@ void Material2D::Bind(bool add) {
         RESOURCE_STATE_TRANSITION_MODE flags = RESOURCE_STATE_TRANSITION_MODE::RESOURCE_STATE_TRANSITION_MODE_TRANSITION;
 
         //     return;
-        QEngine::GetContext()->SetVertexBuffers(0, 1, pBuffs, &offsets, flags);
-        QEngine::GetContext()->SetIndexBuffer(m_Buffers[1], 0, flags);
+        Q3D::Engine::QEngine::GetContext()->SetVertexBuffers(0, 1, pBuffs, &offsets, flags);
+        Q3D::Engine::QEngine::GetContext()->SetIndexBuffer(m_Buffers[1], 0, flags);
 
 
         //   return;
 
 
-        QEngine::GetContext()->SetPipelineState(m_PipelineAdd);
+        Q3D::Engine::QEngine::GetContext()->SetPipelineState(m_PipelineAdd);
 
-        QEngine::GetContext()->CommitShaderResources(m_SRBAdd, flags);
+        Q3D::Engine::QEngine::GetContext()->CommitShaderResources(m_SRBAdd, flags);
 
     }
 
@@ -203,6 +203,6 @@ void Material2D::Render() {
     attrib.NumIndices = m_IndexCount;
 
     attrib.Flags = DRAW_FLAG_VERIFY_ALL;
-    QEngine::GetContext()->DrawIndexed(attrib);
+    Q3D::Engine::QEngine::GetContext()->DrawIndexed(attrib);
 
 }

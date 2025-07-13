@@ -161,7 +161,7 @@ void SkeletalMeshComponent::Finalize() {
 		vdata.DataSize = vbuf.Size;
 		vdata.pData = data;
 
-		QEngine::GetDevice()->CreateBuffer(vbuf, &vdata, &sub.VertexBuffer);
+		Q3D::Engine::QEngine::GetDevice()->CreateBuffer(vbuf, &vdata, &sub.VertexBuffer);
 
 		BufferDesc ibuf;
 
@@ -185,7 +185,7 @@ void SkeletalMeshComponent::Finalize() {
 		idata.DataSize = ibuf.Size;
 		idata.pData = indices;
 
-		QEngine::GetDevice()->CreateBuffer(ibuf, &idata, &sub.IndexBuffer);
+		Q3D::Engine::QEngine::GetDevice()->CreateBuffer(ibuf, &idata, &sub.IndexBuffer);
 
 	}
 

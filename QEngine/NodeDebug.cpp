@@ -29,7 +29,7 @@ void NodeDebug::Exec() {
 
     auto msg = GetInputValue<std::string>("Message").value();
 
-    QEngine::DebugLog(msg);
+    Q3D::Engine::QEngine::DebugLog(msg);
     std::cout << msg << std::endl;
     
     ExecNext();

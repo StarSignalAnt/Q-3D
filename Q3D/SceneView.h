@@ -85,7 +85,7 @@ public:
 	SceneGraph* GetScene() {
 		return m_SceneGraph;
 	}
-	Texture2D* GetWhite() {
+	Q3D::Engine::Texture::Texture2D* GetWhite() {
 		return m_White;
 	}
 	void Update();
@@ -218,13 +218,13 @@ private:
 	SceneGrid* m_Grid;
 	SceneSelectionOverlay* m_SelectionOverlay;
 	Draw2D* m_Draw;
-	Texture2D* tex1;
+	Q3D::Engine::Texture::Texture2D* tex1;
 	GraphNode* m_Terrain = nullptr;
 	float m_TerrainX = 0;
 	float m_TerrainZ = 0;
 	float m_TerrainBrushSize = 0.75;
 	GraphNode* m_BrushNode = nullptr;
-	Texture2D* m_White;
+	Q3D::Engine::Texture::Texture2D* m_White;
 	TerrainEditor* m_TerrainEditor = nullptr;
 	float m_TerrainStrength = 0.5f;
 	bool m_TerrainEditing = false;

@@ -28,7 +28,7 @@ RenderTargetCube::RenderTargetCube(int width, int height, bool depth) {
 	tex.ClearValue.Color[1] = 0;
 	tex.ClearValue.Color[2] = 0;
 	tex.ClearValue.Color[3] = 0;
-	QEngine::GetDevice()->CreateTexture(tex, nullptr, &m_Texture);
+	Q3D::Engine::QEngine::GetDevice()->CreateTexture(tex, nullptr, &m_Texture);
 	m_TexView = m_Texture->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE);
 	for (int i = 0; i < 6; i++) {
 		TextureViewDesc desc;
@@ -52,7 +52,7 @@ RenderTargetCube::RenderTargetCube(int width, int height, bool depth) {
 	dep.Type = RESOURCE_DIM_TEX_2D;
 	dep.Width = width;
 	dep.Height = height;
-	QEngine::GetDevice()->CreateTexture(dep, nullptr, &m_DepthTex);
+	Q3D::Engine::QEngine::GetDevice()->CreateTexture(dep, nullptr, &m_DepthTex);
 	m_DepthTexView = m_DepthTex->GetDefaultView(TEXTURE_VIEW_DEPTH_STENCIL);
 
 
@@ -71,11 +71,11 @@ void RenderTargetCube::Bind(int face) {
 		ClearColor[1] = 0;
 		ClearColor[2] = 0;
 	}
-	QEngine::SetBoundRTC(this);
+	Q3D::Engine::QEngine::SetBoundRTC(this);
 
-	QEngine::GetContext()->SetRenderTargets(1, &m_FaceView[face], m_DepthTexView, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-	QEngine::GetContext()->ClearRenderTarget(m_FaceView[face], ClearColor, RESOURCE_STATE_TRANSITION_MODE_VERIFY);
-	QEngine::GetContext()->ClearDepthStencil(m_DepthTexView, CLEAR_DEPTH_FLAG, 1.0f, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+	Q3D::Engine::QEngine::GetContext()->SetRenderTargets(1, &m_FaceView[face], m_DepthTexView, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+	Q3D::Engine::QEngine::GetContext()->ClearRenderTarget(m_FaceView[face], ClearColor, RESOURCE_STATE_TRANSITION_MODE_VERIFY);
+	Q3D::Engine::QEngine::GetContext()->ClearDepthStencil(m_DepthTexView, CLEAR_DEPTH_FLAG, 1.0f, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
 
 
@@ -83,10 +83,10 @@ void RenderTargetCube::Bind(int face) {
 
 void RenderTargetCube::Release(int face) {
 
-	auto pRTV = QEngine::GetSwapChain()->GetCurrentBackBufferRTV();
+	auto pRTV = Q3D::Engine::QEngine::GetSwapChain()->GetCurrentBackBufferRTV();
 
-	QEngine::GetContext()->SetRenderTargets(1, &pRTV, QEngine::GetSwapChain()->GetDepthBufferDSV(), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-	QEngine::SetBoundRTC(nullptr);
+	Q3D::Engine::QEngine::GetContext()->SetRenderTargets(1, &pRTV, Q3D::Engine::QEngine::GetSwapChain()->GetDepthBufferDSV(), RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+	Q3D::Engine::QEngine::SetBoundRTC(nullptr);
 
 
 }

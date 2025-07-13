@@ -88,7 +88,7 @@ SceneView::SceneView(QWidget *parent)
 {
 	//ui.setupUi(this);
 	setWindowTitle("Scene View");
-    auto path = QEngine::GetContentPath();
+    auto path = Q3D::Engine::QEngine::GetContentPath();
 
     std::cout << "Creating content for path:" << path << std::endl;
 
@@ -98,18 +98,21 @@ SceneView::SceneView(QWidget *parent)
     //content->BuildArchive();
     //content->Debug_ListFiles();
 
-    QEngine::SetContent(content);
+
+    Q3D::Engine::QEngine::SetContent(content);
     CreateGraphics();
     setMouseTracking(true);
     setFocusPolicy(Qt::StrongFocus);
     m_Instance = this;
     //Vivid::InitPython();
     
-    QEngine::InitCDLL();
+    Q3D::Engine::QEngine::InitCDLL();
+
 
     setAcceptDrops(true);
     m_SceneGraph = new SceneGraph;
-    QEngine::InitEngine();
+    Q3D::Engine::QEngine::InitEngine();
+
 
     auto sky = new GraphNode;
     sky->SetName("Atmosphere");
@@ -262,7 +265,8 @@ SceneView::SceneView(QWidget *parent)
 
     NodeTree::m_Instance->SetRoot(m_SceneGraph->GetRootNode());
 
-    QEngine::InitMono();
+    Q3D::Engine::QEngine::InitMono();
+
 
  //   auto cm1 = new SharpComponent;
 //	test2->AddComponent(cm1);
@@ -282,9 +286,9 @@ SceneView::SceneView(QWidget *parent)
 
     // 2. Connect the timer's timeout() signal to our desired function (onTimeout slot)
     //    This is the core of the mechanism.
-    connect(m_timer, &QTimer::timeout, this, &QEngine::CheckDLL);
+    connect(m_timer, &QTimer::timeout, this, &Q3D::Engine::QEngine::CheckDLL);
 
-    QEngine::CheckDLL();
+    Q3D::Engine::QEngine::CheckDLL();
     // 3. Start the timer and set the interval to 0.5 seconds (500 milliseconds)
     m_timer->start(500);
 
@@ -403,7 +407,7 @@ void SceneView::paintEvent(QPaintEvent* event)
     float tt = ( ((float)ttick) / 1000.0f);
 
     if (m_RunMode == RM_Running) {
-        QEngine::GetPhysics()->Update(0.01);
+        Q3D::Engine::QEngine::GetPhysics()->Update(0.01);
         m_SceneGraph->Update(tt);
     }
     
@@ -430,7 +434,7 @@ void SceneView::paintEvent(QPaintEvent* event)
   //  QEngine::GetContext()->Flush();
  
     if (m_RunMode == RM_Stopped) {
-        QEngine::ClearZ();
+        Q3D::Engine::QEngine::ClearZ();
         m_SelectionOverlay->Render();
     }
 
@@ -452,8 +456,8 @@ void SceneView::paintEvent(QPaintEvent* event)
 
     //m_Font->DrawTextAsTexture("This is a simple test", glm::vec2(20, 150), 1.0f, glm::vec4(1, 1, 1, 1));
 
-    QEngine::ClearZ();
-    QEngine::SetScissor(0, 0, QEngine::GetFrameWidth(), QEngine::GetFrameHeight());
+    Q3D::Engine::QEngine::ClearZ();
+    Q3D::Engine::QEngine::SetScissor(0, 0, Q3D::Engine::QEngine::GetFrameWidth(), Q3D::Engine::QEngine::GetFrameHeight());
     m_Draw->BeginFrame();
     m_Draw->Rect(m_SceneGraph->GetLights()[0]->GetComponent<LightComponent>()->GetDirectionalShadowMap()->GetDepthTexture2D(), glm::vec2(20, 20), glm::vec2(320, 320), glm::vec4(1, 1, 1, 1));
     m_Draw->Flush();
@@ -544,12 +548,13 @@ void SceneView::CreateGraphics() {
     EngineCI.SetValidationLevel(VALIDATION_LEVEL_DISABLED);
     pFactoryD3D12->CreateDeviceAndContextsD3D12(EngineCI, &m_pDevice, &m_pImmediateContext);
     pFactoryD3D12->CreateSwapChainD3D12(m_pDevice, m_pImmediateContext, SCDesc, FullScreenModeDesc{}, Window, &m_pSwapChain);
-    pFactoryD3D12->CreateDefaultShaderSourceStreamFactory("engine\\shader\\", &m_pShaderFactory);
+    pFactoryD3D12->CreateDefaultShaderSourceStreamFactory("engine\\shader\\", &m_pShaderFactory
+    );
 
-    QEngine::SetContext(m_pImmediateContext);
-        QEngine::SetDevice(m_pDevice);
-        QEngine::SetShaderFactory(m_pShaderFactory);
-	QEngine::SetSwapChain(m_pSwapChain);
+    Q3D::Engine::QEngine::SetContext(m_pImmediateContext);
+    Q3D::Engine::QEngine::SetDevice(m_pDevice);
+        Q3D::Engine::QEngine::SetShaderFactory(m_pShaderFactory);
+	Q3D::Engine::QEngine::SetSwapChain(m_pSwapChain);
 
     MaterialProducer* pro = new MaterialProducer;
 
@@ -571,8 +576,9 @@ void SceneView::resizeEvent(QResizeEvent* event)
     int physicalHeight = static_cast<int>(newSize.height() * dpr);
 
     m_pSwapChain->Resize(static_cast<Uint32>(physicalWidth), static_cast<Uint32>(physicalHeight));
-	QEngine::SetFrameWidth(physicalWidth);
-	QEngine::SetFrameHeight(physicalHeight);
+	Q3D::Engine::QEngine::SetFrameWidth(physicalWidth);
+	Q3D::Engine::QEngine::SetFrameHeight(physicalHeight);
+
 
 
     m_SelectionOverlay = new SceneSelectionOverlay(m_SceneGraph);
@@ -1170,7 +1176,7 @@ void SceneView::CreateTerrain() {
     m_Terrain->AddComponent(new TerrainDepthRenderer);
 
     // m_SceneGraph->SetTerrain(m_Terrain);
-    m_White = new Texture2D("engine/white.png");
+    m_White = new Q3D::Engine::Texture::Texture2D("engine/white.png");
 
      m_TerrainEditor = new TerrainEditor(m_Terrain);
      m_SceneGraph->SetTerrain(m_Terrain);

@@ -7,14 +7,14 @@ public:
     MaterialOutline();
     void Bind(bool add) override;
     void Render() override;
-    void SetColorTexture(Texture2D* texture)
+    void SetColorTexture(Q3D::Engine::Texture::Texture2D* texture)
     {
         m_ColorTexture = texture;
     }
 
 private:
 
-    Texture2D* m_ColorTexture;
+    Q3D::Engine::Texture::Texture2D* m_ColorTexture;
 
 };
 

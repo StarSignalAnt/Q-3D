@@ -40,7 +40,14 @@ class TextureCube;
 using namespace Diligent;
 // Forward declarations
 class MaterialBasic3D;
-class Texture2D;
+
+
+
+namespace Q3D::Engine::Texture {
+    class Texture2D;
+}
+
+//class Texture2D;
 class RenderMaterial;
 class Material2D;
 
@@ -66,7 +73,7 @@ public:
     // Call once at the start of a frame before any drawing.
     void BeginFrame();
     // Call for every rectangle you want to draw.
-    void Rect(Texture2D* image, glm::vec2 position, glm::vec2 size, glm::vec4 color);
+    void Rect(Q3D::Engine::Texture::Texture2D* image, glm::vec2 position, glm::vec2 size, glm::vec4 color);
     // Call once at the end of all 2D drawing for a frame to render the last batch.
     void Flush();
     void SetAdditive(bool add);
@@ -87,7 +94,7 @@ private:
 
     // CPU-side data for the current batch
     std::vector<Draw2D_Vertex> m_BatchVertices;
-    Texture2D* m_BatchTexture = nullptr;
+    Q3D::Engine::Texture::Texture2D* m_BatchTexture = nullptr;
     RenderMaterial* m_ActiveMaterial = nullptr;
 
     // Class state

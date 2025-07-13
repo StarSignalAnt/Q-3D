@@ -9,7 +9,7 @@ class PPOutline :
 {
 public:
     PPOutline();
-    Texture2D* Process(Texture2D* frame);
+    Q3D::Engine::Texture::Texture2D* Process(Q3D::Engine::Texture::Texture2D* frame);
     void SetNode(GraphNode* node);
     void SetCam(GraphNode* cam);
 private:
