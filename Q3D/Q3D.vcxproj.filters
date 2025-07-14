@@ -1,0 +1,151 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="CameraController.cpp" />
+    <ClCompile Include="ComponentBrowser.cpp" />
+    <ClCompile Include="ComponentContent.cpp" />
+    <ClCompile Include="ComponentSelector.cpp" />
+    <ClCompile Include="ConnectionItem.cpp" />
+    <ClCompile Include="ConsoleOutput.cpp" />
+    <ClCompile Include="Content.cpp" />
+    <ClCompile Include="ContentBrowser.cpp" />
+    <ClCompile Include="LGDesigner.cpp" />
+    <ClCompile Include="LGNode.cpp" />
+    <ClCompile Include="LGProperties.cpp" />
+    <ClCompile Include="LogicGraph.cpp" />
+    <ClCompile Include="LogicGraphMenu.cpp" />
+    <ClCompile Include="MainMenu.cpp" />
+    <ClCompile Include="MainToolBar.cpp" />
+    <ClCompile Include="MeshImportWindow.cpp" />
+    <ClCompile Include="NodeCreationWidget.cpp" />
+    <ClCompile Include="NodeTree.cpp" />
+    <ClCompile Include="Pathfinder.cpp" />
+    <ClCompile Include="PropertyButton.cpp" />
+    <ClCompile Include="PropertiesEditor.cpp" />
+    <ClCompile Include="PropertyFloat.cpp" />
+    <ClCompile Include="PropertyHeader.cpp" />
+    <ClCompile Include="PropertyInt.cpp" />
+    <ClCompile Include="PropertyNode.cpp" />
+    <ClCompile Include="PropertySlider.cpp" />
+    <ClCompile Include="PropertyStringList.cpp" />
+    <ClCompile Include="PropertyText.cpp" />
+    <ClCompile Include="PropertyTexture.cpp" />
+    <ClCompile Include="PropertyVec3.cpp" />
+    <ClCompile Include="RotateGizmo.cpp" />
+    <ClCompile Include="ScaleGizmo.cpp" />
+    <ClCompile Include="SceneController.cpp" />
+    <ClCompile Include="SceneGizmo.cpp" />
+    <ClCompile Include="SceneGrid.cpp" />
+    <ClCompile Include="SceneSelectionOverlay.cpp" />
+    <ClCompile Include="SceneView.cpp" />
+    <ClCompile Include="SearchWidget.cpp" />
+    <ClCompile Include="SocketWidget.cpp" />
+    <ClCompile Include="TerrainEditor.cpp" />
+    <ClCompile Include="TranslateGizmo.cpp" />
+    <ClCompile Include="Vivid3D.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="TimeRuler.cpp">
+      <Filter>Cinematic</Filter>
+    </ClCompile>
+    <ClCompile Include="TrackHeaderWidget.cpp">
+      <Filter>Cinematic</Filter>
+    </ClCompile>
+    <ClCompile Include="TrackLaneWidget.cpp">
+      <Filter>Cinematic</Filter>
+    </ClCompile>
+    <ClCompile Include="CinematicEditor.cpp">
+      <Filter>Cinematic</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CameraController.h" />
+    <ClInclude Include="ConnectionItem.h" />
+    <ClInclude Include="NodeRegistry.h" />
+    <ClInclude Include="Pathfinder.h" />
+    <ClInclude Include="RotateGizmo.h" />
+    <ClInclude Include="ScaleGizmo.h" />
+    <ClInclude Include="SceneGizmo.h" />
+    <ClInclude Include="SceneGrid.h" />
+    <ClInclude Include="SceneSelectionOverlay.h" />
+    <ClInclude Include="TerrainEditor.h" />
+    <ClInclude Include="TranslateGizmo.h" />
+    <ClInclude Include="SceneController.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Vivid3D.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="Vivid3D.h" />
+    <QtMoc Include="SceneView.h" />
+    <QtMoc Include="PropertiesEditor.h" />
+    <QtMoc Include="PropertyVec3.h" />
+    <QtMoc Include="PropertyText.h" />
+    <QtMoc Include="PropertySlider.h" />
+    <QtMoc Include="PropertyFloat.h" />
+    <QtMoc Include="PropertyHeader.h" />
+    <QtMoc Include="PropertyInt.h" />
+    <QtMoc Include="NodeTree.h" />
+    <QtMoc Include="ContentBrowser.h" />
+    <QtMoc Include="Content.h" />
+    <QtMoc Include="PropertyStringList.h" />
+    <QtMoc Include="PropertyNode.h" />
+    <QtMoc Include="PropertyTexture.h" />
+    <QtMoc Include="LogicGraph.h" />
+    <QtMoc Include="LGProperties.h" />
+    <QtMoc Include="LGDesigner.h" />
+    <QtMoc Include="LogicGraphMenu.h" />
+    <QtMoc Include="PropertyButton.h" />
+    <QtMoc Include="ComponentSelector.h" />
+    <QtMoc Include="ConsoleOutput.h" />
+    <QtMoc Include="LGNode.h" />
+    <QtMoc Include="ComponentBrowser.h" />
+    <QtMoc Include="ComponentContent.h" />
+    <QtMoc Include="NodeCreationWidget.h" />
+    <QtMoc Include="MeshImportWindow.h" />
+    <QtMoc Include="SearchWidget.h" />
+    <QtMoc Include="SocketWidget.h" />
+    <QtMoc Include="MainMenu.h" />
+    <QtMoc Include="MainToolBar.h" />
+    <QtMoc Include="TimeRuler.h">
+      <Filter>Cinematic</Filter>
+    </QtMoc>
+    <QtMoc Include="TrackHeaderWidget.h">
+      <Filter>Cinematic</Filter>
+    </QtMoc>
+    <QtMoc Include="TrackLaneWidget.h">
+      <Filter>Cinematic</Filter>
+    </QtMoc>
+    <QtMoc Include="CinematicEditor.h">
+      <Filter>Cinematic</Filter>
+    </QtMoc>
+  </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="Vivid3D.qrc" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtUic Include="CinematicEditor.ui" />
+    <QtUic Include="ConsoleOutput.ui" />
+    <QtUic Include="Content.ui" />
+    <QtUic Include="LGDesigner.ui" />
+    <QtUic Include="LGProperties.ui" />
+    <QtUic Include="LogicGraph.ui" />
+    <QtUic Include="MainMenu.ui" />
+    <QtUic Include="MainToolBar.ui" />
+    <QtUic Include="PropertiesEditor.ui" />
+    <QtUic Include="PropertyFloat.ui" />
+    <QtUic Include="PropertyHeader.ui" />
+    <QtUic Include="PropertySlider.ui" />
+    <QtUic Include="PropertyText.ui" />
+    <QtUic Include="PropertyVec3.ui" />
+    <QtUic Include="SceneView.ui" />
+    <QtUic Include="Vivid3D.ui" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Vivid3D.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Cinematic">
+      <UniqueIdentifier>{b7f7b5be-96a5-4537-9a4e-04863ae81591}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

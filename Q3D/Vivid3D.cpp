@@ -6,6 +6,7 @@
 #include "NodeTree.h"
 #include "ConsoleOutput.h"
 #include "ComponentBrowser.h"
+#include "CinematicEditor.h"
 
 void ConsoleDebug(std::string value)
 {
@@ -70,6 +71,13 @@ Vivid3D::Vivid3D(QWidget *parent)
     compContentDock->setWidget(componentBrowser);
     compContentDock->setAllowedAreas(Qt::BottomDockWidgetArea | Qt::TopDockWidgetArea);
     tabifyDockWidget(contentDock, compContentDock);
+
+    auto cineEdit = new CinematicEditor;
+
+	QDockWidget* cineEditDock = new QDockWidget("Cinematic Editor", this);
+    cineEditDock->setWidget(cineEdit);
+	cineEditDock->setAllowedAreas(Qt::BottomDockWidgetArea | Qt::TopDockWidgetArea);
+    tabifyDockWidget(contentDock, cineEditDock);
 
 	auto consoleOutput = new ConsoleOutput(this);
 

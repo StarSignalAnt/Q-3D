@@ -117,6 +117,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <QtRcc Include="Vivid3D.qrc" />
+    <QtUic Include="CinematicEditor.ui" />
     <QtUic Include="ConsoleOutput.ui" />
     <QtUic Include="Content.ui" />
     <QtUic Include="LGDesigner.ui" />
@@ -134,6 +135,7 @@
     <QtUic Include="Vivid3D.ui" />
     <QtMoc Include="Vivid3D.h" />
     <ClCompile Include="CameraController.cpp" />
+    <ClCompile Include="CinematicEditor.cpp" />
     <ClCompile Include="ComponentBrowser.cpp" />
     <ClCompile Include="ComponentContent.cpp" />
     <ClCompile Include="ComponentSelector.cpp" />
@@ -152,6 +154,7 @@
     <ClCompile Include="NodeCreationWidget.cpp" />
     <ClCompile Include="NodeTree.cpp" />
     <ClCompile Include="Pathfinder.cpp" />
+    <ClCompile Include="PlayheadOVerlay.cpp" />
     <ClCompile Include="PropertyButton.cpp" />
     <ClCompile Include="PropertiesEditor.cpp" />
     <ClCompile Include="PropertyFloat.cpp" />
@@ -173,6 +176,9 @@
     <ClCompile Include="SearchWidget.cpp" />
     <ClCompile Include="SocketWidget.cpp" />
     <ClCompile Include="TerrainEditor.cpp" />
+    <ClCompile Include="TimeRuler.cpp" />
+    <ClCompile Include="TrackHeaderWidget.cpp" />
+    <ClCompile Include="TrackLaneWidget.cpp" />
     <ClCompile Include="TranslateGizmo.cpp" />
     <ClCompile Include="Vivid3D.cpp" />
     <ClCompile Include="main.cpp" />
@@ -219,11 +225,13 @@
     <QtMoc Include="LGNode.h" />
     <QtMoc Include="ComponentBrowser.h" />
     <QtMoc Include="ComponentContent.h" />
+    <QtMoc Include="CinematicEditor.h" />
     <ClInclude Include="ConnectionItem.h" />
     <QtMoc Include="NodeCreationWidget.h" />
     <QtMoc Include="MeshImportWindow.h" />
     <ClInclude Include="NodeRegistry.h" />
     <ClInclude Include="Pathfinder.h" />
+    <QtMoc Include="PlayheadOVerlay.h" />
     <ClInclude Include="RotateGizmo.h" />
     <ClInclude Include="ScaleGizmo.h" />
     <ClInclude Include="SceneGizmo.h" />
@@ -232,6 +240,9 @@
     <QtMoc Include="SearchWidget.h" />
     <QtMoc Include="SocketWidget.h" />
     <ClInclude Include="TerrainEditor.h" />
+    <QtMoc Include="TimeRuler.h" />
+    <QtMoc Include="TrackHeaderWidget.h" />
+    <QtMoc Include="TrackLaneWidget.h" />
     <ClInclude Include="TranslateGizmo.h" />
     <QtMoc Include="MainMenu.h" />
     <QtMoc Include="MainToolBar.h" />
