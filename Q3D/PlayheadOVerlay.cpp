@@ -3,8 +3,10 @@
 #include <QMouseEvent>    // --- ADDED FIX: Essential for mouse events
 #include <QPen>   
 #include <qapplication.h>
-constexpr int PIXELS_PER_SECOND = 100;
+#include "TimelineMetrics.h"
+//constexpr int PIXELS_PER_SECOND = 100;
 constexpr int PLAYHEAD_CLICK_TOLERANCE = 5;
+
 
 PlayheadOverlay::PlayheadOverlay(QWidget* parent) : QWidget(parent)
 {
@@ -105,9 +107,12 @@ void PlayheadOverlay::mouseMoveEvent(QMouseEvent* event)
 void PlayheadOverlay::mouseReleaseEvent(QMouseEvent* event)
 {
     forwardEvent(event);
+    // --- ADDED --- Announce that the user has stopped scrubbing.
+    if (event->button() == Qt::LeftButton) {
+        emit scrubbingFinished();
+    }
     event->accept();
 }
-
 void PlayheadOverlay::paintEvent(QPaintEvent* event)
 {
     Q_UNUSED(event);

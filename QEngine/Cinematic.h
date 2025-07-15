@@ -7,19 +7,21 @@
 #include <stdexcept>
 #include <functional>
 #include <cmath> // For std::abs
-
+#include <map>
 // GLM includes for math operations
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/epsilon.hpp>
 
-// Forward-declare the GraphNode class to avoid circular dependencies
+// Forward-declare engine classes
 class GraphNode;
+struct GSound;
+class GameAudio; // For the singleton access
 
 // Enum to define how to interpolate from a keyframe.
 enum class InterpolationType {
     Linear, // Default smooth curve (lerp/slerp)
-    Stepped // Holds value until the next keyframe
+    Snapped // Holds value until the next keyframe
 };
 
 // Represents the transform state (position, rotation, scale) of a GraphNode.
@@ -49,7 +51,6 @@ public:
     InterpolationType GetInterpolation() const { return m_interpolation; }
 
     void setInterpolation(InterpolationType interp) { m_interpolation = interp; }
-    // --- ADDED --- New method to update a keyframe's value.
     void SetValue(const T& val) { m_value = val; }
 
 private:
@@ -62,7 +63,8 @@ private:
 class ITrack {
 public:
     virtual ~ITrack() = default;
-    virtual void Update(float time) = 0;
+    virtual void Update(float time, bool isScrubbing) = 0;
+
     virtual void RecordKeyframe(float time, InterpolationType interpType) = 0;
     virtual void RecordKeyframe(float time) { RecordKeyframe(time, InterpolationType::Linear); }
     virtual const std::string& GetName() const = 0;
@@ -72,12 +74,15 @@ public:
     virtual std::vector<InterpolationType> GetKeyframeInterpolationTypes() const = 0;
     virtual size_t ModifyKeyframeTime(size_t keyframeIndex, float newTime) = 0;
     virtual void SetKeyframeInterpolation(size_t keyframeIndex, InterpolationType interp) = 0;
+    virtual void StopAllSounds() {}
 };
 
 // A generic, templated track for animating a specific data type 'T'.
 template <typename T>
 class Track : public ITrack {
 public:
+    const std::vector<Keyframe<T>>& GetKeyframes() const { return m_keyframes; }
+    void Update(float time, bool isScrubbing) override {}
     void AddKeyframe(const Keyframe<T>& keyframe) {
         m_keyframes.push_back(keyframe);
         std::sort(m_keyframes.begin(), m_keyframes.end(), [](const auto& a, const auto& b) {
@@ -93,7 +98,7 @@ public:
             const auto& startFrame = m_keyframes[i];
             const auto& endFrame = m_keyframes[i + 1];
             if (time >= startFrame.GetTime() && time < endFrame.GetTime()) {
-                if (startFrame.GetInterpolation() == InterpolationType::Stepped) {
+                if (startFrame.GetInterpolation() == InterpolationType::Snapped) {
                     return startFrame.GetValue();
                 }
                 else {
@@ -161,7 +166,7 @@ protected:
 class TrackTransform : public Track<TransformState> {
 public:
     TrackTransform(GraphNode* target);
-    void Update(float time) override;
+    void Update(float time, bool isScrubbing) override;
     void RecordKeyframe(float time, InterpolationType interpType) override;
     const std::string& GetName() const override { return m_name; }
 
@@ -183,22 +188,17 @@ public:
         }
     }
 
-    void Update(float time) override { m_setter(GetValueAtTime(time)); }
+    void Update(float time, bool isScrubbing) override { m_setter(GetValueAtTime(time)); } // Added flag
 
-    // --- MODIFIED --- This function now checks for nearby keyframes before creating a new one.
     void RecordKeyframe(float time, InterpolationType interpType) override {
         constexpr float threshold = 0.1f;
-
-        // Check if a keyframe exists nearby
         for (size_t i = 0; i < m_keyframes.size(); ++i) {
             if (std::abs(m_keyframes[i].GetTime() - time) <= threshold) {
-                // If so, update its value and interpolation type, then return.
                 m_keyframes[i].SetValue(m_getter());
                 m_keyframes[i].setInterpolation(interpType);
                 return;
             }
         }
-        // If no nearby keyframe was found, create a new one.
         AddKeyframe(Keyframe<float>(time, m_getter(), interpType));
     }
 
@@ -213,16 +213,56 @@ private:
     std::function<float()> m_getter;
 };
 
+// --- ADDED --- A track for triggering audio events.
+class TrackAudio : public Track<GSound*> {
+public:
+    TrackAudio(std::string name) : m_name(std::move(name)), m_lastTime(0.0f) {}
+
+    // Update is called every frame; it checks if the playhead has crossed a keyframe.
+    void Update(float time, bool isScrubbing) override;
+
+    // This track type doesn't support generic recording from the UI.
+    // Keyframes must be added programmatically with a specific sound.
+    void RecordKeyframe(float time, InterpolationType interpType) override {
+        // This method is not applicable to audio tracks in the same way as transform tracks.
+        // The UI would need to pop up a file dialog to select a sound.
+        // For now, we do nothing.
+    }
+
+    // A specific method to add audio keyframes.
+    void AddAudioKeyframe(float time, GSound* sound) {
+        // Audio events are instantaneous, so they should always be Snapped.
+        AddKeyframe(Keyframe<GSound*>(time, sound, InterpolationType::Snapped));
+    }
+    float GetEndTime() const override;
+
+    const std::string& GetName() const override { return m_name; }
+    void StopAllSounds() override;
+protected:
+    // Interpolation doesn't make sense for sound events. We just return the value.
+    GSound* Interpolate(GSound* const& a, GSound* const& b, float t) const override {
+        (void)b; (void)t; // Unused parameters
+        return a;
+    }
+
+private:
+    std::string m_name;
+    float m_lastTime;
+    std::map<GSound*, int> m_activeHandles;
+};
+
+
 // Manages a collection of tracks and controls the overall playback.
 class Cinematic {
 public:
     void AddTrack(std::unique_ptr<ITrack> track) {
         if (track) { m_tracks.push_back(std::move(track)); }
     }
-
-    void SetTime(float time) {
+    void SetTime(float time, bool isScrubbing) {
         m_currentTime = time;
-        for (const auto& track : m_tracks) { track->Update(m_currentTime); }
+        for (const auto& track : m_tracks) {
+            track->Update(m_currentTime, isScrubbing);
+        }
     }
 
     float GetCurrentTime() const { return m_currentTime; }

@@ -269,7 +269,8 @@ int sf_PlaySoundGameAudio(uintptr_t ptr)
     SoLoud::Wav* sound = reinterpret_cast<SoLoud::Wav*>(ptr);
     if (sound)
     {
-        auto ptr = GameAudio::m_Instance->PlaySound(sound);
+        //*********************
+        //auto ptr = GameAudio::m_Instance->PlaySound(sound);
         //sound->play();
         return ptr;
     }

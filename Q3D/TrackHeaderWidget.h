@@ -24,12 +24,12 @@ class TrackHeaderWidget : public QWidget
 public:
     explicit TrackHeaderWidget(const QString& name, QWidget* parent = nullptr);
     QPushButton* getRecordButton() const { return m_recordButton; }
-    bool isSteppedChecked() const;
+    bool isSnappedChecked() const;
 protected:
     void paintEvent(QPaintEvent* event) override;
 
 private:
     QLabel* m_nameLabel;
     QPushButton* m_recordButton;
-    QCheckBox* m_steppedCheck;
+    QCheckBox* m_SnappedCheck;
 };

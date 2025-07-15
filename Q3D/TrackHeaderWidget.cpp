@@ -32,14 +32,14 @@ TrackHeaderWidget::TrackHeaderWidget(const QString& name, QWidget* parent) : QWi
     );
 
     // --- ADDED --- Create and style the checkbox.
-    m_steppedCheck = new QCheckBox("Stepped", this);
-    m_steppedCheck->setStyleSheet("QCheckBox { color: white; background: transparent; }");
-    m_steppedCheck->setToolTip("Create a 'stepped' keyframe that holds its value until the next key");
+    m_SnappedCheck = new QCheckBox("Snapped", this);
+    m_SnappedCheck->setStyleSheet("QCheckBox { color: white; background: transparent; }");
+    m_SnappedCheck->setToolTip("Create a 'Snapped' keyframe that holds its value until the next key");
 
 
     gridLayout->addWidget(m_nameLabel, 0, 0, Qt::AlignTop | Qt::AlignLeft);
     // --- MODIFIED --- Add the new controls to the grid layout.
-    gridLayout->addWidget(m_steppedCheck, 1, 0, Qt::AlignBottom | Qt::AlignLeft);
+    gridLayout->addWidget(m_SnappedCheck, 1, 0, Qt::AlignBottom | Qt::AlignLeft);
     gridLayout->addWidget(m_recordButton, 1, 1, Qt::AlignBottom | Qt::AlignRight);
 
     gridLayout->setRowStretch(0, 1);
@@ -60,7 +60,7 @@ void TrackHeaderWidget::paintEvent(QPaintEvent* event)
     painter.drawRect(rect().adjusted(0, 0, -1, -1));
 }
 
-bool TrackHeaderWidget::isSteppedChecked() const
+bool TrackHeaderWidget::isSnappedChecked() const
 {
-    return m_steppedCheck->isChecked();
+    return m_SnappedCheck->isChecked();
 }

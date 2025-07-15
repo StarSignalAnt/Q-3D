@@ -56,6 +56,8 @@
     <ClCompile Include="CinematicEditor.cpp">
       <Filter>Cinematic</Filter>
     </ClCompile>
+    <ClCompile Include="PlayheadOVerlay.cpp" />
+    <ClCompile Include="TimelineMetrics.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CameraController.h" />
@@ -70,6 +72,7 @@
     <ClInclude Include="TerrainEditor.h" />
     <ClInclude Include="TranslateGizmo.h" />
     <ClInclude Include="SceneController.h" />
+    <ClInclude Include="TimelineMetrics.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Vivid3D.rc" />
@@ -118,6 +121,7 @@
     <QtMoc Include="CinematicEditor.h">
       <Filter>Cinematic</Filter>
     </QtMoc>
+    <QtMoc Include="PlayheadOVerlay.h" />
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="Vivid3D.qrc" />

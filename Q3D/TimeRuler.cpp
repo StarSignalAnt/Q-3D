@@ -9,8 +9,9 @@
 #include <QLinearGradient>
 #include <QMimeData>
 #include <QResizeEvent>
+#include "TimelineMetrics.h"
 
-constexpr int PIXELS_PER_SECOND = 100;
+//constexpr int PIXELS_PER_SECOND = 100;
 constexpr int RULER_HEIGHT = 30;
 // ===================================================================================
 // TimeRuler Implementation
@@ -87,4 +88,10 @@ void TimeRuler::paintEvent(QPaintEvent* event)
     painter.setPen(QPen(Qt::red, 2));
     int playheadX = (m_currentTime * PIXELS_PER_SECOND) - m_scrollOffset;
     painter.drawLine(playheadX, 0, playheadX, height());
+}
+void TimeRuler::mouseReleaseEvent(QMouseEvent* event)
+{
+    if (event->button() == Qt::LeftButton) {
+        emit scrubbingFinished();
+    }
 }

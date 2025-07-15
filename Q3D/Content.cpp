@@ -475,7 +475,17 @@ void Content::mouseMoveEvent(QMouseEvent* event) {
         hideImagePreview();
         QDrag* drag = new QDrag(this);
         QMimeData* mimeData = new QMimeData;
-        mimeData->setText(m_OverItem->fullPath);
+
+        // --- MODIFIED --- Use a custom MIME type for dragging sound assets.
+        if (isAudioFile(m_OverItem->ext)) {
+            mimeData->setData("application/x-sound-asset", m_OverItem->fullPath.toUtf8());
+        }
+        else {
+            // You can add other custom types here later (e.g., for GraphNodes)
+            // For now, we'll use plain text for everything else.
+            mimeData->setText(m_OverItem->fullPath);
+        }
+
         drag->setMimeData(mimeData);
         drag->exec(Qt::CopyAction);
     }
@@ -515,4 +525,8 @@ bool Content::eventFilter(QObject* watched, QEvent* event)
         }
     }
     return QWidget::eventFilter(watched, event);
+}
+bool Content::isAudioFile(const QString& extension) {
+    static QStringList audioExtensions = { "wav", "mp3", "ogg", "flac" };
+    return audioExtensions.contains(extension.toLower());
 }

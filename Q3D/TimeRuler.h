@@ -28,8 +28,9 @@ public:
 
 signals:
     void timeChanged(float newTime);
-
+    void scrubbingFinished();
 protected:
+	void mouseReleaseEvent(QMouseEvent* event) override;
     void paintEvent(QPaintEvent* event) override;
     void mousePressEvent(QMouseEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;

@@ -476,7 +476,7 @@ void SceneView::paintEvent(QPaintEvent* event)
     //std::cout <<
 
    //     QEngine::DebugLog("RenderTime:" + std::to_string(end) + "ms\n");
-
+    m_SceneController->AlignGizmos();
     if (m_RunMode == RM_Stopped) {
         if (m_Mode == SceneMode::Mode_Translate || m_Mode == SceneMode::Mode_Rotate || m_Mode == SceneMode::Mode_Scale) {
             //    m_SceneController->RenderGizmos();

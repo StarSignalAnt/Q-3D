@@ -25,7 +25,7 @@ class TrackLaneWidget : public QWidget
 public:
     // --- MODIFIED ---
     explicit TrackLaneWidget(ITrack* track, QWidget* parent = nullptr);
-
+    ITrack* getTrack() const { return m_track; }
 public slots:
     // --- ADDED ---
     void setScrollOffset(int offset);

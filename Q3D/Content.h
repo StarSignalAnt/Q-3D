@@ -82,6 +82,7 @@ private:
     QPixmap loadOrGenerateThumbnail(const QString& filePath);
     void showImagePreview(const FileItem* item, const QPoint& mousePos);
     void hideImagePreview();
+    bool isAudioFile(const QString& extension);
     QPixmap generateLargePreview(const QString& filePath);
     QString m_rootPath;
     std::vector<FileItem> m_items;

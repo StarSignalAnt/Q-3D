@@ -29,7 +29,7 @@ public slots:
     void setKeyframeDragInProgress(bool isDragging);
 signals:
     void timeChanged(float newTime);
-
+    void scrubbingFinished();
 protected:
     void paintEvent(QPaintEvent* event) override;
     void mousePressEvent(QMouseEvent* event) override;
