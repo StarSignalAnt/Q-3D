@@ -13,7 +13,7 @@ struct GSound {
 
 	}
 	std::vector<float> waveformData;
-
+	std::string filePath;
 };
 
 class GameAudio

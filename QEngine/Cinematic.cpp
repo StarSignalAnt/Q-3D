@@ -1,11 +1,15 @@
 #include "Cinematic.h"
 #include "GraphNode.h"
 #include "GameAudio.h" // Required for the audio singleton
-
+#include "SceneGraph.h"
 // ===================================================================================
 // TrackTransform Implementation
 // ===================================================================================
-
+enum class TrackTypeID : uint8_t {
+    Transform = 0,
+    Audio = 1,
+    Float = 2
+};
 TrackTransform::TrackTransform(GraphNode* target) : m_targetNode(target) {
     if (!m_targetNode) {
         throw std::invalid_argument("TrackTransform must have a valid target GraphNode.");
@@ -158,4 +162,145 @@ float TrackAudio::GetEndTime() const
 void TrackAudio::StopAllSounds()
 {
     m_activeHandles.clear();
+}
+
+void Cinematic::Save(const std::string& path) const
+{
+    VFile file(path.c_str(), FileMode::Write);
+  
+    // --- File Header ---
+    file.WriteString("CINE"); // Magic number to identify file type
+    int version = 1;
+    file.WriteInt(version);
+
+    // --- Write Tracks ---
+    file.WriteInt(m_tracks.size()); // Write number of tracks
+
+    for (const auto& track : m_tracks) {
+        // -- Write Track Header --
+        if (auto* t = dynamic_cast<TrackTransform*>(track.get())) {
+            file.WriteByte((char)TrackTypeID::Transform);
+            file.WriteString(t->GetName().c_str());
+            // For transform tracks, save the node's unique long name.
+            if (t->GetTargetNode()) {
+                file.WriteString(t->GetTargetNode()->GetLongName().c_str());
+            }
+            else {
+                file.WriteString(""); // Write an empty string if node is null
+            }
+        }
+        else if (auto* t = dynamic_cast<TrackAudio*>(track.get())) {
+            file.WriteByte((char)TrackTypeID::Audio);
+            file.WriteString(t->GetName().c_str());
+        }
+        else {
+            // Skip unknown track types for now
+            continue;
+        }
+
+        // -- Write Keyframes for this track --
+        if (auto* t_transform = dynamic_cast<Track<TransformState>*>(track.get())) {
+            const auto& keyframes = t_transform->GetKeyframes();
+            file.WriteInt(keyframes.size());
+            for (const auto& kf : keyframes) {
+                file.WriteFloat(kf.GetTime());
+                file.WriteByte((char)kf.GetInterpolation());
+                const auto& val = kf.GetValue();
+                file.WriteVec3(val.position);
+                file.WriteQuat(val.rotation);
+                file.WriteVec3(val.scale);
+            }
+        }
+        else if (auto* t_audio = dynamic_cast<Track<GSound*>*>(track.get())) {
+            const auto& keyframes = t_audio->GetKeyframes();
+            file.WriteInt(keyframes.size());
+            for (const auto& kf : keyframes) {
+                file.WriteFloat(kf.GetTime());
+                file.WriteByte((char)kf.GetInterpolation());
+                const auto& val = kf.GetValue();
+                if (val) {
+                    file.WriteString(val->filePath.c_str());
+                }
+                else {
+                    file.WriteString("");
+                }
+            }
+        }
+    }
+
+    file.Close();
+}
+
+std::unique_ptr<Cinematic> Cinematic::Load(const std::string& path, SceneGraph* scene)
+{
+    if (!VFile::Exists(path.c_str())) return nullptr;
+
+    VFile file(path.c_str(), FileMode::Read);
+    
+
+    // --- Read and Validate Header ---
+    if (std::string(file.ReadString()) != "CINE") {
+        file.Close();
+        return nullptr; // Not a valid cinematic file
+    }
+    int version = file.ReadInt();
+    if (version != 1) {
+        // Handle different file versions here if needed in the future
+        file.Close();
+        return nullptr;
+    }
+
+    auto cinematic = std::make_unique<Cinematic>();
+    int trackCount = file.ReadInt();
+
+    for (int i = 0; i < trackCount; ++i) {
+        // --- Read Track Data ---
+        TrackTypeID typeId = (TrackTypeID)file.ReadByte();
+        std::string trackName = file.ReadString();
+
+        std::unique_ptr<ITrack> newTrack = nullptr;
+
+        if (typeId == TrackTypeID::Transform) {
+            std::string nodeLongName = file.ReadString();
+            GraphNode* targetNode = scene->FindNode(nodeLongName);
+            if (targetNode) {
+                newTrack = std::make_unique<TrackTransform>(targetNode);
+            }
+        }
+        else if (typeId == TrackTypeID::Audio) {
+            newTrack = std::make_unique<TrackAudio>(trackName);
+        }
+
+        if (!newTrack) continue; // Skip if track couldn't be created (e.g., node not found)
+        newTrack->SetName(trackName);
+
+        // --- Read Keyframes ---
+        int keyframeCount = file.ReadInt();
+        if (auto* t_transform = dynamic_cast<Track<TransformState>*>(newTrack.get())) {
+            for (int j = 0; j < keyframeCount; ++j) {
+                float time = file.ReadFloat();
+                auto interp = (InterpolationType)file.ReadByte();
+                TransformState val;
+                val.position = file.ReadVec3();
+                val.rotation = file.ReadQuat();
+                val.scale = file.ReadVec3();
+                t_transform->AddKeyframe({ time, val, interp });
+            }
+        }
+        else if (auto* t_audio = dynamic_cast<TrackAudio*>(newTrack.get())) {
+            for (int j = 0; j < keyframeCount; ++j) {
+                float time = file.ReadFloat();
+                auto interp = (InterpolationType)file.ReadByte(); // Interpolation type isn't used for audio but we read it to advance the file stream
+                std::string soundPath = file.ReadString();
+                if (!soundPath.empty()) {
+                    GSound* sound = GameAudio::m_Instance->LoadSound(soundPath);
+                    if (sound) t_audio->AddAudioKeyframe(time, sound);
+                }
+            }
+        }
+        cinematic->AddTrack(std::move(newTrack));
+    }
+
+    file.Close();
+    return cinematic;
 }

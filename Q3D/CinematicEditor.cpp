@@ -23,8 +23,9 @@ constexpr int PIXELS_PER_SECOND2 = 100;
 // ===================================================================================
 // CinematicEditor Implementation
 // ===================================================================================
-CinematicEditor::CinematicEditor(QWidget* parent)
+CinematicEditor::CinematicEditor(SceneGraph* scene, QWidget* parent)
     : QWidget(parent)
+    , m_sceneGraph(scene) // Store the scene graph pointer
     , m_currentTime(0.0f)
 {
     m_activeCinematic = std::make_unique<Cinematic>();
@@ -272,18 +273,16 @@ void CinematicEditor::updateOverlayGeometry()
 
 void CinematicEditor::addTrack(ITrack* track)
 {
-    auto* header = new TrackHeaderWidget(QString::fromStdString(track->GetName()));
-    auto* lane = new TrackLaneWidget(track);
+    auto* header = new TrackHeaderWidget(track, this);
+    auto* lane = new TrackLaneWidget(track, this);
 
     connect(m_laneScrollArea->horizontalScrollBar(), &QScrollBar::valueChanged, lane, &TrackLaneWidget::setScrollOffset);
     connect(lane, &TrackLaneWidget::keyframeDragStarted, this, &CinematicEditor::onKeyframeDragStarted);
     connect(lane, &TrackLaneWidget::keyframeDragFinished, this, &CinematicEditor::onKeyframeDragFinished);
 
-    // --- FIXED --- Connect the record button to a lambda that only updates the relevant lane.
     connect(header->getRecordButton(), &QPushButton::clicked, this, [this, track, header, lane]() {
         InterpolationType type = header->isSnappedChecked() ? InterpolationType::Snapped : InterpolationType::Linear;
         track->RecordKeyframe(m_currentTime, type);
-        // This is much more efficient than rebuilding the entire UI.
         lane->update();
         });
 
@@ -341,8 +340,9 @@ void CinematicEditor::onNewCinematic()
 void CinematicEditor::onSaveCinematic()
 {
     QString filePath = QFileDialog::getSaveFileName(this, "Save Cinematic", "", "Cinematic Files (*.cine)");
+	m_activeCinematic->Save(filePath.toStdString());
     if (!filePath.isEmpty()) {
-        QMessageBox::information(this, "Save Cinematic", "Saving to:\n" + filePath);
+ //       QMessageBox::information(this, "Save Cinematic", "Saving to:\n" + filePath);
     }
 }
 
@@ -350,9 +350,18 @@ void CinematicEditor::onLoadCinematic()
 {
     QString filePath = QFileDialog::getOpenFileName(this, "Load Cinematic", "", "Cinematic Files (*.cine)");
     if (!filePath.isEmpty()) {
-        m_activeCinematic = std::make_unique<Cinematic>();
-        rebuildUIFromCinematic();
-        QMessageBox::information(this, "Load Cinematic", "Loading from:\n" + filePath);
+        // Call the static Load function, passing the scene graph.
+        auto loadedCinematic = Cinematic::Load(filePath.toStdString(), m_sceneGraph);
+
+        if (loadedCinematic) {
+            // If loading was successful, replace the active cinematic.
+            m_activeCinematic = std::move(loadedCinematic);
+            rebuildUIFromCinematic();
+            QMessageBox::information(this, "Load Cinematic", "Successfully loaded:\n" + filePath);
+        }
+        else {
+            QMessageBox::warning(this, "Load Error", "Failed to load cinematic file:\n" + filePath);
+        }
     }
 }
 

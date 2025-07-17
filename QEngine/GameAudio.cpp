@@ -78,7 +78,7 @@ GSound* GameAudio::LoadSound(std::string path) {
 
 	GSound* gs = new GSound;
 	gs->sound = sound;
-
+	gs->filePath = path;
 	// Process the raw audio data into a drawable waveform.
 	generateWaveformData(gs);
 

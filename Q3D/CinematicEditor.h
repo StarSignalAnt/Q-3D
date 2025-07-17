@@ -28,7 +28,7 @@ class CinematicEditor : public QWidget
     Q_OBJECT
 
 public:
-    CinematicEditor(QWidget* parent = nullptr);
+    CinematicEditor(SceneGraph* scene, QWidget* parent = nullptr);
     ~CinematicEditor();
 
 protected:
@@ -75,7 +75,7 @@ private:
     QScrollArea* m_laneScrollArea;
     QVBoxLayout* m_laneLayout;
     PlayheadOverlay* m_playheadOverlay;
-
+    SceneGraph* m_sceneGraph;
     // Menu Components
     QMenu* m_cinematicMenu; // --- ADDED
     QMenu* m_createMenu;    // --- ADDED

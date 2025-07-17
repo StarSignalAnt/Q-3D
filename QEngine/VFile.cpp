@@ -4,6 +4,7 @@
 #include <memory>
 #include <chrono> 
 
+
 VFile::VFile(const char* path, FileMode mode) {
 
 	//printf("Opening File:");
@@ -383,4 +384,22 @@ long VFile::GetPosition() {
 	}
 	// Return -1 to indicate an error or that the stream is not open/valid
 	return -1;
+}
+
+void VFile::WriteQuat(glm::quat q)
+{
+	WriteFloat(q.x);
+	WriteFloat(q.y);
+	WriteFloat(q.z);
+	WriteFloat(q.w);
+}
+
+
+glm::quat VFile::ReadQuat() {
+	glm::quat q;
+	q.x = ReadFloat();
+	q.y = ReadFloat();
+	q.z = ReadFloat();
+	q.w = ReadFloat();
+	return q;
 }

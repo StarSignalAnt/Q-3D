@@ -72,7 +72,7 @@ Vivid3D::Vivid3D(QWidget *parent)
     compContentDock->setAllowedAreas(Qt::BottomDockWidgetArea | Qt::TopDockWidgetArea);
     tabifyDockWidget(contentDock, compContentDock);
 
-    auto cineEdit = new CinematicEditor;
+    auto cineEdit = new CinematicEditor(SceneGraph::m_Instance);
 
 	QDockWidget* cineEditDock = new QDockWidget("Cinematic Editor", this);
     cineEditDock->setWidget(cineEdit);

@@ -9,16 +9,20 @@
 #include <QLinearGradient>
 #include <QMimeData>
 #include <QResizeEvent>
+#include "QMenu.h"
+#include <qinputdialog.h>
 
-TrackHeaderWidget::TrackHeaderWidget(const QString& name, QWidget* parent) : QWidget(parent)
+TrackHeaderWidget::TrackHeaderWidget(ITrack* track, QWidget* parent)
+    : QWidget(parent)
+    , m_track(track)
 {
     setFixedHeight(60);
 
     QGridLayout* gridLayout = new QGridLayout(this);
     gridLayout->setContentsMargins(5, 5, 5, 5);
-    gridLayout->setSpacing(2); // Add a little space
+    gridLayout->setSpacing(2);
 
-    m_nameLabel = new QLabel(name, this);
+    m_nameLabel = new QLabel(QString::fromStdString(m_track->GetName()), this);
     m_nameLabel->setStyleSheet("color: white; background: transparent; border: none;");
 
     m_recordButton = new QPushButton(this);
@@ -31,14 +35,11 @@ TrackHeaderWidget::TrackHeaderWidget(const QString& name, QWidget* parent) : QWi
         "QPushButton:pressed { background-color: #a93226; }"
     );
 
-    // --- ADDED --- Create and style the checkbox.
     m_SnappedCheck = new QCheckBox("Snapped", this);
     m_SnappedCheck->setStyleSheet("QCheckBox { color: white; background: transparent; }");
-    m_SnappedCheck->setToolTip("Create a 'Snapped' keyframe that holds its value until the next key");
-
+    m_SnappedCheck->setToolTip("Create a 'snapped' keyframe that holds its value until the next key");
 
     gridLayout->addWidget(m_nameLabel, 0, 0, Qt::AlignTop | Qt::AlignLeft);
-    // --- MODIFIED --- Add the new controls to the grid layout.
     gridLayout->addWidget(m_SnappedCheck, 1, 0, Qt::AlignBottom | Qt::AlignLeft);
     gridLayout->addWidget(m_recordButton, 1, 1, Qt::AlignBottom | Qt::AlignRight);
 
@@ -47,6 +48,7 @@ TrackHeaderWidget::TrackHeaderWidget(const QString& name, QWidget* parent) : QWi
 
     setLayout(gridLayout);
 }
+
 
 void TrackHeaderWidget::paintEvent(QPaintEvent* event)
 {
@@ -63,4 +65,24 @@ void TrackHeaderWidget::paintEvent(QPaintEvent* event)
 bool TrackHeaderWidget::isSnappedChecked() const
 {
     return m_SnappedCheck->isChecked();
+}
+void TrackHeaderWidget::contextMenuEvent(QContextMenuEvent* event)
+{
+    QMenu contextMenu(this);
+    QAction* renameAction = contextMenu.addAction("Rename Track...");
+
+    connect(renameAction, &QAction::triggered, this, [this]() {
+        bool ok;
+        QString newName = QInputDialog::getText(this, "Rename Track", "Enter new track name:",
+            QLineEdit::Normal, m_nameLabel->text(), &ok);
+
+        if (ok && !newName.isEmpty()) {
+            // Update the data model
+            m_track->SetName(newName.toStdString());
+            // Update this widget's UI label
+            m_nameLabel->setText(newName);
+        }
+        });
+
+    contextMenu.exec(event->globalPos());
 }

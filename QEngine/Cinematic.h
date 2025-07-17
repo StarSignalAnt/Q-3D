@@ -17,6 +17,7 @@
 class GraphNode;
 struct GSound;
 class GameAudio; // For the singleton access
+class SceneGraph;
 
 // Enum to define how to interpolate from a keyframe.
 enum class InterpolationType {
@@ -68,6 +69,7 @@ public:
     virtual void RecordKeyframe(float time, InterpolationType interpType) = 0;
     virtual void RecordKeyframe(float time) { RecordKeyframe(time, InterpolationType::Linear); }
     virtual const std::string& GetName() const = 0;
+    virtual void SetName(const std::string& newName) = 0;
     virtual float GetStartTime() const = 0;
     virtual float GetEndTime() const = 0;
     virtual std::vector<float> GetKeyframeTimes() const = 0;
@@ -169,7 +171,8 @@ public:
     void Update(float time, bool isScrubbing) override;
     void RecordKeyframe(float time, InterpolationType interpType) override;
     const std::string& GetName() const override { return m_name; }
-
+    void SetName(const std::string& newName) override { m_name = newName; }
+    GraphNode* GetTargetNode() const { return m_targetNode; }
 protected:
     TransformState Interpolate(const TransformState& a, const TransformState& b, float t) const override;
 
@@ -203,7 +206,7 @@ public:
     }
 
     const std::string& GetName() const override { return m_name; }
-
+    void SetName(const std::string& newName) override { m_name = newName; }
 protected:
     float Interpolate(const float& a, const float& b, float t) const override { return a + (b - a) * t; }
 
@@ -237,6 +240,7 @@ public:
     float GetEndTime() const override;
 
     const std::string& GetName() const override { return m_name; }
+    void SetName(const std::string& newName) override { m_name = newName; }
     void StopAllSounds() override;
 protected:
     // Interpolation doesn't make sense for sound events. We just return the value.
@@ -255,6 +259,10 @@ private:
 // Manages a collection of tracks and controls the overall playback.
 class Cinematic {
 public:
+
+    static std::unique_ptr<Cinematic> Load(const std::string& path, SceneGraph* scene);
+    void Save(const std::string& path) const;
+
     void AddTrack(std::unique_ptr<ITrack> track) {
         if (track) { m_tracks.push_back(std::move(track)); }
     }

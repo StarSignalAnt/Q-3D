@@ -4,6 +4,7 @@
 #include<fstream>
 #include "BasicMath.hpp"
 #include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp> 
 #include <filesystem> 
 using namespace Diligent;
 
@@ -23,6 +24,8 @@ public:
 	VFile(const char* path, FileMode mode);
 	void WriteInt(int v);
 	void WriteFloat(float v);
+	void WriteQuat(glm::quat q);
+	glm::quat ReadQuat();
 	void WriteString(const char* str);
 	void WriteByte(char b);
 	void WriteBytes(void* data, long length);

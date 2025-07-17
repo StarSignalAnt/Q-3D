@@ -18,6 +18,8 @@
 #include <QTimer> 
 #include "Cinematic.h"
 
+class ITrack; // Forward declaration of ITrack
+
 class TrackLaneWidget : public QWidget
 {
     Q_OBJECT

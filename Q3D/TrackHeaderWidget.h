@@ -17,19 +17,24 @@
 #include <QMouseEvent>
 #include <QTimer> 
 #include <QCheckBox>
+
+class ITrack;
+
 class TrackHeaderWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit TrackHeaderWidget(const QString& name, QWidget* parent = nullptr);
+    explicit TrackHeaderWidget(ITrack* track, QWidget* parent = nullptr);
+
     QPushButton* getRecordButton() const { return m_recordButton; }
     bool isSnappedChecked() const;
 protected:
     void paintEvent(QPaintEvent* event) override;
-
+    void contextMenuEvent(QContextMenuEvent* event) override;
 private:
     QLabel* m_nameLabel;
     QPushButton* m_recordButton;
     QCheckBox* m_SnappedCheck;
+    ITrack* m_track;
 };
