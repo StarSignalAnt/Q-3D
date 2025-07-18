@@ -57,6 +57,7 @@ class NodeRegistry;
 class GameVideo;
 class GameContent;
 class DllImporter;
+class MaterialVideo;
 
 using namespace Diligent;
 namespace Q3D::Engine {
@@ -200,6 +201,7 @@ using VividCallbackFunc = void(*)(std::string value);
 		static int ScY;
 		static int ScW;
 		static int ScH;
+		static MaterialVideo* m_VidMat;
 		static std::filesystem::file_time_type s_last_dll_write_time;
 		static GameContent* m_Content;
 		static std::vector<Component*> m_CComponents;

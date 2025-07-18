@@ -558,4 +558,60 @@ namespace Q3D::Engine::Texture {
         s_textureCache.clear();
     }
 
+
+
+    Texture2D::Texture2D(int w, int h, const uint8_t* data, int channels)
+    {
+        m_Width = w;
+        m_Height = h;
+
+        TextureDesc TexDesc;
+        TexDesc.Name = "Raw Data Texture";
+        TexDesc.Type = RESOURCE_DIM_TEX_2D;
+        TexDesc.Width = w;
+        TexDesc.Height = h;
+        TexDesc.MipLevels = 1; // No mipmaps for video frames
+        TexDesc.BindFlags = BIND_SHADER_RESOURCE;
+        TexDesc.Usage = USAGE_IMMUTABLE; // Data is provided once at creation
+
+        // Choose the format based on the number of channels.
+        // For the Y, U, and V planes, this will be 1.
+        switch (channels)
+        {
+        case 1:
+            // Single-channel, 8-bit unsigned normalized format.
+            // Perfect for the individual Y, U, and V planes.
+            TexDesc.Format = TEX_FORMAT_R8_UNORM;
+            break;
+        case 4:
+            // Support for 4-channel (RGBA) data as well.
+            TexDesc.Format = TEX_FORMAT_RGBA8_UNORM;
+            break;
+        default:
+            std::cerr << "Unsupported channel count for raw texture creation: " << channels << std::endl;
+            return;
+        }
+
+        // Provide the raw pixel data to the GPU.
+        TextureSubResData subresourceData;
+        subresourceData.pData = data;
+        // Stride is the number of bytes for a full row of pixels.
+        subresourceData.Stride = w * channels;
+
+        TextureData initialData;
+        initialData.pSubResources = &subresourceData;
+        initialData.NumSubresources = 1;
+
+        // Create the texture on the GPU.
+        Q3D::Engine::QEngine::GetDevice()->CreateTexture(TexDesc, &initialData, &m_pTexture);
+
+        if (m_pTexture)
+        {
+            m_pTextureView = m_pTexture->GetDefaultView(TEXTURE_VIEW_SHADER_RESOURCE);
+        }
+        else
+        {
+            std::cerr << "Failed to create Diligent texture from raw data." << std::endl;
+        }
+    }
 }

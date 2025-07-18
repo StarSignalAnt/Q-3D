@@ -1,0 +1,69 @@
+    #define dx 1.0
+
+    Texture2D v_YTexture;
+    SamplerState v_YTexture_sampler;
+    Texture2D v_UTexture;
+    SamplerState v_UTexture_sampler;
+        Texture2D v_VTexture;
+    SamplerState v_VTexture_sampler;
+
+    struct PSInput
+    {
+        float4 Pos : SV_POSITION;
+        float3 Uv : TEX_COORD;
+        float4 v_Color : COLOR2;
+        float4 v_View : COLOR3;
+    
+    // float3 Norm : NORMAL0;x
+    };
+
+    struct PSOutput
+    {
+        float4 Color : SV_TARGET;
+    };
+
+    // Note that if separate shader objects are not supported (this is only the case for old GLES3.0 devices), vertex
+    // shader output variable name must match exactly the name of the pixel shader input variable.
+    // If the variable has structure type (like in this example), the structure declarations must also be identical.
+    void main(in PSInput PSIn,
+        out PSOutput PSOut)
+    {
+
+     float2 pixelPos = PSIn.Pos.xy;
+
+        if(pixelPos.x>=PSIn.v_View.x && pixelPos.x<=PSIn.v_View.x + PSIn.v_View.z)
+        {
+            if(pixelPos.y>=PSIn.v_View.y && pixelPos.y<=PSIn.v_View.y + PSIn.v_View.w)
+            {
+
+            }else{
+                clip(-1);
+                return;
+            }
+
+        }else{
+            clip(-1);
+            return;
+        }
+        
+
+    float y = v_YTexture.Sample(v_YTexture_sampler, PSIn.Uv.xy).r;
+    float u = v_UTexture.Sample(v_UTexture_sampler, PSIn.Uv.xy).r;
+    float v = v_VTexture.Sample(v_VTexture_sampler, PSIn.Uv.xy).r;
+
+    // 2. Shift the U and V components. They are stored in the [0.0, 1.0] range,
+    //    but the conversion formula expects them in the [-0.5, 0.5] range.
+    u = u - 0.5;
+    v = v - 0.5;
+
+    // 3. Apply the standard ITU-R BT.601 conversion formula from YUV to RGB.
+    float r = y + 1.402 * v;
+    float g = y - 0.344 * u - 0.714 * v;
+    float b = y + 1.772 * u;
+
+    // 4. Set the final color. saturate() clamps the values to the [0, 1] range
+    //    to prevent any invalid colors from the conversion.
+    PSOut.Color = saturate(float4(r, g, b, 1.0));
+
+
+    }

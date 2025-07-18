@@ -61,7 +61,7 @@ void Draw2D::BeginFrame()
 }
 
 // Sets the default material, flushing any pending work.
-void Draw2D::SetMaterial(Material2D* material)
+void Draw2D::SetMaterial(RenderMaterial* material)
 {
     if (m_Material == material) return;
     InternalFlush();

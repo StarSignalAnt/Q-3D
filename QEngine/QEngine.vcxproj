@@ -212,6 +212,7 @@
     <ClInclude Include="MaterialSky.h" />
     <ClInclude Include="MaterialTerrain.h" />
     <ClInclude Include="MaterialTerrainDepth.h" />
+    <ClInclude Include="MaterialVideo.h" />
     <ClInclude Include="MathsHelp.h" />
     <ClInclude Include="MClass.h" />
     <ClInclude Include="meshoptimizer.h" />
@@ -345,6 +346,7 @@
     <ClCompile Include="MaterialSky.cpp" />
     <ClCompile Include="MaterialTerrain.cpp" />
     <ClCompile Include="MaterialTerrainDepth.cpp" />
+    <ClCompile Include="MaterialVideo.cpp" />
     <ClCompile Include="MathsHelp.cpp" />
     <ClCompile Include="MClass.cpp" />
     <ClCompile Include="MonoHost.cpp" />

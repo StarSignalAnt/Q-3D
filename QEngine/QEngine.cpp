@@ -11,7 +11,7 @@
 #include "GameVideo.h"
 #include "Draw2D.h"
 #include "SharpComponent.h"
-
+#include "Texture2D.h"
 // --- Event & Core Nodes ---
 #include "NodeTurnNode.h"
 #include "TickEventNode.h"
@@ -35,6 +35,7 @@
 #include "RenderEventNode.h"
 #include "NodeRenderVideo.h"
 #include "LinesRendererComponent.h"
+#include "MaterialVideo.h"
 
 // --- Consolidated Logic Nodes Header ---
 #include "LogicNodes1.h" // *** CHANGED: Include the new single header ***
@@ -113,12 +114,17 @@ namespace Q3D::Engine {
 	//		m_CurrentVideo->Update();
 		//}
 
-		auto tex = m_CurrentVideo->GetFrame();
+
+		auto tex = m_CurrentVideo->GetYUVFrame();
 		if (tex) {
+			m_VidMat->m_Y = tex->Y;
+			m_VidMat->m_U = tex->U;
+			m_VidMat->m_V = tex->V;
 			m_Draw->BeginFrame();
-			m_Draw->Rect(tex, glm::vec2(0, 0), glm::vec2((float)GetFrameWidth(), (float)GetFrameHeight()), glm::vec4(1, 1, 1, 1));
+			m_Draw->Rect(nullptr, glm::vec2(0, 0), glm::vec2((float)GetFrameWidth(), (float)GetFrameHeight()), glm::vec4(1, 1, 1, 1));
 			m_Draw->Flush();
 		}
+
 
 	}
 
@@ -397,6 +403,8 @@ namespace Q3D::Engine {
 	void QEngine::InitEngine() {
 
 		m_Draw = new Draw2D(SceneGraph::m_Instance->GetCamera());
+		m_VidMat = new MaterialVideo;
+		m_Draw->SetMaterial(m_VidMat);
 		GameAudio* audio = new GameAudio;
 		m_Physics = new Physics;
 		RegisterNodeTypes();
@@ -542,5 +550,6 @@ namespace Q3D::Engine {
 
 	float QEngine::m_DeltaTime = 0.1;
 	GameContent* QEngine::m_Content = nullptr;
+	MaterialVideo* QEngine::m_VidMat = nullptr;
 
 }

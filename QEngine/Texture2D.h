@@ -50,6 +50,7 @@ namespace Q3D::Engine::Texture {
 			m_pTextureView = view;
 			m_pTexture = tex;
 		}
+		Texture2D(int w, int h, const uint8_t* data, int channels);
 		void Update(float* data);
 
 		RefCntAutoPtr<ITextureView> GetView() {

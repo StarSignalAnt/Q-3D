@@ -47,6 +47,7 @@ class SceneController;
 class SceneGraph;
 class GraphNode;
 class TerrainEditor;
+class MaterialVideo;
 class GameFont;
 class GameVideo;
 
@@ -235,6 +236,7 @@ private:
 	GameFont* m_Font;
 	GraphNode* m_ViewCam;
 	int m_LastUpdate = 0;
+	MaterialVideo* m_VidMat;
 
 };
 

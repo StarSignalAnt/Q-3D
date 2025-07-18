@@ -111,6 +111,34 @@ PSOBuilder& PSOBuilder::WithResourceLayout(LayoutResourceType Type)
 
     switch (Type)
     {
+    case LayoutResourceType::MaterialYUV:
+    {
+
+        static Diligent::ImmutableSamplerDesc PBRSamplers[3];
+        static Diligent::ShaderResourceVariableDesc PBRVars[] = {
+          {Diligent::SHADER_TYPE_PIXEL, "v_YTexture", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC},
+              {Diligent::SHADER_TYPE_PIXEL, "v_UTexture", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC},
+                  {Diligent::SHADER_TYPE_PIXEL, "v_VTexture", Diligent::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC},
+        };
+
+        Diligent::SamplerDesc SamplerLinearWrapDesc{
+            Diligent::FILTER_TYPE_LINEAR, Diligent::FILTER_TYPE_LINEAR, Diligent::FILTER_TYPE_LINEAR,
+            Diligent::TEXTURE_ADDRESS_WRAP, Diligent::TEXTURE_ADDRESS_WRAP, Diligent::TEXTURE_ADDRESS_CLAMP
+        };
+
+        for (int i = 0; i < 3; ++i) {
+            PBRSamplers[i] = { PBRVars[i].ShaderStages, PBRVars[i].Name, SamplerLinearWrapDesc };
+        }
+
+        ResourceLayout.DefaultVariableType = Diligent::SHADER_RESOURCE_VARIABLE_TYPE_STATIC;
+        ResourceLayout.Variables = PBRVars;
+        ResourceLayout.NumVariables = _countof(PBRVars);
+        ResourceLayout.ImmutableSamplers = PBRSamplers;
+        ResourceLayout.NumImmutableSamplers = _countof(PBRSamplers);
+
+    }
+
+        break;
     case LayoutResourceType::Material2D:
     {
         static Diligent::ImmutableSamplerDesc PBRSamplers[1];

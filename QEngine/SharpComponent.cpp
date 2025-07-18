@@ -159,6 +159,7 @@ extern "C" __declspec(dllexport) void PlayVideo(void* video) {
 extern "C" __declspec(dllexport) void UpdateVideo(void* video) {
 
 
+
 	GameVideo* videoobj = static_cast<GameVideo*>(video);
 	videoobj->Update();
 
@@ -166,9 +167,10 @@ extern "C" __declspec(dllexport) void UpdateVideo(void* video) {
 
 extern "C" __declspec(dllexport) void* VideoGetFrame(void* video) {
 
-	GameVideo* videoobj = static_cast<GameVideo*>(video);
-	return (void*)videoobj->GetFrame();
+	//GameVideo* videoobj = static_cast<GameVideo*>(video);
+//	return (void*)videoobj->GetFrame();
 
+	return nullptr;
 }
 
 extern "C" __declspec(dllexport) void RenderVideo(void* video, Vec2 pos, Vec2 size)

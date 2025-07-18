@@ -25,6 +25,7 @@
 #include "RenderTarget2D.h"
 #include "MaterialProducer.h"
 #include "EngineImporter.h"
+#include "MaterialVideo.h"
 #if D3D11_SUPPORTED
 #    include "Graphics/GraphicsEngineD3D11/interface/EngineFactoryD3D11.h"
 #endif
@@ -254,6 +255,11 @@ SceneView::SceneView(QWidget *parent)
  
     m_Draw = new Draw2D(cam);
 
+    auto matv = new MaterialVideo;
+
+    m_Draw->SetMaterial(matv);
+    m_VidMat = matv;
+
     //m_Test1->SetBody(BodyType::T_TriMesh);
    // m_Test1->CreateBody();
 
@@ -272,7 +278,8 @@ SceneView::SceneView(QWidget *parent)
 //	test2->AddComponent(cm1);
 //    cm1->SetScript("TestLib.dll", "Test");
 
-    //m_Vid1 = new GameVideo("test/video1.mp4");
+    m_Vid1 = new GameVideo("test/video1.mp4");
+
 
 
 
@@ -281,7 +288,7 @@ SceneView::SceneView(QWidget *parent)
 
 
 
-    //m_Vid1->Play();
+    m_Vid1->Play();
 
     m_timer = new QTimer(this);
 
@@ -448,8 +455,8 @@ void SceneView::paintEvent(QPaintEvent* event)
     }
 
   
-    for (int i = 0; i < 5; i++) {
-        //m_Vid1->Update();
+    for (int i = 0; i < 3; i++) {
+      //  m_Vid1->Update();
     }
 
 
@@ -461,18 +468,23 @@ void SceneView::paintEvent(QPaintEvent* event)
     Q3D::Engine::QEngine::SetScissor(0, 0, Q3D::Engine::QEngine::GetFrameWidth(), Q3D::Engine::QEngine::GetFrameHeight());
     
     //m_Vid1->Update();
-    //auto frame = m_Vid1->GetFrame();
+    //auto frame = m_Vid1->GetYUVFrame();
     
 
     //auto frame = m_Vid1->GetSingleFrameTex(10.0f);
 
 
-   // if (frame != nullptr) {
+    //if (frame != nullptr) {
      
-     //   m_Draw->BeginFrame();
-    //    m_Draw->Rect(frame, glm::vec2(20, 20), glm::vec2(520, 520), glm::vec4(1, 1, 1, 1));
-  //      m_Draw->Flush();
-//    }
+ //       m_VidMat->m_Y = frame->Y;
+//		m_VidMat->m_U = frame->U;
+//		m_VidMat->m_V = frame->V;
+
+        
+  //      m_Draw->BeginFrame();
+   //     m_Draw->Rect(nullptr, glm::vec2(20, 20), glm::vec2(520, 520), glm::vec4(1, 1, 1, 1));
+    //    m_Draw->Flush();
+    //}
 
 
 //    auto tex = m_Vid1->GetFrame();
@@ -483,6 +495,7 @@ void SceneView::paintEvent(QPaintEvent* event)
 
 
 	Q3D::Engine::QEngine::RenderVideo();
+
 
 
     pSwapchain->Present();

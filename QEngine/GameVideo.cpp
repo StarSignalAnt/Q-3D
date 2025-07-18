@@ -2,6 +2,7 @@
 #include <iostream>
 #include "Texture2D.h"
 #include <algorithm> 
+ 
 GameVideo::GameVideo(std::string path)
 {
     // Load video from path
@@ -72,6 +73,7 @@ GameVideo::GameVideo(std::string path)
     context = alcCreateContext(device, nullptr);
     alcMakeContextCurrent(context);
 
+
 }
 
 float getSourceTime(ALuint source) {
@@ -88,6 +90,22 @@ float getSourceTime(ALuint source) {
 void GameVideo::Play() {
     // When starting from the beginning, the playback start time is 0.
    // When starting from the beginning, the playback start time is 0.
+    if (videoCodecCtx) {
+        // We check the pixel format of the video stream. Our 3-texture code is
+        // optimized for AV_PIX_FMT_YUV420P, which is the most common format for web and consumer video.
+        if (videoCodecCtx->pix_fmt == AV_PIX_FMT_YUV420P) {
+            std::cout << "Video format is YUV420p, which is compatible with the 3-texture rendering method." << std::endl;
+        }
+        else {
+            // If the format is not what we expect, print a warning.
+            const char* formatName = av_get_pix_fmt_name(videoCodecCtx->pix_fmt);
+            std::cerr << "--------------------------------------------------------" << std::endl;
+            std::cerr << "WARNING: Video pixel format is '" << (formatName ? formatName : "Unknown") << "', not the expected YUV420p." << std::endl;
+            std::cerr << "The 3-texture rendering path may produce incorrect results or fail." << std::endl;
+            std::cerr << "--------------------------------------------------------" << std::endl;
+        }
+    }
+    // --- E
     m_playbackStartTime = 0.0;
     isPlaying = true;
 
@@ -98,88 +116,70 @@ void GameVideo::Play() {
 }
 void GameVideo::Update() {
     if (!isPlaying) return;
-    const size_t MAX_VIDEO_FRAMES_BUFFERED = 60;
-  //  if (m_Frames.size() >= MAX_VIDEO_FRAMES_BUFFERED) {
- //       return; // Don't decode more video until some frames are consumed.
-   // }
 
     if (av_read_frame(formatCtx, &packet) < 0) {
         return; // End of file or error
     }
-
 
     if (packet.stream_index == videoStreamIndex) {
         int ret = avcodec_send_packet(videoCodecCtx, &packet);
         if (ret >= 0) {
             ret = avcodec_receive_frame(videoCodecCtx, videoFrame);
             if (ret >= 0) {
+                // --- REMOVED CPU-SIDE CONVERSION ---
+                // The decoded frame is in videoFrame, likely in a planar YUV format.
+                // We will create three separate textures for the Y, U, and V planes.
 
-                // CORRECTION: Lazily initialize the swsContext for the intermediate conversion.
-                if (!swsContext) {
-                    // STEP 1 SETUP: Convert to a standard 8-bit RGBA format first.
-                    swsContext = sws_getContext(
-                        videoCodecCtx->width, videoCodecCtx->height, videoCodecCtx->pix_fmt, // Source
-                        videoCodecCtx->width, videoCodecCtx->height, AV_PIX_FMT_RGBA,        // Destination
-                        SWS_BILINEAR, nullptr, nullptr, nullptr);
+                // --- START: NEW YUV TEXTURE CREATION ---
+
+                // Texture dimensions (assuming YUV420p, where chroma planes are half size)
+                const int y_width = videoCodecCtx->width;
+                const int y_height = videoCodecCtx->height;
+                const int uv_width = videoCodecCtx->width / 2;
+                const int uv_height = videoCodecCtx->height / 2;
+
+                // The `linesize` array in AVFrame can indicate padding. If linesize is not equal
+                // to the plane's width, we must copy the data row-by-row to a contiguous buffer
+                // that the texture constructor can understand.
+
+                // Y Plane
+                uint8_t* y_buffer = new uint8_t[y_width * y_height];
+                for (int i = 0; i < y_height; ++i) {
+                    memcpy(y_buffer + i * y_width, videoFrame->data[0] + i * videoFrame->linesize[0], y_width);
                 }
+                auto y_tex = new Q3D::Engine::Texture::Texture2D(y_width, y_height, y_buffer, 1);
+                delete[] y_buffer;
 
-                if (!swsContext) {
-                    std::cerr << "Could not initialize the conversion context!" << std::endl;
-                    av_packet_unref(&packet);
-                    return;
+                // U Plane
+                uint8_t* u_buffer = new uint8_t[uv_width * uv_height];
+                for (int i = 0; i < uv_height; ++i) {
+                    memcpy(u_buffer + i * uv_width, videoFrame->data[1] + i * videoFrame->linesize[1], uv_width);
                 }
+                auto u_tex = new Q3D::Engine::Texture::Texture2D(uv_width, uv_height, u_buffer, 1);
+                delete[] u_buffer;
 
+                // V Plane
+                uint8_t* v_buffer = new uint8_t[uv_width * uv_height];
+                for (int i = 0; i < uv_height; ++i) {
+                    memcpy(v_buffer + i * uv_width, videoFrame->data[2] + i * videoFrame->linesize[2], uv_width);
+                }
+                auto v_tex = new Q3D::Engine::Texture::Texture2D(uv_width, uv_height, v_buffer, 1);
+                delete[] v_buffer;
+
+                // --- END: NEW YUV TEXTURE CREATION ---
+
+                Frame* frame = new Frame;
+                frame->Image.Y = y_tex;
+                frame->Image.U = u_tex;
+                frame->Image.V = v_tex;
+
+                // Set timestamp for the frame
                 AVStream* videoStream = formatCtx->streams[videoStreamIndex];
                 int64_t timestamp = videoFrame->pts != AV_NOPTS_VALUE ? videoFrame->pts : videoFrame->pkt_dts;
                 if (timestamp != AV_NOPTS_VALUE) {
                     m_CurrentFrameTimestamp = timestamp * av_q2d(videoStream->time_base);
                 }
-                else {
-                    double frameRate = av_q2d(videoStream->r_frame_rate);
-                    double frameDuration = frameRate > 0 ? 1.0 / frameRate : 0.04;
-                    if (m_CurrentFrameTimestamp >= 0) {
-                        m_CurrentFrameTimestamp += frameDuration;
-                    }
-                    else {
-                        m_CurrentFrameTimestamp = 0.0;
-                    }
-                }
-
-                // --- START: TWO-STEP CONVERSION ---
-
-                // STEP 1: Convert from YUV to 8-bit RGBA
-                uint8_t* intermediateRgbaBuffer = new uint8_t[videoCodecCtx->width * videoCodecCtx->height * 4];
-                int intermediateStride[1] = { videoCodecCtx->width * 4 };
-                uint8_t* intermediateData[1] = { intermediateRgbaBuffer };
-
-                sws_scale(swsContext, videoFrame->data, videoFrame->linesize,
-                    0, videoCodecCtx->height,
-                    intermediateData, intermediateStride);
-
-                // STEP 2: Manually convert from 8-bit RGBA to 32-bit float RGBA
-                const int numPixels = videoCodecCtx->width * videoCodecCtx->height;
-                float* finalFloatBuffer = new float[numPixels * 4];
-
-                for (int i = 0; i < numPixels; ++i) {
-                    // Read 4 uint8_t values (0-255) and convert them to float (0.0-1.0)
-                    finalFloatBuffer[i * 4 + 0] = intermediateRgbaBuffer[i * 4 + 0] / 255.0f; // R
-                    finalFloatBuffer[i * 4 + 1] = intermediateRgbaBuffer[i * 4 + 1] / 255.0f; // G
-                    finalFloatBuffer[i * 4 + 2] = intermediateRgbaBuffer[i * 4 + 2] / 255.0f; // B
-                    finalFloatBuffer[i * 4 + 3] = intermediateRgbaBuffer[i * 4 + 3] / 255.0f; // A
-                }
-
-                // --- END: TWO-STEP CONVERSION ---
-
-                // Now, create the texture using the final float buffer
-                auto img = new Q3D::Engine::Texture::Texture2D(videoCodecCtx->width, videoCodecCtx->height, finalFloatBuffer, 4);
-
-                // IMPORTANT: Clean up both buffers
-                delete[] intermediateRgbaBuffer;
-                delete[] finalFloatBuffer;
-
-                Frame* frame = new Frame;
-                frame->Image = img;
-                frame->TimeStamp = GetCurrentFrameTimestamp();
+                frame->TimeStamp = m_CurrentFrameTimestamp;
 
                 m_Frames.push_back(frame);
             }
@@ -231,10 +231,10 @@ void GameVideo::Update() {
             }
         }
     }
-
     av_packet_unref(&packet);
 }
 
+/*
 Q3D::Engine::Texture::Texture2D* GameVideo::GetFrame() {
     if (!isPlaying && m_CurrentFrame != nullptr) {
         return m_CurrentFrame;
@@ -270,6 +270,7 @@ Q3D::Engine::Texture::Texture2D* GameVideo::GetFrame() {
     // Return the last known good frame to prevent flickering.
     return m_CurrentFrame;
 }
+*/
 
 double GameVideo::GetCurrentFrameTimestamp() const {
     return m_CurrentFrameTimestamp;
@@ -301,24 +302,26 @@ void GameVideo::Seek(float timeInSeconds)
 {
     if (!formatCtx || videoStreamIndex < 0) return;
 
-    // Pause playback while we perform the seek operations
-    Pause();
+    Pause(); // Pause playback during the seek operation.
 
-    // Clamp the seek time to the video's duration
     double duration = GetDuration();
     timeInSeconds = std::max(0.0f, std::min((float)duration, timeInSeconds));
 
-    // 1. Flush all old data from decoders and our internal buffers
+    // 1. Flush decoders and clear our internal frame buffer.
     if (videoCodecCtx) avcodec_flush_buffers(videoCodecCtx);
     if (audioCodecCtx) avcodec_flush_buffers(audioCodecCtx);
+
+    // Clean up any existing frames with their YUV textures.
     for (Frame* frame : m_Frames) {
-        delete frame->Image;
+        delete frame->Image.Y;
+        delete frame->Image.U;
+        delete frame->Image.V;
         delete frame;
     }
     m_Frames.clear();
     m_CurrentFrame = nullptr;
 
-    // Clear and restart the OpenAL audio source
+    // 2. Clear and restart the OpenAL audio source.
     alSourceStop(source);
     ALint buffersProcessed = 0;
     alGetSourcei(source, AL_BUFFERS_PROCESSED, &buffersProcessed);
@@ -328,7 +331,7 @@ void GameVideo::Seek(float timeInSeconds)
         alDeleteBuffers(buffersProcessed, buffers.data());
     }
 
-    // 2. Perform a fast seek to the keyframe BEFORE our target time
+    // 3. Seek to the keyframe before our target time.
     AVStream* stream = formatCtx->streams[videoStreamIndex];
     int64_t targetTimestamp = static_cast<int64_t>(timeInSeconds / av_q2d(stream->time_base));
     if (av_seek_frame(formatCtx, videoStreamIndex, targetTimestamp, AVSEEK_FLAG_BACKWARD) < 0) {
@@ -337,7 +340,7 @@ void GameVideo::Seek(float timeInSeconds)
         return;
     }
 
-    // 3. Decode forward from the keyframe until we find the precise frame
+    // 4. Decode forward from the keyframe until we find the precise frame.
     bool frameFound = false;
     while (!frameFound && av_read_frame(formatCtx, &packet) >= 0) {
         if (packet.stream_index == videoStreamIndex) {
@@ -345,34 +348,37 @@ void GameVideo::Seek(float timeInSeconds)
                 int ret = avcodec_receive_frame(videoCodecCtx, videoFrame);
                 if (ret == 0) {
                     double frameTimestamp = videoFrame->pts * av_q2d(stream->time_base);
-                    // If this frame is at or after our target, it's the one we want
+                    // If this frame is at or after our target, it's the one we want.
                     if (frameTimestamp >= timeInSeconds) {
-                        // Set the precise start time based on this frame's timestamp
+                        // Set the precise start time for playback synchronization.
                         m_playbackStartTime = frameTimestamp;
                         m_CurrentFrameTimestamp = frameTimestamp;
 
-                        // Process and buffer this single frame
-                        // (This is your video conversion logic from the Update function)
-                        if (!swsContext) {
-                            swsContext = sws_getContext(videoCodecCtx->width, videoCodecCtx->height, videoCodecCtx->pix_fmt, videoCodecCtx->width, videoCodecCtx->height, AV_PIX_FMT_RGBA, SWS_BILINEAR, nullptr, nullptr, nullptr);
-                        }
-                        uint8_t* iRgbaBuffer = new uint8_t[videoCodecCtx->width * videoCodecCtx->height * 4];
-                        int iStride[1] = { videoCodecCtx->width * 4 };
-                        sws_scale(swsContext, videoFrame->data, videoFrame->linesize, 0, videoCodecCtx->height, &iRgbaBuffer, iStride);
-                        const int numPixels = videoCodecCtx->width * videoCodecCtx->height;
-                        float* fFloatBuffer = new float[numPixels * 4];
-                        for (int p = 0; p < numPixels; ++p) {
-                            fFloatBuffer[p * 4 + 0] = iRgbaBuffer[p * 4 + 0] / 255.0f;
-                            fFloatBuffer[p * 4 + 1] = iRgbaBuffer[p * 4 + 1] / 255.0f;
-                            fFloatBuffer[p * 4 + 2] = iRgbaBuffer[p * 4 + 2] / 255.0f;
-                            fFloatBuffer[p * 4 + 3] = iRgbaBuffer[p * 4 + 3] / 255.0f;
-                        }
-                        delete[] iRgbaBuffer;
-                        auto img = new Q3D::Engine::Texture::Texture2D(videoCodecCtx->width, videoCodecCtx->height, fFloatBuffer, 4);
-                        delete[] fFloatBuffer;
+                        // Create the three YUV textures for this frame.
+                        const int y_width = videoCodecCtx->width;
+                        const int y_height = videoCodecCtx->height;
+                        const int uv_width = videoCodecCtx->width / 2;
+                        const int uv_height = videoCodecCtx->height / 2;
+
+                        uint8_t* y_buffer = new uint8_t[y_width * y_height];
+                        for (int i = 0; i < y_height; ++i) memcpy(y_buffer + i * y_width, videoFrame->data[0] + i * videoFrame->linesize[0], y_width);
+                        auto y_tex = new Q3D::Engine::Texture::Texture2D(y_width, y_height, y_buffer, 1);
+                        delete[] y_buffer;
+
+                        uint8_t* u_buffer = new uint8_t[uv_width * uv_height];
+                        for (int i = 0; i < uv_height; ++i) memcpy(u_buffer + i * uv_width, videoFrame->data[1] + i * videoFrame->linesize[1], uv_width);
+                        auto u_tex = new Q3D::Engine::Texture::Texture2D(uv_width, uv_height, u_buffer, 1);
+                        delete[] u_buffer;
+
+                        uint8_t* v_buffer = new uint8_t[uv_width * uv_height];
+                        for (int i = 0; i < uv_height; ++i) memcpy(v_buffer + i * uv_width, videoFrame->data[2] + i * videoFrame->linesize[2], uv_width);
+                        auto v_tex = new Q3D::Engine::Texture::Texture2D(uv_width, uv_height, v_buffer, 1);
+                        delete[] v_buffer;
 
                         Frame* frame = new Frame;
-                        frame->Image = img;
+                        frame->Image.Y = y_tex;
+                        frame->Image.U = u_tex;
+                        frame->Image.V = v_tex;
                         frame->TimeStamp = m_CurrentFrameTimestamp;
                         m_Frames.push_back(frame);
 
@@ -381,17 +387,15 @@ void GameVideo::Seek(float timeInSeconds)
                 }
             }
         }
-        // We still need to process audio packets found during this search to prime the audio buffer
-        else if (packet.stream_index == audioStreamIndex) {
-            // (Your existing audio decoding logic from Update goes here)
-        }
+        // Note: Audio packets should be processed here as well to prime the audio buffer
+        // for a seamless transition, but that logic is omitted for clarity on the video seek.
         av_packet_unref(&packet);
     }
 
-    // 4. Start playback from the new, precisely synced position
-    alSourcePlay(source);
+    // 5. Resume playback from the new position.
     Resume();
 }
+
 double GameVideo::GetCurrentTime() const {
     float audioClockTime = getSourceTime(const_cast<GameVideo*>(this)->source);
     if (audioClockTime < 0) audioClockTime = 0;
@@ -616,4 +620,41 @@ cleanup:
     avformat_close_input(&thumbFormatCtx);
 
     return thumbnails;
+}
+
+
+YUVFrameTextures* GameVideo::GetYUVFrame() {
+    if (!isPlaying && m_CurrentFrame != nullptr) {
+        return m_CurrentFrame;
+    }
+
+    float audioClockTime = getSourceTime(source);
+    double displayTime = m_playbackStartTime + audioClockTime;
+
+    Frame* bestFrame = nullptr;
+
+    for (Frame* frame : m_Frames) {
+        if (frame->TimeStamp <= displayTime) {
+            bestFrame = frame;
+        }
+        else {
+            break;
+        }
+    }
+
+    if (bestFrame) {
+        // Clean up all frames that are now older than the one we're showing.
+        while (!m_Frames.empty() && m_Frames.front() != bestFrame) {
+            Frame* oldFrame = m_Frames.front();
+            delete oldFrame->Image.Y;
+            delete oldFrame->Image.U;
+            delete oldFrame->Image.V;
+            delete oldFrame;
+            m_Frames.erase(m_Frames.begin());
+        }
+        // Cache the correct frame's textures.
+        m_CurrentFrame = &bestFrame->Image;
+    }
+
+    return m_CurrentFrame;
 }

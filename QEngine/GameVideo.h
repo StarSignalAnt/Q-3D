@@ -7,6 +7,7 @@ extern "C" {
 #include <libavcodec/avcodec.h>
 #include <libavutil/avutil.h>
 #include <libswscale/swscale.h>
+#include <libavutil/pixdesc.h>
 #include <libswresample/swresample.h> // Audio resampling
 }
 #include <AL/al.h>      // Core OpenAL API
@@ -24,9 +25,15 @@ namespace Q3D {
     }
 }
 
+struct YUVFrameTextures {
+    Q3D::Engine::Texture::Texture2D* Y = nullptr;
+    Q3D::Engine::Texture::Texture2D* U = nullptr;
+    Q3D::Engine::Texture::Texture2D* V = nullptr;
+};
+
 struct Frame {
 
-    Q3D::Engine::Texture::Texture2D* Image;
+    YUVFrameTextures Image;
     double TimeStamp;
 
 
@@ -42,6 +49,7 @@ public:
     void Update();
     Q3D::Engine::Texture::Texture2D* GetFrame();
     double GetCurrentFrameTimestamp() const;
+    YUVFrameTextures* GetYUVFrame();
     void Pause();
     void Resume();
     double GetCurrentTime() const;
@@ -57,6 +65,7 @@ private:
     AVFormatContext* formatCtx = nullptr;
     AVCodecContext* videoCodecCtx = nullptr;
     AVCodecContext* audioCodecCtx = nullptr;
+    YUVFrameTextures* m_CurrentFrame = nullptr;
     AVFrame* videoFrame = nullptr;
     AVFrame* audioFrame = nullptr;
     AVPacket packet;
@@ -65,8 +74,8 @@ private:
     ALCdevice* device;
     ALCcontext* context;
     ALuint source;
-    Q3D::Engine::Texture::Texture2D* m_CurrentFrame = nullptr;
 
+    //YUVFrameTextures* m_CurrentFrame = nullptr;
     std::vector<Frame*> m_Frames;
     double m_CurrentFrameTimestamp;
 

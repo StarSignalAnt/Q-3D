@@ -35,7 +35,7 @@ enum class VertexLayoutType
 };
 enum class LayoutResourceType
 {
-    PBRMaterial,Material2D
+    PBRMaterial,Material2D,MaterialYUV
 };
 
 

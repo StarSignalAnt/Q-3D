@@ -78,7 +78,7 @@ public:
     void Flush();
     void SetAdditive(bool add);
     // --- STATE MANAGEMENT ---
-    void SetMaterial(Material2D* material);
+    void SetMaterial(RenderMaterial* material);
     void SetOverride(RenderMaterial* mat);
 
 private:
@@ -98,7 +98,7 @@ private:
     RenderMaterial* m_ActiveMaterial = nullptr;
 
     // Class state
-    Material2D* m_Material;
+    RenderMaterial* m_Material;
     RenderMaterial* m_Override = nullptr;
     GraphNode* m_Camera;
     bool m_Add = false;

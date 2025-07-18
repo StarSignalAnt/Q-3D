@@ -223,6 +223,7 @@
     <ClCompile Include="Cinematic.cpp">
       <Filter>Cinematic</Filter>
     </ClCompile>
+    <ClCompile Include="MaterialVideo.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CLBase.h" />
@@ -412,6 +413,7 @@
     <ClInclude Include="Cinematic.h">
       <Filter>Cinematic</Filter>
     </ClInclude>
+    <ClInclude Include="MaterialVideo.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
