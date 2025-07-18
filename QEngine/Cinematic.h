@@ -11,14 +11,16 @@
 // GLM includes for math operations
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
+#include "PixelMap.h"
 #include <glm/gtc/epsilon.hpp>
+
 
 // Forward-declare engine classes
 class GraphNode;
 struct GSound;
 class GameAudio; // For the singleton access
 class SceneGraph;
-
+class GameVideo;
 // Enum to define how to interpolate from a keyframe.
 enum class InterpolationType {
     Linear, // Default smooth curve (lerp/slerp)
@@ -164,6 +166,34 @@ protected:
     std::vector<Keyframe<T>> m_keyframes;
 };
 
+class TrackVideo : public Track<GameVideo*> {
+public:
+    TrackVideo(std::string name);
+    ~TrackVideo() override;
+    void Update(float time, bool isScrubbing) override;
+
+    // Video keyframes are added programmatically or via drag-and-drop, not the record button.
+    void RecordKeyframe(float time, InterpolationType interpType) override {}
+    void AddVideoKeyframe(float time, GameVideo* video);
+
+    const std::string& GetName() const override { return m_name; }
+    void SetName(const std::string& newName) override { m_name = newName; }
+    float GetEndTime() const override;
+    void StopAllSounds() override; // This will also be used to stop video
+    const std::map<GameVideo*, std::vector<PixelMap*>>& GetThumbnailCache() const { return m_thumbnailCache; }
+
+protected:
+    // Interpolation isn't applicable to video clips.
+    GameVideo* Interpolate(GameVideo* const& a, GameVideo* const& b, float t) const override;
+
+private:
+    std::string m_name;
+    GameVideo* m_activeVideo = nullptr;
+    float m_lastTime = 0.0f;
+    void generateThumbnailsForVideo(GameVideo* video);
+    std::map<GameVideo*, std::vector<PixelMap*>> m_thumbnailCache;
+};
+
 // A track specifically for animating the transform of a GraphNode.
 class TrackTransform : public Track<TransformState> {
 public:
@@ -220,7 +250,7 @@ private:
 class TrackAudio : public Track<GSound*> {
 public:
     TrackAudio(std::string name) : m_name(std::move(name)), m_lastTime(0.0f) {}
-
+    ~TrackAudio() override;
     // Update is called every frame; it checks if the playhead has crossed a keyframe.
     void Update(float time, bool isScrubbing) override;
 

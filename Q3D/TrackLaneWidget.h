@@ -46,4 +46,5 @@ private:
     ITrack* m_track;
     int m_scrollOffset = 0;
     std::optional<size_t> m_draggedKeyframeIndex;
+    std::map<void*, std::vector<QPixmap>> m_pixmapCache;
 };

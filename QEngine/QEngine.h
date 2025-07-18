@@ -139,6 +139,7 @@ using VividCallbackFunc = void(*)(std::string value);
 		QENGINE_API static void RegisterNodeTypes();
 		QENGINE_API static void StartVideo(std::string path);
 		QENGINE_API static void RenderVideo();
+		QENGINE_API static void SetVideo(GameVideo* video);
 
 
 		QENGINE_API static void SetContentPath(std::string path);

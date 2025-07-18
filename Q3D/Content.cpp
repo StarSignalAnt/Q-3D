@@ -480,6 +480,9 @@ void Content::mouseMoveEvent(QMouseEvent* event) {
         if (isAudioFile(m_OverItem->ext)) {
             mimeData->setData("application/x-sound-asset", m_OverItem->fullPath.toUtf8());
         }
+        else if (isVideoFile(m_OverItem->ext)) {
+            mimeData->setData("application/x-video-asset", m_OverItem->fullPath.toUtf8());
+        }
         else {
             // You can add other custom types here later (e.g., for GraphNodes)
             // For now, we'll use plain text for everything else.
@@ -529,4 +532,9 @@ bool Content::eventFilter(QObject* watched, QEvent* event)
 bool Content::isAudioFile(const QString& extension) {
     static QStringList audioExtensions = { "wav", "mp3", "ogg", "flac" };
     return audioExtensions.contains(extension.toLower());
+}
+
+bool Content::isVideoFile(const QString& extension) {
+    static QStringList videoExtensions = { "mp4", "mov", "avi", "mkv" };
+    return videoExtensions.contains(extension.toLower());
 }

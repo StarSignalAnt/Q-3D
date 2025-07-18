@@ -4,6 +4,8 @@
 #include <QMenu>
 #include "GameAudio.h"
 #include "TimelineMetrics.h"
+#include "GameVideo.h"
+#include <QImage>
 constexpr int KEYFRAME_CLICK_TOLERANCE = 5;
 TrackLaneWidget::TrackLaneWidget(ITrack* track, QWidget* parent)
     : QWidget(parent)
@@ -28,19 +30,23 @@ void TrackLaneWidget::paintEvent(QPaintEvent* event)
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
 
-    // 1. Draw the base gradient background for the track lane
+    // 1. Draw the base gradient background based on the track's type
     QLinearGradient gradient(0, 0, 0, height());
     if (m_track) {
         if (dynamic_cast<TrackAudio*>(m_track)) {
-            gradient.setColorAt(0, QColor("#993333"));
+            gradient.setColorAt(0, QColor("#993333")); // Red for Audio
             gradient.setColorAt(1, QColor("#662222"));
         }
+        else if (dynamic_cast<TrackVideo*>(m_track)) {
+            gradient.setColorAt(0, QColor("#336699")); // Blue for Video
+            gradient.setColorAt(1, QColor("#224466"));
+        }
         else if (dynamic_cast<TrackTransform*>(m_track)) {
-            gradient.setColorAt(0, QColor("#5a5a5a"));
+            gradient.setColorAt(0, QColor("#5a5a5a")); // Grey for Transform
             gradient.setColorAt(1, QColor("#4f4f4f"));
         }
         else {
-            gradient.setColorAt(0, QColor("#2c5364"));
+            gradient.setColorAt(0, QColor("#2c5364")); // Default
         }
     }
     else {
@@ -50,7 +56,9 @@ void TrackLaneWidget::paintEvent(QPaintEvent* event)
 
     if (!m_track) return;
 
-    // 2. Special drawing logic for Audio Tracks
+    // 2. Draw Keyframes (logic varies by track type)
+
+    // --- Special drawing for Audio Tracks ---
     if (auto* audioTrack = dynamic_cast<TrackAudio*>(m_track))
     {
         const auto& keyframes = audioTrack->GetKeyframes();
@@ -58,47 +66,95 @@ void TrackLaneWidget::paintEvent(QPaintEvent* event)
             GSound* sound = keyframe.GetValue();
             if (!sound) continue;
 
-            float startTime = keyframe.GetTime();
-            float duration = sound->Length();
-
-            int startX = startTime * PIXELS_PER_SECOND;
-            int widthPx = duration * PIXELS_PER_SECOND;
+            int startX = keyframe.GetTime() * PIXELS_PER_SECOND;
+            int widthPx = sound->Length() * PIXELS_PER_SECOND;
             QRectF clipRect(startX, 2, widthPx, height() - 4);
 
-            // --- Step A: Draw the semi-transparent background rectangle ---
-            QColor rectColor("#E57373"); // A light, visible red
-            rectColor.setAlphaF(0.6);    // Make it semi-transparent
+            // Step A: Draw the semi-transparent background rectangle
+            QColor rectColor("#E57373");
+            rectColor.setAlphaF(0.6);
             painter.setPen(Qt::NoPen);
             painter.setBrush(rectColor);
             painter.drawRoundedRect(clipRect, 3, 3);
 
-            // --- Step B: Draw the waveform over the background rectangle ---
+            // Step B: Draw the waveform over the background
             if (!sound->waveformData.empty()) {
                 const std::vector<float>& waveform = sound->waveformData;
                 int laneCenterY = height() / 2;
                 float lineSpacing = static_cast<float>(widthPx) / waveform.size();
-
-                QPen wavePen(QColor("#FFEBEE")); // A very light, almost white pink
+                QPen wavePen(QColor("#FFEBEE"));
                 wavePen.setWidth(1);
                 painter.setPen(wavePen);
-
                 for (size_t i = 0; i < waveform.size(); ++i) {
                     float peak = waveform[i];
                     int lineHeight = static_cast<int>(peak * (height() - 8));
                     int lineY = laneCenterY - (lineHeight / 2);
                     int lineX = startX + static_cast<int>(i * lineSpacing);
-
                     painter.drawLine(lineX, lineY, lineX, lineY + lineHeight);
                 }
             }
 
-            // --- Step C: Draw the main keyframe tick on top of everything ---
+            // Step C: Draw the keyframe tick on top
             painter.setPen(QColor("#00ffc8"));
             painter.setBrush(QColor("#00ffc8"));
             painter.drawRect(startX - 1, 0, 3, height());
         }
     }
-    // 3. Fallback for all other track types (unchanged)
+    // --- Special drawing for Video Tracks ---
+    else if (auto* videoTrack = dynamic_cast<TrackVideo*>(m_track))
+    {
+        for (const auto& keyframe : videoTrack->GetKeyframes()) {
+            GameVideo* video = keyframe.GetValue();
+            if (!video) continue;
+
+            // --- Step A: Check if thumbnails have been converted to QPixmaps yet ---
+            if (m_pixmapCache.find(video) == m_pixmapCache.end()) {
+                // If not, perform the one-time conversion now.
+                const auto& pixelMapCache = videoTrack->GetThumbnailCache();
+                auto it = pixelMapCache.find(video);
+                if (it != pixelMapCache.end()) {
+                    std::vector<QPixmap> pixmaps;
+                    for (PixelMap* pm : it->second) {
+                        if (pm) {
+                            // Convert the raw PixelMap data to a QPixmap.
+                            QImage img(static_cast<uchar*>(pm->GetData()), pm->GetWidth(), pm->GetHeight(), QImage::Format_RGBA8888);
+                            pixmaps.push_back(QPixmap::fromImage(img.copy()));
+                        }
+                    }
+                    // Store the converted pixmaps in our UI-side cache.
+                    m_pixmapCache[video] = pixmaps;
+                }
+            }
+
+            // --- Step B: Draw the cached QPixmaps ---
+            auto cacheIt = m_pixmapCache.find(video);
+            if (cacheIt != m_pixmapCache.end()) {
+                const std::vector<QPixmap>& thumbnails = cacheIt->second;
+                float startTime = keyframe.GetTime();
+                float duration = video->GetDuration();
+
+                for (size_t i = 0; i < thumbnails.size(); ++i) {
+                    float thumbStartTime = startTime + i;
+                    int thumbStartX = thumbStartTime * PIXELS_PER_SECOND;
+                    int thumbWidthPx = PIXELS_PER_SECOND;
+
+                    if (thumbStartTime + 1.0f > startTime + duration) {
+                        thumbWidthPx = (startTime + duration - thumbStartTime) * PIXELS_PER_SECOND;
+                    }
+
+                    QRect thumbRect(thumbStartX, 0, thumbWidthPx, height());
+                    painter.drawPixmap(thumbRect, thumbnails[i]);
+                }
+            }
+
+            // --- Step C: Draw the main keyframe tick on top ---
+            int startX = keyframe.GetTime() * PIXELS_PER_SECOND;
+            painter.setPen(QColor("#00ffc8"));
+            painter.setBrush(QColor("#00ffc8"));
+            painter.drawRect(startX - 1, 0, 3, height());
+        }
+    }
+    // --- Fallback for all other track types (e.g., Transform) ---
     else
     {
         QPen keyframePen(QColor("#00ffc8"));

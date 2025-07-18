@@ -99,14 +99,25 @@ namespace Q3D::Engine {
 
 	}
 
+	void QEngine::SetVideo(GameVideo* video) {
+		if (m_CurrentVideo) {
+			delete m_CurrentVideo;
+		}
+		m_CurrentVideo = video;
+	}
+
 	void QEngine::RenderVideo() {
 
-		for (int i = 0; i < 5; i++) {
-			m_CurrentVideo->Update();
-		}
+		if (m_CurrentVideo == nullptr) return;
+	//	for (int i = 0; i < 5; i++) {
+	//		m_CurrentVideo->Update();
+		//}
+
 		auto tex = m_CurrentVideo->GetFrame();
 		if (tex) {
+			m_Draw->BeginFrame();
 			m_Draw->Rect(tex, glm::vec2(0, 0), glm::vec2((float)GetFrameWidth(), (float)GetFrameHeight()), glm::vec4(1, 1, 1, 1));
+			m_Draw->Flush();
 		}
 
 	}

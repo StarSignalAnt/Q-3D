@@ -17,6 +17,7 @@
 #include <qmenu.h>
 #include <qmenubar.h>
 #include "GameAudio.h"
+#include "GameVideo.h"
 constexpr int RULER_HEIGHT = 30;
 constexpr int PIXELS_PER_SECOND2 = 100;
 
@@ -43,6 +44,7 @@ CinematicEditor::CinematicEditor(SceneGraph* scene, QWidget* parent)
     m_createMenu = m_menuBar->addMenu("Create");
     m_createGraphNodeTrackAction = m_createMenu->addAction("GraphNode Track");
     m_createAudioTrackAction = m_createMenu->addAction("Audio Track");
+    m_createVideoTrackAction = m_createMenu->addAction("Video Track");
 
     // --- Toolbar ---
     m_toolBar = new QToolBar(this);
@@ -157,6 +159,8 @@ CinematicEditor::CinematicEditor(SceneGraph* scene, QWidget* parent)
     connect(m_playbackTimer, &QTimer::timeout, this, &CinematicEditor::onPlaybackUpdate);
     connect(m_createGraphNodeTrackAction, &QAction::triggered, this, &CinematicEditor::onCreateGraphNodeTrack);
     connect(m_createAudioTrackAction, &QAction::triggered, this, &CinematicEditor::onCreateAudioTrack);
+    connect(m_createVideoTrackAction, &QAction::triggered, this, &CinematicEditor::onCreateVideoTrack);
+
     connect(m_timeRuler, &TimeRuler::timeChanged, this, [this](float newTime) {
         updateCurrentTime(newTime, false);
         });
@@ -169,7 +173,7 @@ CinematicEditor::CinematicEditor(SceneGraph* scene, QWidget* parent)
     connect(m_laneScrollArea->verticalScrollBar(), &QScrollBar::valueChanged, m_headerScrollArea->verticalScrollBar(), &QScrollBar::setValue);
     connect(m_timeRuler, &TimeRuler::scrubbingFinished, this, &CinematicEditor::onScrubbingFinished);
     connect(m_playheadOverlay, &PlayheadOverlay::scrubbingFinished, this, &CinematicEditor::onScrubbingFinished);
-    connect(m_laneScrollArea->horizontalScrollBar(), &QScrollBar::sliderReleased, this, &CinematicEditor::onScrubbingFinished);
+ //   connect(m_laneScrollArea->horizontalScrollBar(), &QScrollBar::sliderReleased, this, &CinematicEditor::onScrubbingFinished);
 
     rebuildUIFromCinematic();
     updateButtonStates();
@@ -190,9 +194,10 @@ bool CinematicEditor::eventFilter(QObject* watched, QEvent* event)
         // --- Handle Drag Operations ---
         if (event->type() == QEvent::DragEnter) {
             auto* dragEvent = static_cast<QDragEnterEvent*>(event);
-            // Accept the drag if it contains either a graph node or a sound asset
+            // Accept the drag if it contains any of our supported asset types
             if (dragEvent->mimeData()->hasFormat("application/x-graphnode") ||
-                dragEvent->mimeData()->hasFormat("application/x-sound-asset")) {
+                dragEvent->mimeData()->hasFormat("application/x-sound-asset") ||
+                dragEvent->mimeData()->hasFormat("application/x-video-asset")) {
                 dragEvent->acceptProposedAction();
                 return true; // Event handled
             }
@@ -202,9 +207,8 @@ bool CinematicEditor::eventFilter(QObject* watched, QEvent* event)
             auto* dropEvent = static_cast<QDropEvent*>(event);
             QWidget* laneViewportWidget = m_laneScrollArea->widget();
 
-            // --- Path for Dropped Sound Assets ---
-            if (dropEvent->mimeData()->hasFormat("application/x-sound-asset") && watched == laneViewportWidget) {
-                // Find the specific track lane under the cursor robustly
+            // --- Path for Dropped Video Assets ---
+            if (dropEvent->mimeData()->hasFormat("application/x-video-asset") && watched == laneViewportWidget) {
                 TrackLaneWidget* targetLane = nullptr;
                 for (int i = 0; i < m_laneLayout->count(); ++i) {
                     if (auto item = m_laneLayout->itemAt(i)) {
@@ -218,20 +222,49 @@ bool CinematicEditor::eventFilter(QObject* watched, QEvent* event)
                 }
 
                 if (targetLane) {
-                    // Check if the target is actually an audio track
+                    if (auto* videoTrack = dynamic_cast<TrackVideo*>(targetLane->getTrack())) {
+                        float dropTime = static_cast<float>(dropEvent->position().x() + m_laneScrollArea->horizontalScrollBar()->value()) / PIXELS_PER_SECOND2;
+                        dropTime = max2(0.0f, dropTime);
+                        QString filePath = QString::fromUtf8(dropEvent->mimeData()->data("application/x-video-asset"));
+                        auto* video = new GameVideo(filePath.toStdString());
+
+                        if (video) {
+                            videoTrack->AddVideoKeyframe(dropTime, video);
+                            targetLane->update();
+                            updateTimelineWidth();
+                            dropEvent->acceptProposedAction();
+                            return true;
+                        }
+                    }
+                }
+            }
+            // --- Path for Dropped Sound Assets ---
+            else if (dropEvent->mimeData()->hasFormat("application/x-sound-asset") && watched == laneViewportWidget) {
+                TrackLaneWidget* targetLane = nullptr;
+                for (int i = 0; i < m_laneLayout->count(); ++i) {
+                    if (auto item = m_laneLayout->itemAt(i)) {
+                        if (auto widget = qobject_cast<TrackLaneWidget*>(item->widget())) {
+                            if (widget->geometry().contains(dropEvent->position().toPoint())) {
+                                targetLane = widget;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if (targetLane) {
                     if (auto* audioTrack = dynamic_cast<TrackAudio*>(targetLane->getTrack())) {
                         float dropTime = static_cast<float>(dropEvent->position().x() + m_laneScrollArea->horizontalScrollBar()->value()) / PIXELS_PER_SECOND2;
                         dropTime = max2(0.0f, dropTime);
-
                         QString filePath = QString::fromUtf8(dropEvent->mimeData()->data("application/x-sound-asset"));
                         GSound* sound = GameAudio::m_Instance->LoadSound(filePath.toStdString());
 
                         if (sound) {
                             audioTrack->AddAudioKeyframe(dropTime, sound);
                             targetLane->update();
-                            updateTimelineWidth(); // Resize timeline to fit the new clip
+                            updateTimelineWidth();
                             dropEvent->acceptProposedAction();
-                            return true; // Event handled
+                            return true;
                         }
                     }
                 }
@@ -246,9 +279,9 @@ bool CinematicEditor::eventFilter(QObject* watched, QEvent* event)
                     if (droppedNode && m_activeCinematic) {
                         auto newTrack = std::make_unique<TrackTransform>(droppedNode);
                         m_activeCinematic.get()->AddTrack(std::move(newTrack));
-                        rebuildUIFromCinematic(); // Rebuild is okay here since it's a new track
+                        rebuildUIFromCinematic();
                         dropEvent->acceptProposedAction();
-                        return true; // Event handled
+                        return true;
                     }
                 }
             }
@@ -580,6 +613,9 @@ void CinematicEditor::updateTimelineWidth()
 
 void CinematicEditor::onScrubbingFinished()
 {
+    if (m_playbackState == Playing) {
+        return;
+    }
     if (GameAudio::m_Instance) {
         // Use SoLoud's function to stop every sound currently playing.
         GameAudio::m_Instance->gSoloud.stopAll();
@@ -589,5 +625,17 @@ void CinematicEditor::onScrubbingFinished()
         for (const auto& track : m_activeCinematic->GetTracks()) {
             track->StopAllSounds();
         }
+    }
+}
+
+
+void CinematicEditor::onCreateVideoTrack()
+{
+    if (m_activeCinematic) {
+        // Create a new, empty video track.
+        auto newTrack = std::make_unique<TrackVideo>("Video Track");
+        m_activeCinematic->AddTrack(std::move(newTrack));
+        // Rebuild the UI to show the new empty track.
+        rebuildUIFromCinematic();
     }
 }

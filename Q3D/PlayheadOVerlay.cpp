@@ -62,13 +62,13 @@ void PlayheadOverlay::setKeyframeDragInProgress(bool isDragging)
 
 float PlayheadOverlay::timeFromPos(const QPoint& pos)
 {
-    return static_cast<float>(pos.x() + m_scrollOffset) / PIXELS_PER_SECOND;
+    return static_cast<float>(pos.x()) / PIXELS_PER_SECOND;
 }
 
 void PlayheadOverlay::mousePressEvent(QMouseEvent* event)
 {
     if (!m_keyframeDragInProgress) {
-        int playheadX = (m_currentTime * PIXELS_PER_SECOND) - m_scrollOffset;
+        int playheadX = (m_currentTime * PIXELS_PER_SECOND);
         if (event->button() == Qt::LeftButton && abs(event->pos().x() - playheadX) <= PLAYHEAD_CLICK_TOLERANCE) {
             emit timeChanged(timeFromPos(event->pos()));
             event->accept();
@@ -82,7 +82,7 @@ void PlayheadOverlay::mousePressEvent(QMouseEvent* event)
 void PlayheadOverlay::mouseMoveEvent(QMouseEvent* event)
 {
     if (!m_keyframeDragInProgress) {
-        int playheadX = (m_currentTime * PIXELS_PER_SECOND) - m_scrollOffset;
+        int playheadX = (m_currentTime * PIXELS_PER_SECOND);
         bool onPlayhead = abs(event->pos().x() - playheadX) <= PLAYHEAD_CLICK_TOLERANCE;
 
         if (event->buttons() & Qt::LeftButton) {
@@ -118,7 +118,7 @@ void PlayheadOverlay::paintEvent(QPaintEvent* event)
     Q_UNUSED(event);
     QPainter painter(this);
     painter.setPen(QPen(Qt::red, 1));
-    int playheadX = (m_currentTime * PIXELS_PER_SECOND) - m_scrollOffset;
+    int playheadX = (m_currentTime * PIXELS_PER_SECOND);// -m_scrollOffset;
     painter.drawLine(playheadX, 0, playheadX, height());
 }
 

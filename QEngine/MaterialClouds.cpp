@@ -263,7 +263,7 @@ void MaterialClouds::Bind(bool add) {
         map_data[0].m_Proj = proj;
         map_data[0].m_CameraPos = glm::vec4(m_CameraPosition, 1.0);
         map_data[0].m_SunDir = glm::vec4(m_SunDir, 1);
-        std::cout << "SY:" << std::to_string(m_SunDir.y) << std::endl;
+       // std::cout << "SY:" << std::to_string(m_SunDir.y) << std::endl;
         map_data[0].m_VolStart = glm::vec4(m_VolStart,0);
         map_data[0].m_VolSize = glm::vec4(m_VolSize, 0);
         //map_data[0].g_SunDir = glm::vec4(m_SunDir,0);

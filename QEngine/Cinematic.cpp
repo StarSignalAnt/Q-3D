@@ -1,7 +1,10 @@
 #include "Cinematic.h"
 #include "GraphNode.h"
 #include "GameAudio.h" // Required for the audio singleton
+#include "GameVideo.h"
 #include "SceneGraph.h"
+#include <algorithm>
+#include "QEngine.h"
 // ===================================================================================
 // TrackTransform Implementation
 // ===================================================================================
@@ -303,4 +306,151 @@ std::unique_ptr<Cinematic> Cinematic::Load(const std::string& path, SceneGraph* 
 
     file.Close();
     return cinematic;
+}
+
+
+TrackVideo::TrackVideo(std::string name) : m_name(std::move(name)) {}
+
+void TrackVideo::Update(float time, bool isScrubbing)
+{
+    GameVideo* videoForCurrentTime = nullptr;
+    float keyframeStartTime = 0.0f;
+
+    // 1. Find which video clip (if any) the playhead is currently inside.
+    for (const auto& kf : m_keyframes) {
+        GameVideo* video = kf.GetValue();
+        if (!video) continue;
+
+        float startTime = kf.GetTime();
+        float endTime = startTime + video->GetDuration();
+
+        if (time >= startTime && time <= endTime) {
+            videoForCurrentTime = video;
+            keyframeStartTime = startTime;
+            break;
+        }
+    }
+
+    // 2. Handle state transitions (switching between videos or starting/stopping).
+    if (videoForCurrentTime != m_activeVideo) {
+        // If there was a different video playing, pause it.
+        if (m_activeVideo) {
+            m_activeVideo->Pause();
+        }
+
+        // Switch to the new video (which could be nullptr if we've left a clip).
+        m_activeVideo = videoForCurrentTime;
+
+        // If a new video becomes active during normal playback, call Play() to initialize it.
+        if (m_activeVideo && !isScrubbing) {
+            m_activeVideo->Play();
+			Q3D::Engine::QEngine::SetVideo(m_activeVideo);
+        }
+    }
+
+    // 3. Update the active video based on the current state.
+    if (m_activeVideo) {
+        float targetVideoTime = time - keyframeStartTime;
+
+        if (isScrubbing) {
+            // When scrubbing, we just seek. The Seek function handles its own internal state.
+            m_activeVideo->Seek(targetVideoTime);
+			std::cout << "Seek:" << targetVideoTime << "." << std::endl;
+            for (int i = 0; i < 3; ++i) {
+         //       m_activeVideo->Update();
+
+            //    std::cout << "Updating Video" << std::endl;
+            }
+        }
+        else {
+            // During normal playback, we continuously call the video's own Update() function.
+            // This allows it to decode both audio and video frames as needed.
+            // The video's internal 'isPlaying' flag, set by Play() or Seek(), controls this.
+            for (int i = 0; i < 3; ++i) {
+                m_activeVideo->Update();
+
+              //  std::cout << "Updating Video" << std::endl;
+            }
+
+            //m_activeVideo->GetFrame();
+
+        }
+    }
+}
+
+void TrackVideo::AddVideoKeyframe(float time, GameVideo* video)
+{
+    AddKeyframe(Keyframe<GameVideo*>(time, video, InterpolationType::Snapped));
+    generateThumbnailsForVideo(video);
+
+}
+
+void TrackVideo::generateThumbnailsForVideo(GameVideo* video)
+{
+    if (!video || m_thumbnailCache.count(video)) {
+        // Don't re-generate if the video is null or already cached.
+        return;
+    }
+
+    // This may still take a moment, but it's now a single, efficient pass over the video file.
+    m_thumbnailCache[video] = video->GenerateThumbnails();
+}
+
+
+GameVideo* TrackVideo::Interpolate(GameVideo* const& a, GameVideo* const& b, float t) const
+{
+    (void)b; (void)t;
+    return a;
+}
+
+//float max4(float a, float b) {
+ //   return (a > b) ? a : b;
+//}
+
+float TrackVideo::GetEndTime() const
+{
+    float maxEndTime = 0.0f;
+    for (const auto& kf : m_keyframes) {
+        float keyframeStartTime = kf.GetTime();
+        if (GameVideo* video = kf.GetValue()) {
+            maxEndTime = max4(maxEndTime, keyframeStartTime + (float)video->GetDuration());
+        }
+        else {
+            maxEndTime = max4(maxEndTime, keyframeStartTime);
+        }
+    }
+    return maxEndTime;
+}
+
+void TrackVideo::StopAllSounds()
+{
+    if (m_activeVideo) {
+        m_activeVideo->Pause();
+    }
+}
+
+TrackAudio::~TrackAudio()
+{
+    // Loop through all keyframes and delete the GSound objects they point to.
+    for (const auto& kf : m_keyframes) {
+        if (kf.GetValue()) {
+            delete kf.GetValue();
+        }
+    }
+}
+
+
+TrackVideo::~TrackVideo()
+{
+    // Loop through all keyframes and delete the GameVideo objects they point to.
+    for (const auto& kf : m_keyframes) {
+        if (kf.GetValue()) {
+            delete kf.GetValue();
+        }
+    }
+    for (auto const& [video, thumbnails] : m_thumbnailCache) {
+        for (PixelMap* pm : thumbnails) {
+            delete pm;
+        }
+    }
 }

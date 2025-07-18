@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include "PixelMap.h"
 extern "C" {
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
@@ -43,9 +44,15 @@ public:
     double GetCurrentFrameTimestamp() const;
     void Pause();
     void Resume();
-
+    double GetCurrentTime() const;
+    void Seek(float timeInSeconds);
+    Q3D::Engine::Texture::Texture2D* GetSingleFrameTex(float timeInSeconds);
+    PixelMap* GetSingleFramePM(float timeInSeconds);
+    double GetDuration() const;
+    std::vector<PixelMap*> GenerateThumbnails();
+    
 private:
-
+    AVFrame* decodeFrameAtTime(float timeInSeconds);
     std::string m_Path;
     AVFormatContext* formatCtx = nullptr;
     AVCodecContext* videoCodecCtx = nullptr;
@@ -69,6 +76,7 @@ private:
 
     double StartTime = 0.0f;
     int StartClock = 0;
-
+    bool m_justSought = false;
+    double m_playbackStartTime = 0.0;
     SwsContext* swsContext = nullptr;
 };

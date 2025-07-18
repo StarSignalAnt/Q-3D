@@ -276,6 +276,7 @@ SceneView::SceneView(QWidget *parent)
 
 
 
+
    
 
 
@@ -448,7 +449,7 @@ void SceneView::paintEvent(QPaintEvent* event)
 
   
     for (int i = 0; i < 5; i++) {
-    //    m_Vid1->Update();
+        //m_Vid1->Update();
     }
 
 
@@ -458,9 +459,20 @@ void SceneView::paintEvent(QPaintEvent* event)
 
     Q3D::Engine::QEngine::ClearZ();
     Q3D::Engine::QEngine::SetScissor(0, 0, Q3D::Engine::QEngine::GetFrameWidth(), Q3D::Engine::QEngine::GetFrameHeight());
-    m_Draw->BeginFrame();
-    m_Draw->Rect(m_SceneGraph->GetLights()[0]->GetComponent<LightComponent>()->GetDirectionalShadowMap()->GetDepthTexture2D(), glm::vec2(20, 20), glm::vec2(320, 320), glm::vec4(1, 1, 1, 1));
-    m_Draw->Flush();
+    
+    //m_Vid1->Update();
+    //auto frame = m_Vid1->GetFrame();
+    
+
+    //auto frame = m_Vid1->GetSingleFrameTex(10.0f);
+
+
+   // if (frame != nullptr) {
+     
+     //   m_Draw->BeginFrame();
+    //    m_Draw->Rect(frame, glm::vec2(20, 20), glm::vec2(520, 520), glm::vec4(1, 1, 1, 1));
+  //      m_Draw->Flush();
+//    }
 
 
 //    auto tex = m_Vid1->GetFrame();
@@ -468,6 +480,10 @@ void SceneView::paintEvent(QPaintEvent* event)
    // if (tex) {
   //      m_Draw->Rect(tex, glm::vec2(0, 0), glm::vec2(512, 512), glm::vec4(1, 1, 1, 1));
     //}
+
+
+	Q3D::Engine::QEngine::RenderVideo();
+
 
     pSwapchain->Present();
 
@@ -998,7 +1014,7 @@ void SceneView::keyPressEvent(QKeyEvent* event) {
     }
     if (event->key() == Qt::Key::Key_Space) {
 
-        
+        m_Vid1->Seek(15.0f);
     }
 }
 

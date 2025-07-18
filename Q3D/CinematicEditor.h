@@ -50,6 +50,7 @@ private slots:
     void onPause();
     void onStop();
     void onPlaybackUpdate();
+    void onCreateVideoTrack();
     void onScrubbingFinished();
     // --- ADDED --- Slots for the new "Create" menu actions.
     void onCreateGraphNodeTrack();
@@ -92,7 +93,7 @@ private:
     QAction* m_goToEndAction;
     QAction* m_createGraphNodeTrackAction; // --- ADDED
     QAction* m_createAudioTrackAction;     // --- ADDED
-
+    QAction* m_createVideoTrackAction;
     // Data Model
     std::unique_ptr<Cinematic> m_activeCinematic;
     float m_currentTime;
